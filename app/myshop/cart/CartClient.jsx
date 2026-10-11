@@ -1,0 +1,1517 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import {
+  Home,
+  ShoppingCart,
+  ShoppingBag,
+  ShieldCheck,
+  Lock,
+  Sparkles,
+  Droplets,
+  Trash2,
+  Plus,
+  Minus,
+  Bookmark,
+  ArrowLeft,
+  ArrowRight,
+  Tag,
+  CheckCircle2,
+  X,
+  MessageCircle,
+  Phone,
+  HelpCircle,
+  RotateCcw,
+  BookOpen,
+  Award,
+  Truck,
+  Check,
+  Edit2,
+  Heart,
+  CreditCard,
+  Wallet,
+  Landmark,
+  BadgePercent,
+  Gift,
+  ShieldAlert,
+  ArrowUpRight
+} from "lucide-react"
+
+import { AstroHeader } from "@/components/astro-header"
+import { AstroFooter } from "@/components/astro-footer"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Progress } from "@/components/ui/progress"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { toast } from "@/components/ui/sonner"
+import { useLanguage } from "@/components/language-provider"
+import { getAstroData } from "@/lib/data/astro-data"
+import {
+  getCartData,
+  DEFAULT_CART_ITEMS,
+  VALID_COUPONS
+} from "@/lib/data/cart-data"
+
+const CART_STORAGE_KEY = "astro_cart_items"
+const SAVED_STORAGE_KEY = "astro_saved_items"
+
+export default function CartClient() {
+  const router = useRouter()
+  const { lang, setLang } = useLanguage()
+  const currentLang = lang || "gu"
+
+  const astroData = React.useMemo(() => getAstroData(currentLang), [currentLang])
+  const cartData = React.useMemo(() => getCartData(currentLang), [currentLang])
+
+  // Cart Items State - Initialized from localStorage if present, else DEFAULT_CART_ITEMS
+  const [cartItems, setCartItems] = React.useState(DEFAULT_CART_ITEMS)
+  const [savedItems, setSavedItems] = React.useState([])
+  const [isClientLoaded, setIsClientLoaded] = React.useState(false)
+
+  // Vedic Sankalp Customization State
+  const [sankalpIncluded, setSankalpIncluded] = React.useState(true)
+  const [yajmanName, setYajmanName] = React.useState(cartData.sankalpBox.defaultYajman)
+  const [gotraName, setGotraName] = React.useState(cartData.sankalpBox.defaultGotra)
+  const [isEditingSankalp, setIsEditingSankalp] = React.useState(false)
+
+  // Coupon Voucher State
+  const [couponInput, setCouponInput] = React.useState("VEDIC10")
+  const [appliedCoupon, setAppliedCoupon] = React.useState(VALID_COUPONS.VEDIC10)
+  const [couponError, setCouponError] = React.useState("")
+
+  // Stepper state
+  const [activeStep, setActiveStep] = React.useState(1)
+
+  // Clear Cart confirmation dialog
+  const [showClearConfirm, setShowClearConfirm] = React.useState(false)
+
+  // Checkout Modal State
+  const [isCheckoutOpen, setIsCheckoutOpen] = React.useState(false)
+  const [checkoutStep, setCheckoutStep] = React.useState(1) // 1: Form, 2: Success
+  const [orderId, setOrderId] = React.useState("")
+  const [checkoutForm, setCheckoutForm] = React.useState({
+    fullName: cartData.sankalpBox.defaultYajman,
+    phone: "9876543210",
+    gotra: cartData.sankalpBox.defaultGotra,
+    address: "B-402, Shivam Residency, SG Highway",
+    city: "Ahmedabad",
+    pincode: "380054",
+    paymentMethod: "cod"
+  })
+
+  // Load from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const storedCart = localStorage.getItem(CART_STORAGE_KEY)
+      if (storedCart) {
+        const parsed = JSON.parse(storedCart)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCartItems(parsed)
+        }
+      }
+      const storedSaved = localStorage.getItem(SAVED_STORAGE_KEY)
+      if (storedSaved) {
+        const parsedSaved = JSON.parse(storedSaved)
+        if (Array.isArray(parsedSaved)) {
+          setSavedItems(parsedSaved)
+        }
+      }
+    } catch {
+      // fallback to defaults silently
+    }
+    setIsClientLoaded(true)
+  }, [])
+
+  // Sync cart items to localStorage
+  const updateCartState = React.useCallback((newItems) => {
+    setCartItems(newItems)
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems))
+    } catch {
+      // ignore storage error
+    }
+  }, [])
+
+  // Sync saved items to localStorage
+  const updateSavedState = React.useCallback((newSaved) => {
+    setSavedItems(newSaved)
+    try {
+      localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(newSaved))
+    } catch {
+      // ignore storage error
+    }
+  }, [])
+
+  // Numeric calculations
+  const subtotal = React.useMemo(() => {
+    return cartItems.reduce((acc, item) => acc + item.price * (item.qty || 1), 0)
+  }, [cartItems])
+
+  const originalTotal = React.useMemo(() => {
+    return cartItems.reduce((acc, item) => acc + (item.originalPrice || item.price) * (item.qty || 1), 0)
+  }, [cartItems])
+
+  const itemSavings = originalTotal - subtotal
+
+  const couponDiscount = React.useMemo(() => {
+    if (!appliedCoupon) return 0
+    return Math.round(subtotal * (appliedCoupon.discountPercent / 100))
+  }, [subtotal, appliedCoupon])
+
+  const finalTotal = Math.max(0, subtotal - couponDiscount)
+  const totalSavings = itemSavings + couponDiscount
+  const totalItemCount = cartItems.reduce((acc, item) => acc + (item.qty || 1), 0)
+
+  // Ganga Jal milestone (Threshold: ₹4,000)
+  const GANGAJAL_THRESHOLD = 4000
+  const gangajalProgress = Math.min(100, Math.round((subtotal / GANGAJAL_THRESHOLD) * 100))
+  const gangajalDiff = Math.max(0, GANGAJAL_THRESHOLD - subtotal)
+
+  // Helpers for digits and currency
+  const toDigits = React.useCallback(
+    (num) => {
+      if (currentLang !== "gu") return String(num)
+      const guDigits = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+      return String(num).replace(/[0-9]/g, (d) => guDigits[d])
+    },
+    [currentLang]
+  )
+
+  const formatPrice = React.useCallback(
+    (amount) => {
+      const formatted = amount.toLocaleString(currentLang === "gu" ? "gu-IN" : "en-IN")
+      return `₹${toDigits(formatted)}`
+    },
+    [currentLang, toDigits]
+  )
+
+  const getText = React.useCallback(
+    (field) => {
+      if (!field) return ""
+      if (typeof field === "string") return field
+      if (typeof field === "object") return field[currentLang] || field.gu || field.en || ""
+      return String(field)
+    },
+    [currentLang]
+  )
+
+  // Handlers for cart actions
+  const handleIncreaseQty = (itemId) => {
+    const updated = cartItems.map((item) => {
+      if (item.id === itemId) {
+        return { ...item, qty: (item.qty || 1) + 1 }
+      }
+      return item
+    })
+    updateCartState(updated)
+  }
+
+  const handleDecreaseQty = (itemId) => {
+    const target = cartItems.find((item) => item.id === itemId)
+    if (!target) return
+    if ((target.qty || 1) <= 1) {
+      handleRemoveItem(itemId)
+      return
+    }
+    const updated = cartItems.map((item) => {
+      if (item.id === itemId) {
+        return { ...item, qty: item.qty - 1 }
+      }
+      return item
+    })
+    updateCartState(updated)
+  }
+
+  const handleRemoveItem = (itemId) => {
+    const itemToRemove = cartItems.find((i) => i.id === itemId)
+    const updated = cartItems.filter((i) => i.id !== itemId)
+    updateCartState(updated)
+    toast.info(
+      currentLang === "gu"
+        ? `"${getText(itemToRemove?.name) || 'સામગ્રી'}" કાર્ટમાંથી દૂર કરવામાં આવી.`
+        : `Item removed from cart.`
+    )
+  }
+
+  const handleSaveForLater = (item) => {
+    const updatedCart = cartItems.filter((i) => i.id !== item.id)
+    const updatedSaved = [...savedItems.filter((i) => i.id !== item.id), item]
+    updateCartState(updatedCart)
+    updateSavedState(updatedSaved)
+    toast.success(cartData.itemCard.savedForLaterSuccess)
+  }
+
+  const handleMoveToCart = (item) => {
+    const updatedSaved = savedItems.filter((i) => i.id !== item.id)
+    const updatedCart = [...cartItems.filter((i) => i.id !== item.id), { ...item, qty: 1 }]
+    updateSavedState(updatedSaved)
+    updateCartState(updatedCart)
+    toast.success(
+      currentLang === "gu"
+        ? `"${getText(item.name) || 'સામગ્રી'}" કાર્ટમાં પાછી ઉમેરાઈ.`
+        : `Item moved back to cart.`
+    )
+  }
+
+  const handleRemoveSaved = (itemId) => {
+    const updated = savedItems.filter((i) => i.id !== itemId)
+    updateSavedState(updated)
+  }
+
+  const handleClearCart = () => {
+    updateCartState([])
+    setShowClearConfirm(false)
+    toast.info(
+      currentLang === "gu"
+        ? "આપનો કાર્ટ ખાલી કરવામાં આવ્યો છે."
+        : "Your cart has been cleared."
+    )
+  }
+
+  const handleApplyCoupon = (e) => {
+    e?.preventDefault()
+    setCouponError("")
+    const cleanCode = couponInput.trim().toUpperCase()
+    if (!cleanCode) return
+
+    const foundCoupon = VALID_COUPONS[cleanCode]
+    if (foundCoupon) {
+      setAppliedCoupon(foundCoupon)
+      toast.success(
+        currentLang === "gu"
+          ? `કૂપન કોડ '${foundCoupon.code}' સફળતાપૂર્વક લાગુ થયો! (${toDigits(foundCoupon.discountPercent)}% છૂટ)`
+          : `Coupon code '${foundCoupon.code}' applied successfully! (${foundCoupon.discountPercent}% OFF)`
+      )
+    } else {
+      setCouponError(cartData.orderSummary.invalidCoupon)
+      toast.error(cartData.orderSummary.invalidCoupon)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponInput("")
+    setCouponError("")
+    toast.info(
+      currentLang === "gu"
+        ? "કૂપન કોડ દૂર કરવામાં આવ્યો."
+        : "Coupon code removed."
+    )
+  }
+
+  const handleCheckoutSubmit = (e) => {
+    e.preventDefault()
+    const newOrderId = `TAC-${Math.floor(100000 + Math.random() * 900000)}`
+    setOrderId(newOrderId)
+    setCheckoutStep(2)
+    setActiveStep(3)
+    toast.success(
+      currentLang === "gu"
+        ? `ઓર્ડર નોંધાઈ ગયો છે! ઓર્ડર નંબર: ${newOrderId}`
+        : `Order placed successfully! Order ID: ${newOrderId}`
+    )
+  }
+
+  // Dynamic WhatsApp order link generator
+  const getWhatsAppOrderUrl = () => {
+    const itemsList = cartItems
+      .map(
+        (item, idx) =>
+          `${idx + 1}. ${getText(item.name)} (x${item.qty || 1}) - ₹${item.price * (item.qty || 1)}`
+      )
+      .join("%0A")
+
+    const sankalpText = sankalpIncluded
+      ? `%0A%0A🪔 *વૈદિક પૂજા સંકલ્પ:*%0Aયજમાન: ${yajmanName}%0Aગોત્ર: ${gotraName}`
+      : ""
+
+    const couponText = appliedCoupon
+      ? `%0Aકૂપન: ${appliedCoupon.code} (-₹${couponDiscount})`
+      : ""
+
+    const message = `*નમસ્તે The Astro Code,*%0Aહું નીચે મુજબની સિદ્ધ સાધના સામગ્રી ઓર્ડર કરવા માંગુ છું:%0A%0A${itemsList}${sankalpText}%0A%0A💰 *કુલ રકમ:* ₹${finalTotal}${couponText}%0A🚚 *ડિલિવરી:* મફત (FREE)%0A%0Aકૃપા કરીને મારો ઓર્ડર કન્ફર્મ કરો.`
+
+    return `https://wa.me/917940008108?text=${message}`
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#fdc72d]/30 selection:text-[#00685d]">
+      {/* Main Global Header with dynamic cart bag count */}
+      <AstroHeader
+        config={astroData.config}
+        topBar={astroData.topBar}
+        navLinks={astroData.navLinks}
+        activeCategory="myshop"
+        lang={currentLang}
+        onToggleLang={setLang}
+        cartCount={totalItemCount}
+      />
+
+      <main className="flex-1 w-full bg-background">
+        {/* Progress Stepper & Breadcrumb Bar */}
+        <section className="w-full bg-card/80 backdrop-blur-md border-b border-border shadow-xs py-5 px-4 sm:px-6 lg:px-8 transition-colors">
+          <div className="w-full max-w-7xl mx-auto flex flex-col gap-4">
+            {/* Breadcrumb Bar */}
+            <Breadcrumb aria-label="Breadcrumb">
+              <BreadcrumbList className="text-xs sm:text-sm text-muted-foreground flex-wrap">
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    asChild
+                    className="hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors flex items-center gap-1.5"
+                  >
+                    <Link href="/">
+                      <Home className="h-3.5 w-3.5" />
+                      <span>{cartData.breadcrumb.home}</span>
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    asChild
+                    className="hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors"
+                  >
+                    <Link href="/myshop">{cartData.breadcrumb.shop}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="font-bold text-[#00685d] dark:text-[#fdc72d]">
+                    {cartData.breadcrumb.cart}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            {/* 3-Step Indicator Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+              {/* Step 1: Active (Cart Review) */}
+              <div
+                onClick={() => setActiveStep(1)}
+                className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
+                  activeStep === 1
+                    ? "bg-[#00685d] text-white shadow-md dark:bg-[#005048]"
+                    : "bg-muted/50 hover:bg-muted text-muted-foreground"
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                    activeStep === 1
+                      ? "bg-[#fdc72d] text-[#1b1c1a]"
+                      : "bg-muted text-foreground"
+                  }`}
+                >
+                  {toDigits(1)}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-bold leading-tight truncate">
+                    {cartData.stepper[0].title}
+                  </span>
+                  <span
+                    className={`text-xs truncate ${
+                      activeStep === 1
+                        ? "text-[#8bf5e4]"
+                        : "text-muted-foreground/80"
+                    }`}
+                  >
+                    {currentLang === "gu"
+                      ? `કાર્ટ સમીક્ષા • ${toDigits(totalItemCount)} વસ્તુઓ`
+                      : `Cart Review • ${totalItemCount} Items`}
+                  </span>
+                </div>
+                <ShoppingCart
+                  className={`ml-auto h-5 w-5 shrink-0 ${
+                    activeStep === 1 ? "text-[#fdc72d]" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
+
+              {/* Step 2: Shipping & Sankalp */}
+              <div
+                onClick={() => {
+                  if (cartItems.length > 0) {
+                    setIsCheckoutOpen(true)
+                    setActiveStep(2)
+                  }
+                }}
+                className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
+                  activeStep === 2
+                    ? "bg-[#00685d] text-white shadow-md dark:bg-[#005048]"
+                    : "bg-muted/50 hover:bg-muted text-muted-foreground"
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                    activeStep === 2
+                      ? "bg-[#fdc72d] text-[#1b1c1a]"
+                      : "bg-muted text-foreground"
+                  }`}
+                >
+                  {toDigits(2)}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-semibold leading-tight text-foreground truncate">
+                    {cartData.stepper[1].title}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {cartData.stepper[1].subtitle}
+                  </span>
+                </div>
+                <ShieldCheck className="ml-auto h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+
+              {/* Step 3: Secure Payment */}
+              <div
+                onClick={() => {
+                  if (cartItems.length > 0) {
+                    setIsCheckoutOpen(true)
+                    setActiveStep(3)
+                  }
+                }}
+                className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
+                  activeStep === 3
+                    ? "bg-[#00685d] text-white shadow-md dark:bg-[#005048]"
+                    : "bg-muted/50 hover:bg-muted text-muted-foreground"
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                    activeStep === 3
+                      ? "bg-[#fdc72d] text-[#1b1c1a]"
+                      : "bg-muted text-foreground"
+                  }`}
+                >
+                  {toDigits(3)}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-semibold leading-tight text-foreground truncate">
+                    {cartData.stepper[2].title}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {cartData.stepper[2].subtitle}
+                  </span>
+                </div>
+                <Lock className="ml-auto h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Main Cart Layout Grid (65% / 35%) */}
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+          {cartItems.length === 0 ? (
+            /* Empty Cart View */
+            <div className="w-full py-16 px-4 flex flex-col items-center justify-center text-center bg-card rounded-2xl border border-border shadow-xs">
+              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-5 text-muted-foreground/60">
+                <ShoppingBag className="h-12 w-12" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                {cartData.cartActions.emptyCartTitle}
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-md mb-8">
+                {cartData.cartActions.emptyCartSubtitle}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl shadow-md gap-2"
+                >
+                  <Link href="/myshop">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>{cartData.cartActions.exploreStore}</span>
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => updateCartState(DEFAULT_CART_ITEMS)}
+                  className="rounded-xl border-dashed"
+                >
+                  {currentLang === "gu"
+                    ? "નમૂના સાધના સામગ્રી ફરી ભરો"
+                    : "Restore Demo Sacred Items"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* Full Cart Grid */
+            <div className="flex flex-col lg:flex-row items-start gap-8">
+              {/* LEFT COLUMN: Cart Items & Customization (65% width) */}
+              <div className="w-full lg:w-[65%] flex flex-col gap-6">
+                {/* Cart Table Header & Free Shipping Progress Milestone */}
+                <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="p-2.5 rounded-xl bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/10 dark:text-[#fdc72d]">
+                        <Sparkles className="h-5 w-5" />
+                      </span>
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+                        {cartData.cartHeader.title}
+                      </h1>
+                      <Badge
+                        variant="secondary"
+                        className="rounded-full px-3 py-1 font-semibold text-xs bg-muted text-muted-foreground"
+                      >
+                        {toDigits(totalItemCount)} {cartData.cartHeader.itemsCountSuffix}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[#00685d] dark:text-[#fdc72d] text-xs font-bold bg-[#00685d]/5 dark:bg-[#fdc72d]/10 px-3 py-1.5 rounded-full">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>{cartData.cartHeader.consecratedBadge}</span>
+                    </div>
+                  </div>
+
+                  {/* Free Shipping & Haridwar Ganga Jal Progress Meter */}
+                  <div className="p-4 sm:p-5 rounded-xl bg-muted/50 border border-border/60 flex flex-col gap-2.5">
+                    <div className="flex flex-wrap items-center justify-between text-xs sm:text-sm font-medium gap-2">
+                      <span className="flex items-center gap-2 text-[#00685d] dark:text-[#fdc72d] font-bold">
+                        <Truck className="h-4 w-4 text-[#fdc72d]" />
+                        <span>{cartData.cartHeader.freeShippingActive}</span>
+                      </span>
+                      <span className="text-muted-foreground font-semibold">
+                        {gangajalDiff > 0 ? (
+                          <>
+                            {cartData.cartHeader.gangaJalThresholdPrefix}
+                            {toDigits(gangajalDiff.toLocaleString("en-IN"))}
+                            {cartData.cartHeader.gangaJalThresholdSuffix}
+                          </>
+                        ) : (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="h-4 w-4" />
+                            {cartData.cartHeader.gangaJalUnlocked}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+
+                    {/* Progress Track */}
+                    <div className="w-full bg-muted-foreground/15 h-3 rounded-full overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-[#00685d] to-[#008d7f] dark:from-[#fdc72d] dark:to-[#d9a100] h-full rounded-full transition-all duration-700 ease-out"
+                        style={{ width: `${gangajalProgress}%` }}
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {cartData.cartHeader.thresholdGoalNote(subtotal, gangajalDiff)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Cart Items List */}
+                <div className="flex flex-col gap-4" id="cart-item-list">
+                  {cartItems.map((item) => {
+                    const itemName = getText(item.name)
+                    const itemSubtitle = getText(item.subtitle)
+                    const itemBadge = getText(item.badge)
+                    const itemAddon = getText(item.ritualAddon)
+                    const itemPrice = item.price || 0
+                    const itemOrigPrice = item.originalPrice || itemPrice
+                    const itemQty = item.qty || 1
+                    const discount = item.discountPercent || Math.round(((itemOrigPrice - itemPrice) / itemOrigPrice) * 100)
+
+                    return (
+                      <article
+                        key={item.id}
+                        className="bg-card p-4 sm:p-5 rounded-2xl border border-border shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row gap-4 sm:gap-5 relative group"
+                      >
+                        {/* Thumbnail Image */}
+                        <Link
+                          href={`/myshop/product/${item.productId || item.id}`}
+                          className="w-full sm:w-36 h-36 rounded-xl bg-muted overflow-hidden shrink-0 relative border border-border/40 block group/thumb cursor-pointer"
+                        >
+                          <img
+                            src={item.image}
+                            alt={itemName}
+                            className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500"
+                          />
+                          {itemBadge && (
+                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#00685d]/95 text-white text-[10px] font-bold tracking-wide shadow-xs">
+                              {itemBadge}
+                            </span>
+                          )}
+                        </Link>
+
+                        {/* Product Details */}
+                        <div className="flex flex-col justify-between flex-1 min-w-0 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-start justify-between gap-3">
+                              <Link
+                                href={`/myshop/product/${item.productId || item.id}`}
+                                className="group/title"
+                              >
+                                <h2 className="text-base sm:text-lg font-bold text-foreground leading-snug group-hover/title:text-[#00685d] dark:group-hover/title:text-[#fdc72d] transition-colors cursor-pointer">
+                                  {itemName}
+                                </h2>
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItem(item.id)}
+                                className="text-muted-foreground hover:text-red-500 dark:hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors shrink-0"
+                                title={cartData.itemCard.deleteTitle}
+                                aria-label={cartData.itemCard.deleteTitle}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                            {itemSubtitle && (
+                              <p className="text-xs text-muted-foreground flex items-center gap-1.5 leading-relaxed">
+                                <Award className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
+                                <span>{itemSubtitle}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Vedic Ritual Add-on Tag */}
+                          {itemAddon && (
+                            <div className="p-2.5 px-3 rounded-xl bg-muted/60 border border-border/50 flex items-center gap-2 text-xs text-foreground">
+                              <ShieldCheck className="h-4 w-4 text-[#d9a100] shrink-0" />
+                              <span className="flex-1 min-w-0 line-clamp-2">
+                                {itemAddon}
+                              </span>
+                              <Badge className="ml-auto bg-[#00685d] text-white hover:bg-[#00685d] text-[10px] font-bold shrink-0">
+                                {cartData.itemCard.freeTag}
+                              </Badge>
+                            </div>
+                          )}
+
+                          {/* Price & Quantity Stepper */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-lg sm:text-xl font-bold text-[#00685d] dark:text-[#fdc72d]">
+                                {formatPrice(itemPrice * itemQty)}
+                              </span>
+                              {itemOrigPrice > itemPrice && (
+                                <span className="text-xs text-muted-foreground line-through">
+                                  {formatPrice(itemOrigPrice * itemQty)}
+                                </span>
+                              )}
+                              {discount > 0 && (
+                                <span className="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 px-2 py-0.5 rounded-md">
+                                  {toDigits(discount)}% {cartData.itemCard.discountSuffix}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              {/* Save for later button */}
+                              <button
+                                type="button"
+                                onClick={() => handleSaveForLater(item)}
+                                className="text-xs text-muted-foreground hover:text-[#00685d] dark:hover:text-[#fdc72d] font-semibold flex items-center gap-1 transition-colors"
+                              >
+                                <Bookmark className="h-3.5 w-3.5" />
+                                <span>{cartData.itemCard.saveForLater}</span>
+                              </button>
+
+                              {/* Quantity Stepper */}
+                              <div className="flex items-center rounded-xl bg-muted border border-border p-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDecreaseQty(item.id)}
+                                  aria-label={cartData.itemCard.qtyAriaMinus}
+                                  className="w-7 h-7 rounded-lg bg-card text-foreground hover:bg-muted-foreground/15 flex items-center justify-center transition-colors shadow-xs"
+                                >
+                                  <Minus className="h-3.5 w-3.5" />
+                                </button>
+                                <span className="w-8 text-center text-sm font-bold text-foreground">
+                                  {toDigits(itemQty)}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleIncreaseQty(item.id)}
+                                  aria-label={cartData.itemCard.qtyAriaPlus}
+                                  className="w-7 h-7 rounded-lg bg-card text-foreground hover:bg-muted-foreground/15 flex items-center justify-center transition-colors shadow-xs"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    )
+                  })}
+                </div>
+
+                {/* Free Vedic Gifts Included Callout Banner */}
+                <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="p-2.5 rounded-xl bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]">
+                      <Gift className="h-6 w-6" />
+                    </span>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">
+                        {cartData.freeGiftsSection.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {cartData.freeGiftsSection.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {cartData.freeGiftsSection.gifts.map((gift) => (
+                      <div
+                        key={gift.id}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50"
+                      >
+                        <div className="w-12 h-12 rounded-lg bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] flex items-center justify-center shrink-0">
+                          {gift.icon === "Droplets" ? (
+                            <Droplets className="h-6 w-6" />
+                          ) : (
+                            <Sparkles className="h-6 w-6" />
+                          )}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs sm:text-sm font-bold text-foreground truncate">
+                            {gift.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground truncate">
+                            {gift.description}
+                          </span>
+                          <span className="text-[10px] font-bold text-[#00685d] dark:text-[#fdc72d] mt-0.5">
+                            {cartData.freeGiftsSection.freeBadge}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Table Bottom Actions */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="rounded-xl font-bold gap-2 text-foreground hover:bg-muted"
+                  >
+                    <Link href="/myshop">
+                      <ArrowLeft className="h-4 w-4" />
+                      <span>{cartData.cartActions.continueShopping}</span>
+                    </Link>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowClearConfirm(true)}
+                    className="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl text-xs sm:text-sm"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1.5" />
+                    <span>{cartData.cartActions.clearCart}</span>
+                  </Button>
+                </div>
+
+                {/* Saved for Later Section (if any items saved) */}
+                {savedItems.length > 0 && (
+                  <div className="mt-4 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-4">
+                    <div className="flex items-center gap-2">
+                      <Bookmark className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">
+                        {cartData.savedForLaterSection.title} ({toDigits(savedItems.length)})
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      {savedItems.map((sItem) => (
+                        <div
+                          key={sItem.id}
+                          className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 p-3 rounded-xl bg-muted/40 border border-border/50"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <img
+                              src={sItem.image}
+                              alt={getText(sItem.name)}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-bold text-foreground truncate">
+                                {getText(sItem.name)}
+                              </span>
+                              <span className="text-xs font-semibold text-[#00685d] dark:text-[#fdc72d]">
+                                {formatPrice(sItem.price)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0 ml-auto">
+                            <Button
+                              size="sm"
+                              onClick={() => handleMoveToCart(sItem)}
+                              className="bg-[#00685d] hover:bg-[#005048] text-white text-xs rounded-lg"
+                            >
+                              {cartData.savedForLaterSection.moveToCart}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleRemoveSaved(sItem.id)}
+                              className="text-xs text-muted-foreground hover:text-red-500"
+                            >
+                              {cartData.savedForLaterSection.remove}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* RIGHT COLUMN: Sticky Order Summary & Vedic Sankalp Box (35% width) */}
+              <aside className="w-full lg:w-[35%] flex flex-col gap-6 lg:sticky lg:top-[180px]">
+                {/* Vedic Personalized Sankalp Checkbox Box */}
+                <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-4">
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-2 rounded-lg bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]">
+                      <BookOpen className="h-5 w-5" />
+                    </span>
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">
+                      {cartData.sankalpBox.title}
+                    </h3>
+                  </div>
+
+                  <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-muted/50 hover:bg-muted border border-border/60 transition-colors">
+                    <Checkbox
+                      checked={sankalpIncluded}
+                      onCheckedChange={(checked) => setSankalpIncluded(!!checked)}
+                      className="mt-0.5 data-[state=checked]:bg-[#00685d] data-[state=checked]:border-[#00685d]"
+                    />
+                    <div className="flex flex-col text-foreground">
+                      <span className="text-xs sm:text-sm font-bold leading-snug">
+                        {cartData.sankalpBox.checkboxLabel}
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                        {cartData.sankalpBox.checkboxDesc}
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* Devotee Name & Gotra fields */}
+                  {sankalpIncluded && (
+                    <div className="flex flex-col gap-2 pt-1">
+                      {isEditingSankalp ? (
+                        <div className="flex flex-col gap-2.5">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                              {cartData.sankalpBox.yajmanLabel}
+                            </span>
+                            <Input
+                              value={yajmanName}
+                              onChange={(e) => setYajmanName(e.target.value)}
+                              className="h-9 text-xs rounded-lg"
+                              placeholder={cartData.sankalpBox.defaultYajman}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                              {cartData.sankalpBox.gotraLabel}
+                            </span>
+                            <Input
+                              value={gotraName}
+                              onChange={(e) => setGotraName(e.target.value)}
+                              className="h-9 text-xs rounded-lg"
+                              placeholder={cartData.sankalpBox.defaultGotra}
+                            />
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setIsEditingSankalp(false)
+                              toast.success(
+                                currentLang === "gu"
+                                  ? "સંકલ્પ વિગત સાચવવામાં આવી."
+                                  : "Sankalp details saved."
+                              )
+                            }}
+                            className="bg-[#00685d] hover:bg-[#005048] text-white text-xs rounded-lg mt-1"
+                          >
+                            <Check className="h-3.5 w-3.5 mr-1" />
+                            {cartData.sankalpBox.saveBtn}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex flex-col p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                              {cartData.sankalpBox.yajmanLabel}
+                            </span>
+                            <span className="font-bold text-foreground truncate mt-0.5">
+                              {yajmanName}
+                            </span>
+                          </div>
+                          <div className="flex flex-col p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                              {cartData.sankalpBox.gotraLabel}
+                            </span>
+                            <span className="font-bold text-foreground truncate mt-0.5">
+                              {gotraName}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingSankalp(true)}
+                            className="col-span-2 text-left text-xs text-[#00685d] dark:text-[#fdc72d] font-bold flex items-center gap-1 hover:underline pt-1"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                            <span>
+                              {currentLang === "gu"
+                                ? "નામ અથવા ગોત્ર બદલો (Edit Devotee Info)"
+                                : "Edit Devotee Info"}
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Order Summary Card */}
+                <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-md flex flex-col gap-4">
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground border-b border-border/60 pb-3">
+                    {cartData.orderSummary.title}
+                  </h2>
+
+                  {/* Price Ledger Breakdown */}
+                  <div className="flex flex-col gap-2.5 text-xs sm:text-sm">
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>
+                        {cartData.orderSummary.subtotalLabel} ({toDigits(totalItemCount)}{" "}
+                        {cartData.cartHeader.itemsCountSuffix})
+                      </span>
+                      <span className="text-foreground font-semibold">
+                        {formatPrice(subtotal)}
+                      </span>
+                    </div>
+
+                    {appliedCoupon && (
+                      <div className="flex items-center justify-between text-[#00685d] dark:text-[#fdc72d] font-semibold">
+                        <span className="flex items-center gap-1">
+                          <BadgePercent className="h-4 w-4" />
+                          <span>
+                            {cartData.orderSummary.discountLabel} ({toDigits(appliedCoupon.discountPercent)}%)
+                          </span>
+                        </span>
+                        <span>- {formatPrice(couponDiscount)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Sparkles className="h-4 w-4 text-[#d9a100]" />
+                        <span>{cartData.orderSummary.consecrationLabel}</span>
+                      </span>
+                      <span className="text-[#00685d] dark:text-[#fdc72d] font-bold">
+                        {cartData.orderSummary.freeTag}{" "}
+                        <span className="line-through text-muted-foreground font-normal text-xs ml-1">
+                          {cartData.orderSummary.consecrationOriginalCost}
+                        </span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>{cartData.orderSummary.shippingLabel}</span>
+                      <span className="text-[#00685d] dark:text-[#fdc72d] font-bold">
+                        {cartData.orderSummary.freeShipping}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Promo Code Input */}
+                  <div className="pt-1 flex flex-col gap-2 border-t border-border/50">
+                    <form onSubmit={handleApplyCoupon} className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Tag className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          value={couponInput}
+                          onChange={(e) => {
+                            setCouponInput(e.target.value.toUpperCase())
+                            setCouponError("")
+                          }}
+                          placeholder={cartData.orderSummary.couponPlaceholder}
+                          className="h-10 pl-9 uppercase tracking-wider text-xs sm:text-sm font-bold rounded-xl"
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        variant="secondary"
+                        className="h-10 px-4 rounded-xl font-bold text-xs"
+                      >
+                        {cartData.orderSummary.applyCoupon}
+                      </Button>
+                    </form>
+
+                    {/* Applied Voucher Chip */}
+                    {appliedCoupon && (
+                      <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] text-xs font-semibold">
+                        <span className="flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          <span>
+                            {cartData.orderSummary.couponAppliedPrefix} '{appliedCoupon.code}'{" "}
+                            {cartData.orderSummary.couponAppliedSuffix} ({toDigits(appliedCoupon.discountPercent)}%{" "}
+                            {cartData.itemCard.discountSuffix})
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="text-muted-foreground hover:text-red-500 p-0.5"
+                          title="Remove Coupon"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Total Calculation Ledger */}
+                  <div className="p-4 rounded-xl bg-muted/60 border border-border/60 flex flex-col gap-1.5">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-sm sm:text-base font-bold text-foreground">
+                        {cartData.orderSummary.totalPayable}
+                      </span>
+                      <span className="text-2xl sm:text-3xl font-extrabold text-[#00685d] dark:text-[#fdc72d]">
+                        {formatPrice(finalTotal)}
+                      </span>
+                    </div>
+                    {totalSavings > 0 && (
+                      <p className="text-xs text-[#00685d] dark:text-[#fdc72d] font-semibold flex items-center gap-1">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>{cartData.orderSummary.savingsCallout(totalSavings)}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Primary CTA Checkout Button */}
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      setIsCheckoutOpen(true)
+                      setCheckoutStep(1)
+                      setActiveStep(2)
+                    }}
+                    className="w-full h-12 sm:h-14 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
+                  >
+                    <span>{cartData.orderSummary.checkoutButton}</span>
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+
+                  {/* Express WhatsApp Checkout Button */}
+                  <a
+                    href={getWhatsAppOrderUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full h-11 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#25D366]/30 transition-colors"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>{cartData.orderSummary.whatsappButton}</span>
+                  </a>
+
+                  {/* Payment Security Trust Logos */}
+                  <div className="flex flex-col items-center gap-2 pt-1">
+                    <div className="flex items-center gap-4 text-muted-foreground/70">
+                      <Wallet className="h-5 w-5" title="UPI Supported" />
+                      <CreditCard className="h-5 w-5" title="Credit / Debit Card" />
+                      <Landmark className="h-5 w-5" title="NetBanking" />
+                      <Lock className="h-5 w-5" title="256-Bit SSL Encrypted" />
+                    </div>
+                    <span className="text-[11px] text-muted-foreground/80 text-center leading-tight">
+                      {cartData.orderSummary.securityGuarantee}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Astrological Guidance Assistance Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#fdc72d]/15 border border-[#fdc72d]/30 flex items-start gap-3">
+                  <HelpCircle className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs sm:text-sm font-bold text-foreground">
+                      {cartData.astrologyHelp.title}
+                    </span>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {cartData.astrologyHelp.desc}
+                    </p>
+                    <a
+                      href={`tel:${cartData.astrologyHelp.phone}`}
+                      className="text-[#00685d] dark:text-[#fdc72d] font-bold text-xs pt-1 hover:underline inline-flex items-center gap-1"
+                    >
+                      <Phone className="h-3 w-3" />
+                      <span>{cartData.astrologyHelp.cta}</span>
+                    </a>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          )}
+        </section>
+
+        {/* Bottom Guarantee & 4 Vedic Trust Pillars */}
+        <section className="w-full bg-card border-t border-border mt-8 py-12 md:py-16 px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-7xl mx-auto flex flex-col gap-8">
+            <div className="text-center flex flex-col items-center gap-2">
+              <span className="px-3.5 py-1 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold text-xs tracking-wide">
+                {cartData.trustPillars.badge}
+              </span>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                {cartData.trustPillars.title}
+              </h2>
+            </div>
+
+            {/* 4 Pillars Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+              {cartData.trustPillars.pillars.map((pillar, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col items-center text-center p-5 sm:p-6 rounded-2xl bg-muted/40 border border-border/60 hover:border-[#00685d]/40 transition-colors gap-3"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] flex items-center justify-center shrink-0">
+                    {pillar.icon === "ShieldCheck" ? (
+                      <ShieldCheck className="h-6 w-6" />
+                    ) : pillar.icon === "Sparkles" ? (
+                      <Sparkles className="h-6 w-6" />
+                    ) : pillar.icon === "RotateCcw" ? (
+                      <RotateCcw className="h-6 w-6" />
+                    ) : (
+                      <Lock className="h-6 w-6" />
+                    )}
+                  </div>
+                  <h3 className="text-sm sm:text-base font-bold text-foreground">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pillar.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick Assistance WhatsApp Strip */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-muted/60 border border-border flex flex-wrap items-center justify-between gap-4 mt-2">
+              <div className="flex items-center gap-3">
+                <Phone className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
+                <span className="text-xs sm:text-sm text-foreground">
+                  {cartData.trustPillars.supportStrip.text}{" "}
+                  <strong>{cartData.trustPillars.supportStrip.timing}</strong>
+                </span>
+              </div>
+              <a
+                href={cartData.trustPillars.supportStrip.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-[#00685d] text-white hover:bg-[#005048] font-bold text-xs flex items-center gap-2 transition-colors shadow-xs"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{cartData.trustPillars.supportStrip.buttonText}</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Global Footer */}
+      <AstroFooter />
+
+      {/* Clear Cart Confirmation Dialog */}
+      <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              {cartData.cartActions.clearCartConfirm}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              {currentLang === "gu"
+                ? "તમારા કાર્ટમાંથી તમામ સામગ્રી હટી જશે."
+                : "All items will be removed from your cart."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowClearConfirm(false)}
+              className="rounded-xl"
+            >
+              {currentLang === "gu" ? "રદ કરો" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleClearCart}
+              className="rounded-xl font-bold"
+            >
+              {cartData.cartActions.clearCart}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Full Checkout & Sankalp Modal */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-2xl p-6">
+          {checkoutStep === 1 ? (
+            /* Checkout Details Form */
+            <form onSubmit={handleCheckoutSubmit} className="flex flex-col gap-4">
+              <DialogHeader>
+                <DialogTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
+                  <span>{cartData.checkoutModal.title}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {cartData.checkoutModal.subtitle}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                {/* Devotee Name */}
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">
+                    {cartData.checkoutModal.nameLabel} *
+                  </Label>
+                  <Input
+                    required
+                    value={checkoutForm.fullName}
+                    onChange={(e) =>
+                      setCheckoutForm({ ...checkoutForm, fullName: e.target.value })
+                    }
+                    placeholder={cartData.checkoutModal.namePlaceholder}
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+
+                {/* Mobile Phone */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs font-semibold">
+                    {cartData.checkoutModal.phoneLabel} *
+                  </Label>
+                  <Input
+                    required
+                    type="tel"
+                    value={checkoutForm.phone}
+                    onChange={(e) =>
+                      setCheckoutForm({ ...checkoutForm, phone: e.target.value })
+                    }
+                    placeholder={cartData.checkoutModal.phonePlaceholder}
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+
+                {/* Gotra */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs font-semibold">
+                    {cartData.checkoutModal.gotraLabel}
+                  </Label>
+                  <Input
+                    value={checkoutForm.gotra}
+                    onChange={(e) =>
+                      setCheckoutForm({ ...checkoutForm, gotra: e.target.value })
+                    }
+                    placeholder={cartData.checkoutModal.gotraPlaceholder}
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+
+                {/* Delivery Address */}
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">
+                    {cartData.checkoutModal.addressLabel} *
+                  </Label>
+                  <Input
+                    required
+                    value={checkoutForm.address}
+                    onChange={(e) =>
+                      setCheckoutForm({ ...checkoutForm, address: e.target.value })
+                    }
+                    placeholder={cartData.checkoutModal.addressPlaceholder}
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+
+                {/* City */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs font-semibold">
+                    {cartData.checkoutModal.cityLabel} *
+                  </Label>
+                  <Input
+                    required
+                    value={checkoutForm.city}
+                    onChange={(e) =>
+                      setCheckoutForm({ ...checkoutForm, city: e.target.value })
+                    }
+                    placeholder={cartData.checkoutModal.cityPlaceholder}
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+
+                {/* Pincode */}
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs font-semibold">
+                    {cartData.checkoutModal.pincodeLabel} *
+                  </Label>
+                  <Input
+                    required
+                    value={checkoutForm.pincode}
+                    onChange={(e) =>
+                      setCheckoutForm({ ...checkoutForm, pincode: e.target.value })
+                    }
+                    placeholder={cartData.checkoutModal.pincodePlaceholder}
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Payment Method Radio Group */}
+              <div className="flex flex-col gap-2 pt-2">
+                <Label className="text-xs font-semibold">
+                  {cartData.checkoutModal.paymentMethodLabel}
+                </Label>
+                <RadioGroup
+                  value={checkoutForm.paymentMethod}
+                  onValueChange={(val) =>
+                    setCheckoutForm({ ...checkoutForm, paymentMethod: val })
+                  }
+                  className="flex flex-col gap-2"
+                >
+                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
+                    <RadioGroupItem value="cod" id="pay-cod" />
+                    <span className="text-xs font-medium text-foreground">
+                      {cartData.checkoutModal.paymentCod}
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
+                    <RadioGroupItem value="online" id="pay-online" />
+                    <span className="text-xs font-medium text-foreground">
+                      {cartData.checkoutModal.paymentOnline}
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
+                    <RadioGroupItem value="whatsapp" id="pay-wa" />
+                    <span className="text-xs font-medium text-foreground">
+                      {cartData.checkoutModal.paymentWhatsapp}
+                    </span>
+                  </label>
+                </RadioGroup>
+              </div>
+
+              {/* Modal Total Banner */}
+              <div className="p-3 rounded-xl bg-muted/70 flex items-center justify-between text-xs sm:text-sm font-bold">
+                <span>{cartData.checkoutModal.totalAmountPrefix}</span>
+                <span className="text-lg text-[#00685d] dark:text-[#fdc72d]">
+                  {formatPrice(finalTotal)}
+                </span>
+              </div>
+
+              <DialogFooter className="flex flex-row justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCheckoutOpen(false)}
+                  className="rounded-xl text-xs"
+                >
+                  {cartData.checkoutModal.closeBtn}
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl text-xs shadow-md"
+                >
+                  {cartData.checkoutModal.placeOrderBtn}
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            /* Order Placed Success View */
+            <div className="flex flex-col items-center text-center py-4 gap-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <CheckCircle2 className="h-8 w-8" />
+              </div>
+              <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
+                {cartData.checkoutModal.orderSuccessTitle}
+              </DialogTitle>
+              <div className="px-4 py-1.5 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold text-xs tracking-wider">
+                {cartData.checkoutModal.orderIdPrefix}
+                {orderId}
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
+                {cartData.checkoutModal.orderSuccessDesc}
+              </p>
+
+              <div className="w-full p-4 rounded-xl bg-muted/60 text-xs text-left flex flex-col gap-1.5 border border-border">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">યજમાન:</span>
+                  <span className="font-bold text-foreground">{checkoutForm.fullName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">ગોત્ર:</span>
+                  <span className="font-bold text-foreground">{checkoutForm.gotra}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">સરનામું:</span>
+                  <span className="font-bold text-foreground">{checkoutForm.city} - {checkoutForm.pincode}</span>
+                </div>
+                <div className="flex justify-between border-t border-border/60 pt-1 mt-1">
+                  <span className="font-bold">ચુકવવાપાત્ર રકમ:</span>
+                  <span className="font-bold text-[#00685d] dark:text-[#fdc72d]">
+                    {formatPrice(finalTotal)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-2 w-full pt-2">
+                <Button
+                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl text-xs flex-1"
+                  onClick={() => {
+                    setIsCheckoutOpen(false)
+                    updateCartState([])
+                    router.push("/myshop")
+                  }}
+                >
+                  {cartData.cartActions.continueShopping}
+                </Button>
+                <a
+                  href={getWhatsAppOrderUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[#25D366] text-white hover:bg-[#20ba5a] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>WhatsApp રસીદ</span>
+                </a>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}

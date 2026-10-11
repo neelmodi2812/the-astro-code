@@ -1,0 +1,293 @@
+# 🤖 Next.js App Router — `robots.js` & Technical SEO Guide
+
+A comprehensive, production-grade guide to configuring `robots.js`, `sitemap.js`, and search engine crawl directives in Next.js App Router (Next.js 14, 15, and 16).
+
+---
+
+## 📑 Table of Contents
+1. [Overview: What is `robots.js` in Next.js?](#1-overview-what-is-robotsjs-in-nextjs)
+2. [Why Use `app/robots.js` Instead of `public/robots.txt`?](#2-why-use-approbotsjs-instead-of-publicrobotstxt)
+3. [Next.js `MetadataRoute.Robots` API Reference](#3-nextjs-metadatarouterobots-api-reference)
+4. [Production Implementation in `the-astro-code`](#4-production-implementation-in-the-astro-code)
+5. [Disallow vs. Allow Strategy (Crawl Budget Optimization)](#5-disallow-vs-allow-strategy-crawl-budget-optimization)
+6. [Managing Search Bots & AI Crawlers](#6-managing-search-bots--ai-crawlers)
+7. [Environment-Aware Crawling (Staging vs. Production)](#7-environment-aware-crawling-staging-vs-production)
+8. [Synergy with `sitemap.js` and `metadataBase`](#8-synergy-with-sitemapjs-and-metadatabase)
+9. [Verification & Google Search Console Testing](#9-verification--google-search-console-testing)
+
+---
+
+## 1. Overview: What is `robots.js` in Next.js?
+
+In Next.js App Router, `app/robots.js` (or `.ts`) is a special **Metadata Route file convention**. When placed directly inside the root `app/` folder, Next.js automatically generates and serves the `/robots.txt` file at the root of your domain.
+
+```
+app/
+├── layout.js
+├── page.js
+├── robots.js      --> Automatically maps to https://yourdomain.com/robots.txt
+└── sitemap.js     --> Automatically maps to https://yourdomain.com/sitemap.xml
+```
+
+When web crawlers (like Googlebot, Bingbot, or DuckDuckBot) visit your website, their first request is **almost always** `GET /robots.txt`. This file instructs crawlers which URL paths they are permitted or forbidden to crawl.
+
+---
+
+## 2. Why Use `app/robots.js` Instead of `public/robots.txt`?
+
+| Feature | Legacy `public/robots.txt` | Modern `app/robots.js` |
+| :--- | :--- | :--- |
+| **Dynamic Host Resolution** | ❌ Hardcoded domain | ✅ Dynamic via `process.env.NEXT_PUBLIC_SITE_URL` |
+| **Environment Branching** | ❌ Same for dev, preview & prod | ✅ Can block staging/preview deployments automatically |
+| **Type Safety & Intellisense** | ❌ Plain text with no checks | ✅ Validated by Next.js TypeScript definitions |
+| **Dynamic Sitemaps** | ❌ Static string only | ✅ Can dynamically bind to dynamic sitemap URLs |
+| **Turbopack Build Optimization** | ❌ Unmanaged asset | ✅ First-class metadata route prerendered at build time |
+
+> [!IMPORTANT]
+> If both `public/robots.txt` and `app/robots.js` exist, Next.js prioritizes `public/robots.txt`. Always delete or avoid adding a static `public/robots.txt` when using `app/robots.js`.
+
+---
+
+## 3. Next.js `MetadataRoute.Robots` API Reference
+
+A `robots.js` file must export a default function returning an object matching the `MetadataRoute.Robots` interface:
+
+```typescript
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: { ... } | [ { ... } ],
+    sitemap?: string | string[],
+    host?: string,
+  }
+}
+```
+
+### Properties Breakdown:
+
+- **`rules`** (`Rule | Rule[]`): Crawling rules specifying user agents and permissions.
+  - `userAgent` (`string | string[]`): The search engine bot identifier (e.g. `'*'`, `'Googlebot'`, `'Bingbot'`).
+  - `allow` (`string | string[]`): Path patterns bots are allowed to crawl.
+  - `disallow` (`string | string[]`): Path patterns bots are forbidden from crawling.
+  - `crawlDelay` (`number`, optional): Delay in seconds between requests (supported by Bing, Yandex, Yahoo).
+- **`sitemap`** (`string | string[]`, optional): Absolute URL(s) to your XML sitemap(s).
+- **`host`** (`string`, optional): Preferred domain host name.
+
+---
+
+## 4. Production Implementation in `the-astro-code`
+
+Here is our production file located at `app/robots.js`:
+
+```javascript
+/**
+ * Next.js App Router - Robots Configuration
+ *
+ * Automatically generates and serves /robots.txt route.
+ * Follows Next.js MetadataRoute.Robots official specification for maximum SEO performance.
+ *
+ * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots
+ */
+export default function robots() {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
+
+  return {
+    rules: [
+      {
+        // 1. Default rule for all web search crawlers
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/_next/",
+          "/forgot-password/",
+          "/forget-password/",
+          "/reset-password/",
+        ],
+      },
+      {
+        // 2. Googlebot: prioritize maximum crawl efficiency for indexing
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: ["/api/"],
+      },
+      {
+        // 3. Bingbot: explicit permission for Bing and Yahoo indexes
+        userAgent: "Bingbot",
+        allow: "/",
+        disallow: ["/api/"],
+      },
+      {
+        // 4. International & Privacy search engines
+        userAgent: [
+          "Applebot",
+          "DuckDuckBot",
+          "Baiduspider",
+          "YandexBot"
+        ],
+        allow: "/",
+        disallow: ["/api/"],
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
+  }
+}
+```
+
+When requested via HTTP `GET /robots.txt`, Next.js automatically outputs:
+
+```txt
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /forgot-password/
+Disallow: /forget-password/
+Disallow: /reset-password/
+
+User-Agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-Agent: Bingbot
+Allow: /
+Disallow: /api/
+
+User-Agent: Applebot
+User-Agent: DuckDuckBot
+User-Agent: Baiduspider
+User-Agent: YandexBot
+Allow: /
+Disallow: /api/
+
+Sitemap: https://theastrocode.com/sitemap.xml
+Host: https://theastrocode.com
+```
+
+---
+
+## 5. Disallow vs. Allow Strategy (Crawl Budget Optimization)
+
+### Why Disallow `/api/` and Internal Paths?
+1. **Crawl Budget Preservation**: Search engines allocate a finite number of requests per day to your site (called the *Crawl Budget*). Disallowing internal API routes prevents bots from wasting requests on JSON endpoints.
+2. **Prevent Duplicate or Thin Content**: Authentication recovery pages (`/forgot-password`, `/reset-password`) are utility pages that should not compete for ranking with high-value content like `/dainik-panchang` or `/about-us`.
+3. **Security by Obscurity**: Keeps internal administrative prefixes out of public search listings.
+
+> [!NOTE]
+> `robots.txt` prevents **crawling**, but does not guarantee **noindex**. If an external site links to a disallowed page, Google may still index the bare URL without snippets. To completely prevent indexing, use `<meta name="robots" content="noindex" />` or `export const metadata = { robots: { index: false } }`.
+
+---
+
+## 6. Managing Search Bots & AI Crawlers
+
+Modern SEO requires balancing search engines with AI scrapers. If you want to customize AI agent crawling:
+
+```javascript
+// Example: Restricting AI training scrapers while keeping Google & Bing fully active
+export default function robots() {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
+
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/"],
+      },
+      {
+        // Disallow specific AI scrapers if you wish to protect proprietary astrological data
+        userAgent: ["GPTBot", "CCBot", "ClaudeBot", "PerplexityBot"],
+        disallow: ["/"],
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+  }
+}
+```
+
+In our default setup, general web crawlers and indexers are granted full access to public content while securing private APIs.
+
+---
+
+## 7. Environment-Aware Crawling (Staging vs. Production)
+
+One common SEO disaster is search engines indexing your staging or preview environments (e.g. `staging.theastrocode.com` or `*.vercel.app`), causing duplicate content penalties.
+
+You can prevent this directly in `app/robots.js`:
+
+```javascript
+export default function robots() {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
+  const isProduction = process.env.NODE_ENV === "production" && process.env.IS_PRODUCTION === "true"
+
+  // Block ALL crawling on staging / preview / development
+  if (!isProduction) {
+    return {
+      rules: {
+        userAgent: "*",
+        disallow: "/",
+      },
+    }
+  }
+
+  // Production Rules
+  return {
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/api/"],
+    },
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
+  }
+}
+```
+
+---
+
+## 8. Synergy with `sitemap.js` and `metadataBase`
+
+For high-ranking SEO, three files work together as a triangle:
+
+```
+┌──────────────────────────────────────────────┐
+│  app/layout.js: metadataBase                 │
+│  Base URL for canonicals & OpenGraph images  │
+└──────────────────────┬───────────────────────┘
+                       │
+         ┌─────────────┴─────────────┐
+         ▼                           ▼
+┌──────────────────┐       ┌──────────────────┐
+│  app/robots.js   │       │  app/sitemap.js  │
+│  Directs crawlers│◄─────►│  Full URL list & │
+│  to /sitemap.xml │       │  lastModified    │
+└──────────────────┘       └──────────────────┘
+```
+
+1. **`app/layout.js`**: Defines `metadataBase: new URL(...)` so relative URLs resolve to valid absolute canonicals.
+2. **`app/robots.js`**: Points crawlers directly to `https://theastrocode.com/sitemap.xml`.
+3. **`app/sitemap.js`**: Dynamically generates the list of all static and dynamic article pages (`/article/hero-1`, `/dainik-panchang`, etc.) with `lastModified` and `priority`.
+
+---
+
+## 9. Verification & Google Search Console Testing
+
+### Step 1: Local Browser Verification
+With the dev server running, visit:
+- **`http://localhost:3000/robots.txt`**
+- **`http://localhost:3000/sitemap.xml`**
+
+Check the response headers in Developer Tools Network tab:
+- `Content-Type: text/plain; charset=utf-8` (for `robots.txt`)
+- `Content-Type: application/xml` (for `sitemap.xml`)
+
+### Step 2: Terminal Test with cURL
+```bash
+curl -I http://localhost:3000/robots.txt
+curl http://localhost:3000/robots.txt
+```
+
+### Step 3: Google Search Console (GSC)
+1. Add your domain property in [Google Search Console](https://search.google.com/search-console).
+2. Go to **Settings** > **Robots.txt** to inspect the live fetched status.
+3. Submit **Sitemaps** > `https://theastrocode.com/sitemap.xml` to request fast indexing.
