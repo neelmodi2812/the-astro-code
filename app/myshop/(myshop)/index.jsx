@@ -80,6 +80,7 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -769,11 +770,13 @@ export default function ShopClient() {
                       <SelectValue placeholder={shopData.catalogSection.sortByLabel} />
                     </SelectTrigger>
                     <SelectContent align="end">
-                      {shopData.catalogSection.sortOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value} className="text-xs font-medium">
-                          {opt.label}
-                        </SelectItem>
-                      ))}
+                      <SelectGroup>
+                        {shopData.catalogSection.sortOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs font-medium">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
@@ -954,7 +957,7 @@ export default function ShopClient() {
                       >
                         {/* Image Pane */}
                         <div className="relative h-52 bg-muted overflow-hidden">
-                          <Link href={`/myshop/product/${product.id}`} className="block w-full h-full">
+                          <Link href={`/myshop/product/${product.id}`} className="relative block w-full h-full">
                             <Image
                               src={product.image}
                               alt={product.name}

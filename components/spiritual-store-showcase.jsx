@@ -78,7 +78,7 @@ export function SpiritualStoreShowcase({
             >
               {/* Product Image */}
               <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-muted">
-                <Link href={`/myshop/product/${item.id}`} className="block w-full h-full">
+                <Link href={`/myshop/product/${item.id}`} className="relative block w-full h-full">
                   <Image
                     src={item.image}
                     alt={item.imageAlt || item.name}
@@ -88,16 +88,16 @@ export function SpiritualStoreShowcase({
                   />
                 </Link>
 
-                {/* Top-Left Category Badge */}
+                {/* Top-Left Category Badge (Pinned 8px with shadow for depth) */}
                 {item.badge && (
-                  <span className="absolute top-2.5 left-2.5 bg-[#008376] text-white text-[11px] font-bold px-2.5 py-0.5 rounded shadow-xs pointer-events-none">
+                  <span className="absolute top-2 left-2 z-10 bg-[#008376] text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-md pointer-events-none">
                     {item.badge}
                   </span>
                 )}
 
-                {/* Top-Right Discount Badge */}
+                {/* Top-Right Discount Badge (Pinned 8px with shadow for depth) */}
                 {item.discount && (
-                  <span className="absolute top-2.5 right-2.5 bg-[#fdc72d] text-[#1b1c1a] text-[11px] font-black px-2.5 py-0.5 rounded shadow-xs border border-[#eab318] pointer-events-none">
+                  <span className="absolute top-2 right-2 z-10 bg-[#fdc72d] text-[#1b1c1a] text-xs font-black px-2.5 py-1 rounded-md shadow-md border border-[#eab318] pointer-events-none">
                     {item.discount}
                   </span>
                 )}

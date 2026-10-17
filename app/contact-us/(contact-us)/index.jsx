@@ -77,6 +77,7 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
 } from "@/components/ui/select"
 
@@ -491,11 +492,13 @@ export default function ContactUsClient() {
                           <SelectValue placeholder={pageData.inquiryForm.fields.subject} />
                         </SelectTrigger>
                         <SelectContent>
-                          {pageData.inquiryForm.fields.options.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                              {opt.label}
-                            </SelectItem>
-                          ))}
+                          <SelectGroup>
+                            {pageData.inquiryForm.fields.options.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1039,18 +1042,20 @@ export default function ContactUsClient() {
                     <SelectValue placeholder={lang === "gu" ? "વિષય પસંદ કરો" : "Select Topic"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="kundali" className="text-xs">
-                      {lang === "gu" ? "કુંડળી વિશ્લેષણ & દોષ નિવારણ" : "Kundali Analysis & Dosha"}
-                    </SelectItem>
-                    <SelectItem value="career" className="text-xs">
-                      {lang === "gu" ? "કરિયર & વ્યવસાય માર્ગદર્શન" : "Career & Business Astrology"}
-                    </SelectItem>
-                    <SelectItem value="marriage" className="text-xs">
-                      {lang === "gu" ? "લગ્ન મેળવણી & દાંપત્ય જીવન" : "Matchmaking & Marriage"}
-                    </SelectItem>
-                    <SelectItem value="vastu" className="text-xs">
-                      {lang === "gu" ? "વાસ્તુશાસ્ત્ર દર્પણ" : "Vastu Shastra Consultation"}
-                    </SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="kundali" className="text-xs">
+                        {lang === "gu" ? "કુંડળી વિશ્લેષણ & દોષ નિવારણ" : "Kundali Analysis & Dosha"}
+                      </SelectItem>
+                      <SelectItem value="career" className="text-xs">
+                        {lang === "gu" ? "કરિયર & વ્યવસાય માર્ગદર્શન" : "Career & Business Astrology"}
+                      </SelectItem>
+                      <SelectItem value="marriage" className="text-xs">
+                        {lang === "gu" ? "લગ્ન મેળવણી & દાંપત્ય જીવન" : "Matchmaking & Marriage"}
+                      </SelectItem>
+                      <SelectItem value="vastu" className="text-xs">
+                        {lang === "gu" ? "વાસ્તુશાસ્ત્ર દર્પણ" : "Vastu Shastra Consultation"}
+                      </SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>

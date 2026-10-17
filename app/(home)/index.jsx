@@ -4,6 +4,8 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { AstroHeader } from "@/components/astro-header"
 import { LiveTicker } from "@/components/live-ticker"
+import { VedicPortalHero } from "@/components/vedic-portal-hero"
+import { MysticalTempleHero } from "@/components/mystical-temple-hero"
 import { CategoryBar } from "@/components/category-bar"
 import { HeroMagazine } from "@/components/hero-magazine"
 import { EditorialContent } from "@/components/editorial-content"
@@ -120,10 +122,24 @@ export default function HomeClient() {
       />
 
       <main className="flex-1 w-full bg-background">
-        {/* 2. Live Panchang & Breaking News Strip */}
-        <LiveTicker ticker={data.ticker} />
+        {/* 2. Live Panchang & Breaking News Strip (Commented out as requested) */}
+        {/* <LiveTicker ticker={data.ticker} /> */}
 
-        {/* 3. Breadcrumb & Category Filter Pills */}
+        {/* 3. Vedic Astrological Portal Hero Section (Version 1 - Commented out) */}
+        {/* 
+        <VedicPortalHero
+          panchang={data.panchang}
+          founder={data.config?.founder}
+        />
+        */}
+
+        {/* 3. Mystical Temple Sunset & Zodiac Meditation Hero Section */}
+        <MysticalTempleHero
+          panchang={data.panchang}
+          founder={data.config?.founder}
+        />
+
+        {/* 4. Breadcrumb & Category Filter Pills */}
         <CategoryBar
           categories={data.categories}
           activeFilter={activeFilter}
@@ -138,7 +154,7 @@ export default function HomeClient() {
         />
 
         {/* 5. Main Content: 70% Editorial (Left) + 30% Sidebar (Right) */}
-        <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6">
+        <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column (8 cols): Featured row, 12 Jyotirlingas, Astrology & Numerology */}
             <div className="lg:col-span-8">
@@ -167,7 +183,7 @@ export default function HomeClient() {
           </div>
 
           {/* 6. FULL-WIDTH SPIRITUAL STORE & PUJA SAMAGRI SHOWCASE (MYSHOP) */}
-          <div className="mt-10">
+          <div className="mt-12">
             <SpiritualStoreShowcase
               storeSection={data.spiritualStoreSection}
               products={data.products}

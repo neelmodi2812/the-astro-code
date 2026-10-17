@@ -1,10 +1,13 @@
-import { ARTICLES_DATA } from "@/lib/data/article-data"
+import { ARTICLES_DATA, getAllArticleIds } from "@/lib/data/article-data"
+import { getAllProductIds } from "@/lib/data/product-data"
+import { getAllCategorySlugs } from "@/lib/data/shop-data"
 
 /**
- * Next.js App Router - Dynamic Sitemap Generation
+ * Next.js App Router - Dynamic Comprehensive Sitemap Generation
  *
  * Automatically generates and serves /sitemap.xml
- * Lists all core static pages, categories, and dynamic editorial articles.
+ * Lists all public indexable pages, categories, consecrated store products, and editorial articles.
+ * Strictly adheres to Google Search Central and Bing Webmaster guidelines by excluding private/auth pages.
  *
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  */
@@ -12,7 +15,7 @@ export default function sitemap() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
   const currentDate = new Date().toISOString()
 
-  // 1. Core Primary Static Pages
+  // 1. Core Primary Static Pages (High Authority Public Landing Pages)
   const staticPages = [
     {
       url: `${baseUrl}`,
@@ -27,13 +30,13 @@ export default function sitemap() {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/categories`,
+      url: `${baseUrl}/myshop`,
       lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: "daily",
+      priority: 0.9,
     },
     {
-      url: `${baseUrl}/myshop`,
+      url: `${baseUrl}/categories`,
       lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.8,
@@ -48,7 +51,7 @@ export default function sitemap() {
       url: `${baseUrl}/contact-us`,
       lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/privacy-policy`,
@@ -56,58 +59,36 @@ export default function sitemap() {
       changeFrequency: "monthly",
       priority: 0.5,
     },
-    {
-      url: `${baseUrl}/dashboard`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/dashboard/orders`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/dashboard/kundli`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/dashboard/consultations`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/dashboard/settings`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: currentDate,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: currentDate,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
   ]
 
-  // 2. Dynamic Article Pages from editorial dataset
-  const articleSlugs = Object.keys(ARTICLES_DATA)
-  const articlePages = articleSlugs.map((id) => ({
+  // 2. Dynamic Shop Categories (/myshop/[category])
+  const categorySlugs = getAllCategorySlugs()
+  const categoryPages = categorySlugs.map((slug) => ({
+    url: `${baseUrl}/myshop/${slug}`,
+    lastModified: currentDate,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }))
+
+  // 3. Dynamic Consecrated Products Catalog (/myshop/product/[id])
+  const productIds = getAllProductIds()
+  const uniqueProductIds = Array.from(new Set(productIds))
+  const productPages = uniqueProductIds.map((id) => ({
+    url: `${baseUrl}/myshop/product/${id}`,
+    lastModified: currentDate,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }))
+
+  // 4. Dynamic Editorial & Scriptural Articles (/article/[id])
+  const articleIds = typeof getAllArticleIds === "function" ? getAllArticleIds() : Object.keys(ARTICLES_DATA)
+  const uniqueArticleIds = Array.from(new Set(articleIds))
+  const articlePages = uniqueArticleIds.map((id) => ({
     url: `${baseUrl}/article/${id}`,
     lastModified: currentDate,
     changeFrequency: "weekly",
     priority: 0.8,
   }))
 
-  return [...staticPages, ...articlePages]
+  return [...staticPages, ...categoryPages, ...productPages, ...articlePages]
 }

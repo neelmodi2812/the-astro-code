@@ -18,6 +18,11 @@ export const metadata = {
     siteName: "The Astro Code",
     locale: "gu_IN",
     type: "website"
+  },
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
   }
 }
 

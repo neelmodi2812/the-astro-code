@@ -118,7 +118,7 @@ const NOT_FOUND_DATA = {
     sloka: "॥ You've wandered off the path, but divine guidance is right here ॥",
     number: "404",
     subNumber: "PAGE NOT FOUND",
-    title: "We Apologize! Page Not Found",
+    title: "Page Not Found",
     description: "This page may have been moved or is currently unavailable. Explore our key sections below or return home.",
     actions: {
       home: "Return to Home Page",

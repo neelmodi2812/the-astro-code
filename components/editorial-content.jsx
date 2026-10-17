@@ -40,13 +40,13 @@ export function EditorialContent({
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-3 left-3">
-                <span className={`px-2.5 py-1 rounded text-xs font-black shadow-md border ${article.tagColor || "bg-[#fdc72d] text-[#1b1c1a] border-[#eab318]"}`}>
+                <span className={`px-2.5 py-1 rounded-md text-xs font-black shadow-md border ${article.tagColor || "bg-[#fdc72d] text-[#1b1c1a] border-[#eab318]"}`}>
                   {article.tag}
                 </span>
               </div>
             </div>
 
-            <CardContent className="flex-1 flex flex-col justify-between">
+            <CardContent className="flex-1 flex flex-col justify-between p-5 sm:p-6">
               <div>
                 <h3 className="text-base sm:text-lg text-foreground font-bold group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors mb-2 leading-snug">
                   {article.title}
@@ -76,7 +76,7 @@ export function EditorialContent({
       </div>
 
       {/* 2. 12 JYOTIRLINGA SPECIAL SHOWCASE */}
-      <Card className="p-5 sm:p-6 shadow-sm border-border/70 bg-card dark:bg-[#181916]">
+      <Card className="p-6 sm:p-7 shadow-sm border-border/70 bg-card dark:bg-[#181916] rounded-xl">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-6 bg-[#fdc72d] rounded-full inline-block" />
@@ -92,14 +92,14 @@ export function EditorialContent({
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {jyotirlingas.map((item) => (
             <div
               key={item.id}
               onClick={() => onArticleClick && onArticleClick(item)}
               className="flex flex-col group cursor-pointer"
             >
-              <div className="relative h-44 rounded-lg overflow-hidden mb-2.5 border border-border/50">
+              <div className="relative h-44 rounded-xl overflow-hidden mb-3 border border-border/50">
                 <Image
                   src={item.image}
                   alt={item.imageAlt || item.title}
@@ -107,7 +107,7 @@ export function EditorialContent({
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <span className="absolute bottom-2 left-2 bg-[#fdc72d] text-[#1b1c1a] text-xs px-2 py-0.5 rounded font-black shadow-xs">
+                <span className="absolute bottom-2 left-2 bg-[#fdc72d] text-[#1b1c1a] text-xs px-2.5 py-0.5 rounded-md font-black shadow-xs border border-[#eab318]">
                   {item.title}
                 </span>
               </div>
@@ -124,7 +124,7 @@ export function EditorialContent({
       </Card>
 
       {/* 3. VEDIC ASTROLOGY & NUMEROLOGY DEEP INSIGHTS */}
-      <div className="rounded-xl p-5 sm:p-6 shadow-sm bg-card dark:bg-[#181916] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
+      <div className="rounded-xl p-6 sm:p-7 shadow-sm bg-card dark:bg-[#181916] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div>
             <span className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider">
@@ -144,7 +144,7 @@ export function EditorialContent({
               onClick={() => onArticleClick && onArticleClick(insight)}
               className="flex flex-col sm:flex-row gap-4 items-start group cursor-pointer p-2 rounded-lg hover:bg-muted/40 transition-colors"
             >
-              <div className="relative w-full sm:w-36 h-24 rounded-lg overflow-hidden shrink-0 border border-border/60">
+              <div className="relative w-full sm:w-36 h-24 rounded-xl overflow-hidden shrink-0 border border-border/60">
                 <Image
                   src={insight.image}
                   alt={insight.title}
@@ -155,8 +155,8 @@ export function EditorialContent({
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-[#fdc72d] text-[#1b1c1a] text-[11px] px-2 py-0.5 rounded font-black">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="bg-[#fdc72d] text-[#1b1c1a] text-[11px] px-2.5 py-0.5 rounded-md font-black shadow-xs border border-[#eab318]">
                     {insight.tag}
                   </span>
                   <span className="text-muted-foreground text-xs">

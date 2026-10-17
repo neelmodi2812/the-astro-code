@@ -49,6 +49,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuLabel,
@@ -336,7 +337,7 @@ function ArticleDetailContent({ initialId }) {
                   <div className="flex flex-col">
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm sm:text-base text-foreground leading-tight">
-                        {article.author.name[lang]}
+                        {article.author?.name?.[lang] || article.author?.name?.gu || article.author?.name || "ડૉ. વિશાલ મોદી"}
                       </span>
                       <span className="text-[11px] text-[#008d7f] font-semibold flex items-center gap-0.5">
                         <CheckCircle className="h-3 w-3 inline text-[#008d7f]" />
@@ -344,7 +345,7 @@ function ArticleDetailContent({ initialId }) {
                       </span>
                     </div>
                     <span className="text-xs text-muted-foreground font-medium">
-                      {article.author.title[lang]}
+                      {article.author?.title?.[lang] || article.author?.title?.gu || article.author?.title || (lang === "gu" ? "Ph.D. જ્યોતિષશાસ્ત્ર & પુરાણ તજજ્ઞ" : "Ph.D. Vedic Astrology & Puranic Scholar")}
                     </span>
                   </div>
                 </div>
@@ -354,15 +355,15 @@ function ArticleDetailContent({ initialId }) {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3.5 w-3.5 text-[#008d7f]" />
-                      {article.date[lang]}
+                      {article.date?.[lang] || article.date?.gu || article.date || (lang === "gu" ? "૧૨ એપ્રિલ, ૨૦૨૫" : "April 12, 2025")}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5 text-[#008d7f]" />
-                      {article.readTime[lang]}
+                      {article.readTime?.[lang] || article.readTime?.gu || article.readTime || (lang === "gu" ? "૫ મિનિટ વાંચન" : "5 min read")}
                     </span>
                     <span className="hidden sm:flex items-center gap-1">
                       <Eye className="h-3.5 w-3.5 text-[#008d7f]" />
-                      {article.views[lang]}
+                      {article.views?.[lang] || article.views?.gu || article.views || (lang === "gu" ? "૧૪,૫૨૦ દર્શકો" : "14,520 views")}
                     </span>
                   </div>
 
@@ -416,59 +417,65 @@ function ArticleDetailContent({ initialId }) {
                       </div>
 
                       <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#1a1b18] shadow-xl">
-                        <DropdownMenuLabel className="px-2.5 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                          {lang === "gu" ? "સોશિયલ મીડિયા પર શેર કરો" : "Share on Social Media"}
-                        </DropdownMenuLabel>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel className="px-2.5 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                            {lang === "gu" ? "સોશિયલ મીડિયા પર શેર કરો" : "Share on Social Media"}
+                          </DropdownMenuLabel>
+                        </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => {
-                            handleShareWhatsApp()
-                            setShareMenuOpen(false)
-                          }}
-                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
-                        >
-                          <span className="w-6 h-6 rounded-lg bg-[#25D366]/15 text-[#25D366] flex items-center justify-center">
-                            <MessageCircle className="h-3.5 w-3.5" />
-                          </span>
-                          <span>WhatsApp</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            handleShareFacebook()
-                            setShareMenuOpen(false)
-                          }}
-                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
-                        >
-                          <span className="w-6 h-6 rounded-lg bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center">
-                            <Share2 className="h-3.5 w-3.5" />
-                          </span>
-                          <span>Facebook</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            handleShareX()
-                            setShareMenuOpen(false)
-                          }}
-                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
-                        >
-                          <span className="w-6 h-6 rounded-lg bg-foreground/10 text-foreground flex items-center justify-center font-bold text-xs">
-                            𝕏
-                          </span>
-                          <span>X (Twitter)</span>
-                        </DropdownMenuItem>
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              handleShareWhatsApp()
+                              setShareMenuOpen(false)
+                            }}
+                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
+                          >
+                            <span className="w-6 h-6 rounded-lg bg-[#25D366]/15 text-[#25D366] flex items-center justify-center">
+                              <MessageCircle className="h-3.5 w-3.5" />
+                            </span>
+                            <span>WhatsApp</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              handleShareFacebook()
+                              setShareMenuOpen(false)
+                            }}
+                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
+                          >
+                            <span className="w-6 h-6 rounded-lg bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center">
+                              <Share2 className="h-3.5 w-3.5" />
+                            </span>
+                            <span>Facebook</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              handleShareX()
+                              setShareMenuOpen(false)
+                            }}
+                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
+                          >
+                            <span className="w-6 h-6 rounded-lg bg-foreground/10 text-foreground flex items-center justify-center font-bold text-xs">
+                              𝕏
+                            </span>
+                            <span>X (Twitter)</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => {
-                            handleCopyLink()
-                            setShareMenuOpen(false)
-                          }}
-                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
-                        >
-                          <span className="w-6 h-6 rounded-lg bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center">
-                            {copiedLink ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                          </span>
-                          <span>{copiedLink ? (lang === "gu" ? "લિંક કૉપિ થઈ ગઈ!" : "Link Copied!") : (lang === "gu" ? "લિંક કૉપિ કરો" : "Copy Link")}</span>
-                        </DropdownMenuItem>
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              handleCopyLink()
+                              setShareMenuOpen(false)
+                            }}
+                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer"
+                          >
+                            <span className="w-6 h-6 rounded-lg bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center">
+                              {copiedLink ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+                            </span>
+                            <span>{copiedLink ? (lang === "gu" ? "લિંક કૉપિ થઈ ગઈ!" : "Link Copied!") : (lang === "gu" ? "લિંક કૉપિ કરો" : "Copy Link")}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
@@ -598,130 +605,148 @@ function ArticleDetailContent({ initialId }) {
               )}
 
               {/* HIGHLIGHT CALLOUT QUOTE */}
-              <div className="my-2 p-5 sm:p-6 bg-[#fff9e6] dark:bg-[#252216] border-l-4 border-[#d9a100] rounded-2xl shadow-xs flex items-start gap-4">
-                <Quote className="h-8 w-8 text-[#008d7f] shrink-0 rotate-180" />
-                <div className="flex flex-col gap-1.5">
-                  <blockquote className="text-base sm:text-lg font-bold text-[#1b1c1a] dark:text-[#f8f7f4] italic leading-relaxed">
-                    {article.quote.text[lang]}
-                  </blockquote>
-                  <cite className="text-xs sm:text-sm text-[#008d7f] dark:text-[#52c7bb] font-bold not-italic">
-                    {article.quote.cite[lang]}
-                  </cite>
+              {article.quote && article.quote.text && (
+                <div className="my-2 p-5 sm:p-6 bg-[#fff9e6] dark:bg-[#252216] border-l-4 border-[#d9a100] rounded-2xl shadow-xs flex items-start gap-4">
+                  <Quote className="h-8 w-8 text-[#008d7f] shrink-0 rotate-180" />
+                  <div className="flex flex-col gap-1.5">
+                    <blockquote className="text-base sm:text-lg font-bold text-[#1b1c1a] dark:text-[#f8f7f4] italic leading-relaxed">
+                      {article.quote.text[lang] || article.quote.text.gu || article.quote.text}
+                    </blockquote>
+                    {article.quote.cite && (
+                      <cite className="text-xs sm:text-sm text-[#008d7f] dark:text-[#52c7bb] font-bold not-italic">
+                        {article.quote.cite[lang] || article.quote.cite.gu || article.quote.cite}
+                      </cite>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* SPECIAL MUHURTA CARD (As seen in Reference Image 3) */}
-              <div className="bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sun className="h-5 w-5 text-[#d9a100]" />
-                    <h3 className="font-bold text-base sm:text-lg text-foreground">
-                      {article.muhurtaCard.title[lang]}
-                    </h3>
+              {article.muhurtaCard && article.muhurtaCard.title && (
+                <div className="bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sun className="h-5 w-5 text-[#d9a100]" />
+                      <h3 className="font-bold text-base sm:text-lg text-foreground">
+                        {article.muhurtaCard.title[lang] || article.muhurtaCard.title.gu || article.muhurtaCard.title}
+                      </h3>
+                    </div>
+                    {article.muhurtaCard.badge && (
+                      <Badge variant="outline" className="bg-[#008d7f]/10 text-[#008d7f] dark:text-[#52c7bb] border-[#008d7f]/30 font-bold text-xs">
+                        {article.muhurtaCard.badge[lang] || article.muhurtaCard.badge.gu || article.muhurtaCard.badge}
+                      </Badge>
+                    )}
                   </div>
-                  <Badge variant="outline" className="bg-[#008d7f]/10 text-[#008d7f] dark:text-[#52c7bb] border-[#008d7f]/30 font-bold text-xs">
-                    {article.muhurtaCard.badge[lang]}
-                  </Badge>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
-                  <div className="p-3 bg-white dark:bg-[#121310] rounded-xl border border-border/50">
-                    <span className="text-xs text-muted-foreground block font-medium">
-                      {article.muhurtaCard.morning.label[lang]}
-                    </span>
-                    <span className="text-sm font-bold text-foreground mt-0.5 block">
-                      {article.muhurtaCard.morning.time[lang]}
-                    </span>
-                  </div>
-                  <div className="p-3 bg-white dark:bg-[#121310] rounded-xl border border-border/50">
-                    <span className="text-xs text-muted-foreground block font-medium">
-                      {article.muhurtaCard.evening.label[lang]}
-                    </span>
-                    <span className="text-sm font-bold text-[#008d7f] dark:text-[#52c7bb] mt-0.5 block">
-                      {article.muhurtaCard.evening.time[lang]}
-                    </span>
-                  </div>
+                  {article.muhurtaCard.morning && article.muhurtaCard.evening && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                      <div className="p-3 bg-white dark:bg-[#121310] rounded-xl border border-border/50">
+                        <span className="text-xs text-muted-foreground block font-medium">
+                          {article.muhurtaCard.morning.label?.[lang] || article.muhurtaCard.morning.label?.gu || article.muhurtaCard.morning.label}
+                        </span>
+                        <span className="text-sm font-bold text-foreground mt-0.5 block">
+                          {article.muhurtaCard.morning.time?.[lang] || article.muhurtaCard.morning.time?.gu || article.muhurtaCard.morning.time}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-white dark:bg-[#121310] rounded-xl border border-border/50">
+                        <span className="text-xs text-muted-foreground block font-medium">
+                          {article.muhurtaCard.evening.label?.[lang] || article.muhurtaCard.evening.label?.gu || article.muhurtaCard.evening.label}
+                        </span>
+                        <span className="text-sm font-bold text-[#008d7f] dark:text-[#52c7bb] mt-0.5 block">
+                          {article.muhurtaCard.evening.time?.[lang] || article.muhurtaCard.evening.time?.gu || article.muhurtaCard.evening.time}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Subsection 2 */}
-              {article.sections[1] && (
+              {article.sections && article.sections[1] && (
                 <div className="flex flex-col gap-3 pt-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {article.sections[1].heading[lang]}
+                      {article.sections[1].heading[lang] || article.sections[1].heading.gu || article.sections[1].heading}
                     </h2>
                   </div>
-                  {article.sections[1].paragraphs.map((para, pIdx) => (
+                  {article.sections[1].paragraphs?.map((para, pIdx) => (
                     <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para[lang]}
+                      {para[lang] || para.gu || para}
                     </p>
                   ))}
                 </div>
               )}
 
               {/* 5 SACRED RULES / RITUALS CHECKLIST CARD */}
-              <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-[#d9a100]" />
-                    <h3 className="font-bold text-base sm:text-lg text-foreground">
-                      {article.rituals.title[lang]}
-                    </h3>
-                  </div>
-                  <span className="bg-[#008d7f]/15 text-[#008d7f] dark:text-[#52c7bb] text-xs font-bold px-2 py-0.5 rounded">
-                    {article.rituals.badge[lang]}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {article.rituals.items.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-3 bg-white dark:bg-[#121310] p-3.5 rounded-xl border border-border/40 shadow-2xs"
-                    >
-                      <CheckCircle className="h-4 w-4 text-[#008d7f] shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-foreground/90 font-medium">
-                        {item[lang]}
-                      </span>
+              {article.rituals && article.rituals.title && (
+                <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-[#d9a100]" />
+                      <h3 className="font-bold text-base sm:text-lg text-foreground">
+                        {article.rituals.title[lang] || article.rituals.title.gu || article.rituals.title}
+                      </h3>
                     </div>
-                  ))}
+                    {article.rituals.badge && (
+                      <span className="bg-[#008d7f]/15 text-[#008d7f] dark:text-[#52c7bb] text-xs font-bold px-2 py-0.5 rounded">
+                        {article.rituals.badge[lang] || article.rituals.badge.gu || article.rituals.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  {article.rituals.items && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {article.rituals.items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 bg-white dark:bg-[#121310] p-3.5 rounded-xl border border-border/40 shadow-2xs"
+                        >
+                          <CheckCircle className="h-4 w-4 text-[#008d7f] shrink-0 mt-0.5" />
+                          <span className="text-xs sm:text-sm text-foreground/90 font-medium">
+                            {item[lang] || item.gu || item}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Subsection 3 (if exists) */}
-              {article.sections[2] && (
+              {article.sections && article.sections[2] && (
                 <div className="flex flex-col gap-3 pt-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {article.sections[2].heading[lang]}
+                      {article.sections[2].heading[lang] || article.sections[2].heading.gu || article.sections[2].heading}
                     </h2>
                   </div>
-                  {article.sections[2].paragraphs.map((para, pIdx) => (
+                  {article.sections[2].paragraphs?.map((para, pIdx) => (
                     <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para[lang]}
+                      {para[lang] || para.gu || para}
                     </p>
                   ))}
                 </div>
               )}
 
               {/* LIVE SANKALP PUJA CTA CARD (As seen in Reference Image 3) */}
-              <div className="bg-[#fff9e6] dark:bg-[#201d14] border-2 border-[#fdc72d]/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col items-center text-center gap-3 my-2">
-                <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                  {article.sankalpPuja.title[lang]}
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-                  {article.sankalpPuja.subtitle[lang]}
-                </p>
-                <Button
-                  onClick={() => showToast(lang === "gu" ? "પૂજા નોંધણી ફોર્મ ખોલવામાં આવી રહ્યું છે..." : "Opening Puja registration form...")}
-                  className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
-                >
-                  {article.sankalpPuja.buttonText[lang]}
-                </Button>
-              </div>
+              {article.sankalpPuja && article.sankalpPuja.title && (
+                <div className="bg-[#fff9e6] dark:bg-[#201d14] border-2 border-[#fdc72d]/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col items-center text-center gap-3 my-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                    {article.sankalpPuja.title[lang] || article.sankalpPuja.title.gu || article.sankalpPuja.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
+                    {article.sankalpPuja.subtitle[lang] || article.sankalpPuja.subtitle.gu || article.sankalpPuja.subtitle}
+                  </p>
+                  <Button
+                    onClick={() => showToast(lang === "gu" ? "પૂજા નોંધણી ફોર્મ ખોલવામાં આવી રહ્યું છે..." : "Opening Puja registration form...")}
+                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
+                  >
+                    {article.sankalpPuja.buttonText?.[lang] || article.sankalpPuja.buttonText?.gu || (lang === "gu" ? "સંકલ્પ નોંધાવો ●" : "Book Sankalp Puja ●")}
+                  </Button>
+                </div>
+              )}
 
               {/* INTERACTIVE REACTIONS BAR */}
               <div className="mt-4 p-4 sm:p-5 bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/60 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -814,14 +839,14 @@ function ArticleDetailContent({ initialId }) {
               <div className="flex flex-col gap-2 text-center sm:text-left flex-1">
                 <div>
                   <h3 className="font-bold text-lg sm:text-xl text-foreground">
-                    {article.author.name[lang]}
+                    {article.author?.name?.[lang] || article.author?.name?.gu || article.author?.name || "ડૉ. વિશાલ મોદી"}
                   </h3>
                   <span className="text-xs sm:text-sm text-[#008d7f] dark:text-[#52c7bb] font-bold">
                     {lang === "gu" ? "મુખ્ય સંપાદક અને જ્યોતિષાચાર્ય • The Astro Code" : "Chief Editor & Vedic Astrologer • The Astro Code"}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {article.author.bio[lang]}
+                  {article.author?.bio?.[lang] || article.author?.bio?.gu || article.author?.bio || (lang === "gu" ? "વૈદિક જ્યોતિષ, અંકશાસ્ત્ર, વાસ્તુ અને પૌરાણિક સંશોધનમાં ૨૨+ વર્ષનો અનુભવ. પ્રાચીન આધ્યાત્મિક જ્ઞાનને સરળ અને વૈજ્ઞાનિક રીતે લોકભોગ્ય બનાવવાનો અવિરત પ્રયાસ." : "Over 22+ years of expertise in Vedic astrology, numerology, Vastu and sacred Puranic research.")}
                 </p>
                 <div className="flex items-center justify-center sm:justify-start gap-3 mt-2 flex-wrap">
                   <Button

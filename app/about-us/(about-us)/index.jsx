@@ -72,6 +72,7 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -1189,18 +1190,20 @@ export default function AboutUsClient() {
                   <SelectValue placeholder={lang === "gu" ? "સેવા પસંદ કરો" : "Select Service"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="kundali" className="text-xs">
-                    {lang === "gu" ? "જન્મકુંડળી વિશ્લેષણ & ગ્રહદોષ" : "Kundali Analysis & Doshas"}
-                  </SelectItem>
-                  <SelectItem value="vastu" className="text-xs">
-                    {lang === "gu" ? "વાસ્તુશાસ્ત્ર દર્પણ" : "Vastu Consultation"}
-                  </SelectItem>
-                  <SelectItem value="muhurta" className="text-xs">
-                    {lang === "gu" ? "શુભ મુહૂર્ત વિધાન" : "Muhurta Selection"}
-                  </SelectItem>
-                  <SelectItem value="numerology" className="text-xs">
-                    {lang === "gu" ? "અંકશાસ્ત્ર ભાગ્યાંક સુમેળ" : "Numerology Alignment"}
-                  </SelectItem>
+                  <SelectGroup>
+                    <SelectItem value="kundali" className="text-xs">
+                      {lang === "gu" ? "જન્મકુંડળી વિશ્લેષણ & ગ્રહદોષ" : "Kundali Analysis & Doshas"}
+                    </SelectItem>
+                    <SelectItem value="vastu" className="text-xs">
+                      {lang === "gu" ? "વાસ્તુશાસ્ત્ર દર્પણ" : "Vastu Consultation"}
+                    </SelectItem>
+                    <SelectItem value="muhurta" className="text-xs">
+                      {lang === "gu" ? "શુભ મુહૂર્ત વિધાન" : "Muhurta Selection"}
+                    </SelectItem>
+                    <SelectItem value="numerology" className="text-xs">
+                      {lang === "gu" ? "અંકશાસ્ત્ર ભાગ્યાંક સુમેળ" : "Numerology Alignment"}
+                    </SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>

@@ -88,50 +88,53 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-1">
               {footer.about ||
                 (isEn
                   ? "The Astro Code unites ancient Vedic wisdom with modern spiritual living, guiding seekers toward positivity, happiness, and peace."
                   : "ધ એસ્ટ્રો કોડ એક પ્રાચીન વૈદિક જ્ઞાન અને આધુનિક આધ્યાત્મિક જીવનશૈલીનો સંગમ છે. જીવનમાં સકારાત્મક ઉર્જા, સુખ અને શાંતિના માર્ગદર્શન માટે અમે આપની સાથે છીએ.")}
             </p>
 
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[11px] font-bold text-muted-foreground mr-1">
-                {footer.followUs || (isEn ? "Follow:" : "અનુસરો:")}
+            {/* Social Icons Aligned Flush with Left Margin */}
+            <div className="flex flex-col gap-2 mt-2">
+              <span className="text-xs font-bold text-foreground/85">
+                {footer.followUs || (isEn ? "Follow Us:" : "અનુસરો:")}
               </span>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="p-2 rounded bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs">
-                    <Globe className="h-4 w-4" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{footer.websiteTooltip || (isEn ? "Official Website" : "અધિકૃત વેબસાઇટ")}</p>
-                </TooltipContent>
-              </Tooltip>
+              <div className="flex items-center gap-2.5">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="p-2 rounded-lg bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs">
+                      <Globe className="h-4 w-4" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>{footer.websiteTooltip || (isEn ? "Official Website" : "અધિકૃત વેબસાઇટ")}</p>
+                  </TooltipContent>
+                </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="p-2 rounded bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs">
-                    <Video className="h-4 w-4" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{footer.videoTooltip || (isEn ? "Videos & Satsang" : "વિડિઓ અને સત્સંગ")}</p>
-                </TooltipContent>
-              </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="p-2 rounded-lg bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs">
+                      <Video className="h-4 w-4" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>{footer.videoTooltip || (isEn ? "Videos & Satsang" : "વિડિઓ અને સત્સંગ")}</p>
+                  </TooltipContent>
+                </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="p-2 rounded bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs">
-                    <MessageCircle className="h-4 w-4" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{footer.chatTooltip || (isEn ? "WhatsApp Support" : "વોટ્સએપ સહાય")}</p>
-                </TooltipContent>
-              </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="p-2 rounded-lg bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs">
+                      <MessageCircle className="h-4 w-4" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>{footer.chatTooltip || (isEn ? "WhatsApp Support" : "વોટ્સએપ સહાય")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </div>
 
@@ -285,26 +288,26 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
 
         </div>
 
-        {/* Bottom Bar */}
-        <Separator className="bg-border/70 my-6" />
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <p>
+        {/* Bottom Bar with Enhanced WCAG-Compliant Readability */}
+        <Separator className="bg-border/70 my-7" />
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm font-medium text-foreground/85 dark:text-foreground/80">
+          <p className="leading-relaxed text-center md:text-left">
             {footer.copyright ||
               (isEn
                 ? "© 2025 The Astro Code. All Rights Reserved. Spiritual guidance for devotees."
                 : "© ૨૦૨૫ The Astro Code. સર્વાધિકાર સુરક્ષિત. આધ્યાત્મિક સેવાઓ ભાવિક જનોના હિતાર્થે.")}
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/about-us" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
+          <div className="flex items-center flex-wrap justify-center gap-4 sm:gap-6 font-semibold">
+            <Link href="/about-us" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
               {footer.aboutUs || (isEn ? "About Us" : "અમારા વિશે")}
             </Link>
-            <Link href="/privacy-policy" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
+            <Link href="/privacy-policy" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
               {footer.privacy || (isEn ? "Privacy Policy" : "ગોપનીયતા નીતિ")}
             </Link>
-            <Link href="/privacy-policy" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
+            <Link href="/privacy-policy" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
               {footer.terms || (isEn ? "Terms & Conditions" : "નિયમો અને શરતો")}
             </Link>
-            <Link href="/contact-us" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
+            <Link href="/contact-us" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
               {footer.help || (isEn ? "Help Center" : "સહાય કેન્દ્ર")}
             </Link>
           </div>

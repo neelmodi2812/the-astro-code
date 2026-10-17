@@ -80,6 +80,7 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -311,11 +312,13 @@ export default function DainikPanchangClient() {
                       </div>
                     </SelectTrigger>
                     <SelectContent>
-                      {panchang.cities.map((city) => (
-                        <SelectItem key={city.id} value={city.id} className="text-xs font-semibold">
-                          {city[lang]}
-                        </SelectItem>
-                      ))}
+                      <SelectGroup>
+                        {panchang.cities.map((city) => (
+                          <SelectItem key={city.id} value={city.id} className="text-xs font-semibold">
+                            {city[lang]}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
 

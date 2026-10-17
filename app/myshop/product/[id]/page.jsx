@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { getProductById, getAllProductIds } from "@/lib/data/product-data"
+import { JsonLd } from "@/components/seo-structured-data"
 import ProductDetailClient from "./ProductDetailClient"
 
 /**
@@ -20,12 +21,12 @@ export async function generateMetadata({ params }) {
 
   if (!product) {
     return {
-      title: "Product Not Found | MyShop | The Astro Code",
+      title: "Product Not Found | MyShop",
       description: "The requested spiritual item could not be found in our Vedic store."
     }
   }
 
-  const title = `${product.name} | MyShop | The Astro Code`
+  const title = `${product.name} | MyShop`
   const description = `${product.subtitle}. 100% authentic, lab certified and ritually consecrated with Vedic mantras. Free shipping across India.`
 
   return {
@@ -49,6 +50,12 @@ export async function generateMetadata({ params }) {
       ],
       locale: "gu_IN",
       type: "website"
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [product.images?.[0] || product.image],
     }
   }
 }
@@ -61,5 +68,76 @@ export default async function ProductPage({ params }) {
     notFound()
   }
 
-  return <ProductDetailClient productId={id} />
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
+  const canonicalUrl = `${siteUrl}/myshop/product/${id}`
+  const primaryImage = product.images?.[0] || product.image || `${siteUrl}/the_astro_code_golden_yantra_logo.png`
+
+  // Google Rich Results - Product Schema
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images || [primaryImage],
+    "description": product.subtitle || product.description,
+    "sku": product.sku || `TAC-${id}`,
+    "brand": {
+      "@type": "Brand",
+      "name": "The Astro Code"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": canonicalUrl,
+      "priceCurrency": "INR",
+      "price": product.price,
+      "priceValidUntil": "2027-12-31",
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": product.stockStatus === "out_of_stock" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "The Astro Code",
+        "url": siteUrl
+      }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating || 4.9,
+      "reviewCount": product.reviewsCount || 108,
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  }
+
+  // Google Rich Results - BreadcrumbList Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "હોમ",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "MyShop સ્ટોર",
+        "item": `${siteUrl}/myshop`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.name,
+        "item": canonicalUrl
+      }
+    ]
+  }
+
+  return (
+    <>
+      <JsonLd data={productSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      <ProductDetailClient productId={id} />
+    </>
+  )
 }

@@ -73,6 +73,7 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
 } from "@/components/ui/select"
 
@@ -971,21 +972,23 @@ export default function CategoriesClient() {
                     <SelectValue placeholder={lang === "gu" ? "વિષય પસંદ કરો" : "Select Topic"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="kundali" className="text-xs">
-                      {lang === "gu" ? "કુંડળી વિશ્લેષણ & દોષ નિવારણ" : "Kundali Analysis & Dosha"}
-                    </SelectItem>
-                    <SelectItem value="career" className="text-xs">
-                      {lang === "gu" ? "કરિયર & વ્યવસાય માર્ગદર્શન" : "Career & Business Astrology"}
-                    </SelectItem>
-                    <SelectItem value="marriage" className="text-xs">
-                      {lang === "gu" ? "લગ્ન મેળવણી & દાંપત્ય જીવન" : "Matchmaking & Marriage"}
-                    </SelectItem>
-                    <SelectItem value="numerology" className="text-xs">
-                      {lang === "gu" ? "અંકશાસ્ત્ર & ભાગ્યાંક રહસ્ય" : "Numerology & Destiny Number"}
-                    </SelectItem>
-                    <SelectItem value="vastu" className="text-xs">
-                      {lang === "gu" ? "વાસ્તુશાસ્ત્ર દર્પણ" : "Vastu Shastra Consultation"}
-                    </SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="kundali" className="text-xs">
+                        {lang === "gu" ? "કુંડળી વિશ્લેષણ & દોષ નિવારણ" : "Kundali Analysis & Dosha"}
+                      </SelectItem>
+                      <SelectItem value="career" className="text-xs">
+                        {lang === "gu" ? "કરિયર & વ્યવસાય માર્ગદર્શન" : "Career & Business Astrology"}
+                      </SelectItem>
+                      <SelectItem value="marriage" className="text-xs">
+                        {lang === "gu" ? "લગ્ન મેળવણી & દાંપત્ય જીવન" : "Matchmaking & Marriage"}
+                      </SelectItem>
+                      <SelectItem value="numerology" className="text-xs">
+                        {lang === "gu" ? "અંકશાસ્ત્ર & ભાગ્યાંક રહસ્ય" : "Numerology & Destiny Number"}
+                      </SelectItem>
+                      <SelectItem value="vastu" className="text-xs">
+                        {lang === "gu" ? "વાસ્તુશાસ્ત્ર દર્પણ" : "Vastu Shastra Consultation"}
+                      </SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
@@ -1002,15 +1005,17 @@ export default function CategoriesClient() {
                     <SelectValue placeholder={lang === "gu" ? "સમય પસંદ કરો" : "Select Time"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="morning" className="text-xs">
-                      {lang === "gu" ? "સવાર (૧૦:૦૦ થી ૧:૦૦)" : "Morning (10:00 AM - 1:00 PM)"}
-                    </SelectItem>
-                    <SelectItem value="afternoon" className="text-xs">
-                      {lang === "gu" ? "બપોર (૨:૦૦ થી ૫:૦૦)" : "Afternoon (2:00 PM - 5:00 PM)"}
-                    </SelectItem>
-                    <SelectItem value="evening" className="text-xs">
-                      {lang === "gu" ? "સાંજ (૫:૦૦ થી ૮:૦૦)" : "Evening (5:00 PM - 8:00 PM)"}
-                    </SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="morning" className="text-xs">
+                        {lang === "gu" ? "સવાર (૧૦:૦૦ થી ૧:૦૦)" : "Morning (10:00 AM - 1:00 PM)"}
+                      </SelectItem>
+                      <SelectItem value="afternoon" className="text-xs">
+                        {lang === "gu" ? "બપોર (૨:૦૦ થી ૫:૦૦)" : "Afternoon (2:00 PM - 5:00 PM)"}
+                      </SelectItem>
+                      <SelectItem value="evening" className="text-xs">
+                        {lang === "gu" ? "સાંજ (૫:૦૦ થી ૮:૦૦)" : "Evening (5:00 PM - 8:00 PM)"}
+                      </SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
