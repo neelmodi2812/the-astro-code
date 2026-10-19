@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import Image from "next/image"
+import { SafeImage } from "@/components/ui/safe-image"
 import {
   User,
   Clock,
@@ -26,52 +26,57 @@ export function EditorialContent({
       {/* 1. FEATURED 2-CARD ROW */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {featuredArticles.map((article) => (
-          <Card
+          <Link
             key={article.id}
-            onClick={() => onArticleClick && onArticleClick(article)}
-            className="pt-0 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border-border/70 flex flex-col justify-between group cursor-pointer hover:border-[#fdc72d]/60 bg-card dark:bg-[#181916]"
+            href={`/article/${article.id || "hero-1"}`}
+            className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
           >
-            <div className="relative h-56 overflow-hidden">
-              <Image
-                src={article.image}
-                alt={article.imageAlt || article.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute top-3 left-3">
-                <span className={`px-2.5 py-1 rounded-md text-xs font-black shadow-md border ${article.tagColor || "bg-[#fdc72d] text-[#1b1c1a] border-[#eab318]"}`}>
-                  {article.tag}
-                </span>
-              </div>
-            </div>
-
-            <CardContent className="flex-1 flex flex-col justify-between p-5 sm:p-6">
-              <div>
-                <h3 className="text-base sm:text-lg text-foreground font-bold group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors mb-2 leading-snug">
-                  {article.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-4">
-                  {article.description}
-                </p>
+            <Card
+              className="pt-0 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-300 border-border/70 flex flex-col justify-between h-full group-hover:border-[#fdc72d]/60 bg-card dark:bg-[#181916]"
+            >
+              <div className="relative h-56 overflow-hidden">
+                <SafeImage
+                  src={article.image}
+                  fallbackSrc="/images/bahucharaji-temple.jpg"
+                  alt={article.imageAlt || article.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-3 left-3">
+                  <span className={`px-2.5 py-1 rounded-md text-xs font-black shadow-md border ${article.tagColor || "bg-[#fdc72d] text-[#1b1c1a] border-[#eab318]"}`}>
+                    {article.tag}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <Avatar className="size-4 shrink-0">
-                    <AvatarFallback className="bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] font-bold text-[8px]">
-                      <User className="size-2.5" />
-                    </AvatarFallback>
-                  </Avatar>
-                  {article.author}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" />
-                  {article.readTime}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+              <CardContent className="flex-1 flex flex-col justify-between p-5 sm:p-6">
+                <div>
+                  <h3 className="text-base sm:text-lg text-foreground font-bold group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors mb-2 leading-snug">
+                    {article.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-4">
+                    {article.description}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Avatar className="size-4 shrink-0">
+                      <AvatarFallback className="bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] font-bold text-[8px]">
+                        <User className="size-2.5" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {article.author}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {article.readTime}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -94,14 +99,15 @@ export function EditorialContent({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {jyotirlingas.map((item) => (
-            <div
+            <Link
               key={item.id}
-              onClick={() => onArticleClick && onArticleClick(item)}
-              className="flex flex-col group cursor-pointer"
+              href={`/article/${item.id || "jyotirling-1"}`}
+              className="flex flex-col group cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
             >
               <div className="relative h-44 rounded-xl overflow-hidden mb-3 border border-border/50">
-                <Image
+                <SafeImage
                   src={item.image}
+                  fallbackSrc={item.id === "jyotirling-1" ? "/images/somnath-mahadev-temple.jpg" : item.id === "jyotirling-2" ? "/images/mahakaleshwar-temple.jpg" : "/images/bahucharaji-temple.jpg"}
                   alt={item.imageAlt || item.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -118,7 +124,7 @@ export function EditorialContent({
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                 {item.summary}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </Card>
@@ -139,14 +145,15 @@ export function EditorialContent({
 
         <div className="space-y-4">
           {astroInsights.map((insight) => (
-            <div
+            <Link
               key={insight.id}
-              onClick={() => onArticleClick && onArticleClick(insight)}
-              className="flex flex-col sm:flex-row gap-4 items-start group cursor-pointer p-2 rounded-lg hover:bg-muted/40 transition-colors"
+              href={`/article/${insight.id || "feat-1"}`}
+              className="flex flex-col sm:flex-row gap-4 items-start group cursor-pointer p-2 rounded-lg hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
             >
               <div className="relative w-full sm:w-36 h-24 rounded-xl overflow-hidden shrink-0 border border-border/60">
-                <Image
+                <SafeImage
                   src={insight.image}
+                  fallbackSrc="/images/sacred-vedic-hero.jpg"
                   alt={insight.title}
                   fill
                   sizes="144px"
@@ -170,7 +177,7 @@ export function EditorialContent({
                   {insight.summary}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

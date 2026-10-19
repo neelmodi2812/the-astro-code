@@ -45,7 +45,7 @@ export default function OrdersClient() {
     <DashboardShell breadcrumbKey="orders">
       <div className="space-y-6">
         
-        {/* Page Heading & Tabs */}
+        {/* Page Heading & Action */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2.5">
@@ -59,44 +59,48 @@ export default function OrdersClient() {
             </p>
           </div>
 
-          {/* Filter Tabs & Shop Action */}
-          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
-            <div className="inline-flex p-1 bg-muted/60 dark:bg-[#20211d] rounded-xl border border-border/50 text-xs font-bold">
-              <button
-                onClick={() => setFilter("all")}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  filter === "all" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {isEn ? "All (3)" : "તમામ (૩)"}
-              </button>
-              <button
-                onClick={() => setFilter("active")}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  filter === "active" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {isEn ? "In-Transit (1)" : "રવાના (૧)"}
-              </button>
-              <button
-                onClick={() => setFilter("delivered")}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  filter === "delivered" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {isEn ? "Delivered (2)" : "ડિલિવર થયેલ (૨)"}
-              </button>
-            </div>
+          <Button
+            onClick={() => router.push("/myshop")}
+            size="sm"
+            className="h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] shadow-xs cursor-pointer self-start sm:self-auto shrink-0"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            <span>{isEn ? "Visit Vedic Shop" : "વૈદિક શોપ"}</span>
+          </Button>
+        </div>
 
-            <Button
-              onClick={() => router.push("/myshop")}
-              size="sm"
-              className="h-8 px-3 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] shadow-2xs cursor-pointer"
+        {/* Filter Tabs Toolbar */}
+        <div className="flex items-center justify-between gap-3 flex-wrap border-b border-border/50 pb-2">
+          <div className="inline-flex p-1 bg-muted/60 dark:bg-[#20211d] rounded-xl border border-border/50 text-xs font-bold">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                filter === "all" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <ShoppingBag className="h-3.5 w-3.5" />
-              <span>{isEn ? "Vedic Shop" : "વૈદિક શોપ"}</span>
-            </Button>
+              {isEn ? "All Orders (3)" : "તમામ (૩)"}
+            </button>
+            <button
+              onClick={() => setFilter("active")}
+              className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                filter === "active" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {isEn ? "In-Transit (1)" : "રવાના (૧)"}
+            </button>
+            <button
+              onClick={() => setFilter("delivered")}
+              className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                filter === "delivered" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {isEn ? "Delivered (2)" : "ડિલિવર થયેલ (૨)"}
+            </button>
           </div>
+
+          <span className="text-xs text-muted-foreground font-medium">
+            {isEn ? `Showing ${filteredOrders.length} orders` : `${filteredOrders.length} ઓર્ડર્સ`}
+          </span>
         </div>
 
         {/* ACTIVE IN-TRANSIT ORDER VISUALIZER */}

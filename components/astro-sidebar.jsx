@@ -2,20 +2,21 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {
   Calendar,
   MessageCircle,
   TrendingUp,
   ArrowRight,
   Sun,
-  Share2
+  Users
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { formatDigits } from "@/lib/utils"
+import { SITE_CONTACT } from "@/lib/data/astro-data"
 
 export function AstroSidebar({
   panchang,
@@ -29,7 +30,6 @@ export function AstroSidebar({
   onAddToCart,
   lang = "gu"
 }) {
-  const router = useRouter()
   const isEn = lang === "en"
 
   return (
@@ -107,20 +107,20 @@ export function AstroSidebar({
             <div key={idx} className="flex justify-between items-center text-foreground">
               <span className="text-muted-foreground">{row.label}:</span>
               <span className={`font-bold ${row.isAlert ? "text-[#bb171f] dark:text-[#ff7b7b] font-extrabold" : row.isAuspicious ? "text-[#8a6800] dark:text-[#fdc72d]" : ""}`}>
-                {row.value}
+                {formatDigits(row.value, lang)}
               </span>
             </div>
           ))}
         </div>
 
         <Button
+          asChild
           className="w-full bg-[#fdc72d] text-[#1b1c1a] font-extrabold hover:bg-[#eab318] shadow-xs cursor-pointer h-10 text-xs rounded-xl transition-all"
-          onClick={() => {
-            router.push("/dainik-panchang")
-          }}
         >
-          <span>{panchang.buttonText || (isEn ? "Open Complete Calendar & Choghadiya" : "સંપૂર્ણ કેલેન્ડર & ચોઘડિયા ખોલો")}</span>
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
+          <Link href="/dainik-panchang">
+            <span>{panchang.buttonText || (isEn ? "Open Complete Calendar & Choghadiya" : "સંપૂર્ણ કેલેન્ડર & ચોઘડિયા ખોલો")}</span>
+            <ArrowRight className="h-3.5 w-3.5 ml-1" />
+          </Link>
         </Button>
       </div>
 
@@ -129,7 +129,7 @@ export function AstroSidebar({
         <div className="flex items-center gap-3.5 mb-3.5">
           <Avatar className="size-14 border-2 border-[#fdc72d] shadow-sm shrink-0">
             <AvatarImage
-              src={founder.image}
+              src={founder.image || "/images/author-dr-vishal-modi.jpg"}
               alt={founder.name}
               className="object-cover"
             />
@@ -155,7 +155,7 @@ export function AstroSidebar({
           <Button
             className="w-full bg-[#fdc72d] text-[#1b1c1a] font-black hover:bg-[#eab318] transition-colors shadow-xs cursor-pointer h-10 text-xs rounded-xl"
             onClick={() => {
-              window.open(`https://wa.me/919825000000?text=${encodeURIComponent(lang === 'gu' ? 'જય શ્રી કૃષ્ણ, મને કુંડળી વિશ્લેષણ માટે અપોઇન્ટમેન્ટ જોઈએ છે.' : 'Hello Dr. Vishal Modi, I would like to book a horoscope analysis.')}`, "_blank")
+              window.open(`https://wa.me/${SITE_CONTACT.whatsappNumber}?text=${encodeURIComponent(lang === 'gu' ? 'જય શ્રી કૃષ્ણ, મને કુંડળી વિશ્લેષણ માટે અપોઇન્ટમેન્ટ જોઈએ છે.' : 'Hello Dr. Vishal Modi, I would like to book a horoscope analysis.')}`, "_blank")
             }}
           >
             <Calendar className="h-4 w-4 mr-1.5" />
@@ -166,7 +166,7 @@ export function AstroSidebar({
             variant="outline"
             className="w-full bg-white/10 hover:bg-white/20 text-[#fdc72d] border-white/20 font-bold transition-colors cursor-pointer h-9 text-xs rounded-xl"
             onClick={() => {
-              window.open(founder.whatsappUrl, "_blank")
+              window.open(founder.whatsappUrl || SITE_CONTACT.whatsappUrl, "_blank")
             }}
           >
             <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
@@ -179,25 +179,33 @@ export function AstroSidebar({
       <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#181916] rounded-xl">
         <h4 className="text-sm font-bold text-foreground mb-3.5 flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-[#bb171f]" />
-          {popularSection.title || (isEn ? "READERS' CHOICE - MOST POPULAR" : "વાંચકોની પસંદ - MOST POPULAR")}
+          {popularSection.title || (isEn ? "Readers' Choice - Most Popular" : "વાંચકોની પસંદ")}
         </h4>
 
         <ol className="space-y-3.5 text-xs">
-          {popular.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-3 group cursor-pointer">
-              <span className="text-lg font-bold text-[#fdc72d] leading-none shrink-0 w-4">
-                {item.rank}
-              </span>
-              <div className="leading-tight">
-                <Link href="/article/feat-1" className="font-semibold text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
-                  {item.title}
+          {popular.map((item, idx) => {
+            const targetSlug = idx === 0 ? "hero-1" : idx === 1 ? "jyotirling-1" : "feat-1"
+            return (
+              <li key={idx}>
+                <Link
+                  href={`/article/${targetSlug}`}
+                  className="flex items-start gap-3 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d] rounded-lg p-1 -m-1"
+                >
+                  <span className="text-lg font-bold text-[#fdc72d] leading-none shrink-0 w-4">
+                    {item.rank}
+                  </span>
+                  <div className="leading-tight">
+                    <span className="font-semibold text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
+                      {item.title}
+                    </span>
+                    <div className="text-muted-foreground text-[10px] mt-0.5">
+                      {item.reads}
+                    </div>
+                  </div>
                 </Link>
-                <div className="text-muted-foreground text-[10px] mt-0.5">
-                  {item.reads}
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            )
+          })}
         </ol>
       </Card>
 
@@ -205,45 +213,58 @@ export function AstroSidebar({
       <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#181916] rounded-xl">
         <div className="flex items-center gap-3 mb-4">
           <h3 className="text-xs font-black tracking-wider uppercase text-foreground shrink-0 flex items-center gap-1.5">
-            <Share2 className="h-3.5 w-3.5 text-[#fdc72d]" />
-            {isEn ? "STAY CONNECTED" : "જોડાયેલા રહો • STAY CONNECTED"}
+            <Users className="h-3.5 w-3.5 text-[#fdc72d]" />
+            {isEn ? "Stay Connected" : "જોડાયેલા રહો"}
           </h3>
           <Separator className="flex-1 h-0.5 bg-[#fdc72d] rounded-full" />
         </div>
 
         <div className="grid grid-cols-3 gap-2.5 text-center">
           {/* Facebook */}
-          <div className="p-3 rounded-xl bg-muted/50 dark:bg-[#20211d] hover:bg-muted dark:hover:bg-[#262723] transition-colors cursor-pointer border border-border/40">
-            <div className="text-[#1877F2] mb-1.5 flex justify-center">
+          <Link
+            href={SITE_CONTACT.social.facebook}
+            target="_blank"
+            rel="noreferrer"
+            className="p-3 rounded-xl bg-muted/50 dark:bg-[#20211d] hover:bg-muted dark:hover:bg-[#262723] hover:border-[#1877F2]/50 transition-all cursor-pointer border border-border/40 group block"
+          >
+            <div className="text-[#1877F2] mb-1.5 flex justify-center group-hover:scale-110 transition-transform">
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
             </div>
-            <div className="text-sm font-bold text-foreground">3,233</div>
-            <div className="text-[11px] text-muted-foreground">Fans</div>
-          </div>
-
-          {/* X / Twitter */}
-          <div className="p-3 rounded-xl bg-muted/50 dark:bg-[#20211d] hover:bg-muted dark:hover:bg-[#262723] transition-colors cursor-pointer border border-border/40">
-            <div className="text-foreground mb-1.5 flex justify-center">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </div>
-            <div className="text-sm font-bold text-foreground">309</div>
-            <div className="text-[11px] text-muted-foreground">Followers</div>
-          </div>
+            <div className="text-sm font-bold text-foreground group-hover:text-[#1877F2] transition-colors">{formatDigits("28K", lang)}</div>
+            <div className="text-[11px] text-muted-foreground">{isEn ? "Fans" : "ફોલોઅર્સ"}</div>
+          </Link>
 
           {/* YouTube */}
-          <div className="p-3 rounded-xl bg-muted/50 dark:bg-[#20211d] hover:bg-muted dark:hover:bg-[#262723] transition-colors cursor-pointer border border-border/40">
-            <div className="text-[#FF0000] mb-1.5 flex justify-center">
+          <Link
+            href={SITE_CONTACT.social.youtube}
+            target="_blank"
+            rel="noreferrer"
+            className="p-3 rounded-xl bg-muted/50 dark:bg-[#20211d] hover:bg-muted dark:hover:bg-[#262723] hover:border-[#FF0000]/50 transition-all cursor-pointer border border-border/40 group block"
+          >
+            <div className="text-[#FF0000] mb-1.5 flex justify-center group-hover:scale-110 transition-transform">
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
               </svg>
             </div>
-            <div className="text-sm font-bold text-foreground">1.15K</div>
-            <div className="text-[11px] text-muted-foreground">Subscribers</div>
-          </div>
+            <div className="text-sm font-bold text-foreground group-hover:text-[#FF0000] transition-colors">{formatDigits("15K", lang)}</div>
+            <div className="text-[11px] text-muted-foreground">{isEn ? "Subs" : "સબસ્ક્રાઇબર"}</div>
+          </Link>
+
+          {/* WhatsApp Channel */}
+          <Link
+            href={SITE_CONTACT.social.whatsappChannel}
+            target="_blank"
+            rel="noreferrer"
+            className="p-3 rounded-xl bg-muted/50 dark:bg-[#20211d] hover:bg-muted dark:hover:bg-[#262723] hover:border-[#25D366]/50 transition-all cursor-pointer border border-border/40 group block"
+          >
+            <div className="text-[#25D366] mb-1.5 flex justify-center group-hover:scale-110 transition-transform">
+              <MessageCircle className="w-5 h-5" />
+            </div>
+            <div className="text-sm font-bold text-foreground group-hover:text-[#25D366] transition-colors">{formatDigits("42K", lang)}</div>
+            <div className="text-[11px] text-muted-foreground">{isEn ? "Members" : "સભ્યો"}</div>
+          </Link>
         </div>
       </Card>
 

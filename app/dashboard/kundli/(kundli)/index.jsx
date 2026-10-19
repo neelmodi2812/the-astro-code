@@ -124,7 +124,7 @@ export default function KundliClient() {
             className="h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
           >
             <Plus className="h-4 w-4" />
-            <span>{isEn ? "+ Add New Kundli" : "+ નવી કુંડળી ઉમેરો"}</span>
+            <span>{isEn ? "Add New Kundli" : "નવી કુંડળી ઉમેરો"}</span>
           </Button>
         </div>
 
@@ -154,7 +154,7 @@ export default function KundliClient() {
                   </p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] font-bold text-sm flex items-center justify-center border border-border/50">
-                  {k.initial[lang] || k.initial.gu}
+                  {(k.name[lang] || k.name.gu)?.charAt(0) || "•"}
                 </div>
               </div>
 

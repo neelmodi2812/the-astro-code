@@ -3,15 +3,14 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { SafeImage } from "@/components/ui/safe-image"
 import {
   ShoppingBag,
   ShoppingCart,
   CheckCircle2,
   ChevronRight,
   Star,
-  Check,
-  ShieldCheck
+  Check
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -23,7 +22,6 @@ export function SpiritualStoreShowcase({
   onAddToCart,
   lang = "gu"
 }) {
-  const router = useRouter()
   const [addedMap, setAddedMap] = React.useState({})
 
   const handleAdd = (product) => {
@@ -73,14 +71,14 @@ export function SpiritualStoreShowcase({
           return (
             <article
               key={item.id}
-              onClick={() => router.push(`/myshop/product/${item.id}`)}
-              className="rounded-xl border border-border/70 overflow-hidden bg-card dark:bg-[#1e1f1b] hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between cursor-pointer"
+              className="relative rounded-xl border border-border/70 overflow-hidden bg-card dark:bg-[#1e1f1b] hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between"
             >
               {/* Product Image */}
               <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-muted">
-                <Link href={`/myshop/product/${item.id}`} className="relative block w-full h-full">
-                  <Image
+                <Link href={`/myshop/product/${item.id}`} tabIndex={-1} aria-hidden="true" className="relative block w-full h-full">
+                  <SafeImage
                     src={item.image}
+                    fallbackSrc="/images/sacred-vedic-hero.jpg"
                     alt={item.imageAlt || item.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -120,8 +118,9 @@ export function SpiritualStoreShowcase({
                     </span>
                   </div>
 
-                  {/* Title */}
-                  <Link href={`/myshop/product/${item.id}`}>
+                  {/* Title with Accessible Stretched Link */}
+                  <Link href={`/myshop/product/${item.id}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#008376] rounded-sm">
+                    <span className="absolute inset-0" aria-hidden="true" />
                     <h4 className="font-bold text-base text-foreground group-hover:text-[#008376] dark:group-hover:text-[#38b2a3] hover:underline transition-colors leading-snug line-clamp-1">
                       {item.name}
                     </h4>
@@ -150,7 +149,7 @@ export function SpiritualStoreShowcase({
 
                   <Button
                     size="sm"
-                    className={`h-8 px-3.5 rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer ${
+                    className={`relative z-10 h-8 px-3.5 rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer ${
                       isAdded
                         ? "bg-emerald-600 text-white"
                         : "bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a]"

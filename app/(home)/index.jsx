@@ -13,6 +13,7 @@ import { AstroSidebar } from "@/components/astro-sidebar"
 import { DevotionalCTA } from "@/components/devotional-cta"
 import { AstroFooter } from "@/components/astro-footer"
 import { SpiritualStoreShowcase } from "@/components/spiritual-store-showcase"
+import { OurServicesSection } from "@/components/our-services-section"
 
 import {
   getAstroData,
@@ -182,7 +183,15 @@ export default function HomeClient() {
             </div>
           </div>
 
-          {/* 6. FULL-WIDTH SPIRITUAL STORE & PUJA SAMAGRI SHOWCASE (MYSHOP) */}
+          {/* 6. OUR ASTROLOGICAL & SPIRITUAL SERVICES SECTION */}
+          <div className="mt-12 border-t border-border/60 pt-4">
+            <OurServicesSection
+              servicesSection={data.servicesSection}
+              lang={lang}
+            />
+          </div>
+
+          {/* 7. FULL-WIDTH SPIRITUAL STORE & PUJA SAMAGRI SHOWCASE (MYSHOP) */}
           <div className="mt-12">
             <SpiritualStoreShowcase
               storeSection={data.spiritualStoreSection}

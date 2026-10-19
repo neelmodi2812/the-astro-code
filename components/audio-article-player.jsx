@@ -3,11 +3,10 @@
 import * as React from "react"
 import {
   Volume2,
-  VolumeX,
   Play,
   Pause,
   Gauge,
-  RotateCcw
+  AlertCircle
 } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
@@ -20,29 +19,38 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
-
-// Predefined waveform relative heights (1 to 10 scale)
-const WAVEFORM_HEIGHTS = [
-  3, 6, 9, 5, 8, 10, 7, 4, 8, 9, 6, 7, 10, 8, 5, 7, 9, 6, 4, 8, 5, 7, 4, 3
-]
+import { formatDigits } from "@/lib/utils"
 
 export function AudioArticlePlayer({
   articleText = "",
   lang = "gu",
   title = "આ લેખ સાંભળો",
-  durationSeconds = 432 // Default 07:12
+  durationSeconds: propDurationSeconds
 }) {
   const [isPlaying, setIsPlaying] = React.useState(false)
   const [currentTime, setCurrentTime] = React.useState(0)
   const [speedIndex, setSpeedIndex] = React.useState(0)
-  const [isMuted, setIsMuted] = React.useState(false)
+  const [voiceWarning, setVoiceWarning] = React.useState(null)
 
   const speeds = [1, 1.25, 1.5, 2]
   const currentSpeed = speeds[speedIndex]
 
-  const synthRef = React.useRef(null)
   const utteranceRef = React.useRef(null)
   const timerRef = React.useRef(null)
+
+  // Calculate dynamic duration from word count (~130 words per minute average reading/speech rate)
+  const words = React.useMemo(() => {
+    if (!articleText) return 0
+    return articleText.trim().split(/\s+/).filter(Boolean).length
+  }, [articleText])
+
+  const calculatedDuration = React.useMemo(() => {
+    if (words > 0) {
+      // 130 words per minute = (words / 130) * 60 seconds. Minimum 20 seconds.
+      return Math.max(20, Math.ceil((words / 130) * 60))
+    }
+    return propDurationSeconds || 180
+  }, [words, propDurationSeconds])
 
   // Format MM:SS helper
   const formatTime = (secs) => {
@@ -52,6 +60,33 @@ export function AudioArticlePlayer({
     const ss = s < 10 ? `0${s}` : `${s}`
     return `${mm}:${ss}`
   }
+
+  // Voice detection helper for mobile Safari/Chrome & desktop
+  const detectVoiceSupport = React.useCallback(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      return { supported: false, voice: null, reason: "api_unsupported" }
+    }
+    const voices = window.speechSynthesis.getVoices()
+    if (!voices || voices.length === 0) {
+      // Voice list not yet loaded by browser; system default will attempt playback
+      return { supported: true, voice: null, reason: "loading" }
+    }
+
+    if (lang === "gu") {
+      // Check for native Gujarati voice
+      const guVoice = voices.find((v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("gu"))
+      if (guVoice) return { supported: true, voice: guVoice, reason: "exact" }
+
+      // Check for Hindi voice fallback (close Indic phonetics)
+      const hiVoice = voices.find((v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("hi"))
+      if (hiVoice) return { supported: true, voice: hiVoice, reason: "fallback" }
+
+      return { supported: false, voice: null, reason: "no_indic_voice" }
+    } else {
+      const enVoice = voices.find((v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("en"))
+      return { supported: !!enVoice || voices.length > 0, voice: enVoice || voices[0], reason: "english" }
+    }
+  }, [lang])
 
   // Handle Play/Pause
   const togglePlay = () => {
@@ -72,7 +107,7 @@ export function AudioArticlePlayer({
       clearInterval(timerRef.current)
       timerRef.current = setInterval(() => {
         setCurrentTime((prev) => {
-          if (prev >= durationSeconds) {
+          if (prev >= calculatedDuration) {
             clearInterval(timerRef.current)
             setIsPlaying(false)
             return 0
@@ -87,18 +122,23 @@ export function AudioArticlePlayer({
           window.speechSynthesis.resume()
         } else {
           window.speechSynthesis.cancel() // clear any prior queue
+
+          const voiceStatus = detectVoiceSupport()
+          if (lang === "gu" && !voiceStatus.supported) {
+            setVoiceWarning(
+              "આ મોબાઇલ/બ્રાઉઝરમાં ગુજરાતી સ્પીચ વોઇસ પેક ઇન્સ્ટોલ નથી. કૃપા કરીને ડિવાઇસ સેટિંગ્સમાંથી 'Gujarati Text-to-Speech' સક્ષમ કરો. વિઝ્યુઅલ રીડિંગ ટાઈમર ચાલુ રહેશે."
+            )
+          } else {
+            setVoiceWarning(null)
+          }
+
           const textToSpeak = articleText || "The Astro Code article narration"
           const utterance = new SpeechSynthesisUtterance(textToSpeak)
           utterance.rate = currentSpeed
           utterance.lang = lang === "gu" ? "gu-IN" : "en-US"
 
-          // Find appropriate voice if possible
-          const voices = window.speechSynthesis.getVoices()
-          const matchedVoice = voices.find(
-            (v) => v.lang.startsWith(lang === "gu" ? "gu" : "en") || v.lang.startsWith("hi")
-          )
-          if (matchedVoice) {
-            utterance.voice = matchedVoice
+          if (voiceStatus.voice) {
+            utterance.voice = voiceStatus.voice
           }
 
           utterance.onend = () => {
@@ -106,52 +146,49 @@ export function AudioArticlePlayer({
             clearInterval(timerRef.current)
           }
 
-          utterance.onerror = () => {
-            // Speech error, fallback continues with visual timer
+          utterance.onerror = (e) => {
+            console.warn("Speech synthesis notice:", e?.error)
+            if (e?.error && e.error !== "canceled" && e.error !== "interrupted") {
+              setVoiceWarning(
+                lang === "gu"
+                  ? "ગુજરાતી વોઇસ પેક આ ડિવાઇસ પર ઉપલબ્ધ નથી. વિઝ્યુઅલ રીડિંગ માર્ગદર્શિકા ચાલુ રહેશે."
+                  : "Speech voice is unavailable on this device. Visual reading guide will continue."
+              )
+            }
           }
 
           utteranceRef.current = utterance
-          window.speechSynthesis.speak(utterance)
+          try {
+            window.speechSynthesis.speak(utterance)
+          } catch (err) {
+            console.warn("Failed to invoke speech synthesis speak:", err)
+          }
         }
+      } else {
+        setVoiceWarning(
+          lang === "gu"
+            ? "આ બ્રાઉઝરમાં Web Speech API સપોર્ટેડ નથી. વિઝ્યુઅલ પ્રોગ્રેસ ટાઈમર સક્રિય છે."
+            : "Web Speech API is not supported in this browser. Visual reading timer will continue."
+        )
       }
     }
   }
 
-  // Speed toggle
-  const cycleSpeed = () => {
-    const nextIdx = (speedIndex + 1) % speeds.length
-    setSpeedIndex(nextIdx)
-    const newSpeed = speeds[nextIdx]
-
-    if (utteranceRef.current && typeof window !== "undefined" && "speechSynthesis" in window) {
-      if (isPlaying) {
-        window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(articleText)
-        utterance.rate = newSpeed
-        utterance.lang = lang === "gu" ? "gu-IN" : "en-US"
-        window.speechSynthesis.speak(utterance)
-      }
+  // Seek on slider scrub
+  const handleSeek = (newTime) => {
+    setCurrentTime(newTime)
+    if (typeof window !== "undefined" && "speechSynthesis" in window && isPlaying) {
+      // Re-trigger from proportionate text if browser supports or continue timer
     }
   }
 
-  // Seek on waveform click
-  const handleSeek = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const percent = Math.max(0, Math.min(1, clickX / rect.width))
-    const targetSeconds = percent * durationSeconds
-    setCurrentTime(targetSeconds)
-  }
-
-  // Clean up on unmount or language switch
+  // Clean up on unmount or language/article change
   React.useEffect(() => {
+    setCurrentTime(0)
+    setIsPlaying(false)
+    setVoiceWarning(null)
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      if (isPlaying) {
-        window.speechSynthesis.cancel()
-        setIsPlaying(false)
-        clearInterval(timerRef.current)
-      }
-      // Pre-load voices
+      window.speechSynthesis.cancel()
       window.speechSynthesis.getVoices()
       const handleVoicesChanged = () => {
         window.speechSynthesis.getVoices()
@@ -166,9 +203,7 @@ export function AudioArticlePlayer({
     return () => {
       clearInterval(timerRef.current)
     }
-  }, [lang])
-
-  const currentPercent = Math.min(100, (currentTime / durationSeconds) * 100)
+  }, [articleText, lang])
 
   return (
     <div className="w-full bg-[#f8f7f3] dark:bg-[#1a1b18] border border-[#e6e3da] dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
@@ -177,22 +212,19 @@ export function AudioArticlePlayer({
         <div className="flex items-center gap-2">
           <Volume2 className="h-5 w-5 text-[#008d7f] dark:text-[#38b2ac] shrink-0" />
           <h3 className="font-bold text-sm sm:text-base text-foreground leading-none">
-            {lang === "gu" ? "આ લેખ સાંભળો" : "Listen to this Article"}
+            {title}
           </h3>
-          <span className="bg-[#e9e8e3] dark:bg-white/10 text-muted-foreground text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full">
-            Audio
-          </span>
         </div>
 
-        {/* Time counter: 03:45 / 07:12 */}
+        {/* Dynamic Time counter: 01:23 / 02:45 */}
         <div className="text-xs sm:text-sm font-mono text-muted-foreground font-semibold tabular-nums">
-          {formatTime(currentTime)} / {formatTime(durationSeconds)}
+          {formatDigits(formatTime(currentTime), lang)} / {formatDigits(formatTime(calculatedDuration), lang)}
         </div>
       </div>
 
       {/* Controls & Waveform Track */}
       <div className="flex items-center gap-3 sm:gap-4">
-        {/* Big circular Play/Pause button */}
+        {/* Circular Play/Pause button */}
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -215,13 +247,13 @@ export function AudioArticlePlayer({
         {/* Slider scrub track */}
         <div className="flex-1 px-3 py-2 bg-white dark:bg-[#121310] h-11 sm:h-12 rounded-full border border-[#e2dfd5] dark:border-white/10 flex items-center">
           <Slider
-            value={[Math.min(durationSeconds, Math.max(0, Math.round(currentTime)))]}
-            max={durationSeconds}
+            value={[Math.min(calculatedDuration, Math.max(0, Math.round(currentTime)))]}
+            max={calculatedDuration}
             min={0}
             step={1}
             onValueChange={(val) => {
               const newTime = Array.isArray(val) ? val[0] : val
-              setCurrentTime(newTime)
+              handleSeek(newTime)
             }}
             className="w-full cursor-pointer [&_[data-slot=slider-range]]:bg-[#008d7f] [&_[data-slot=slider-thumb]]:border-[#008d7f]"
             aria-label={lang === "gu" ? "ઓડિયો ટ્રેક" : "Audio track scrubber"}
@@ -277,6 +309,23 @@ export function AudioArticlePlayer({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Graceful Voice Unsupported / Fallback Notice */}
+      {voiceWarning && (
+        <div className="mt-3 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 flex items-start justify-between gap-2.5 animate-fadeIn">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="leading-snug">{voiceWarning}</p>
+          </div>
+          <button
+            onClick={() => setVoiceWarning(null)}
+            className="text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 font-bold px-1.5 py-0.5 rounded-md hover:bg-amber-500/20 transition-colors text-xs shrink-0 cursor-pointer"
+            aria-label={lang === "gu" ? "ચેતવણી બંધ કરો" : "Dismiss notice"}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   )
 }

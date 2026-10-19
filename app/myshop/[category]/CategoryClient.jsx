@@ -263,16 +263,6 @@ export default function CategoryClient({ categorySlug }) {
     return filteredProducts.slice(start, start + itemsPerPage)
   }, [filteredProducts, currentPage, itemsPerPage])
 
-  // Category-specific hero gradients — deep, premium jewel tones
-  const categoryGradients = {
-    gemstones: "from-[#1a1054] via-[#2d1b69] to-[#3f277e]",
-    rudraksha: "from-[#3e1f0d] via-[#5a2d14] to-[#6e3b1d]",
-    malas: "from-[#00685d] via-[#007b6e] to-[#008376]",
-    yantras: "from-[#7a4a00] via-[#8d5a00] to-[#a06a00]",
-    sphatik: "from-[#1e3a5f] via-[#2a4a70] to-[#365a80]",
-    kavach: "from-[#5c0a1a] via-[#701020] to-[#841628]"
-  }
-
   const CategoryIcon = ICON_MAP[categoryMeta?.icon] || Gem
 
   if (!categoryMeta) return null
@@ -349,17 +339,17 @@ export default function CategoryClient({ categorySlug }) {
           </div>
         </section>
 
-        {/* CATEGORY HERO BANNER */}
-        <section className={`w-full relative overflow-hidden bg-gradient-to-r ${categoryGradients[categorySlug] || "from-[#00685d] via-[#007b6e] to-[#008376]"} text-white py-10 sm:py-14 shadow-md`}>
-          {/* Ambient decorative glow */}
-          <div className="absolute -right-16 -bottom-16 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-          <div className="absolute left-1/4 -top-20 w-80 h-80 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+        {/* CATEGORY HERO BANNER - Consistent Brand Emerald Green Theme */}
+        <section className="w-full relative overflow-hidden bg-gradient-to-r from-[#00685d] via-[#007b6e] to-[#008376] text-white py-10 sm:py-14 shadow-md">
+          {/* Ambient luminous decorative glow blurs */}
+          <div className="absolute -right-16 -bottom-16 w-96 h-96 rounded-full bg-[#fdc72d]/15 blur-3xl pointer-events-none" />
+          <div className="absolute left-1/4 -top-20 w-80 h-80 rounded-full bg-[#6ed8c8]/15 blur-2xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             <div className="max-w-2xl space-y-4 text-left">
               {/* Category Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md text-[#fdc72d] text-xs font-bold border border-white/20 shadow-xs">
-                <CategoryIcon className="h-3.5 w-3.5" />
+                <CategoryIcon className="h-3.5 w-3.5 text-[#fdc72d]" />
                 <span>{categoryMeta.heroBadge}</span>
               </div>
 
@@ -368,17 +358,17 @@ export default function CategoryClient({ categorySlug }) {
                 {categoryMeta.heroTitle}
               </h1>
 
-              {/* Subtitle */}
+              {/* Subtitle / Details */}
               <p className="text-sm sm:text-base text-white/90 leading-relaxed max-w-xl">
                 {categoryMeta.heroSubtitle}
               </p>
 
-              {/* Back to Shop + Search */}
+              {/* Search & Navigation Bar */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 w-full max-w-xl">
                 <Button
                   type="button"
                   onClick={() => router.push("/myshop")}
-                  className="w-full sm:w-auto px-4 h-11 rounded-xl bg-white/20 text-white font-bold text-xs sm:text-sm hover:bg-white/30 shadow-md transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer border border-white/20"
+                  className="w-full sm:w-auto px-4 h-11 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer border border-white/20"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>{lang === "gu" ? "બધી કેટેગરી" : "All Categories"}</span>
@@ -393,10 +383,10 @@ export default function CategoryClient({ categorySlug }) {
                       setSearchQuery(e.target.value)
                       setCurrentPage(1)
                     }}
-                    placeholder={lang === "gu" ? `${categoryMeta.name} માં શોધો...` : `Search in ${categoryMeta.nameEn}...`}
-                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-white text-[#1b1c1a] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
+                    placeholder={lang === "gu" ? `${categoryMeta.name} માં શોધો...` : `Search in ${categoryMeta.nameEn || categoryMeta.name}...`}
+                    className="w-full h-11 pl-10 pr-24 rounded-xl bg-white text-[#1b1c1a] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
                   />
-                  {searchQuery && (
+                  {searchQuery ? (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
@@ -404,21 +394,36 @@ export default function CategoryClient({ categorySlug }) {
                     >
                       <X className="h-4 w-4" />
                     </button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const el = document.getElementById("category-catalog")
+                        if (el) el.scrollIntoView({ behavior: "smooth" })
+                      }}
+                      className="absolute right-1.5 h-8 px-3 rounded-lg bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>{lang === "gu" ? "શોધો" : "Search"}</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Category Emblem */}
+            {/* Sacred Category Emblem Motif */}
             <div className="relative flex items-center justify-center shrink-0">
-              <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-white/10 backdrop-blur-md p-3 flex items-center justify-center shadow-2xl border border-white/20 ring-4 ring-[#fdc72d]/30">
-                <div className="w-full h-full rounded-full bg-white/10 border border-[#fdc72d]/40 p-4 flex flex-col items-center justify-center text-center space-y-2">
+              <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-full bg-white/10 backdrop-blur-md p-3.5 flex items-center justify-center shadow-2xl border border-white/20 ring-4 ring-[#fdc72d]/30">
+                <div className="w-full h-full rounded-full bg-[#00685d]/60 border border-[#fdc72d]/40 p-5 flex flex-col items-center justify-center text-center space-y-2">
                   <CategoryIcon className="w-16 h-16 text-[#fdc72d]" />
                   <span className="text-sm font-extrabold text-[#fdc72d] tracking-wide">
-                    {categoryMeta.nameEn}
+                    {categoryMeta.nameEn || categoryMeta.name}
                   </span>
                   <span className="text-[10px] text-white/80 uppercase font-bold tracking-widest">
-                    {categoryMeta.productCount} {lang === "gu" ? "ઉત્પાદનો" : "Products"}
+                    {lang === "gu" ? "પ્રાણ પ્રતિષ્ઠા ગેરંટી" : "PRAN PRATISHTHA GUARANTEE"}
+                  </span>
+                  <span className="text-[9px] text-[#fdc72d]/90 font-medium">
+                    {filteredProducts.length} {lang === "gu" ? "પવિત્ર સામગ્રી" : "Sacred Items"}
                   </span>
                 </div>
               </div>

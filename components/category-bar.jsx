@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useLanguage } from "@/components/language-provider"
 
 // Sacred Golden Trishul (Trident) SVG Icon matching reference image
@@ -101,32 +102,42 @@ export function CategoryBar({
         <div className="w-full pt-1">
           <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             {/* All option */}
-            <button
-              type="button"
-              onClick={() => onSelectFilter(null)}
-              className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
+            <Link
+              href="/#all"
+              onClick={(e) => {
+                if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+                  e.preventDefault()
+                  onSelectFilter(null)
+                }
+              }}
+              className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d] ${
                 activeFilter === null
                   ? "bg-[#fdc72d] text-[#1b1c1a] ring-1 ring-[#e5ad12] shadow-xs"
                   : "bg-[#f3f1ea] dark:bg-[#1e1f1c] hover:bg-[#eae6db] dark:hover:bg-[#282924] text-neutral-800 dark:text-neutral-200"
               }`}
             >
               {isEn ? "All" : "બધા"}
-            </button>
+            </Link>
             {categories.map((cat) => {
               const isSelected = activeFilter === cat.id
               return (
-                <button
+                <Link
                   key={cat.id}
-                  type="button"
-                  onClick={() => onSelectFilter(cat.id)}
-                  className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
+                  href={`/categories`}
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+                      e.preventDefault()
+                      onSelectFilter(cat.id)
+                    }
+                  }}
+                  className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d] ${
                     isSelected
                       ? "bg-[#fdc72d] text-[#1b1c1a] ring-1 ring-[#e5ad12] shadow-xs"
                       : "bg-[#f3f1ea] dark:bg-[#1e1f1c] hover:bg-[#eae6db] dark:hover:bg-[#282924] text-neutral-800 dark:text-neutral-200"
                   }`}
                 >
                   {cat.label}
-                </button>
+                </Link>
               )
             })}
           </div>

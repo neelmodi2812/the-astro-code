@@ -6,21 +6,15 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
   Sparkles,
-  Sun,
   Video,
   PlusCircle,
   Plus,
-  ArrowRight,
   Package,
   Calendar,
   Check,
-  Palette,
-  Compass,
-  Hash,
   BookOpen,
   Truck,
-  ShieldCheck,
-  ShoppingBag
+  ShieldCheck
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
@@ -71,39 +65,32 @@ export default function DashboardClient() {
       <div className="space-y-5">
         
         {/* Welcome Executive Header */}
-        <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-          <div className="flex items-center gap-3.5 z-10">
-            <div className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-[#fdc72d] to-[#d9a100] p-0.5 shadow-2xs flex items-center justify-center shrink-0">
-              <div className="w-full h-full rounded-full bg-card dark:bg-[#181914] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-lg">
-                {data.userProfile.initials[lang] || data.userProfile.initials.gu}
-              </div>
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00685d] text-white rounded-full flex items-center justify-center text-[8px] shadow">
-                <Check className="h-2 w-2 stroke-[3]" />
-              </span>
+        <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                {isEn ? `Welcome, ${data.userProfile.name.en}` : `નમસ્તે, ${data.userProfile.name.gu}`}
+              </h1>
+              <Badge className="bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/40 text-[10px] font-bold">
+                <Sparkles className="h-2.5 w-2.5 mr-1" />
+                <span>{data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}</span>
+              </Badge>
             </div>
-
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-                  {isEn ? `Welcome, ${data.userProfile.name.en}!` : `નમસ્તે, ${data.userProfile.name.gu}!`}
-                </h1>
-                <Badge className="bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-bold shadow-2xs">
-                  <Sparkles className="h-2.5 w-2.5 mr-1" />
-                  <span>{data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}</span>
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {data.userProfile.subtitle[lang] || data.userProfile.subtitle.gu}
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+              <span>{data.userProfile.birthDetails.rashi[lang] || data.userProfile.birthDetails.rashi.gu}</span>
+              <span className="text-border">•</span>
+              <span>{data.userProfile.birthDetails.nakshatra[lang] || data.userProfile.birthDetails.nakshatra.gu}</span>
+              <span className="text-border">•</span>
+              <span>{data.userProfile.birthDetails.city[lang] || data.userProfile.birthDetails.city.gu}</span>
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 z-10 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Button
               onClick={() => setAddKundliOpen(true)}
               variant="outline"
               size="sm"
-              className="h-9 px-3 text-xs font-bold gap-1.5 border-border hover:bg-muted/60 cursor-pointer shadow-2xs"
+              className="h-9 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-muted cursor-pointer shadow-2xs"
             >
               <PlusCircle className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
               <span>{data.headerActions.addKundli[lang] || data.headerActions.addKundli.gu}</span>
@@ -112,7 +99,7 @@ export default function DashboardClient() {
             <Button
               onClick={() => router.push("/dashboard/consultations")}
               size="sm"
-              className="h-9 px-3.5 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] shadow-sm cursor-pointer"
+              className="h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] shadow-xs cursor-pointer"
             >
               <Video className="h-3.5 w-3.5" />
               <span>{data.headerActions.joinRoom[lang] || data.headerActions.joinRoom.gu}</span>
@@ -126,7 +113,7 @@ export default function DashboardClient() {
             <div
               key={idx}
               onClick={() => router.push(m.href)}
-              className="bg-card dark:bg-[#181914] rounded-xl p-4 border border-border/70 shadow-2xs hover:shadow-md transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between group"
+              className="bg-card dark:bg-[#181914] rounded-xl p-4 border border-border/70 shadow-2xs hover:border-[#fdc72d]/60 hover:shadow-sm transition-all cursor-pointer relative flex flex-col justify-between group"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -145,24 +132,12 @@ export default function DashboardClient() {
                 </div>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
                 <span className="truncate text-[11px]">{m.subtitle[lang] || m.subtitle.gu}</span>
                 <span className="text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] group-hover:underline">
                   {m.cta[lang] || m.cta.gu}
                 </span>
               </div>
-
-              <div
-                className={`absolute bottom-0 left-0 right-0 h-1 ${
-                  m.accent === "primary"
-                    ? "bg-[#00685d]"
-                    : m.accent === "secondary"
-                    ? "bg-[#fdc72d]"
-                    : m.accent === "tertiary"
-                    ? "bg-destructive"
-                    : "bg-amber-500"
-                }`}
-              />
             </div>
           ))}
         </div>
@@ -198,18 +173,18 @@ export default function DashboardClient() {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 p-2.5 bg-muted/40 dark:bg-[#20211d] rounded-xl text-xs border border-border/40">
+            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/40">
               {data.dailyTransit.attributes.map((attr, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                    {attr.icon === "palette" && <Palette className="h-3 w-3" />}
-                    {attr.icon === "pin" && <Hash className="h-3 w-3" />}
-                    {attr.icon === "explore" && <Compass className="h-3 w-3" />}
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block">{attr.label[lang] || attr.label.gu}</span>
-                    <strong className="text-foreground text-[11px]">{attr.value[lang] || attr.value.gu}</strong>
-                  </div>
+                <div
+                  key={idx}
+                  className={`text-center ${idx !== 0 ? "border-l border-border/40 pl-2" : ""}`}
+                >
+                  <span className="text-[10px] text-muted-foreground block font-medium">
+                    {attr.label[lang] || attr.label.gu}
+                  </span>
+                  <span className="text-xs font-bold text-foreground block mt-0.5">
+                    {attr.value[lang] || attr.value.gu}
+                  </span>
                 </div>
               ))}
             </div>
@@ -225,34 +200,32 @@ export default function DashboardClient() {
                     {isEn ? "Upcoming Live Session" : "આગામી વિડિયો પરામર્શ"}
                   </span>
                 </div>
-                <Link
-                  href="/dashboard/consultations"
-                  className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
-                >
-                  {isEn ? "Vault →" : "વિગત →"}
-                </Link>
+                <Badge className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/30 text-[10px] font-bold">
+                  {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
+                </Badge>
               </div>
 
-              <div className="mt-3 space-y-1">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-destructive/15 text-destructive border-destructive/20 text-[10px] font-bold">
-                    {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
-                  </Badge>
-                  <strong className="text-xs text-foreground">
-                    {data.upcomingConsultation.astrologer[lang] || data.upcomingConsultation.astrologer.gu}
-                  </strong>
+              <div className="mt-3 space-y-1.5">
+                <div className="font-bold text-sm text-foreground">
+                  {data.upcomingConsultation.astrologer[lang] || data.upcomingConsultation.astrologer.gu}
                 </div>
                 <p className="text-xs text-muted-foreground font-medium">
                   {data.upcomingConsultation.title[lang] || data.upcomingConsultation.title.gu}
                 </p>
-                <div className="text-[11px] text-muted-foreground pt-0.5">
-                  📅 {data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu} • {data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span>
+                    {data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu} • {data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/40">
-              <span className="text-[11px] text-muted-foreground">Google Meet HD</span>
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
+              <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Google Meet HD</span>
+              </span>
               <Button
                 onClick={() => window.open(data.upcomingConsultation.meetUrl, "_blank")}
                 size="sm"
@@ -264,7 +237,7 @@ export default function DashboardClient() {
             </div>
           </div>
 
-          {/* WIDGET 3: Active Order Status Pill */}
+          {/* WIDGET 3: Active Order Status */}
           <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
@@ -274,44 +247,64 @@ export default function DashboardClient() {
                     {isEn ? "Active Puja Order" : "સક્રિય પૂજા ઓર્ડર"}
                   </span>
                 </div>
-                <Link
-                  href="/dashboard/orders"
-                  className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
-                >
-                  {isEn ? "All Orders →" : "ઓર્ડર્સ →"}
-                </Link>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-muted-foreground font-mono">{data.activeOrder.orderNumber}</span>
+                  <Badge className="bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border border-[#00685d]/20 text-[10px] font-bold">
+                    {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
+                  </Badge>
+                </div>
               </div>
 
               <div className="flex items-center gap-3 mt-3 min-w-0">
                 <img
                   src={data.activeOrder.imageUrl}
                   alt="Product"
-                  className="w-12 h-12 rounded-lg object-cover shadow-2xs shrink-0 border border-border/50"
+                  className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border/50"
                 />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-muted-foreground">{data.activeOrder.orderNumber}</span>
-                    <Badge className="bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-bold">
-                      {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
-                    </Badge>
-                  </div>
-                  <h4 className="font-bold text-xs text-foreground truncate mt-0.5">
+                  <h4 className="font-bold text-xs text-foreground truncate">
                     {data.activeOrder.productName[lang] || data.activeOrder.productName.gu}
                   </h4>
-                  <span className="text-[11px] text-muted-foreground block truncate">
+                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
                     {data.activeOrder.currentStage[lang] || data.activeOrder.currentStage.gu}
-                  </span>
+                  </p>
                 </div>
+              </div>
+
+              {/* Clean 4-step progress bar */}
+              <div className="grid grid-cols-4 gap-1.5 mt-3 pt-2">
+                {data.activeOrder.steps.map((st, sIdx) => {
+                  const isDone = st.status === "completed"
+                  const isActive = st.status === "active"
+                  return (
+                    <div key={sIdx} className="space-y-1 text-center">
+                      <div
+                        className={`h-1.5 rounded-full transition-all ${
+                          isDone
+                            ? "bg-[#00685d] dark:bg-[#6ed8c8]"
+                            : isActive
+                            ? "bg-[#fdc72d]"
+                            : "bg-muted"
+                        }`}
+                      />
+                      <span className={`text-[9px] block truncate font-medium ${
+                        isActive ? "text-foreground font-bold" : "text-muted-foreground"
+                      }`}>
+                        {st.title[lang] || st.title.gu}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/40">
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
               <span className="text-xs font-bold text-foreground">
                 {isEn ? data.activeOrder.priceEn : data.activeOrder.price}
               </span>
               <Link
                 href="/dashboard/orders"
-                className="px-3 py-1 rounded-lg bg-muted/60 dark:bg-[#20211d] text-xs font-bold text-foreground hover:bg-[#fdc72d]/20 transition-all"
+                className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
               >
                 {isEn ? "Track Shipment →" : "ટ્રેક કરો →"}
               </Link>
@@ -337,38 +330,44 @@ export default function DashboardClient() {
               </div>
 
               <div className="space-y-2 mt-3">
-                {data.savedKundlis.list.map((k) => (
-                  <Link
-                    key={k.id}
-                    href="/dashboard/kundli"
-                    className="p-2 bg-muted/40 dark:bg-[#20211d] rounded-lg border border-border/40 hover:border-[#fdc72d] transition-all flex items-center justify-between gap-2"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-6 h-6 rounded-full bg-card dark:bg-[#181914] text-[#8a6800] dark:text-[#fdc72d] font-bold text-[10px] flex items-center justify-center shrink-0 border border-border/50">
-                        {k.initial[lang] || k.initial.gu}
+                {data.savedKundlis.list.map((k) => {
+                  const personName = k.name[lang] || k.name.gu
+                  const personInitial = personName ? personName.charAt(0) : "•"
+                  return (
+                    <Link
+                      key={k.id}
+                      href="/dashboard/kundli"
+                      className="p-2 px-2.5 bg-muted/40 dark:bg-[#20211d] rounded-lg border border-border/40 hover:border-[#fdc72d]/60 transition-all flex items-center justify-between gap-2 group"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-card dark:bg-[#181914] text-[#8a6800] dark:text-[#fdc72d] font-bold text-[11px] flex items-center justify-center shrink-0 border border-border/50">
+                          {personInitial}
+                        </div>
+                        <span className="font-semibold text-xs text-foreground truncate group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
+                          {personName}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          ({k.relation[lang] || k.relation.gu})
+                        </span>
                       </div>
-                      <span className="font-bold text-xs text-foreground truncate">
-                        {k.name[lang] || k.name.gu}
+                      <span className="text-[11px] font-medium text-muted-foreground shrink-0">
+                        {k.rashiLagna[lang] || k.rashiLagna.gu}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        ({k.relation[lang] || k.relation.gu})
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] shrink-0">
-                      {k.rashiLagna[lang] || k.rashiLagna.gu}
-                    </span>
-                  </Link>
-                ))}
+                    </Link>
+                  )
+                })}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">{data.savedKundlis.list.length} {isEn ? "Charts in Vault" : "કુંડળીઓ સંગ્રહિત"}</span>
+            <div className="pt-3 border-t border-border/40 flex items-center justify-between">
+              <span className="text-[11px] text-muted-foreground">
+                {data.savedKundlis.list.length} {isEn ? "Charts in Vault" : "કુંડળીઓ સંગ્રહિત"}
+              </span>
               <Button
                 onClick={() => setAddKundliOpen(true)}
                 variant="ghost"
                 size="sm"
-                className="h-7 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/20 p-1"
+                className="h-7 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/10 px-2 cursor-pointer"
               >
                 <Plus className="h-3 w-3 mr-1" />
                 <span>{isEn ? "Add Chart" : "કુંડળી ઉમેરો"}</span>

@@ -3,61 +3,24 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { toast } from "sonner"
 import {
   LayoutDashboard,
   BookOpen,
   Package,
   Video,
   Settings,
-  Phone,
   MessageCircle,
-  Sparkles,
-  RotateCcw,
   Check
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { DASHBOARD_DATA } from "@/lib/data/dashboard-data"
-import { Button } from "@/components/ui/button"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
   const { lang } = useLanguage()
   const data = DASHBOARD_DATA
   const isEn = lang === "en"
-
-  // Japa Bead Counter State
-  const [japaCount, setJapaCount] = React.useState(data.japaCounter.initialCount)
-  const maxJapa = data.japaCounter.totalTarget
-  const circumference = 264
-  const japaOffset = circumference - (japaCount / maxJapa) * circumference
-
-  const handleJapaIncrement = () => {
-    if (japaCount >= maxJapa) {
-      setJapaCount(1)
-      toast.info(
-        isEn
-          ? "Started a new 108 Japa Mala cycle! Har Har Mahadev."
-          : "નવી ૧૦૮ જાપ માળા શરૂ થઈ! હર હર મહાદેવ."
-      )
-    } else {
-      const next = japaCount + 1
-      setJapaCount(next)
-      if (next === maxJapa) {
-        toast.success(
-          isEn
-            ? "Congratulations! You completed 108 Gayatri Mantra Japas."
-            : "અભિનંદન! તમારો ૧૦૮ ગાયત્રી મંત્ર જાપ સંકલ્પ પૂર્ણ થયો."
-        )
-      }
-    }
-  }
-
-  const handleJapaReset = () => {
-    setJapaCount(0)
-    toast.info(isEn ? "Japa counter reset." : "જાપ કાઉન્ટર રીસેટ કરવામાં આવ્યું.")
-  }
 
   const navItems = [
     {
@@ -105,14 +68,13 @@ export function DashboardSidebar() {
 
   return (
     <aside className="w-full flex flex-col gap-4">
-      
       {/* 1. User Identity Snippet */}
       <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs flex items-center gap-3">
-        <div className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-[#fdc72d] to-[#d9a100] p-0.5 shadow-2xs flex items-center justify-center shrink-0">
-          <div className="w-full h-full rounded-full bg-card dark:bg-[#181914] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-base">
+        <div className="relative w-11 h-11 rounded-full bg-gradient-to-tr from-[#fdc72d] to-[#d9a100] p-0.5 shadow-2xs flex items-center justify-center shrink-0">
+          <div className="w-full h-full rounded-full bg-card dark:bg-[#181914] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-sm">
             {data.userProfile.initials[lang] || data.userProfile.initials.gu}
           </div>
-          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00685d] text-white rounded-full flex items-center justify-center text-[8px] shadow">
+          <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#00685d] text-white rounded-full flex items-center justify-center text-[7px] shadow">
             <Check className="h-2 w-2 stroke-[3]" />
           </span>
         </div>
@@ -126,7 +88,7 @@ export function DashboardSidebar() {
         </div>
       </div>
 
-      {/* 2. Main Navigation Links (Desktop vertical & responsive on mobile) */}
+      {/* 2. Main Navigation Links */}
       <nav className="bg-card dark:bg-[#181914] rounded-2xl p-2 border border-border/70 shadow-2xs flex flex-col gap-1">
         <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
           {isEn ? "Vedic Portal Navigation" : "ડેશબોર્ડ નેવિગેશન"}
@@ -162,100 +124,34 @@ export function DashboardSidebar() {
               )}
 
               {item.alert && (
-                <span className="w-2 h-2 rounded-full bg-destructive animate-ping shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
               )}
             </Link>
           )
         })}
       </nav>
 
-      {/* 3. Daily Japa Meditation Progress Widget */}
-      <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col items-center text-center space-y-2.5">
-        <div className="flex items-center justify-between w-full text-xs font-bold">
-          <span className="text-muted-foreground uppercase text-[10px]">
-            {data.japaCounter.title[lang] || data.japaCounter.title.gu}
+      {/* 3. Compact Astrologer Helpline Support */}
+      <div className="bg-card dark:bg-[#181914] rounded-2xl p-3.5 border border-border/70 shadow-2xs flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <span className="font-bold text-xs text-foreground block truncate">
+            {isEn ? "Astrology Helpline" : "જ્યોતિષીય સહાયતા"}
           </span>
-          <span className="text-[#8a6800] dark:text-[#fdc72d] text-[11px]">
-            {data.japaCounter.mantra[lang] || data.japaCounter.mantra.gu}
-          </span>
-        </div>
-
-        <div className="relative w-20 h-20 flex items-center justify-center my-0.5">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-            <circle
-              className="text-muted/40 dark:text-[#252622]"
-              cx="50"
-              cy="50"
-              fill="transparent"
-              r="42"
-              stroke="currentColor"
-              strokeWidth="7"
-            />
-            <circle
-              className="text-[#fdc72d] transition-all duration-300"
-              cx="50"
-              cy="50"
-              fill="transparent"
-              r="42"
-              stroke="currentColor"
-              strokeWidth="7"
-              strokeDasharray={circumference}
-              strokeDashoffset={japaOffset}
-              strokeLinecap="round"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center select-none">
-            <span className="text-lg font-black text-foreground">
-              {isEn ? japaCount : japaCount.toLocaleString("gu-IN")}
-            </span>
-            <span className="text-[8px] text-muted-foreground font-bold">
-              / {isEn ? maxJapa : maxJapa.toLocaleString("gu-IN")}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 w-full pt-1">
-          <Button
-            onClick={handleJapaIncrement}
-            className="flex-1 h-7 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-[11px] rounded-lg shadow-2xs gap-1 cursor-pointer"
-          >
-            <Sparkles className="h-3 w-3" />
-            <span>{data.japaCounter.btnLabel[lang] || data.japaCounter.btnLabel.gu}</span>
-          </Button>
-          <Button
-            onClick={handleJapaReset}
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 border-border text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-            title={data.japaCounter.resetLabel[lang] || data.japaCounter.resetLabel.gu}
-          >
-            <RotateCcw className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-
-      {/* 4. Astrologer Helpline Support */}
-      <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs space-y-2">
-        <div className="flex items-center gap-2">
-          <Phone className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
-          <span className="font-bold text-xs text-foreground">
-            {data.helpline.title[lang] || data.helpline.title.gu}
+          <span className="text-[10px] text-muted-foreground block truncate">
+            {isEn ? "Direct WhatsApp support" : "વોટ્સએપ સહાય"}
           </span>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-snug">
-          {isEn ? "Direct WhatsApp support for all astrological questions:" : "કુંડળી સંબંધી સીધું માર્ગદર્શન:"}
-        </p>
         <a
           href="https://wa.me/917940008108"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full bg-[#00685d] hover:bg-[#005048] text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+          className="shrink-0 bg-[#00685d] hover:bg-[#005048] text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
         >
           <MessageCircle className="h-3.5 w-3.5" />
-          <span>{data.helpline.whatsappText[lang] || data.helpline.whatsappText.gu}</span>
+          <span>WhatsApp</span>
         </a>
       </div>
-
     </aside>
   )
 }
+

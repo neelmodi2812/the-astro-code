@@ -7,25 +7,16 @@ import { useRouter, usePathname } from "next/navigation"
 import {
   Sparkles,
   Sun,
-  Search,
-  Mic,
-  Calendar,
   MessageSquare,
   User,
   ChevronDown,
   ShoppingBag,
   Menu,
   X,
-  Globe,
-  Video,
   MessageCircle,
   Clock,
-  Phone,
-  Compass,
   ChevronLeft,
   ChevronRight,
-  Heart,
-  Package,
   Info,
   LogIn,
   UserPlus,
@@ -58,11 +49,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useLanguage } from "@/components/language-provider"
+import { getWhatsAppUrl } from "@/lib/data/astro-data"
 
 // Rich, specific submenus for navigation dropdowns
 const SUBMENU_DATA = {
   "bahuchar-maa-rajwadu": [
-    { label: { gu: "ચૈત્રી સુદ પૂનમ પ્રાગટ્ય (મુખ્ય લેખ)", en: "Chaitri Sud Poonam Manifestation" }, href: "/article/hero-1" },
+    { label: { gu: "ચૈત્રી સુદ પૂનમ પ્રાગટ્ય", en: "Chaitri Sud Poonam Manifestation" }, href: "/article/hero-1" },
     { label: { gu: "ચુંવાળ બહુચરાજી પરચાઓ", en: "Chunval Bahucharaji Miracles" }, href: "/article/hero-2" },
     { label: { gu: "વરખડી વૃક્ષ પ્રાગટ્ય દર્શન", en: "Sacred Varkhadi Tree Darshan" }, href: "/article/hero-3" },
     { label: { gu: "માં બહુચરને લાડુનો ગોખ શા માટે?", en: "Sacred Laddu Offering Legend" }, href: "/article/hero-4" },
@@ -88,7 +80,7 @@ const SUBMENU_DATA = {
     { label: { gu: "નામ અંકશાસ્ત્ર લકી નંબર", en: "Name Numerology & Lucky Number" }, href: "/categories" },
   ],
   "more": [
-    { label: { gu: "તમામ વિષય સંગ્રહ (All Categories)", en: "All Categories & Topics Directory" }, href: "/categories" },
+    { label: { gu: "તમામ વિષય સંગ્રહ", en: "All Categories & Topics Directory" }, href: "/categories" },
     { label: { gu: "પ્રેરણાત્મક ધાર્મિક કથાઓ", en: "Inspirational Spiritual Stories" }, href: "/article/feat-2" },
     { label: { gu: "અમારા વિશે & સંસ્થા પરિચય", en: "About Us & Institute History" }, href: "/about-us" },
     { label: { gu: "સંપર્ક કરો & મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
@@ -111,8 +103,27 @@ export function AstroHeader({
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState("")
   const [expandedCategory, setExpandedCategory] = React.useState(null)
+
+  // Lock background body scroll when mobile drawer is open
+  React.useEffect(() => {
+    if (typeof document !== "undefined") {
+      if (mobileMenuOpen) {
+        const originalOverflow = document.body.style.overflow
+        document.body.style.overflow = "hidden"
+        return () => {
+          document.body.style.overflow = originalOverflow
+        }
+      } else {
+        document.body.style.overflow = ""
+      }
+    }
+  }, [mobileMenuOpen])
+
+  // Automatically close mobile menu on route navigation
+  React.useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
 
   const navScrollRef = React.useRef(null)
   const [canScrollLeft, setCanScrollLeft] = React.useState(false)
@@ -153,6 +164,20 @@ export function AstroHeader({
     if (onToggleLang) {
       onToggleLang(newLang)
     }
+  }
+
+  const getItemHref = (itemId) => {
+    if (itemId === "home") return "/"
+    if (itemId === "bahuchar-maa-rajwadu") return "/article/hero-1"
+    if (itemId === "jyotirling") return "/article/jyotirling-1"
+    if (itemId === "dharmik" || itemId === "jyotishshastra" || itemId === "ankashastra" || itemId === "categories" || itemId === "more" || itemId === "vishay-sangrah") return "/categories"
+    if (itemId === "preranatmak") return "/article/feat-2"
+    if (itemId === "about" || itemId === "about-us") return "/about-us"
+    if (itemId === "panchang" || itemId === "dainik-panchang") return "/dainik-panchang"
+    if (itemId === "contact" || itemId === "contact-us") return "/contact-us"
+    if (itemId === "cart") return "/myshop/cart"
+    if (itemId === "shop" || itemId === "myshop" || itemId === "vedic-shop") return "/myshop"
+    return "/"
   }
 
   const handleNavClick = (itemId) => {
@@ -245,7 +270,7 @@ export function AstroHeader({
               <div className="hidden xl:flex items-center gap-2.5 pl-3 border-l border-border/60">
                 <div className="flex flex-col text-left justify-center">
                   <span className="flex items-center gap-1.5 text-[#8a6800] dark:text-[#fdc72d] font-bold text-xs whitespace-nowrap leading-tight">
-                    <Sparkles className="h-3.5 w-3.5 text-[#d9a100] shrink-0" />
+                    {/* <Sparkles className="h-3.5 w-3.5 text-[#d9a100] shrink-0" /> */}
                     <span>{topBar?.samvat || "વિક્રમ સંવત ૨૦૮૧ • કાર્તક સુદ પૂનમ"}</span>
                   </span>
                   <span className="flex items-center gap-1 text-muted-foreground text-[11px] mt-0.5 whitespace-nowrap leading-tight">
@@ -264,11 +289,11 @@ export function AstroHeader({
                 className="hidden md:inline-flex bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] font-extrabold shadow-sm hover:shadow transition-all cursor-pointer h-10 px-4 sm:px-5 rounded-xl shrink-0 whitespace-nowrap items-center justify-center border border-[#e5b220]"
                 onClick={() => {
                   window.open(
-                    `https://wa.me/919825000000?text=${encodeURIComponent(
+                    getWhatsAppUrl(
                       lang === 'gu'
                         ? 'જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો.'
                         : 'Hello, I would like to book an astrology consultation.'
-                    )}`,
+                    ),
                     "_blank"
                   )
                 }}
@@ -318,31 +343,41 @@ export function AstroHeader({
                         <User className="h-3.5 w-3.5 text-[#d9a100]" />
                         <span>{lang === "gu" ? "મારું પ્રોફાઇલ & એકાઉન્ટ" : "My Profile & Account"}</span>
                       </DropdownMenuLabel>
-                      <DropdownMenuItem className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 font-bold text-[#8a6800] dark:text-[#fdc72d] bg-[#fdc72d]/10 rounded-lg mb-1" onClick={() => router.push("/dashboard")}>
-                        <LayoutDashboard className="h-3.5 w-3.5" />
-                        <span>{lang === "gu" ? "ડેશબોર્ડ (User Dashboard)" : "Vedic Dashboard"}</span>
+                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 font-bold text-[#8a6800] dark:text-[#fdc72d] bg-[#fdc72d]/10 rounded-lg mb-1">
+                        <Link href="/dashboard" className="flex items-center gap-2.5 w-full">
+                          <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
+                          <span>{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
+                        </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1" onClick={() => router.push("/login")}>
-                        <LogIn className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{lang === "gu" ? "લૉગિન (Sign In)" : "Sign In"}</span>
+                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
+                        <Link href="/login" className="flex items-center gap-2.5 w-full">
+                          <LogIn className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          <span>{lang === "gu" ? "લૉગિન" : "Sign In"}</span>
+                        </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1" onClick={() => router.push("/register")}>
-                        <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{lang === "gu" ? "નવું એકાઉન્ટ (Register)" : "Register"}</span>
+                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
+                        <Link href="/register" className="flex items-center gap-2.5 w-full">
+                          <UserPlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          <span>{lang === "gu" ? "નવું એકાઉન્ટ" : "Register"}</span>
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuItem className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5" onClick={() => router.push("/contact-us")}>
-                        <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{lang === "gu" ? "જ્યોતિષ પરામર્શ સહાય" : "Astrology Consultation"}</span>
+                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg">
+                        <Link href="/contact-us" className="flex items-center gap-2.5 w-full">
+                          <MessageCircle className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          <span>{lang === "gu" ? "જ્યોતિષ પરામર્શ સહાય" : "Astrology Consultation"}</span>
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuItem className="cursor-pointer text-xs py-2 px-2.5 text-muted-foreground flex items-center gap-2.5" onClick={() => router.push("/about-us")}>
-                        <Info className="h-3.5 w-3.5" />
-                        <span>{lang === "gu" ? "અમારા વિશે" : "About Us"}</span>
+                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg flex items-center gap-2.5">
+                        <Link href="/about-us" className="flex items-center gap-2.5 w-full">
+                          <Info className="h-3.5 w-3.5 shrink-0" />
+                          <span>{lang === "gu" ? "અમારા વિશે" : "About Us"}</span>
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
@@ -357,11 +392,10 @@ export function AstroHeader({
                   type="button"
                   onClick={() => handleLangChange("gu")}
                   aria-label="ગુજરાતી ભાષા"
-                  className={`px-2.5 sm:px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    lang === "gu"
+                  className={`px-2.5 sm:px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "gu"
                       ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
                       : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   ગુજ
                 </button>
@@ -369,11 +403,10 @@ export function AstroHeader({
                   type="button"
                   onClick={() => handleLangChange("en")}
                   aria-label="English Language"
-                  className={`px-2.5 sm:px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    lang === "en"
+                  className={`px-2.5 sm:px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "en"
                       ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
                       : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   EN
                 </button>
@@ -396,123 +429,129 @@ export function AstroHeader({
         </div>
 
         {/* 2ND LAYER: PRIMARY BRAND NAVIGATION IN SACRED SAFFRON (#fdc72d) - DESKTOP ONLY */}
-      <div className="hidden md:block bg-[#fdc72d] text-[#1b1c1a] px-2 sm:px-4 lg:px-6 border-t border-b border-[#e5b220] shadow-sm relative">
-        <div className="max-w-7xl mx-auto relative flex items-center">
-          {/* Left Smooth Scroll Arrow Button */}
-          {canScrollLeft && (
-            <button
-              type="button"
-              onClick={() => scrollNav("left")}
-              aria-label="Scroll navigation left"
-              className="absolute left-0 z-20 h-full px-1.5 bg-gradient-to-r from-[#fdc72d] via-[#fdc72d]/95 to-transparent flex items-center justify-center text-[#1b1c1a] hover:opacity-80 cursor-pointer transition-opacity"
+        <div className="hidden md:block bg-[#fdc72d] text-[#1b1c1a] px-2 sm:px-4 lg:px-6 border-t border-b border-[#e5b220] shadow-sm relative">
+          <div className="max-w-7xl mx-auto relative flex items-center">
+            {/* Left Smooth Scroll Arrow Button */}
+            {canScrollLeft && (
+              <button
+                type="button"
+                onClick={() => scrollNav("left")}
+                aria-label="Scroll navigation left"
+                className="absolute left-0 z-20 h-full px-1.5 bg-gradient-to-r from-[#fdc72d] via-[#fdc72d]/95 to-transparent flex items-center justify-center text-[#1b1c1a] hover:opacity-80 cursor-pointer transition-opacity"
+              >
+                <div className="p-1 rounded-full bg-[#1b1c1a]/10 hover:bg-[#1b1c1a]/20">
+                  <ChevronLeft className="h-4 w-4" />
+                </div>
+              </button>
+            )}
+
+            {/* Navigation Strip with Smooth Horizontal Scroll and Generous Right Breathing Room */}
+            <nav
+              ref={navScrollRef}
+              aria-label="Main Navigation"
+              className="flex items-center gap-1 lg:gap-1.5 xl:gap-2 overflow-x-auto py-2 xl:py-2.5 pr-8 sm:pr-10 lg:pr-4 scrollbar-none w-full scroll-smooth"
             >
-              <div className="p-1 rounded-full bg-[#1b1c1a]/10 hover:bg-[#1b1c1a]/20">
-                <ChevronLeft className="h-4 w-4" />
-              </div>
-            </button>
-          )}
+              {navLinks.map((item) => {
+                const isActive = checkIsActive(item)
+                const subItems = SUBMENU_DATA[item.id] || []
+                const hasSub = Boolean(item.hasSubmenu && subItems.length > 1)
 
-          {/* Navigation Strip with Smooth Horizontal Scroll and Generous Right Breathing Room */}
-          <nav
-            ref={navScrollRef}
-            aria-label="Main Navigation"
-            className="flex items-center gap-1 lg:gap-1.5 xl:gap-2 overflow-x-auto py-2 xl:py-2.5 pr-8 sm:pr-10 lg:pr-4 scrollbar-none w-full scroll-smooth"
-          >
-            {navLinks.map((item) => {
-              const isActive = checkIsActive(item)
-              const subItems = SUBMENU_DATA[item.id] || []
-              const hasSub = Boolean(item.hasSubmenu && subItems.length > 1)
-
-              if (hasSub) {
-                return (
-                  <DropdownMenu key={item.id}>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className={`group px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${
-                          isActive
-                            ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
-                            : "text-[#1b1c1a] hover:bg-black/10"
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        <ChevronDown className="h-3.5 w-3.5 opacity-80 transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180 group-data-[popup-open]:rotate-180 group-data-[state=open]:rotate-180" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#181916] shadow-xl border border-border">
-                      {item.id !== "more" && (
-                        <>
-                          <DropdownMenuGroup>
+                if (hasSub) {
+                  return (
+                    <DropdownMenu key={item.id}>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={`group px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
+                              ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
+                              : "text-[#1b1c1a] hover:bg-black/10"
+                            }`}
+                        >
+                          <span>{item.label}</span>
+                          <ChevronDown className="h-3.5 w-3.5 opacity-80 transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180 group-data-[popup-open]:rotate-180 group-data-[state=open]:rotate-180" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#181916] shadow-xl border border-border">
+                        {item.id !== "more" && (
+                          <>
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer text-xs font-bold py-2 px-2.5 flex items-center justify-between text-[#8a6800] dark:text-[#fdc72d] rounded-lg"
+                              >
+                                <Link
+                                  href={getItemHref(item.id)}
+                                  onClick={() => onSelectCategory && onSelectCategory(item.id)}
+                                  className="flex items-center justify-between w-full"
+                                >
+                                  <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
+                        <DropdownMenuGroup>
+                          {subItems.map((sub, idx) => (
                             <DropdownMenuItem
-                              className="cursor-pointer text-xs font-bold py-2 px-2.5 flex items-center justify-between text-[#8a6800] dark:text-[#fdc72d] rounded-lg"
-                              onClick={() => handleNavClick(item.id)}
+                              key={idx}
+                              asChild
+                              className="cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between font-medium text-foreground hover:bg-muted rounded-lg"
                             >
-                              <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
+                              <Link href={sub.href} className="flex items-center justify-between w-full">
+                                <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
+                              </Link>
                             </DropdownMenuItem>
-                          </DropdownMenuGroup>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      <DropdownMenuGroup>
-                        {subItems.map((sub, idx) => (
-                          <DropdownMenuItem
-                            key={idx}
-                            className="cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between font-medium text-foreground hover:bg-muted rounded-lg"
-                            onClick={() => router.push(sub.href)}
-                          >
-                            <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                          ))}
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )
+                }
+
+                // Single route: direct navigation with Next.js Link tag
+                return (
+                  <Link
+                    key={item.id}
+                    href={getItemHref(item.id)}
+                    onClick={() => onSelectCategory && onSelectCategory(item.id)}
+                    className={`px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
+                        ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
+                        : "text-[#1b1c1a] hover:bg-black/10"
+                      }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.id === "cart" && cartCount > 0 && (
+                      <Badge variant="destructive" className="h-4 px-1.5 text-[10px] ml-1 bg-[#bb171f] text-white">
+                        {cartCount}
+                      </Badge>
+                    )}
+                  </Link>
                 )
-              }
+              })}
+            </nav>
 
-              // Single route: direct navigation, no arrow
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleNavClick(item.id)}
-                  className={`px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${
-                    isActive
-                      ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
-                      : "text-[#1b1c1a] hover:bg-black/10"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {item.id === "cart" && cartCount > 0 && (
-                    <Badge variant="destructive" className="h-4 px-1.5 text-[10px] ml-1 bg-[#bb171f] text-white">
-                      {cartCount}
-                    </Badge>
-                  )}
-                </button>
-              )
-            })}
-          </nav>
-
-          {/* Right Smooth Scroll Arrow Button / Visual Cue */}
-          {canScrollRight && (
-            <button
-              type="button"
-              onClick={() => scrollNav("right")}
-              aria-label="Scroll navigation right"
-              className="absolute right-0 z-20 h-full px-1.5 bg-gradient-to-l from-[#fdc72d] via-[#fdc72d]/95 to-transparent flex items-center justify-center text-[#1b1c1a] hover:opacity-80 cursor-pointer transition-opacity"
-            >
-              <div className="p-1 rounded-full bg-[#1b1c1a]/10 hover:bg-[#1b1c1a]/20">
-                <ChevronRight className="h-4 w-4" />
-              </div>
-            </button>
-          )}
+            {/* Right Smooth Scroll Arrow Button / Visual Cue */}
+            {canScrollRight && (
+              <button
+                type="button"
+                onClick={() => scrollNav("right")}
+                aria-label="Scroll navigation right"
+                className="absolute right-0 z-20 h-full px-1.5 bg-gradient-to-l from-[#fdc72d] via-[#fdc72d]/95 to-transparent flex items-center justify-center text-[#1b1c1a] hover:opacity-80 cursor-pointer transition-opacity"
+              >
+                <div className="p-1 rounded-full bg-[#1b1c1a]/10 hover:bg-[#1b1c1a]/20">
+                  <ChevronRight className="h-4 w-4" />
+                </div>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
 
         {/* Mobile Menu Drawer via shadcn SheetContent */}
         <SheetContent
           side="left"
           showCloseButton={true}
-          className="w-[84vw] max-w-xs sm:w-80 h-full p-0 flex flex-col justify-between border-r border-border/80 bg-card dark:bg-[#181916] text-foreground shadow-2xl"
+          className="w-[84vw] max-w-xs sm:w-80 h-[100dvh] max-h-[100dvh] p-0 flex flex-col justify-between border-r border-border/80 bg-card dark:bg-[#181916] text-foreground shadow-2xl"
         >
           {/* 1. Drawer Header */}
           <SheetHeader className="p-4 border-b border-border/70 bg-muted/30 dark:bg-[#151613]">
@@ -550,7 +589,7 @@ export function AstroHeader({
           </SheetHeader>
 
           {/* 2. Drawer Body (Language + Theme + Quick Actions + Navigation links) */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+          <div className="flex-1 overflow-y-auto p-4 pb-20 space-y-3.5 overscroll-contain scrollbar-thin">
             {/* Language Switcher & Theme Toggle in Drawer */}
             <div className="flex items-center justify-between bg-muted/40 dark:bg-[#20211d] p-1.5 rounded-xl border border-border/60">
               <div className="bg-white dark:bg-[#1a1b18] p-1 rounded-xl border border-border/50 shadow-xs inline-flex items-center gap-1">
@@ -558,11 +597,10 @@ export function AstroHeader({
                   type="button"
                   onClick={() => handleLangChange("gu")}
                   aria-label="ગુજરાતી ભાષા"
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    lang === "gu"
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "gu"
                       ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
                       : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground hover:bg-muted/40"
-                  }`}
+                    }`}
                 >
                   ગુજ
                 </button>
@@ -570,11 +608,10 @@ export function AstroHeader({
                   type="button"
                   onClick={() => handleLangChange("en")}
                   aria-label="English Language"
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    lang === "en"
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "en"
                       ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
                       : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground hover:bg-muted/40"
-                  }`}
+                    }`}
                 >
                   EN
                 </button>
@@ -591,28 +628,22 @@ export function AstroHeader({
 
             {/* Mobile Quick Action Buttons: Dashboard & Store */}
             <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  router.push("/dashboard")
-                  setMobileMenuOpen(false)
-                }}
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
               >
                 <LayoutDashboard className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
                 <span>{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  router.push("/myshop")
-                  setMobileMenuOpen(false)
-                }}
+              </Link>
+              <Link
+                href="/myshop"
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
               >
                 <ShoppingBag className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
                 <span>{lang === "gu" ? "સ્ટોર" : "Store"}</span>
-              </button>
+              </Link>
             </div>
 
             <Separator className="my-1 bg-border/50" />
@@ -634,46 +665,41 @@ export function AstroHeader({
                       <button
                         type="button"
                         onClick={() => toggleExpand(item.id)}
-                        className={`w-full text-left py-2.5 px-3 text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-2 cursor-pointer ${
-                          isActive
+                        className={`w-full text-left py-2.5 px-3 text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-2 cursor-pointer ${isActive
                             ? "text-[#8a6800] dark:text-[#fdc72d]"
                             : "text-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d]"
-                        }`}
+                          }`}
                       >
                         <span>{item.label}</span>
                         <ChevronDown
-                          className={`h-4 w-4 transition-transform duration-200 ${
-                            isExpanded ? "rotate-180 text-[#8a6800] dark:text-[#fdc72d]" : "text-muted-foreground"
-                          }`}
+                          className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[#8a6800] dark:text-[#fdc72d]" : "text-muted-foreground"
+                            }`}
                         />
                       </button>
 
                       {isExpanded && (
                         <div className="px-2 pb-2 pt-1 border-t border-border/40 bg-background/60 dark:bg-[#151613] space-y-1">
                           {item.id !== "more" && (
-                            <button
-                              type="button"
+                            <Link
+                              href={getItemHref(item.id)}
                               onClick={() => {
-                                handleNavClick(item.id)
+                                if (onSelectCategory) onSelectCategory(item.id)
                                 setMobileMenuOpen(false)
                               }}
                               className="w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer"
                             >
                               <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
-                            </button>
+                            </Link>
                           )}
                           {subItems.map((sub, idx) => (
-                            <button
+                            <Link
                               key={idx}
-                              type="button"
-                              onClick={() => {
-                                router.push(sub.href)
-                                setMobileMenuOpen(false)
-                              }}
+                              href={sub.href}
+                              onClick={() => setMobileMenuOpen(false)}
                               className="w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-between cursor-pointer"
                             >
                               <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
-                            </button>
+                            </Link>
                           ))}
                         </div>
                       )}
@@ -681,20 +707,19 @@ export function AstroHeader({
                   )
                 }
 
-                // Single route item (no submenu, no arrow)
+                // Single route item (no submenu, no arrow) with Next.js Link tag
                 return (
-                  <button
+                  <Link
                     key={item.id}
-                    type="button"
+                    href={getItemHref(item.id)}
                     onClick={() => {
-                      handleNavClick(item.id)
+                      if (onSelectCategory) onSelectCategory(item.id)
                       setMobileMenuOpen(false)
                     }}
-                    className={`w-full text-left py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer min-h-[42px] ${
-                      isActive
+                    className={`w-full text-left py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer min-h-[42px] ${isActive
                         ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
                         : "hover:bg-muted dark:hover:bg-[#22231f] text-foreground border border-border/30"
-                    }`}
+                      }`}
                   >
                     <span className="flex items-center gap-2">
                       {item.label}
@@ -704,31 +729,31 @@ export function AstroHeader({
                         </Badge>
                       )}
                     </span>
-                  </button>
+                  </Link>
                 )
               })}
             </div>
           </div>
 
           {/* 3. Drawer Footer: Consultation & WhatsApp Action */}
-          <SheetFooter className="p-4 border-t border-border/70 bg-muted/20 dark:bg-[#151613] space-y-2.5">
+          <SheetFooter className="p-4 pb-8 sm:pb-6 pb-safe-generous border-t border-border/70 bg-muted/20 dark:bg-[#151613] space-y-2.5 shrink-0">
             <button
               type="button"
               className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-extrabold h-10 rounded-lg text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
               onClick={() => {
                 setMobileMenuOpen(false)
                 window.open(
-                  `https://wa.me/919825000000?text=${encodeURIComponent(
+                  getWhatsAppUrl(
                     lang === "gu"
                       ? "જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો."
                       : "Hello, I would like to book an astrology consultation."
-                  )}`,
+                  ),
                   "_blank"
                 )
               }}
             >
               <MessageSquare className="h-4 w-4" />
-              <span>{topBar.bookConsultation}</span>
+              <span>{topBar?.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
             </button>
 
             <Separator className="my-1.5 bg-border/60" />

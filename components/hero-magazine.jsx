@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 
 export function HeroMagazine({ stories, onStoryClick }) {
@@ -8,10 +9,10 @@ export function HeroMagazine({ stories, onStoryClick }) {
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stories.map((story) => (
-          <article
+          <Link
             key={story.id}
-            onClick={() => onStoryClick && onStoryClick(story)}
-            className="group relative h-[400px] rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 border border-[#fdc72d]/40 hover:border-[#fdc72d] cursor-pointer"
+            href={`/article/${story.id}`}
+            className="group relative h-[400px] rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 border border-[#fdc72d]/40 hover:border-[#fdc72d] cursor-pointer block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
           >
             {/* Background Image with smooth zoom */}
             <div
@@ -40,7 +41,7 @@ export function HeroMagazine({ stories, onStoryClick }) {
                 <span>{story.date}</span>
               </div>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
     </section>

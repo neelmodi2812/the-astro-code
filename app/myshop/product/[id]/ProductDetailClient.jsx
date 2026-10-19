@@ -141,18 +141,114 @@ export default function ProductDetailClient({ productId }) {
   const [selectedVariant, setSelectedVariant] = React.useState(product.variants?.[0] || null)
   const [qty, setQty] = React.useState(1)
   const [sankalpOpted, setSankalpOpted] = React.useState(true)
-  const [devoteeName, setDevoteeName] = React.useState("રોહિતભાઈ પારેખ")
-  const [gotraName, setGotraName] = React.useState("કશ્યપ ગોત્ર")
+  const [devoteeName, setDevoteeName] = React.useState("")
+  const [gotraName, setGotraName] = React.useState("")
   const [isWishlisted, setIsWishlisted] = React.useState(false)
   const [cartCount, setCartCount] = React.useState(3)
   const [copiedMantra, setCopiedMantra] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("details")
+  const [isCertModalOpen, setIsCertModalOpen] = React.useState(false)
+
+  // Switch selected variant and automatically update the hero gallery photo
+  const handleSelectVariant = React.useCallback(
+    (variant) => {
+      setSelectedVariant(variant)
+      if (variant?.image && imagesList && imagesList.length > 0) {
+        const foundIdx = imagesList.findIndex((img) => img === variant.image)
+        if (foundIdx >= 0) {
+          setSelectedImageIndex(foundIdx)
+        } else {
+          // If relative path or partial match
+          const partialIdx = imagesList.findIndex(
+            (img) => img.includes("silver") && String(variant.image).includes("silver")
+          )
+          if (partialIdx >= 0) {
+            setSelectedImageIndex(partialIdx)
+          }
+        }
+      }
+    },
+    [imagesList]
+  )
 
   // Interactive Hover Zoom & Modal Lightbox States
   const [isHoverZooming, setIsHoverZooming] = React.useState(false)
   const [mousePos, setMousePos] = React.useState({ x: 50, y: 50 })
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false)
   const [lightboxZoom, setLightboxZoom] = React.useState(1)
+  const [lightboxPan, setLightboxPan] = React.useState({ x: 0, y: 0 })
+  const [isDraggingLightbox, setIsDraggingLightbox] = React.useState(false)
+  const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 })
+
+  const handleZoomIn = React.useCallback(() => {
+    setLightboxZoom((prev) => {
+      const next = prev >= 2.5 ? 2.5 : Math.round((prev + 0.5) * 10) / 10
+      return next
+    })
+  }, [])
+
+  const handleZoomOut = React.useCallback(() => {
+    setLightboxZoom((prev) => {
+      const next = prev <= 1 ? 1 : Math.round((prev - 0.5) * 10) / 10
+      if (next === 1) setLightboxPan({ x: 0, y: 0 })
+      return next
+    })
+  }, [])
+
+  const handleResetZoom = React.useCallback(() => {
+    setLightboxZoom(1)
+    setLightboxPan({ x: 0, y: 0 })
+    setIsDraggingLightbox(false)
+  }, [])
+
+  const handleLightboxMouseDown = (e) => {
+    if (lightboxZoom <= 1) return
+    e.preventDefault()
+    setIsDraggingLightbox(true)
+    setDragStart({ x: e.clientX - lightboxPan.x, y: e.clientY - lightboxPan.y })
+  }
+
+  const handleLightboxMouseMove = (e) => {
+    if (!isDraggingLightbox || lightboxZoom <= 1) return
+    e.preventDefault()
+    setLightboxPan({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    })
+  }
+
+  const handleLightboxMouseUp = () => {
+    setIsDraggingLightbox(false)
+  }
+
+  const handleLightboxTouchStart = (e) => {
+    if (lightboxZoom <= 1 || !e.touches || e.touches.length === 0) return
+    setIsDraggingLightbox(true)
+    setDragStart({
+      x: e.touches[0].clientX - lightboxPan.x,
+      y: e.touches[0].clientY - lightboxPan.y
+    })
+  }
+
+  const handleLightboxTouchMove = (e) => {
+    if (!isDraggingLightbox || lightboxZoom <= 1 || !e.touches || e.touches.length === 0) return
+    setLightboxPan({
+      x: e.touches[0].clientX - dragStart.x,
+      y: e.touches[0].clientY - dragStart.y
+    })
+  }
+
+  const handleLightboxTouchEnd = () => {
+    setIsDraggingLightbox(false)
+  }
+
+  const handleLightboxDoubleClick = () => {
+    if (lightboxZoom === 1) {
+      setLightboxZoom(2)
+    } else {
+      handleResetZoom()
+    }
+  }
 
   // Mouse move handler for smooth lens zoom
   const handleImageMouseMove = React.useCallback((e) => {
@@ -234,25 +330,43 @@ export default function ProductDetailClient({ productId }) {
     }
   }, [isLightboxOpen])
 
-  // Keyboard navigation for modal (Escape, ArrowLeft, ArrowRight)
+  // Keyboard navigation for modal (Escape, ArrowLeft, ArrowRight, +/-, 0)
   React.useEffect(() => {
     if (!isLightboxOpen) return
     const imagesCount = imagesList.length
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setIsLightboxOpen(false)
-        setLightboxZoom(1)
+        handleResetZoom()
       } else if (e.key === "ArrowLeft") {
         setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesCount - 1))
-        setLightboxZoom(1)
+        handleResetZoom()
       } else if (e.key === "ArrowRight") {
         setSelectedImageIndex((prev) => (prev < imagesCount - 1 ? prev + 1 : 0))
-        setLightboxZoom(1)
+        handleResetZoom()
+      } else if (e.key === "+" || e.key === "=") {
+        handleZoomIn()
+      } else if (e.key === "-") {
+        handleZoomOut()
+      } else if (e.key === "0") {
+        handleResetZoom()
       }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isLightboxOpen, imagesList.length])
+  }, [isLightboxOpen, imagesList.length, handleResetZoom, handleZoomIn, handleZoomOut])
+
+  // Keyboard navigation for Certificate Modal (Escape to close)
+  React.useEffect(() => {
+    if (!isCertModalOpen) return
+    const handleCertKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsCertModalOpen(false)
+      }
+    }
+    window.addEventListener("keydown", handleCertKeyDown)
+    return () => window.removeEventListener("keydown", handleCertKeyDown)
+  }, [isCertModalOpen])
 
   // Load wishlist & cart count from localStorage
   React.useEffect(() => {
@@ -299,6 +413,76 @@ export default function ProductDetailClient({ productId }) {
   const originalPrice = selectedVariant?.originalPrice || product.originalPrice || currentPrice
   const discountPercent = product.discountPercent || Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
   const totalItemPrice = currentPrice * qty
+  const totalOriginalPrice = originalPrice * qty
+  const totalSavings = Math.max(0, totalOriginalPrice - totalItemPrice)
+
+  // Interactive Pincode Delivery Estimator State
+  const [pincode, setPincode] = React.useState("")
+  const [pincodeStatus, setPincodeStatus] = React.useState(null) // null | 'valid' | 'invalid'
+  const [deliveryEstimate, setDeliveryEstimate] = React.useState(null)
+
+  const checkPincodeDelivery = React.useCallback(
+    (code) => {
+      const clean = String(code || "").trim()
+      if (!/^[1-9][0-9]{5}$/.test(clean)) {
+        setPincodeStatus("invalid")
+        setDeliveryEstimate(null)
+        return
+      }
+
+      try {
+        localStorage.setItem("astro_user_pincode", clean)
+      } catch {
+        // silent
+      }
+
+      // Calculate estimated delivery date 3 days from now
+      const now = new Date()
+      const estDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+
+      const guDays = ["રવિવાર", "સોમવાર", "મંગળવાર", "બુધવાર", "ગુરુવાર", "શુક્રવાર", "શનિવાર"]
+      const guMonths = ["જાન્યુઆરી", "ફેબ્રુઆરી", "માર્ચ", "એપ્રિલ", "મે", "જૂન", "જુલાઈ", "ઓગસ્ટ", "સપ્ટેમ્બર", "ઓક્ટોબર", "નવેમ્બર", "ડિસેમ્બર"]
+
+      const enDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      const enMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+      const dayNameGu = guDays[estDate.getDay()] || "ગુરુવાર"
+      const monthNameGu = guMonths[estDate.getMonth()] || "ઓક્ટોબર"
+      const dateNumGu = toDigits(estDate.getDate())
+
+      const dayNameEn = enDays[estDate.getDay()] || "Thursday"
+      const monthNameEn = enMonths[estDate.getMonth()] || "Oct"
+      const dateNumEn = estDate.getDate()
+
+      let hub = currentLang === "gu" ? "સમગ્ર ગુજરાત & ભારત એક્સપ્રેસ હબ" : "Gujarat & All-India Express Hub"
+      if (clean.startsWith("38")) hub = currentLang === "gu" ? "અમદાવાદ ઝોન" : "Ahmedabad Zone"
+      else if (clean.startsWith("39")) hub = currentLang === "gu" ? "સુરત / વડોદરા ઝોન" : "Surat / Vadodara Zone"
+      else if (clean.startsWith("36")) hub = currentLang === "gu" ? "રાજકોટ / સૌરાષ્ટ્ર ઝોન" : "Rajkot / Saurashtra Zone"
+      else if (clean.startsWith("40")) hub = currentLang === "gu" ? "મુંબઈ ઝોન" : "Mumbai Zone"
+      else if (clean.startsWith("11")) hub = currentLang === "gu" ? "દિલ્હી એનસીઆર ઝોન" : "Delhi NCR Zone"
+
+      setPincodeStatus("valid")
+      setDeliveryEstimate({
+        gu: `${dayNameGu}, ${dateNumGu} ${monthNameGu}`,
+        en: `${dayNameEn}, ${monthNameEn} ${dateNumEn}`,
+        hub
+      })
+    },
+    [currentLang, toDigits]
+  )
+
+  // Load saved pincode from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const savedPincode = localStorage.getItem("astro_user_pincode")
+      if (savedPincode && /^[1-9][0-9]{5}$/.test(savedPincode)) {
+        setPincode(savedPincode)
+        checkPincodeDelivery(savedPincode)
+      }
+    } catch {
+      // silent
+    }
+  }, [checkPincodeDelivery])
 
   // Handlers
   const handleIncreaseQty = () => setQty((prev) => Math.min(10, prev + 1))
@@ -354,8 +538,8 @@ export default function ProductDetailClient({ productId }) {
           category: product.category,
           ritualAddon: sankalpOpted
             ? currentLang === "gu"
-              ? `સંકલ્પ સેવા: ${devoteeName} (${gotraName})`
-              : `Sankalp: ${devoteeName} (${gotraName})`
+              ? `સંકલ્પ સેવા: ${devoteeName.trim() || "યજમાન"} (${gotraName.trim() || "કશ્યપ ગોત્ર"})`
+              : `Sankalp: ${devoteeName.trim() || "Devotee"} (${gotraName.trim() || "Kashyap Gotra"})`
             : currentLang === "gu"
               ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા સામેલ"
               : "Vedic Consecration Included"
@@ -395,8 +579,10 @@ export default function ProductDetailClient({ productId }) {
 
   // Pre-filled WhatsApp Inquiry message
   const getWhatsAppInquiryUrl = () => {
-    const variantText = selectedVariant?.name ? `%0Aવિકલ્પ: ${selectedVariant.name}` : ""
-    const message = `*નમસ્તે The Astro Code,*%0Aહું આ પવિત્ર સાધના સામગ્રી વિશે વધુ માહિતી મેળવવા અને ઓર્ડર કરવા માંગુ છું:%0A%0A*${product.name}*${variantText}%0Aકિંમત: ₹${currentPrice}%0ASKU: ${product.sku}%0A%0Aકૃપા કરીને આ સામગ્રીની પ્રાણ-પ્રતિષ્ઠા અને ઉપલબ્ધતા વિશે માર્ગદર્શન આપો.`
+    const variantText = selectedVariant?.name ? `%0A${currentLang === "gu" ? "વિકલ્પ:" : "Variant:"} ${selectedVariant.name}` : ""
+    const message = currentLang === "gu"
+      ? `*નમસ્તે The Astro Code,*%0Aહું આ પવિત્ર સાધના સામગ્રી વિશે વધુ માહિતી મેળવવા અને ઓર્ડર કરવા માંગુ છું:%0A%0A*${product.name}*${variantText}%0Aકિંમત: ₹${currentPrice}%0ASKU: ${product.sku}%0A%0Aકૃપા કરીને આ સામગ્રીની પ્રાણ-પ્રતિષ્ઠા અને ઉપલબ્ધતા વિશે માર્ગદર્શન આપો.`
+      : `*Hello The Astro Code,*%0AI would like to inquire and order this sacred item:%0A%0A*${product.name}*${variantText}%0APrice: ₹${currentPrice}%0ASKU: ${product.sku}%0A%0APlease guide me regarding consecration and availability.`
     return `https://wa.me/917940008108?text=${message}`
   }
 
@@ -413,7 +599,7 @@ export default function ProductDetailClient({ productId }) {
         cartCount={cartCount}
       />
 
-      <main className="flex-1 w-full bg-background">
+      <main className="flex-1 w-full bg-background pb-24 md:pb-0">
         {/* Breadcrumb Bar */}
         <section className="w-full bg-card/80 backdrop-blur-md border-b border-border shadow-xs py-4 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -485,7 +671,7 @@ export default function ProductDetailClient({ productId }) {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onClick={() => {
-                  setLightboxZoom(1)
+                  handleResetZoom()
                   setIsLightboxOpen(true)
                 }}
                 role="button"
@@ -493,6 +679,7 @@ export default function ProductDetailClient({ productId }) {
                 aria-label={currentLang === "gu" ? "મોટું ચિત્ર જોવા માટે ક્લિક કરો" : "Click to view full image"}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
+                    handleResetZoom()
                     setIsLightboxOpen(true)
                   }
                 }}
@@ -518,27 +705,66 @@ export default function ProductDetailClient({ productId }) {
                   </Badge>
                 </div>
 
-                {/* Wishlist Button Overlay */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleToggleWishlist()
-                  }}
-                  className={`absolute top-3 right-3 w-10 h-10 rounded-full bg-card/90 backdrop-blur-md flex items-center justify-center transition-all shadow-sm z-10 ${isWishlisted ? "text-red-500 scale-110" : "text-muted-foreground hover:text-red-500"
-                    }`}
-                  aria-label="Wishlist"
-                >
-                  <Heart className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`} />
-                </button>
+                {/* Top-Right Action Controls: Fullscreen Expand & Wishlist */}
+                <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleResetZoom()
+                      setIsLightboxOpen(true)
+                    }}
+                    className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-md text-foreground hover:text-[#00685d] dark:hover:text-[#fdc72d] flex items-center justify-center transition-all shadow-sm hover:scale-105 cursor-pointer border border-border/40"
+                    aria-label={currentLang === "gu" ? "મોટું ચિત્ર જુઓ" : "Open full image"}
+                    title={currentLang === "gu" ? "મોટું ચિત્ર જુઓ" : "Open full image"}
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </button>
 
-                {/* Interactive Zoom Prompt Overlay */}
-                <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md text-white text-xs font-semibold shadow-md pointer-events-none transition-all group-hover:bg-[#00685d]/90">
-                  <ZoomIn className="h-3.5 w-3.5" />
-                  <span>{currentLang === "gu" ? "ક્લિક કરી મોટું જુઓ" : "Click to expand"}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleToggleWishlist()
+                    }}
+                    className={`w-10 h-10 rounded-full bg-card/90 backdrop-blur-md flex items-center justify-center transition-all shadow-sm cursor-pointer border border-border/40 ${
+                      isWishlisted ? "text-red-500 scale-105" : "text-muted-foreground hover:text-red-500 hover:scale-105"
+                    }`}
+                    aria-label="Wishlist"
+                  >
+                    <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current" : ""}`} />
+                  </button>
                 </div>
 
-                {/* Left/Right Arrow Navigation Over Showcase Image for Small Devices */}
+                {/* Desktop-only Subtle Hover Zoom Prompt (Never blocks tassel/details at bottom-right) */}
+                <div className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white text-xs font-semibold shadow-md pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 border border-white/10">
+                  <ZoomIn className="h-3.5 w-3.5 text-[#fdc72d]" />
+                  <span>{currentLang === "gu" ? "મોટું જોવા ક્લિક કરો" : "Click to view full image"}</span>
+                </div>
+
+                {/* Mobile Unobtrusive Image Counter Badge (Clean, does not block mala) */}
+                {imagesList.length > 1 && (
+                  <div className="md:hidden absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold shadow-xs flex items-center gap-1 z-10 pointer-events-none">
+                    <Eye className="h-3 w-3 text-[#fdc72d]" />
+                    <span>{toDigits(selectedImageIndex + 1)} / {toDigits(imagesList.length)}</span>
+                  </div>
+                )}
+
+                {/* Mobile Dots Indicator */}
+                {imagesList.length > 1 && (
+                  <div className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm pointer-events-none z-10">
+                    {imagesList.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          selectedImageIndex === i ? "w-4 bg-[#fdc72d]" : "w-1.5 bg-white/50"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Desktop-only Hover Chevrons (Declutters mobile touch screens) */}
                 {imagesList.length > 1 && (
                   <>
                     <button
@@ -547,10 +773,10 @@ export default function ProductDetailClient({ productId }) {
                         e.stopPropagation()
                         setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))
                       }}
-                      className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20"
+                      className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20 opacity-0 group-hover:opacity-100 hover:scale-105"
                       aria-label="Previous Image"
                     >
-                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <ChevronLeft className="h-5 w-5" />
                     </button>
                     <button
                       type="button"
@@ -558,66 +784,195 @@ export default function ProductDetailClient({ productId }) {
                         e.stopPropagation()
                         setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))
                       }}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20"
+                      className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20 opacity-0 group-hover:opacity-100 hover:scale-105"
                       aria-label="Next Image"
                     >
-                      <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <ChevronRight className="h-5 w-5" />
                     </button>
                   </>
                 )}
               </div>
 
-              {/* Thumbnails Row */}
+              {/* Thumbnails Row with High-Contrast Active State & +N Overflow Support */}
               {imagesList.length > 1 && (
-                <div className="grid grid-cols-4 gap-3">
-                  {imagesList.map((img, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSelectedImageIndex(idx)}
-                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card ${selectedImageIndex === idx
-                          ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d]/20 shadow-sm"
-                          : "border-border/60 hover:border-border opacity-70 hover:opacity-100"
-                        }`}
-                    >
-                      <img src={img} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-cover rounded-lg" />
-                    </button>
-                  ))}
+                <div>
+                  <div
+                    className={`grid gap-2.5 sm:gap-3 ${
+                      imagesList.length === 2
+                        ? "grid-cols-2"
+                        : imagesList.length === 3
+                        ? "grid-cols-3"
+                        : "grid-cols-4"
+                    }`}
+                  >
+                    {/* If imagesList has 4 or fewer images: render each thumbnail normally */}
+                    {imagesList.length <= 4 &&
+                      imagesList.map((img, idx) => {
+                        const isSelected = selectedImageIndex === idx
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedImageIndex(idx)}
+                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card cursor-pointer group ${
+                              isSelected
+                                ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-background shadow-md scale-[1.03]"
+                                : "border-border/70 hover:border-foreground/40 opacity-70 hover:opacity-100 hover:scale-[1.01]"
+                            }`}
+                            aria-label={`View photo ${idx + 1} of ${imagesList.length}`}
+                          >
+                            <img
+                              src={img}
+                              alt={`${product.name} view ${idx + 1}`}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                            {isSelected && (
+                              <span className="absolute bottom-1 inset-x-2 h-1 rounded-full bg-[#00685d] dark:bg-[#fdc72d]" />
+                            )}
+                          </button>
+                        )
+                      })}
+
+                    {/* If imagesList has more than 4 images: render first 3 + a 4th slot with +N badge */}
+                    {imagesList.length > 4 && (
+                      <>
+                        {/* Slots 0, 1, 2 */}
+                        {imagesList.slice(0, 3).map((img, idx) => {
+                          const isSelected = selectedImageIndex === idx
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSelectedImageIndex(idx)}
+                              className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card cursor-pointer group ${
+                                isSelected
+                                  ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-background shadow-md scale-[1.03]"
+                                  : "border-border/70 hover:border-foreground/40 opacity-70 hover:opacity-100 hover:scale-[1.01]"
+                              }`}
+                              aria-label={`View photo ${idx + 1} of ${imagesList.length}`}
+                            >
+                              <img
+                                src={img}
+                                alt={`${product.name} view ${idx + 1}`}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                              {isSelected && (
+                                <span className="absolute bottom-1 inset-x-2 h-1 rounded-full bg-[#00685d] dark:bg-[#fdc72d]" />
+                              )}
+                            </button>
+                          )
+                        })}
+
+                        {/* Slot 3: Represents the 4th and subsequent photos (+N) */}
+                        {(() => {
+                          const remainingCount = imagesList.length - 3
+                          const isSlotActive = selectedImageIndex >= 3
+                          // If active photo is one of the overflow ones, show it as background
+                          const bgImage = isSlotActive
+                            ? imagesList[selectedImageIndex]
+                            : imagesList[3]
+
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (selectedImageIndex < 3) {
+                                  setSelectedImageIndex(3)
+                                }
+                                handleResetZoom()
+                                setIsLightboxOpen(true)
+                              }}
+                              className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card cursor-pointer group ${
+                                isSlotActive
+                                  ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-background shadow-md scale-[1.03]"
+                                  : "border-border/70 hover:border-foreground/40 opacity-90 hover:opacity-100 hover:scale-[1.01]"
+                              }`}
+                              aria-label={
+                                currentLang === "gu"
+                                  ? `બાકીના ${remainingCount} ફોટા જુઓ`
+                                  : `View remaining ${remainingCount} photos`
+                              }
+                            >
+                              <img
+                                src={bgImage}
+                                alt={`${product.name} more photos`}
+                                className="w-full h-full object-cover rounded-lg blur-[0.5px]"
+                              />
+
+                              {/* Elegant Frosted Dark Glassmorphic +N Overlay */}
+                              <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 backdrop-blur-[1.5px] transition-all flex flex-col items-center justify-center text-white p-1">
+                                <span className="text-sm sm:text-base font-black tracking-tight text-white group-hover:text-[#fdc72d] transition-colors flex items-center gap-0.5">
+                                  +{toDigits(remainingCount)}
+                                </span>
+                                <span className="text-[10px] sm:text-[11px] font-bold text-white/90 uppercase tracking-wider text-center leading-tight">
+                                  {currentLang === "gu" ? "વધુ ફોટો" : "More"}
+                                </span>
+                              </div>
+
+                              {/* Active indicator bar */}
+                              {isSlotActive && (
+                                <span className="absolute bottom-1 inset-x-2 h-1 rounded-full bg-[#00685d] dark:bg-[#fdc72d] z-10" />
+                              )}
+                            </button>
+                          )
+                        })()}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Optional View All Photos button below if imagesList > 4 */}
+                  {imagesList.length > 4 && (
+                    <div className="mt-2 flex items-center justify-between px-1">
+                      <span className="text-[11px] text-muted-foreground font-medium">
+                        {currentLang === "gu"
+                          ? `કુલ ${toDigits(imagesList.length)} ચિત્રો ઉપલબ્ધ`
+                          : `Total ${toDigits(imagesList.length)} photos available`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleResetZoom()
+                          setIsLightboxOpen(true)
+                        }}
+                        className="text-xs font-bold text-[#00685d] dark:text-[#fdc72d] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        <span>
+                          {currentLang === "gu"
+                            ? `બધા ફોટો જુઓ (${toDigits(imagesList.length)})`
+                            : `View all photos (${toDigits(imagesList.length)})`}
+                        </span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Trust Badges Strip Under Gallery */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-card border border-border/60">
-                  <ShieldCheck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-foreground">૧૦૦% લેબ સર્ટિફાઇડ</span>
-                    <span className="text-[10px] text-muted-foreground">Govt. Certified X-Ray</span>
-                  </div>
+              {/* Refined Trust Highlights Strip Under Gallery */}
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/60 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
+                  <span className="text-[11px] font-bold text-foreground truncate">
+                    {currentLang === "gu" ? "૧૦૦% લેબ પ્રમાણિત" : "100% Lab Tested"}
+                  </span>
                 </div>
-
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-card border border-border/60">
-                  <Sparkles className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-foreground">વૈદિક પ્રાણ-પ્રતિષ્ઠા</span>
-                    <span className="text-[10px] text-muted-foreground">બ્રાહ્મણ પૂજિત સંકલ્પ</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
+                  <span className="text-[11px] font-bold text-foreground truncate">
+                    {currentLang === "gu" ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા" : "Vedic Consecrated"}
+                  </span>
                 </div>
-
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-card border border-border/60">
-                  <Truck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-foreground">મફત શિપિંગ (Free)</span>
-                    <span className="text-[10px] text-muted-foreground">સમગ્ર ભારતમાં ઉપલબ્ધ</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
+                  <span className="text-[11px] font-bold text-foreground truncate">
+                    {currentLang === "gu" ? "મફત શિપિંગ (ભારત)" : "Free Delivery"}
+                  </span>
                 </div>
-
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-card border border-border/60">
-                  <RotateCcw className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-foreground">૭ દિવસ સરળ રિટર્ન</span>
-                    <span className="text-[10px] text-muted-foreground">૧૦૦% સંતોષ ખાતરી</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <RotateCcw className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
+                  <span className="text-[11px] font-bold text-foreground truncate">
+                    {currentLang === "gu" ? "૭ દિવસ સરળ રિટર્ન" : "7-Day Return"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -645,7 +1000,9 @@ export default function ProductDetailClient({ productId }) {
                       ))}
                     </div>
                     <span className="font-bold text-foreground">{product.rating}</span>
-                    <span className="text-muted-foreground">({toDigits(product.reviewsCount)} સમીક્ષાઓ)</span>
+                    <span className="text-muted-foreground">
+                      ({currentLang === "gu" ? `${toDigits(product.reviewsCount)} સમીક્ષાઓ` : `${product.reviewsCount} reviews`})
+                    </span>
                   </div>
                 </div>
 
@@ -660,76 +1017,216 @@ export default function ProductDetailClient({ productId }) {
                 {product.deityOrPlanet && (
                   <div className="inline-flex items-center gap-2 p-2 px-3 rounded-xl bg-muted/60 border border-border/60 text-xs text-foreground font-semibold mt-1 self-start">
                     <Flame className="h-3.5 w-3.5 text-[#d9a100]" />
-                    <span>અધિષ્ઠાતા દેવ / ગ્રહ: <strong>{product.deityOrPlanet}</strong></span>
+                    <span>
+                      {currentLang === "gu" ? "અધિષ્ઠાતા દેવ / ગ્રહ:" : "Ruling Deity / Planet:"}{" "}
+                      <strong>{product.deityOrPlanet}</strong>
+                    </span>
                   </div>
                 )}
               </div>
 
-              {/* Pricing & Stock Card */}
-              <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-3">
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <div className="flex items-baseline gap-3">
+              {/* Pricing, Stock Scarcity & Pincode Delivery Card */}
+              <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-3.5">
+                {/* Price, Discount & Stock Urgency Row */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-baseline gap-2.5">
                     <span className="text-3xl sm:text-4xl font-extrabold text-[#00685d] dark:text-[#fdc72d]">
                       {formatPrice(totalItemPrice)}
                     </span>
                     {originalPrice > currentPrice && (
                       <span className="text-base sm:text-lg text-muted-foreground line-through">
-                        {formatPrice(originalPrice * qty)}
+                        {formatPrice(totalOriginalPrice)}
                       </span>
                     )}
                     {discountPercent > 0 && (
-                      <Badge className="bg-red-100 dark:bg-red-950/70 text-red-600 dark:text-red-400 border-red-200 font-bold text-xs">
+                      <Badge className="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-bold text-xs px-2 py-0.5">
                         {toDigits(discountPercent)}% {currentLang === "gu" ? "બચત" : "OFF"}
                       </Badge>
                     )}
                   </div>
 
-                  {/* Stock Status Pill */}
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  {/* Clean Scarcity Pill without distracting noise */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/25 text-xs font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
                     <span>
                       {currentLang === "gu"
-                        ? `સ્ટોકમાં ઉપલબ્ધ (માત્ર ${toDigits(product.stockCount)} નંગ બાકી)`
-                        : `In Stock (Only ${product.stockCount} left)`}
+                        ? `સીમિત સ્ટોક (માત્ર ${toDigits(product.stockCount)} નંગ બાકી)`
+                        : `Limited Stock (Only ${product.stockCount} left)`}
                     </span>
                   </div>
                 </div>
 
+                {/* Assurance Note */}
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
                   <span>
                     {currentLang === "gu"
-                      ? "તમામ સરકારી કરવેરા અને વૈદિક પ્રાણ-પ્રતિષ્ઠા વિધિ સામેલ • મફત શિપિંગ"
-                      : "Inclusive of all taxes and Vedic Consecration • Free Delivery across India"}
+                      ? "તમામ કરવેરા & વૈદિક પ્રાણ-પ્રતિષ્ઠા સામેલ • સમગ્ર ભારતમાં મફત શિપિંગ"
+                      : "Inclusive of all taxes & Vedic Consecration • Free Shipping across India"}
                   </span>
                 </p>
+
+                {/* Streamlined Pincode Delivery Estimator */}
+                <div className="pt-3 border-t border-border/60 flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <Truck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
+                      <span>{currentLang === "gu" ? "ડિલિવરી અંદાજ અને પિનકોડ:" : "Estimated Delivery & Pincode:"}</span>
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      {currentLang === "gu" ? "કેશ ઓન ડિલિવરી (COD) ઉપલબ્ધ" : "Cash on Delivery Available"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        type="text"
+                        maxLength={6}
+                        value={pincode}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 6)
+                          setPincode(val)
+                          if (pincodeStatus) setPincodeStatus(null)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            checkPincodeDelivery(pincode)
+                          }
+                        }}
+                        placeholder={currentLang === "gu" ? "૬ અંકનો પિનકોડ દાખલ કરો" : "Enter 6-digit Pincode"}
+                        className="h-9 text-xs rounded-xl bg-muted/30 pr-8"
+                      />
+                      {pincode && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPincode("")
+                            setPincodeStatus(null)
+                            setDeliveryEstimate(null)
+                          }}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs p-1 cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => checkPincodeDelivery(pincode)}
+                      className="h-9 px-4 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-xs shadow-xs cursor-pointer shrink-0"
+                    >
+                      {currentLang === "gu" ? "ચકાસો" : "Check"}
+                    </Button>
+                  </div>
+
+                  {/* Successful Estimate Result Box */}
+                  {pincodeStatus === "valid" && deliveryEstimate && (
+                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between gap-2 text-xs animate-in fade-in duration-200">
+                      <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <span>
+                          {currentLang === "gu"
+                            ? `અપેક્ષિત ડિલિવરી: ${deliveryEstimate.gu} સુધીમાં`
+                            : `Expected Delivery: By ${deliveryEstimate.en}`}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                        {currentLang === "gu" ? "અભિમંત્રિત સુરક્ષિત પેકિંગ" : "Consecrated Sealed Box"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Invalid Pincode Error Notice */}
+                  {pincodeStatus === "invalid" && (
+                    <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                      {currentLang === "gu"
+                        ? "કૃપા કરીને માન્ય ૬ અંકનો ભારતીય પિનકોડ દાખલ કરો."
+                        : "Please enter a valid 6-digit Indian postal pincode."}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Available Variants Selector (if applicable) */}
+              {/* Available Variants Selector with Full Bead Specifications */}
               {product.variants && product.variants.length > 0 && (
                 <div className="flex flex-col gap-3">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    {currentLang === "gu" ? "ઉપલબ્ધ વિકલ્પો / સાઇઝ પસંદ કરો:" : "Select Available Variant / Size:"}
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
+                      <span>{currentLang === "gu" ? "ઉપલબ્ધ વિકલ્પો / સાઇઝ પસંદ કરો:" : "Select Available Variant / Size:"}</span>
+                    </label>
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      {currentLang === "gu" ? "વિકલ્પ બદલતાં ફોટો આપમેળે બદલાશે" : "Photo changes with selected variant"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {product.variants.map((v) => {
                       const isSelected = selectedVariant?.id === v.id
                       return (
                         <button
                           key={v.id}
                           type="button"
-                          onClick={() => setSelectedVariant(v)}
-                          className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${isSelected
-                              ? "border-[#00685d] bg-[#00685d]/5 dark:border-[#fdc72d] dark:bg-[#fdc72d]/10 shadow-xs"
-                              : "border-border bg-card hover:bg-muted/40"
-                            }`}
+                          onClick={() => handleSelectVariant(v)}
+                          className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all relative cursor-pointer group ${
+                            isSelected
+                              ? "border-[#00685d] bg-[#00685d]/5 dark:border-[#fdc72d] dark:bg-[#fdc72d]/10 shadow-sm ring-2 ring-[#00685d]/30 dark:ring-[#fdc72d]/30 scale-[1.01]"
+                              : "border-border/80 bg-card hover:bg-muted/40 hover:border-foreground/30 shadow-2xs"
+                          }`}
                         >
-                          <span className="text-xs font-bold text-foreground leading-snug">
+                          {/* Top row: Tag Badge & Active Checkmark */}
+                          <div className="flex items-center justify-between gap-1.5 mb-2 min-h-[22px]">
+                            {v.tag ? (
+                              <Badge className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                                isSelected 
+                                  ? "bg-[#00685d] text-white dark:bg-[#fdc72d] dark:text-[#1b1c1a]" 
+                                  : "bg-muted text-muted-foreground"
+                              }`}>
+                                {v.tag}
+                              </Badge>
+                            ) : <span />}
+
+                            {isSelected && (
+                              <span className="w-5 h-5 rounded-full bg-[#00685d] text-white dark:bg-[#fdc72d] dark:text-[#1b1c1a] flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
+                                <Check className="h-3 w-3 stroke-[3]" />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Variant Title */}
+                          <span className="text-xs sm:text-sm font-bold text-foreground leading-snug">
                             {v.name}
                           </span>
-                          <span className="text-xs font-extrabold text-[#00685d] dark:text-[#fdc72d] mt-2">
-                            {formatPrice(v.price)}
-                          </span>
+
+                          {/* Clean Key Spec Summary */}
+                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-1 mb-2.5">
+                            <span>{v.beadDiameter || "7-8mm"}</span>
+                            <span>•</span>
+                            <span>{v.weight || "108+1 Beads"}</span>
+                          </div>
+
+                          {/* Price & Stock Row */}
+                          <div className="flex items-baseline justify-between pt-2 border-t border-border/40 mt-auto">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-sm sm:text-base font-extrabold text-[#00685d] dark:text-[#fdc72d]">
+                                {formatPrice(v.price)}
+                              </span>
+                              {v.originalPrice && v.originalPrice > v.price && (
+                                <span className="text-[11px] text-muted-foreground line-through">
+                                  {formatPrice(v.originalPrice)}
+                                </span>
+                              )}
+                            </div>
+
+                            {v.stockCount && v.stockCount <= 3 && (
+                              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                                {currentLang === "gu" ? `માત્ર ${toDigits(v.stockCount)} બાકી` : `${v.stockCount} left`}
+                              </span>
+                            )}
+                          </div>
                         </button>
                       )
                     })}
@@ -737,8 +1234,8 @@ export default function ProductDetailClient({ productId }) {
                 </div>
               )}
 
-              {/* Vedic Personalized Sankalp Certificate Box */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-muted/50 border border-border/80 flex flex-col gap-3">
+              {/* Vedic Personalized Sankalp Certificate Box (Clean & Streamlined) */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border/80 flex flex-col gap-3">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <Checkbox
                     checked={sankalpOpted}
@@ -760,24 +1257,56 @@ export default function ProductDetailClient({ productId }) {
                 </label>
 
                 {sankalpOpted && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase text-muted-foreground">યજમાનનું નામ</span>
-                      <Input
-                        value={devoteeName}
-                        onChange={(e) => setDevoteeName(e.target.value)}
-                        placeholder="રોહિતભાઈ પારેખ"
-                        className="h-9 text-xs rounded-lg bg-card"
-                      />
+                  <div className="flex flex-col gap-2.5 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                          {currentLang === "gu" ? "યજમાનનું નામ" : "Devotee Full Name"}
+                        </span>
+                        <Input
+                          value={devoteeName}
+                          onChange={(e) => setDevoteeName(e.target.value)}
+                          placeholder={currentLang === "gu" ? "દા.ત. રોહિતભાઈ પારેખ" : "e.g. Rohit Parekh"}
+                          className="h-9 text-xs rounded-xl bg-card"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                          {currentLang === "gu" ? "ગોત્ર (વૈકલ્પિક)" : "Gotra (Optional)"}
+                        </span>
+                        <Input
+                          value={gotraName}
+                          onChange={(e) => setGotraName(e.target.value)}
+                          placeholder={currentLang === "gu" ? "દા.ત. કશ્યપ ગોત્ર (અથવા ખાલી રાખો)" : "e.g. Kashyap Gotra (or leave blank)"}
+                          className="h-9 text-xs rounded-xl bg-card"
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase text-muted-foreground">ગોત્ર (Gotra)</span>
-                      <Input
-                        value={gotraName}
-                        onChange={(e) => setGotraName(e.target.value)}
-                        placeholder="કશ્યપ ગોત્ર"
-                        className="h-9 text-xs rounded-lg bg-card"
-                      />
+
+                    {/* Unobtrusive Gotra Helper */}
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const defaultGotra = currentLang === "gu" ? "કશ્યપ" : "Kashyap"
+                          setGotraName(defaultGotra)
+                          toast.info(
+                            currentLang === "gu"
+                              ? "શાસ્ત્રોક્ત નિયમ અનુસાર આપમેળે 'કશ્યપ ગોત્ર' પસંદ થયેલ છે."
+                              : "Automatically set to 'Kashyap Gotra' according to Vedic traditions."
+                          )
+                        }}
+                        className="text-[#00685d] dark:text-[#fdc72d] hover:underline font-semibold cursor-pointer flex items-center gap-1"
+                      >
+                        <HelpCircle className="h-3 w-3" />
+                        <span>{currentLang === "gu" ? "ગોત્ર ખબર નથી? કશ્યપ ગોત્ર લાગુ કરો" : "Don't know Gotra? Apply Kashyap Gotra"}</span>
+                      </button>
+
+                      <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                        {currentLang === "gu"
+                          ? "(ખાલી રાખશો તો પણ આપમેળે 'કશ્યપ ગોત્ર' થી પૂજિત થશે)"
+                          : "(If blank, Vedic default Kashyap Gotra is applied)"}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -785,24 +1314,27 @@ export default function ProductDetailClient({ productId }) {
 
               {/* Quantity Stepper & Main Action Buttons */}
               <div className="flex flex-col gap-3 pt-1">
-                <div className="flex flex-wrap items-center gap-3">
+                {/* Responsive Action Grid: Never crowds on tablets (768px-1024px) or mobile */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3">
                   {/* Quantity Stepper */}
-                  <div className="flex items-center rounded-xl bg-card border border-border p-1 shadow-xs">
+                  <div className="sm:col-span-4 lg:col-span-3 flex items-center justify-between rounded-xl bg-card border border-border p-1 shadow-xs h-12">
                     <button
                       type="button"
                       onClick={handleDecreaseQty}
                       disabled={qty <= 1}
-                      className="w-9 h-9 rounded-lg hover:bg-muted text-foreground flex items-center justify-center transition-colors disabled:opacity-40"
+                      className="w-10 h-full rounded-lg hover:bg-muted text-foreground flex items-center justify-center transition-colors disabled:opacity-40 cursor-pointer"
+                      aria-label="Decrease Quantity"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="w-12 text-center text-base font-bold text-foreground">
+                    <span className="text-base font-bold text-foreground tabular-nums px-2">
                       {toDigits(qty)}
                     </span>
                     <button
                       type="button"
                       onClick={handleIncreaseQty}
-                      className="w-9 h-9 rounded-lg hover:bg-muted text-foreground flex items-center justify-center transition-colors"
+                      className="w-10 h-full rounded-lg hover:bg-muted text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                      aria-label="Increase Quantity"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -812,20 +1344,20 @@ export default function ProductDetailClient({ productId }) {
                   <Button
                     size="lg"
                     onClick={() => handleAddToCart(false)}
-                    className="flex-1 h-12 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-sm shadow-md gap-2"
+                    className="sm:col-span-8 lg:col-span-5 h-12 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-sm shadow-md gap-2 whitespace-nowrap cursor-pointer transition-all active:scale-[0.99]"
                   >
-                    <ShoppingCart className="h-4 w-4" />
-                    <span>{currentLang === "gu" ? "કાર્ટમાં ઉમેરો (Add to Cart)" : "Add to Cart"}</span>
+                    <ShoppingCart className="h-4 w-4 shrink-0" />
+                    <span className="whitespace-nowrap">{currentLang === "gu" ? "કાર્ટમાં ઉમેરો" : "Add to Cart"}</span>
                   </Button>
 
                   {/* Buy Now Instant Checkout Button */}
                   <Button
                     size="lg"
                     onClick={() => handleAddToCart(true)}
-                    className="h-12 px-6 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#1b1c1a] font-bold text-sm shadow-md gap-2"
+                    className="sm:col-span-12 lg:col-span-4 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#1b1c1a] font-bold text-sm shadow-md gap-2 whitespace-nowrap cursor-pointer transition-all active:scale-[0.99]"
                   >
-                    <Zap className="h-4 w-4 fill-current" />
-                    <span>{currentLang === "gu" ? "હમણાં જ ખરીદો" : "Buy Now"}</span>
+                    <Zap className="h-4 w-4 fill-current shrink-0" />
+                    <span className="whitespace-nowrap">{currentLang === "gu" ? "હમણાં ખરીદો" : "Buy Now"}</span>
                   </Button>
                 </div>
 
@@ -836,7 +1368,7 @@ export default function ProductDetailClient({ productId }) {
                   rel="noopener noreferrer"
                   className="w-full h-11 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#25D366]/30 transition-colors mt-1"
                 >
-                  <MessageCircle className="h-4 w-4" />
+                  <MessageCircle className="h-4 w-4 shrink-0" />
                   <span>
                     {currentLang === "gu"
                       ? "WhatsApp દ્વારા ૧-ક્લિક ઓર્ડર અથવા પૂછપરછ"
@@ -845,38 +1377,23 @@ export default function ProductDetailClient({ productId }) {
                 </a>
               </div>
 
-              {/* Beej Mantra & Wearing Rules Card */}
-              {product.beejMantra && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4" />
-                      <span>સિદ્ધ બીજ મંત્ર (Beej Mantra)</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleCopyMantra}
-                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold"
-                    >
-                      {copiedMantra ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                      <span>{copiedMantra ? "કૉપી થયું" : "કૉપી કરો"}</span>
-                    </button>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-card border border-border/60 text-xs sm:text-sm font-bold text-foreground text-center tracking-wide">
-                    {product.beejMantra}
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-muted-foreground pt-1">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
-                      <span>શુભ દિવસ: <strong>{product.wearingDay}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Compass className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
-                      <span>ધારણ સ્થળ: <strong>{product.fingerOrPosition}</strong></span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Checkout Security & Trust Highlights */}
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs text-muted-foreground pt-1">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
+                  <span>{currentLang === "gu" ? "૧૦૦% અસલ નેપાળી ખાતરી" : "100% Authentic Nepali"}</span>
+                </span>
+                <span className="text-border">•</span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
+                  <span>{currentLang === "gu" ? "સુરક્ષિત ઓર્ડર" : "100% Secure Order"}</span>
+                </span>
+                <span className="text-border">•</span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Truck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
+                  <span>{currentLang === "gu" ? "ટ્રેકિંગ સાથે ડિલિવરી" : "Tracked Delivery"}</span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -911,12 +1428,32 @@ export default function ProductDetailClient({ productId }) {
                   }}
                 >
                   {[
-                    { id: "details", label: currentLang === "gu" ? "૧. પવિત્ર મહત્વ & લાભ" : "1. Significance & Benefits" },
-                    { id: "consecration", label: currentLang === "gu" ? "૨. વૈદિક પ્રાણ-પ્રતિષ્ઠા વિધિ" : "2. Consecration Ritual" },
-                    { id: "labcert", label: currentLang === "gu" ? "૩. લેબ પ્રમાણપત્ર & વિગતો" : "3. Lab Certificate & Details" },
-                    { id: "specs", label: currentLang === "gu" ? "૪. વિશેષ સ્પષ્ટીકરણ" : "4. Specifications" },
-                    { id: "faqs", label: currentLang === "gu" ? "૫. પ્રશ્નોત્તરી (FAQs)" : "5. FAQs" },
-                  ].map((tab) => {
+                    {
+                      id: "details",
+                      shortLabel: currentLang === "gu" ? "મહત્વ & લાભ" : "Benefits",
+                      fullLabel: currentLang === "gu" ? "પવિત્ર મહત્વ & લાભ" : "Significance & Benefits"
+                    },
+                    {
+                      id: "consecration",
+                      shortLabel: currentLang === "gu" ? "પ્રાણ-પ્રતિષ્ઠા" : "Consecration",
+                      fullLabel: currentLang === "gu" ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા વિધિ" : "Consecration Ritual"
+                    },
+                    {
+                      id: "labcert",
+                      shortLabel: currentLang === "gu" ? "લેબ સર્ટિફિકેટ" : "Certificate",
+                      fullLabel: currentLang === "gu" ? "લેબ પ્રમાણપત્ર & X-Ray" : "Lab Certificate & X-Ray"
+                    },
+                    {
+                      id: "specs",
+                      shortLabel: currentLang === "gu" ? "સ્પષ્ટીકરણ" : "Specifications",
+                      fullLabel: currentLang === "gu" ? "વિશેષ સ્પષ્ટીકરણ" : "Specifications"
+                    },
+                    {
+                      id: "faqs",
+                      shortLabel: currentLang === "gu" ? "પ્રશ્નોત્તરી" : "FAQs",
+                      fullLabel: currentLang === "gu" ? "પ્રશ્નોત્તરી (FAQs)" : "FAQs"
+                    },
+                  ].map((tab, idx) => {
                     const isActive = activeTab === tab.id
                     return (
                       <button
@@ -926,19 +1463,25 @@ export default function ProductDetailClient({ productId }) {
                           setActiveTab(tab.id)
                           e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
                         }}
-                        className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
+                        className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
                           isActive
                             ? "bg-[#00685d] text-white shadow-md scale-[1.01]"
                             : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        {tab.label}
+                        <span className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full text-[10px] sm:text-xs flex items-center justify-center font-bold ${
+                          isActive ? "bg-white/20 text-white" : "bg-muted-foreground/15 text-muted-foreground"
+                        }`}>
+                          {toDigits(idx + 1)}
+                        </span>
+                        <span className="sm:hidden">{tab.shortLabel}</span>
+                        <span className="hidden sm:inline">{tab.fullLabel}</span>
                       </button>
                     )
                   })}
                 </div>
 
-                {/* Right Arrow Button */}
+                {/* Right Arrow Button (Clean affordance without distracting pulse) */}
                 <button
                   type="button"
                   onClick={() => scrollTabs("right")}
@@ -946,7 +1489,7 @@ export default function ProductDetailClient({ productId }) {
                   aria-label={currentLang === "gu" ? "જમણી બાજુ સ્ક્રોલ કરો" : "Scroll tabs right"}
                   className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0 transition-all border ${
                     canScrollTabsRight
-                      ? "bg-card hover:bg-[#00685d] hover:text-white text-foreground border-border shadow-xs cursor-pointer active:scale-95 animate-pulse sm:animate-none"
+                      ? "bg-card hover:bg-[#00685d] hover:text-white text-foreground border-border shadow-xs cursor-pointer active:scale-95"
                       : "opacity-25 cursor-not-allowed border-transparent text-muted-foreground"
                   }`}
                 >
@@ -982,6 +1525,55 @@ export default function ProductDetailClient({ productId }) {
                     </div>
                   </div>
                 )}
+
+                {/* Sacred Beej Mantra & Wearing Instructions Card */}
+                {product.beejMantra && (
+                  <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col gap-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs sm:text-sm font-bold text-[#8a6800] dark:text-[#fdc72d] flex items-center gap-1.5">
+                        <Sparkles className="h-4 w-4" />
+                        <span>{currentLang === "gu" ? "સિદ્ધ બીજ મંત્ર અને જાપ વિધિ" : "Sacred Beej Mantra & Chanting Rules"}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopyMantra}
+                        className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold cursor-pointer"
+                      >
+                        {copiedMantra ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                        <span>
+                          {copiedMantra
+                            ? currentLang === "gu"
+                              ? "કૉપી થયું!"
+                              : "Copied!"
+                            : currentLang === "gu"
+                              ? "કૉપી કરો"
+                              : "Copy Mantra"}
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-card border border-border/60 text-sm sm:text-base font-bold text-foreground text-center tracking-wide shadow-2xs">
+                      {product.beejMantra}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-muted-foreground pt-1">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
+                        <span>
+                          {currentLang === "gu" ? "શુભ દિવસ / મુહૂર્ત:" : "Auspicious Day:"}{" "}
+                          <strong className="text-foreground">{product.wearingDay}</strong>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Compass className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
+                        <span>
+                          {currentLang === "gu" ? "ધારણ સ્થાન:" : "Wearing Placement:"}{" "}
+                          <strong className="text-foreground">{product.fingerOrPosition}</strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -998,37 +1590,61 @@ export default function ProductDetailClient({ productId }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                   <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-2">
                     <span className="w-7 h-7 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center">
-                      ૧
+                      {toDigits(1)}
                     </span>
-                    <span className="text-sm font-bold text-foreground">પ્રાકૃતિક અસલી પસંદગી</span>
-                    <span className="text-xs text-muted-foreground">ખાણ કે વનમાંથી ૧૦૦% અસલી સામગ્રીની જાતે તપાસ.</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {currentLang === "gu" ? "પ્રાકૃતિક અસલી પસંદગી" : "Authentic Natural Selection"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {currentLang === "gu"
+                        ? "ખાણ કે વનમાંથી ૧૦૦% અસલી સામગ્રીની જાતે તપાસ."
+                        : "Personally verified genuine sourcing from pristine forests."}
+                    </span>
                   </div>
                   <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-2">
                     <span className="w-7 h-7 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center">
-                      ૨
+                      {toDigits(2)}
                     </span>
-                    <span className="text-sm font-bold text-foreground">ગંગાજળ & પંચામૃત સ્નાન</span>
-                    <span className="text-xs text-muted-foreground">હરિદ્વાર શુદ્ધ ગંગાજળ અને દૂધ-મધથી શુદ્ધિકરણ.</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {currentLang === "gu" ? "ગંગાજળ & પંચામૃત સ્નાન" : "Gangajal & Panchamrit Bath"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {currentLang === "gu"
+                        ? "હરિદ્વાર શુદ્ધ ગંગાજળ અને દૂધ-મધથી શુદ્ધિકરણ."
+                        : "Purified with Haridwar holy Gangajal, cow milk, and honey."}
+                    </span>
                   </div>
                   <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-2">
                     <span className="w-7 h-7 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center">
-                      ૩
+                      {toDigits(3)}
                     </span>
-                    <span className="text-sm font-bold text-foreground">૧,૧૦૦ મંત્રોચ્ચાર આહુતિ</span>
-                    <span className="text-xs text-muted-foreground">શુભ મુહૂર્તમાં વિદ્વાન બ્રાહ્મણો દ્વારા સિદ્ધિ હોમ.</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {currentLang === "gu" ? "૧,૧૦૦ મંત્રોચ્ચાર આહુતિ" : "1,100 Vedic Mantra Chants"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {currentLang === "gu"
+                        ? "શુભ મુહૂર્તમાં વિદ્વાન બ્રાહ્મણો દ્વારા સિદ્ધિ હોમ."
+                        : "Energized through sacred homa by learned Acharyas."}
+                    </span>
                   </div>
                   <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-2">
                     <span className="w-7 h-7 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center">
-                      ૪
+                      {toDigits(4)}
                     </span>
-                    <span className="text-sm font-bold text-foreground">લેબ સર્ટિફિકેટ & પેકિંગ</span>
-                    <span className="text-xs text-muted-foreground">ગંગાજળ બોટલ અને સર્ટિફિકેટ સાથે અખંડ સીલ પેકિંગ.</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {currentLang === "gu" ? "લેબ સર્ટિફિકેટ & પેકિંગ" : "Lab Certificate & Packing"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {currentLang === "gu"
+                        ? "ગંગાજળ બોટલ અને સર્ટિફિકેટ સાથે અખંડ સીલ પેકિંગ."
+                        : "Dispatched in sealed tamper-proof box with Gangajal vial & certificate."}
+                    </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Tab 3: Lab Certificate & Details */}
+            {/* Tab 3: Official Lab Certificate with High-Res X-Ray Visual Scan */}
             {activeTab === "labcert" && (
               <div className="pt-6 flex flex-col gap-6">
                 <div className="flex items-center gap-3">
@@ -1037,133 +1653,247 @@ export default function ProductDetailClient({ productId }) {
                   </div>
                   <div>
                     <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                      {currentLang === "gu" ? "લેબ પ્રમાણપત્ર & ઓળખ વિગતો" : "Lab Certificate & Identification Details"}
+                      {currentLang === "gu" ? "અધિકૃત લેબ પ્રમાણપત્ર & X-Ray રિપોર્ટ" : "Official Govt. Lab Certificate & X-Ray Report"}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {currentLang === "gu"
-                        ? "સરકારી માન્ય લેબ દ્વારા X-Ray અને રાસાયણિક પ્રક્રિયા વડે ચકાસ્યું"
-                        : "Verified by Govt. accredited lab via X-Ray & chemical analysis"}
+                        ? "ડિજિટલ એક્સ-રે રેડિયોગ્રાફી અને રાસાયણિક પૃથક્કરણ દ્વારા ૧૦૦% અસલ નેપાળી હોવાની ખાતરી"
+                        : "Certified 100% Genuine Nepali origin verified via Digital X-Ray Radiography and chemical analysis"}
                     </p>
                   </div>
                 </div>
 
-                {/* Certificate Card */}
-                <div className="relative p-6 rounded-2xl bg-gradient-to-br from-[#00685d]/5 via-card to-amber-500/5 border-2 border-[#00685d]/20 dark:border-[#fdc72d]/20 overflow-hidden">
-                  <div className="absolute top-4 right-4 opacity-5">
-                    <Award className="h-24 w-24 text-[#00685d]" />
-                  </div>
+                {/* 2-Column Grid: Visual Certificate Card on Left, Scientific Report Table on Right */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* Left (5 cols): High-Resolution Certificate Document Visual */}
+                  <div className="lg:col-span-5 flex flex-col gap-3">
+                    <div
+                      className="group relative rounded-2xl overflow-hidden border-2 border-[#00685d]/30 dark:border-[#fdc72d]/30 bg-muted/30 shadow-md cursor-zoom-in"
+                      onClick={() => setIsCertModalOpen(true)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={currentLang === "gu" ? "લેબ સર્ટિફિકેટ મોટું જુઓ" : "Inspect full lab certificate"}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setIsCertModalOpen(true)
+                      }}
+                    >
+                      <img
+                        src="/images/rudraksha-lab-certificate-sample.jpg"
+                        alt={currentLang === "gu" ? "નેપાળી ૫-મુખી રુદ્રાક્ષ લેબ સર્ટિફિકેટ X-Ray રિપોર્ટ" : "Nepali 5-Mukhi Rudraksha Lab Certificate X-Ray Report"}
+                        className="w-full h-auto object-contain rounded-xl transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
 
-                  <div className="flex items-start gap-4 mb-5">
-                    <div className="w-14 h-14 rounded-2xl bg-[#00685d] text-white flex items-center justify-center shrink-0 shadow-md">
-                      <ShieldCheck className="h-7 w-7" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-base sm:text-lg font-extrabold text-foreground">
-                        {currentLang === "gu" ? "The Astro Code — અધિકૃતતા પ્રમાણપત્ર" : "The Astro Code — Authenticity Certificate"}
-                      </span>
-                      <span className="text-xs text-muted-foreground mt-0.5">
-                        {currentLang === "gu" ? "Cert. No: TAC-LAB-" : "Cert. No: TAC-LAB-"}{product.sku}
-                      </span>
-                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
-                          <CheckCircle2 className="h-3 w-3" /> Govt. Accredited Lab
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 px-2.5 py-0.5 rounded-full">
-                          <Eye className="h-3 w-3" /> X-Ray Tested
-                        </span>
+                      {/* Click to Zoom Overlay Banner */}
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md text-white text-xs font-bold shadow-lg pointer-events-none group-hover:bg-[#00685d] transition-colors border border-white/10 whitespace-nowrap">
+                        <ZoomIn className="h-3.5 w-3.5 text-[#fdc72d]" />
+                        <span>{currentLang === "gu" ? "ક્લિક કરી મોટું પ્રમાણપત્ર જુઓ" : "Click to Inspect Certificate"}</span>
                       </div>
                     </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
+                      <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span>{currentLang === "gu" ? "QR કોડ સ્કેન વેરિફાઇડ" : "Live QR Scan Verified"}</span>
+                      </span>
+                      <span>{currentLang === "gu" ? "નમૂના રિપોર્ટ ID: RN-2023-0914" : "Sample Report ID: RN-2023-0914"}</span>
+                    </div>
                   </div>
 
-                  {/* Spec Table */}
-                  <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
-                    <table className="w-full text-xs sm:text-sm text-left">
-                      <tbody className="divide-y divide-border/50">
-                        <tr className="bg-[#00685d]/5">
-                          <td className="p-3 sm:p-4 font-bold text-foreground w-2/5">ઉત્પાદન / Product</td>
-                          <td className="p-3 sm:p-4 text-muted-foreground font-semibold">{product.name}</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 sm:p-4 font-bold text-foreground">મૂળ સ્થાન / Origin</td>
-                          <td className="p-3 sm:p-4 text-muted-foreground">{product.origin}</td>
-                        </tr>
-                        <tr className="bg-[#00685d]/5">
-                          <td className="p-3 sm:p-4 font-bold text-foreground">પ્રમાણન / Certification</td>
-                          <td className="p-3 sm:p-4 text-muted-foreground">{product.authenticityDetails || "Govt. Certified Lab — X-Ray & Chemical Analysis"}</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 sm:p-4 font-bold text-foreground">SKU / Product Code</td>
-                          <td className="p-3 sm:p-4 text-muted-foreground font-mono">{product.sku}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                  {/* Right (7 cols): Scientific Parameters Table & Authenticity Checklist */}
+                  <div className="lg:col-span-7 flex flex-col gap-4">
+                    <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xs">
+                      <div className="bg-[#00685d]/10 dark:bg-[#fdc72d]/10 px-4 py-3 border-b border-border/70 flex items-center justify-between">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-[#00685d] dark:text-[#fdc72d]">
+                          {currentLang === "gu" ? "લેબોરેટરી વૈજ્ઞાનિક પરીક્ષણ પરિણામો" : "Laboratory Scientific Test Results"}
+                        </span>
+                        <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                          {currentLang === "gu" ? "૧૦૦% ઉત્તીર્ણ" : "PASSED (100%)"}
+                        </Badge>
+                      </div>
 
-                {/* Guarantee Features */}
-                <div className="flex flex-col gap-3">
-                  <h4 className="text-sm sm:text-base font-bold text-foreground">
-                    {currentLang === "gu" ? "પ્રમાણપત્ર શું ખાતરી આપે છે?" : "What does the Certificate Guarantee?"}
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      { icon: <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />, title: currentLang === "gu" ? "100% અસ્સલ સ્ટોન/ઉત્પાદન" : "100% Genuine Stone/Product", desc: currentLang === "gu" ? "ખોટા, કૃત્રિમ કે ડુપ્લિકેટ સ્ટોનનો ઉપયોગ નહીં." : "No fake, synthetic, or duplicate stones used." },
-                      { icon: <Eye className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />, title: currentLang === "gu" ? "X-Ray & Chemical Test" : "X-Ray & Chemical Test", desc: currentLang === "gu" ? "Govt. accredited laboratory ની ભૌતિક ચકાસણી." : "Physical verification by Govt. accredited laboratory." },
-                      { icon: <Info className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />, title: currentLang === "gu" ? "ગ્રામ/રત્તી/વ્યાસ ચકાસ્યો" : "Weight & Size Verified", desc: currentLang === "gu" ? "ઉત્પાદનની ભૌતિક માપ-ચકાસણી ખૂણ-ખૂણામાં કરાઈ." : "Physical measurement and size verification done." },
-                      { icon: <Droplets className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />, title: currentLang === "gu" ? "ગંગાજળ & પ્રાણ-પ્રતિષ્ઠા" : "Ganga Jal & Energization", desc: currentLang === "gu" ? "ડૉ. વિશાલ મોદી દ્વારા પૂજિત અભિષેક ખાતરી." : "Consecrated with Ganga Jal by Dr. Vishal Modi." }
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/50">
-                        <div className="w-8 h-8 rounded-lg bg-[#00685d]/10 dark:bg-[#fdc72d]/10 flex items-center justify-center shrink-0 mt-0.5">
-                          {item.icon}
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-bold text-foreground">{item.title}</span>
-                          <span className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</span>
+                      <table className="w-full text-xs sm:text-sm text-left">
+                        <tbody className="divide-y divide-border/50">
+                          <tr>
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground w-2/5">
+                              {currentLang === "gu" ? "માન્યતા પ્રાપ્ત પ્રયોગશાળા" : "Accredited Laboratory"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-foreground font-semibold">
+                              Gemological Laboratory of Nepal (GLN) • Kathmandu
+                            </td>
+                          </tr>
+                          <tr className="bg-muted/20">
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground">
+                              {currentLang === "gu" ? "પરીક્ષણ પદ્ધતિ" : "Testing Methodology"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-muted-foreground">
+                              {currentLang === "gu" ? "નોન-ડિસ્ટ્રક્ટિવ ડિજિટલ X-Ray રેડિયોગ્રાફી" : "Digital X-Ray Radiography & Microscopic Analysis"}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground">
+                              {currentLang === "gu" ? "આંતરિક બીજ કક્ષો (Chambers)" : "Internal Seed Chambers"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-emerald-700 dark:text-emerald-400 font-bold">
+                              {currentLang === "gu" ? "૫ સ્પષ્ટ પ્રાકૃતિક ખાના (X-Ray માં સ્પષ્ટ દ્રશ્યમાન)" : "5 Distinct Natural Seed Compartments (100% Clear in X-Ray)"}
+                            </td>
+                          </tr>
+                          <tr className="bg-muted/20">
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground">
+                              {currentLang === "gu" ? "વનસ્પતિ પ્રજાતિ શુદ્ધતા" : "Botanical Purity"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-muted-foreground font-mono">
+                              Elaeocarpus Ganitrus Roxb. (પ્રાકૃતિક કાષ્ઠ)
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground">
+                              {currentLang === "gu" ? "કૃત્રિમ/રેઝિન ભેળસેળ" : "Synthetic / Plastic Adulteration"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-foreground">
+                              {currentLang === "gu" ? "શૂન્ય (Nil) — કોઈ પ્લાસ્ટિક, ગ્લુ કે કેમિકલ નથી" : "Nil (Negative) — Zero synthetic resin or adhesives"}
+                            </td>
+                          </tr>
+                          <tr className="bg-muted/20">
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground">
+                              {currentLang === "gu" ? "સપાટી અને મુખ રેખાઓ" : "Surface Facial Grooves"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-muted-foreground">
+                              {currentLang === "gu" ? "ઊંડા પ્રાકૃતિક ખાંચા, કોઈ માનવસર્જિત કોતરણી નથી" : "Deep natural furrow lines, uncarved natural texture"}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="p-3 sm:p-3.5 font-bold text-foreground">
+                              {currentLang === "gu" ? "અધિકૃત પ્રમાણપત્ર સાથે" : "Dispatched In Box"}
+                            </td>
+                            <td className="p-3 sm:p-3.5 text-muted-foreground font-medium">
+                              {currentLang === "gu" ? "ઓરિજિનલ લેબ સર્ટિફિકેટ કાર્ડ, QR કોડ અને ગંગાજળ શીશી સાથે" : "Physical laminated certificate with QR verification & Gangajal vial"}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Security Assurances Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-muted/40 border border-border/50 text-xs">
+                        <Award className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold text-foreground block">
+                            {currentLang === "gu" ? "હોલોગ્રામ સીલ સુરક્ષા" : "Holographic Anti-Counterfeit Seal"}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            {currentLang === "gu" ? "દરેક સર્ટિફિકેટ પર 3D હોલોગ્રામ સ્ટીકર સામેલ." : "Every report features a tamper-proof 3D hologram."}
+                          </span>
                         </div>
                       </div>
-                    ))}
+
+                      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-muted/40 border border-border/50 text-xs">
+                        <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold text-foreground block">
+                            {currentLang === "gu" ? "૧૦૦% મની-બેક ગેરંટી" : "100% Lifetime Authenticity Guarantee"}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            {currentLang === "gu" ? "ભારતની કોઈપણ લેબમાં નકલી સાબિત થાય તો ૧૦ ગણા નાણાં પરત." : "10x money-back assurance if proven non-genuine by any certified lab."}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Tab 4: Technical Specifications */}
+            {/* Tab 4: Technical & Physical Specifications (Completely non-redundant) */}
             {activeTab === "specs" && (
-              <div className="pt-6">
-                <div className="overflow-hidden rounded-xl border border-border">
+              <div className="pt-6 flex flex-col gap-5">
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                    {currentLang === "gu" ? "ભૌતિક અને તકનીકી સ્પષ્ટીકરણ" : "Physical & Technical Specifications"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {currentLang === "gu"
+                      ? "માળાની સાઇઝ, વજન, દોરાનું મટિરિયલ અને ઘનતા વિગતો"
+                      : "Detailed craftsmanship, bead diameter, knotting, weight, and density metrics"}
+                  </p>
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
                   <table className="w-full text-xs sm:text-sm text-left">
-                    <tbody className="divide-y divide-border">
+                    <tbody className="divide-y divide-border/60">
                       <tr className="bg-muted/30">
-                        <td className="p-3 sm:p-4 font-bold text-foreground w-1/3">ઉત્પાદન નામ / Name</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground">{product.name}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground w-1/3">
+                          {currentLang === "gu" ? "વનસ્પતિ પ્રજાતિ (Botanical Name)" : "Botanical Species"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-foreground font-mono font-medium">
+                          Elaeocarpus Ganitrus Roxb. (કુદરતી હિમાલયન કાષ્ઠ)
+                        </td>
                       </tr>
                       <tr>
-                        <td className="p-3 sm:p-4 font-bold text-foreground">મૂળ સ્થાન / Origin</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground">{product.origin}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "માળા સંરચના & દાણા સંખ્યા" : "Bead Count & Assembly"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-foreground font-semibold">
+                          {currentLang === "gu" ? "૧૦૮ દાણા + ૧ સુમેરુ બિંદુ (કુલ ૧૦૯ મણકા, શાસ્ત્રોક્ત જાપ વિધાન)" : "108 Japa Beads + 1 Sumeru Guru Bead (Total 109 Beads)"}
+                        </td>
                       </tr>
                       <tr className="bg-muted/30">
-                        <td className="p-3 sm:p-4 font-bold text-foreground">અધિષ્ઠાતા દેવ / Deity</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground">{product.deityOrPlanet}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "દોરાનું મટિરિયલ અને ગાંઠ પદ્ધતિ" : "Thread & Knotting Technique"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-muted-foreground">
+                          {currentLang === "gu"
+                            ? "પવિત્ર લાલ રેશમી દોરો, દરેક દાણા વચ્ચે સુરક્ષિત બ્રાહ્મણ હસ્ત-ગાંઠ (દાણા ઘસાતા નથી)"
+                            : "Traditional Red Silk cord with individual hand-tied security knots between beads"}
+                        </td>
                       </tr>
                       <tr>
-                        <td className="p-3 sm:p-4 font-bold text-foreground">બીજ મંત્ર / Beej Mantra</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground font-semibold">{product.beejMantra}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "મણકાનો વ્યાસ (Bead Diameter)" : "Bead Diameter Range"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-foreground">
+                          {currentLang === "gu"
+                            ? "૭ mm થી ૧૦ mm (પસંદ કરેલ વેરિઅન્ટ અનુસાર: ૭-૮mm નિયમિત / ૯-૧૦mm કલેક્ટર)"
+                            : "7mm to 10mm (As per variant: 7-8mm Regular / 9-10mm Collector Grade)"}
+                        </td>
                       </tr>
                       <tr className="bg-muted/30">
-                        <td className="p-3 sm:p-4 font-bold text-foreground">ધારણ મુહૂર્ત / Best Day</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground">{product.wearingDay}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "કુલ વજન (Net Weight)" : "Total Weight"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-muted-foreground">
+                          {currentLang === "gu"
+                            ? "૩૪ ગ્રામ થી ૬૮ ગ્રામ (ચાંદી કેપિંગ સાથે ~૬૮ ગ્રામ)"
+                            : "34 grams to 68 grams (~68g in pure silver-capped variant)"}
+                        </td>
                       </tr>
                       <tr>
-                        <td className="p-3 sm:p-4 font-bold text-foreground">ધારણ સ્થાન / Position</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground">{product.fingerOrPosition}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "વિશિષ્ટ ઘનતા (Density & Float)" : "Density & Float Test"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-emerald-700 dark:text-emerald-400 font-semibold">
+                          {currentLang === "gu"
+                            ? "૧.૨૮ g/cm³ (પાણીમાં તાત્કાલિક ડૂબતો અસલ નેપાળી દાણો)"
+                            : "1.28 g/cm³ (Naturally sinks in water, passing authentic water test)"}
+                        </td>
                       </tr>
                       <tr className="bg-muted/30">
-                        <td className="p-3 sm:p-4 font-bold text-foreground">પ્રમાણપત્ર / Certification</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground">{product.authenticityDetails}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "ચાંદી ગુણવત્તા (કેપિંગ વિકલ્પમાં)" : "Silver Quality (Capping Option)"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-foreground">
+                          {currentLang === "gu" ? "શુદ્ધ ૯૨.૫% હોલમાર્ક્ડ સ્ટર્લિંગ સિલ્વર (Fine Filigree Silver Caps)" : "Pure 92.5% Hallmarked Sterling Silver caps"}
+                        </td>
                       </tr>
                       <tr>
-                        <td className="p-3 sm:p-4 font-bold text-foreground">SKU / કોડ</td>
-                        <td className="p-3 sm:p-4 text-muted-foreground font-mono">{product.sku}</td>
+                        <td className="p-3.5 sm:p-4 font-bold text-foreground">
+                          {currentLang === "gu" ? "પેકેજિંગ અને બોક્સ સમાવિષ્ટ" : "Box Inclusions"}
+                        </td>
+                        <td className="p-3.5 sm:p-4 text-muted-foreground">
+                          {currentLang === "gu"
+                            ? "ગંગોત્રી ગંગાજળ શીશી, શુદ્ધ ચંદન, વૈદિક સંકલ્પ પત્રિકા અને સુરક્ષિત લાકડાની ભેટ બોક્સ"
+                            : "Gangotri holy water vial, sacred Chandan, Vedic Sankalp certificate & gift box"}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -1264,32 +1994,60 @@ export default function ProductDetailClient({ productId }) {
 
             {/* Devotee Review Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-              {[
-                {
-                  name: "રોહિતભાઈ પારેખ",
-                  location: "બોડકદેવ, અમદાવાદ",
-                  date: "૨ દિવસ પહેલા",
-                  title: "અદ્ભુત દૈવીય સ્પંદન અને અસલી ગુણવત્તા!",
-                  comment: "મેં મારા પિતાજી માટે મંગાવી હતી. પાર્સલ ખોલતા જ ચંદન અને કપૂરની સુગંધથી મન પ્રફુલ્લિત થઈ ગયું. લેબ સર્ટિફિકેટ પણ સાથે મળ્યું. ડૉ. વિશાલ મોદી અને સમગ્ર ટીમને ખૂબ ખૂબ સાધુવાદ.",
-                  initial: "રો"
-                },
-                {
-                  name: "મીનાક્ષીબેન સોની",
-                  location: "અડાજણ, સુરત",
-                  date: "૧ અઠવાડિયા પહેલા",
-                  title: "મારા નામે સંકલ્પ સાથે પૂજા કરી આપી",
-                  comment: "મેં ઓર્ડર કરતી વખતે ગોત્ર અને નામ લખ્યું હતું, પૂજાનું વિધિવત સર્ટિફિકેટ સાથે મળ્યું. ધારણ કર્યા પછી માનસિક ચિંતાઓમાં ભારે રાહત અનુભવાય છે. સામગ્રી એકદમ મજબૂત અને નેચરલ છે.",
-                  initial: "મી"
-                },
-                {
-                  name: "હર્ષદભાઈ ત્રિવેદી",
-                  location: "વડોદરા",
-                  date: "૨ અઠવાડિયા પહેલા",
-                  title: "પેકિંગ અને ગંગાજળ ભેટ અત્યંત સુંદર",
-                  comment: "સુરક્ષિત પેકિંગમાં આવી. સાથે જે ગંગોત્રી ગંગાજળની નાની બોટલ અને અયોધ્યા ચંદન આપ્યું તે ખૂબ જ પવિત્ર છે. બજારમાં મળતી નકલી વસ્તુઓ કરતાં આ ૧૦૦ ગણી શ્રેષ્ઠ અને અધિકૃત છે.",
-                  initial: "હ"
-                }
-              ].map((rev, idx) => (
+              {(currentLang === "gu"
+                ? [
+                    {
+                      name: "રોહિતભાઈ પારેખ",
+                      location: "બોડકદેવ, અમદાવાદ",
+                      date: "૨ દિવસ પહેલા",
+                      title: "અદ્ભુત દૈવીય સ્પંદન અને અસલી ગુણવત્તા!",
+                      comment: "મેં મારા પિતાજી માટે મંગાવી હતી. પાર્સલ ખોલતા જ ચંદન અને કપૂરની સુગંધથી મન પ્રફુલ્લિત થઈ ગયું. લેબ સર્ટિફિકેટ પણ સાથે મળ્યું. ડૉ. વિશાલ મોદી અને સમગ્ર ટીમને ખૂબ ખૂબ સાધુવાદ.",
+                      initial: "રો"
+                    },
+                    {
+                      name: "મીનાક્ષીબેન સોની",
+                      location: "અડાજણ, સુરત",
+                      date: "૧ અઠવાડિયા પહેલા",
+                      title: "મારા નામે સંકલ્પ સાથે પૂજા કરી આપી",
+                      comment: "મેં ઓર્ડર કરતી વખતે ગોત્ર અને નામ લખ્યું હતું, પૂજાનું વિધિવત સર્ટિફિકેટ સાથે મળ્યું. ધારણ કર્યા પછી માનસિક ચિંતાઓમાં ભારે રાહત અનુભવાય છે. સામગ્રી એકદમ મજબૂત અને નેચરલ છે.",
+                      initial: "મી"
+                    },
+                    {
+                      name: "હર્ષદભાઈ ત્રિવેદી",
+                      location: "વડોદરા",
+                      date: "૨ અઠવાડિયા પહેલા",
+                      title: "પેકિંગ અને ગંગાજળ ભેટ અત્યંત સુંદર",
+                      comment: "સુરક્ષિત પેકિંગમાં આવી. સાથે જે ગંગોત્રી ગંગાજળની નાની બોટલ અને અયોધ્યા ચંદન આપ્યું તે ખૂબ જ પવિત્ર છે. બજારમાં મળતી નકલી વસ્તુઓ કરતાં આ ૧૦૦ ગણી શ્રેષ્ઠ અને અધિકૃત છે.",
+                      initial: "હ"
+                    }
+                  ]
+                : [
+                    {
+                      name: "Rohit Parekh",
+                      location: "Bodakdev, Ahmedabad",
+                      date: "2 days ago",
+                      title: "Divine energy and authentic Nepali quality!",
+                      comment: "Ordered this sacred mala for my father. As soon as I opened the consecrated package, the subtle aroma of pure sandalwood and camphor brought instant peace. Govt. Lab Certificate was included. Deep gratitude to Dr. Vishal Modi and the team.",
+                      initial: "R"
+                    },
+                    {
+                      name: "Meenakshi Soni",
+                      location: "Adajan, Surat",
+                      date: "1 week ago",
+                      title: "Consecrated with my personal name and gotra",
+                      comment: "I provided my name and Gotra during checkout, and received the official Sankalp Puja Certificate. Wearing it daily has brought profound calmness to my mind and improved focus. Truly authentic natural beads.",
+                      initial: "M"
+                    },
+                    {
+                      name: "Harshad Trivedi",
+                      location: "Vadodara",
+                      date: "2 weeks ago",
+                      title: "Pristine packaging & complimentary Gangajal vial",
+                      comment: "Arrived in tamper-proof sacred packaging. The complementary holy Gangajal vial and consecrated Chandan were such a thoughtful blessing. Infinitely superior and more authentic than commercial market items.",
+                      initial: "H"
+                    }
+                  ]
+              ).map((rev, idx) => (
                 <div
                   key={idx}
                   className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col justify-between gap-4"
@@ -1318,7 +2076,7 @@ export default function ProductDetailClient({ productId }) {
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-foreground leading-none">{rev.name}</span>
                       <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 mt-1">
-                        <CheckCircle2 className="h-3 w-3" /> પ્રમાણિત ખરીદનાર • {rev.location}
+                        <CheckCircle2 className="h-3 w-3" /> {currentLang === "gu" ? "પ્રમાણિત ખરીદનાર" : "Verified Buyer"} • {rev.location}
                       </span>
                     </div>
                   </div>
@@ -1443,6 +2201,60 @@ export default function ProductDetailClient({ productId }) {
         </section>
       </main>
 
+      {/* 5. Mobile Sticky Bottom Purchase Bar (Persistent quick checkout on mobile screens) */}
+      <aside
+        aria-label={currentLang === "gu" ? "મોબાઇલ ઝડપી ખરીદી પટ્ટી" : "Mobile Quick Purchase Bar"}
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.12)] px-3 sm:px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex items-center justify-between gap-2.5"
+      >
+        {/* Left: Thumbnail, Price & Selected Variant */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="w-11 h-11 rounded-xl overflow-hidden border border-border/80 bg-muted shrink-0 shadow-2xs">
+            <img
+              src={imagesList[selectedImageIndex] || imagesList[0]}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-extrabold text-[#00685d] dark:text-[#fdc72d] truncate">
+                {formatPrice(totalItemPrice)}
+              </span>
+              {originalPrice > currentPrice && (
+                <span className="text-[11px] text-muted-foreground line-through">
+                  {formatPrice(totalOriginalPrice)}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-muted-foreground truncate font-medium">
+              {selectedVariant?.name || (currentLang === "gu" ? "મફત શિપિંગ સામેલ" : "Free Delivery Included")}
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Add to Cart and Buy Now Buttons */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button
+            size="sm"
+            onClick={() => handleAddToCart(false)}
+            className="h-10 px-3 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-xs shadow-xs gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
+            aria-label={currentLang === "gu" ? "કાર્ટમાં ઉમેરો" : "Add to Cart"}
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            <span>{currentLang === "gu" ? "કાર્ટ" : "Cart"}</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => handleAddToCart(true)}
+            className="h-10 px-3.5 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#1b1c1a] font-bold text-xs shadow-xs gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
+          >
+            <Zap className="h-3.5 w-3.5 fill-current" />
+            <span>{currentLang === "gu" ? "હમણાં ખરીદો" : "Buy Now"}</span>
+          </Button>
+        </div>
+      </aside>
+
       {/* Global Footer */}
       <AstroFooter
         config={astroData.config}
@@ -1450,74 +2262,108 @@ export default function ProductDetailClient({ productId }) {
         lang={currentLang}
       />
 
-      {/* Fullscreen Image Lightbox Modal */}
+      {/* Fullscreen Image Lightbox Modal with Smooth Pan & Multi-level Zoom */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-6 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
           onClick={() => {
             setIsLightboxOpen(false)
-            setLightboxZoom(1)
+            handleResetZoom()
           }}
           role="dialog"
           aria-modal="true"
         >
           {/* Modal Top Bar */}
           <div
-            className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4 z-10"
+            className="w-full max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4 z-20"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3">
-              <Badge className="bg-[#00685d] text-white font-bold text-xs px-2.5 py-1">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Badge className="bg-[#00685d] text-white font-bold text-xs px-2.5 py-1 shrink-0">
                 {product.badge}
               </Badge>
-              <span className="text-white/90 font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-md">
+              <span className="text-white/90 font-bold text-xs sm:text-base truncate max-w-[150px] sm:max-w-md">
                 {product.name}
               </span>
-              <span className="text-white/50 text-xs hidden sm:inline">
+              <span className="text-white/50 text-xs hidden sm:inline shrink-0">
                 • {selectedImageIndex + 1} / {imagesList.length}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Zoom In/Out Toggle */}
-              <button
-                type="button"
-                onClick={() => setLightboxZoom((prev) => (prev === 1 ? 1.8 : 1))}
-                className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                title={lightboxZoom === 1 ? "Zoom in" : "Reset zoom"}
-              >
-                {lightboxZoom === 1 ? (
-                  <>
-                    <ZoomIn className="h-4 w-4" />
-                    <span className="hidden sm:inline">{currentLang === "gu" ? "ઝૂમ કરો" : "Zoom"}</span>
-                  </>
-                ) : (
-                  <>
-                    <ZoomOut className="h-4 w-4" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Zoom Controls Toolbar */}
+              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/10">
+                <button
+                  type="button"
+                  onClick={handleZoomOut}
+                  disabled={lightboxZoom <= 1}
+                  className="w-8 h-8 rounded-lg text-white hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                  title="Zoom Out (-)"
+                  aria-label="Zoom Out"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+
+                <span className="px-2 text-xs font-bold text-white/90 tabular-nums min-w-[42px] text-center">
+                  {Math.round(lightboxZoom * 100)}%
+                </span>
+
+                <button
+                  type="button"
+                  onClick={handleZoomIn}
+                  disabled={lightboxZoom >= 2.5}
+                  className="w-8 h-8 rounded-lg text-white hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                  title="Zoom In (+)"
+                  aria-label="Zoom In"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+
+                {lightboxZoom > 1 && (
+                  <button
+                    type="button"
+                    onClick={handleResetZoom}
+                    className="h-8 px-2.5 rounded-lg bg-[#fdc72d]/20 hover:bg-[#fdc72d]/30 text-[#fdc72d] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer border border-[#fdc72d]/30 ml-1"
+                    title="Reset Zoom (0)"
+                    aria-label="Reset Zoom"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">{currentLang === "gu" ? "રીસેટ" : "Reset"}</span>
-                  </>
+                  </button>
                 )}
-              </button>
+              </div>
 
               {/* Close Button */}
               <button
                 type="button"
                 onClick={() => {
                   setIsLightboxOpen(false)
-                  setLightboxZoom(1)
+                  handleResetZoom()
                 }}
-                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10 active:scale-95"
                 aria-label="Close image modal"
+                title="Close (Escape)"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
           </div>
 
-          {/* Modal Center Showcase */}
+          {/* Modal Center Showcase with Panning and Drag Support */}
           <div
-            className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-4 overflow-hidden"
+            className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-2 sm:my-4 overflow-hidden touch-none"
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={handleLightboxMouseDown}
+            onMouseMove={handleLightboxMouseMove}
+            onMouseUp={handleLightboxMouseUp}
+            onMouseLeave={handleLightboxMouseUp}
+            onTouchStart={handleLightboxTouchStart}
+            onTouchMove={handleLightboxTouchMove}
+            onTouchEnd={handleLightboxTouchEnd}
+            onDoubleClick={handleLightboxDoubleClick}
+            style={{
+              cursor: lightboxZoom > 1 ? (isDraggingLightbox ? "grabbing" : "grab") : "zoom-in"
+            }}
           >
             {/* Previous Arrow Button */}
             {imagesList.length > 1 && (
@@ -1525,29 +2371,28 @@ export default function ProductDetailClient({ productId }) {
                 type="button"
                 onClick={() => {
                   setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))
-                  setLightboxZoom(1)
+                  handleResetZoom()
                 }}
-                className="absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/10 cursor-pointer"
+                className="absolute left-2 sm:left-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
                 aria-label="Previous Image"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
             )}
 
-            {/* Main Image with Zoom Support */}
+            {/* Main Image with Smooth Pan & Scale */}
             <div
-              className={`max-h-[72vh] max-w-full flex items-center justify-center overflow-auto ${lightboxZoom > 1 ? "cursor-zoom-out" : "cursor-zoom-in"
-                }`}
-              onClick={() => setLightboxZoom((prev) => (prev === 1 ? 1.8 : 1))}
+              className="max-h-[72vh] max-w-full flex items-center justify-center will-change-transform"
+              style={{
+                transform: `translate3d(${lightboxPan.x}px, ${lightboxPan.y}px, 0px) scale(${lightboxZoom})`,
+                transition: isDraggingLightbox ? "none" : "transform 0.25s cubic-bezier(0.2, 0, 0, 1)"
+              }}
             >
               <img
                 src={imagesList[selectedImageIndex] || imagesList[0]}
                 alt={product.name}
-                style={{
-                  transform: `scale(${lightboxZoom})`,
-                  transition: "transform 0.25s ease-out"
-                }}
-                className="max-h-[72vh] max-w-full object-contain rounded-xl select-none shadow-2xl"
+                draggable={false}
+                className="max-h-[72vh] max-w-full object-contain rounded-xl select-none shadow-2xl pointer-events-none"
               />
             </div>
 
@@ -1557,41 +2402,147 @@ export default function ProductDetailClient({ productId }) {
                 type="button"
                 onClick={() => {
                   setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))
-                  setLightboxZoom(1)
+                  handleResetZoom()
                 }}
-                className="absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/10 cursor-pointer"
+                className="absolute right-2 sm:right-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
                 aria-label="Next Image"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
             )}
+
+            {/* Helper Notice Pill */}
+            {lightboxZoom > 1 ? (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white/80 text-[11px] font-medium border border-white/10 pointer-events-none flex items-center gap-1.5 shadow-md">
+                <span>{currentLang === "gu" ? "ખસેડવા માટે ડ્રેગ કરો • રીસેટ કરવા ડબલ ક્લિક કરો" : "Drag to pan • Double-click to reset"}</span>
+              </div>
+            ) : (
+              <div className="hidden sm:flex absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white/70 text-[11px] font-medium border border-white/10 pointer-events-none items-center gap-1.5 shadow-md">
+                <span>{currentLang === "gu" ? "ઝૂમ કરવા માટે ડબલ ક્લિક અથવા + બટન વાપરો" : "Double-click or click + to zoom into fine details"}</span>
+              </div>
+            )}
           </div>
 
           {/* Modal Bottom Thumbnails */}
           <div
-            className="w-full max-w-md mx-auto flex items-center justify-center gap-2.5 z-10 py-1 overflow-x-auto"
+            className="w-full max-w-md mx-auto flex items-center justify-center gap-2.5 z-20 py-1 overflow-x-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {imagesList.map((img, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => {
-                  setSelectedImageIndex(idx)
-                  setLightboxZoom(1)
-                }}
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all p-0.5 shrink-0 cursor-pointer ${selectedImageIndex === idx
-                    ? "border-[#00685d] ring-2 ring-[#00685d]/60 scale-105"
-                    : "border-white/20 opacity-60 hover:opacity-100"
+            {imagesList.map((img, idx) => {
+              const isSelected = selectedImageIndex === idx
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setSelectedImageIndex(idx)
+                    handleResetZoom()
+                  }}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all p-0.5 shrink-0 cursor-pointer ${
+                    isSelected
+                      ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-black scale-105 shadow-md"
+                      : "border-white/20 opacity-50 hover:opacity-100"
                   }`}
+                  aria-label={`View image ${idx + 1}`}
+                >
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Certificate Inspection Modal */}
+      {isCertModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
+          onClick={() => setIsCertModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Top Bar */}
+          <div
+            className="w-full max-w-5xl mx-auto flex items-center justify-between gap-3 sm:gap-4 z-20 pb-3 border-b border-white/10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-[#00685d] text-white flex items-center justify-center shrink-0 shadow-sm">
+                <FileCheck className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-white font-bold text-xs sm:text-sm truncate">
+                  {currentLang === "gu"
+                    ? "અધિકૃત સરકારી માન્યતા પ્રાપ્ત લેબ પ્રમાણપત્ર & X-Ray રિપોર્ટ"
+                    : "Official Govt. Accredited Lab Certificate & Digital X-Ray Report"}
+                </span>
+                <span className="text-white/60 text-[11px] truncate">
+                  Gemological Laboratory of Nepal (GLN) • Ref: RN-2023-0914 • Kathmandu
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Badge className="hidden sm:inline-flex bg-emerald-600 text-white font-bold text-xs px-2.5 py-1">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                {currentLang === "gu" ? "પ્રમાણિત અસલ" : "100% Genuine"}
+              </Badge>
+              <button
+                type="button"
+                onClick={() => setIsCertModalOpen(false)}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10 active:scale-95"
+                aria-label={currentLang === "gu" ? "બંધ કરો" : "Close certificate modal"}
+                title="Close (Escape)"
               >
-                <img
-                  src={img}
-                  alt={`Thumbnail ${idx + 1}`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+                <X className="h-5 w-5" />
               </button>
-            ))}
+            </div>
+          </div>
+
+          {/* Center Scan Visual */}
+          <div
+            className="relative flex-1 w-full max-w-4xl mx-auto flex items-center justify-center my-3 sm:my-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src="/images/rudraksha-lab-certificate-sample.jpg"
+              alt={currentLang === "gu" ? "નેપાળી ૫-મુખી રુદ્રાક્ષ લેબ સર્ટિફિકેટ X-Ray રિપોર્ટ" : "Nepali 5-Mukhi Rudraksha Lab Certificate X-Ray Report"}
+              className="max-h-[74vh] max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
+            />
+          </div>
+
+          {/* Bottom Verification Strip */}
+          <div
+            className="w-full max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10 text-white/80 text-xs"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+              <span className="flex items-center gap-1.5 font-medium text-emerald-400">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>{currentLang === "gu" ? "QR કોડ સ્કેન દ્વારા ઑનલાઇન વેરિફાઇડ" : "Live QR Verification Passed"}</span>
+              </span>
+              <span className="hidden md:inline text-white/40">•</span>
+              <span className="text-white/70">
+                {currentLang === "gu" ? "ડિજિટલ X-Ray: ૫ આંતરિક કક્ષો પ્રમાણિત" : "Digital X-Ray: 5 internal chambers verified"}
+              </span>
+              <span className="hidden md:inline text-white/40">•</span>
+              <span className="text-white/70">
+                {currentLang === "gu" ? "શૂન્ય રેઝિન / સિન્થેટીક ભેળસેળ" : "Zero synthetic adulteration"}
+              </span>
+            </div>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsCertModalOpen(false)}
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs rounded-lg ml-auto cursor-pointer"
+            >
+              {currentLang === "gu" ? "પાછા જાઓ" : "Close Preview"}
+            </Button>
           </div>
         </div>
       )}

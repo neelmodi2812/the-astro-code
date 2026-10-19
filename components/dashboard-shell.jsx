@@ -4,9 +4,6 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
-  Star,
-  Clock,
-  Sun,
   LayoutDashboard,
   BookOpen,
   Package,
@@ -107,20 +104,6 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
             </BreadcrumbList>
           </Breadcrumb>
 
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap text-[11px] sm:text-xs">
-            <span className="inline-flex items-center gap-1 bg-card dark:bg-[#20211d] px-2.5 py-0.5 rounded-full shadow-2xs border border-border/60 text-[#8a6800] dark:text-[#fdc72d] font-bold">
-              <Star className="h-3 w-3 text-[#d9a100]" />
-              <span>{data.topPanchangBar.nakshatra[lang] || data.topPanchangBar.nakshatra.gu}</span>
-            </span>
-            <span className="inline-flex items-center gap-1 bg-card dark:bg-[#20211d] px-2.5 py-0.5 rounded-full shadow-2xs border border-border/60 text-destructive font-bold">
-              <Clock className="h-3 w-3" />
-              <span>{data.topPanchangBar.rahuKaal[lang] || data.topPanchangBar.rahuKaal.gu}</span>
-            </span>
-            <span className="inline-flex items-center gap-1 bg-card dark:bg-[#20211d] px-2.5 py-0.5 rounded-full shadow-2xs border border-border/60 text-[#00685d] dark:text-[#6ed8c8] font-bold">
-              <Sun className="h-3 w-3 text-[#d9a100]" />
-              <span>{data.topPanchangBar.choghadiya[lang] || data.topPanchangBar.choghadiya.gu}</span>
-            </span>
-          </div>
         </div>
       </div>
 

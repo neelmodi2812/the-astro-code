@@ -69,7 +69,7 @@ export default function ConsultationsClient() {
             className="h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
           >
             <Plus className="h-4 w-4" />
-            <span>{isEn ? "+ Book New Session" : "+ નવો પરામર્શ બુક કરો"}</span>
+            <span>{isEn ? "Book New Session" : "નવો પરામર્શ બુક કરો"}</span>
           </Button>
         </div>
 
