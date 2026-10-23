@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { SafeImage } from "@/components/ui/safe-image"
+import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import {
   ArrowLeft,
@@ -10,14 +10,20 @@ import {
   Share2,
   Calendar,
   Clock,
+  Eye,
   CheckCircle,
+  Volume2,
+  Printer,
   Sparkles,
   Sun,
+  ShieldCheck,
   ChevronRight,
   Quote,
   MessageCircle,
+  Phone,
   Store,
   TrendingUp,
+  Award,
   Users,
   Copy,
   Check
@@ -49,32 +55,19 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 
-import { getAstroData, SITE_CONTACT, getWhatsAppUrl } from "@/lib/data/astro-data"
-import { getArticleById } from "@/lib/data/article-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
+import { useArticle } from "@/lib/api/hooks/use-article"
 import { useLanguage } from "@/components/language-provider"
-import { formatDigits } from "@/lib/utils"
 
-function ArticleDetailContent({ initialId }) {
+function ArticleDetailContent({ initialId, initialArticle }) {
   const params = useParams()
   const router = useRouter()
   const articleId = params?.id || initialId || "hero-1"
 
   const { lang, setLang } = useLanguage()
-  const [data, setData] = React.useState(() => getAstroData(lang))
-  const [article, setArticle] = React.useState(() => getArticleById(articleId))
-
-  React.useEffect(() => {
-    setData(getAstroData(lang))
-  }, [lang])
+  const data = useHomeData(lang)
+  const article = useArticle(articleId, initialArticle)
 
   // Share menu state
   const [shareMenuOpen, setShareMenuOpen] = React.useState(false)
@@ -86,18 +79,16 @@ function ArticleDetailContent({ initialId }) {
   // Link copied state
   const [copiedLink, setCopiedLink] = React.useState(false)
 
+  // Reaction counts & selected reaction
+  const [reactions, setReactions] = React.useState({
+    divine: article.reactions.divine,
+    insightful: article.reactions.insightful,
+    wonderful: article.reactions.wonderful
+  })
+  const [userReaction, setUserReaction] = React.useState(null)
+
   // Scroll reading progress indicator
   const [readingProgress, setReadingProgress] = React.useState(0)
-
-  // Live Sankalp Puja Inquiry Modal State
-  const [sankalpModalOpen, setSankalpModalOpen] = React.useState(false)
-  const [sankalpForm, setSankalpForm] = React.useState({
-    devoteeName: "",
-    gotra: "",
-    sankalpPurpose: "મનોકામના પૂર્તિ & સંકટ નિવારણ",
-    phone: "",
-    city: ""
-  })
 
   const showToast = (msg, type = "success") => {
     if (type === "info") toast.info(msg)
@@ -105,79 +96,11 @@ function ArticleDetailContent({ initialId }) {
     else toast.success(msg)
   }
 
-  // Safe back navigation handler with fallback to home ('/')
-  // Prevents router.back() from navigating outside the site if arrived directly from Google Search or social media
-  const handleSafeBack = React.useCallback(() => {
-    if (typeof window === "undefined") {
-      router.push("/")
-      return
-    }
-
-    try {
-      const referrer = document.referrer
-      const isInternalReferrer =
-        Boolean(referrer) &&
-        (referrer.startsWith(window.location.origin) ||
-          referrer.includes(window.location.host))
-
-      // In Next.js client-side navigations, window.history.state?.idx indicates client history depth
-      const historyIndex = window.history.state?.idx
-      const hasClientHistory = typeof historyIndex === "number" && historyIndex > 0
-
-      // If user came from within the site or navigated internally, go back
-      if (isInternalReferrer || hasClientHistory) {
-        router.back()
-      } else {
-        // Fallback to homepage if direct entry (search engine, social media, external link)
-        router.push("/")
-      }
-    } catch {
-      router.push("/")
-    }
-  }, [router])
-
-  const handleSankalpSubmit = (e) => {
-    e.preventDefault()
-    if (!sankalpForm.devoteeName.trim()) {
-      showToast(lang === "gu" ? "કૃપા કરીને યજમાન / ભાવિકનું નામ દાખલ કરો." : "Please enter the Devotee name.", "error")
-      return
-    }
-    if (!sankalpForm.phone.trim()) {
-      showToast(lang === "gu" ? "કૃપા કરીને વોટ્સએપ નંબર દાખલ કરો." : "Please enter your WhatsApp contact number.", "error")
-      return
-    }
-
-    const articleTitle = article?.title?.[lang] || article?.title?.gu || article?.title || "શ્રી બહુચર માં દર્શન"
-
-    const message = lang === "gu"
-      ? `*પ્રણામ The Astro Code (ડૉ. વિશાલ મોદી),*\nહું લેખ *${articleTitle}* વાંચીને *લાઈવ સંકલ્પ પૂજા* માટે નોંધણી કરાવવા માંગુ છું:\n\n🙏 *યજમાનનું નામ:* ${sankalpForm.devoteeName}\n📿 *ગોત્ર:* ${sankalpForm.gotra || "કશ્યપ ગોત્ર"}\n🌺 *સંકલ્પ હેતુ:* ${sankalpForm.sankalpPurpose}\n📍 *શહેર:* ${sankalpForm.city || "અમદાવાદ"}\n📞 *સંપર્ક:* ${sankalpForm.phone}\n\nકૃપા કરીને પૂજા મુહૂર્ત અને સંકલ્પ સમયની વિગત જણાવશો. અસ્તુ!`
-      : `*Greetings The Astro Code (Dr. Vishal Modi),*\nI would like to register for *Live Sankalp Puja* referenced from the article *${articleTitle}*:\n\n🙏 *Devotee Name:* ${sankalpForm.devoteeName}\n📿 *Gotra:* ${sankalpForm.gotra || "Kashyap"}\n🌺 *Purpose:* ${sankalpForm.sankalpPurpose}\n📍 *City:* ${sankalpForm.city || "Not specified"}\n📞 *Contact:* ${sankalpForm.phone}\n\nPlease share the auspicious Puja Muhurta and registration confirmation. Thank you!`
-
-    showToast(
-      lang === "gu"
-        ? "આપનો સંકલ્પ સ્વીકારવામાં આવ્યો છે! WhatsApp પર પૂજા વિગતો મોકલાઈ રહી છે..."
-        : "Sankalp registration recorded! Redirecting to WhatsApp for confirmation...",
-      "success"
-    )
-
-    setSankalpModalOpen(false)
-    window.open(getWhatsAppUrl(message), "_blank")
-  }
-
   // Handle language switch
   const handleToggleLang = (newLang) => {
     setLang(newLang)
     toast.info(newLang === "en" ? "Language switched to English" : "ભાષા બદલાઈ: ગુજરાતી")
   }
-
-  // Combine article audio summary and sections for complete audio narration
-  const fullArticleAudioText = React.useMemo(() => {
-    const audioIntro = article?.audioText?.[lang] || ""
-    const sectionsText = article?.sections
-      ?.map((sec) => `${sec.heading?.[lang] || ""}. ${sec.paragraphs?.map((p) => p[lang] || "").join(" ")}`)
-      .join(" ") || ""
-    return `${audioIntro} ${sectionsText}`.trim()
-  }, [article, lang])
 
 
 
@@ -196,9 +119,13 @@ function ArticleDetailContent({ initialId }) {
 
   // Update article if ID changes
   React.useEffect(() => {
-    const loaded = getArticleById(articleId)
-    setArticle(loaded)
-  }, [articleId])
+    setReactions({
+      divine: article.reactions.divine,
+      insightful: article.reactions.insightful,
+      wonderful: article.reactions.wonderful
+    })
+    setUserReaction(null)
+  }, [article])
 
   // Bookmark toggle
   const toggleBookmark = () => {
@@ -275,19 +202,23 @@ function ArticleDetailContent({ initialId }) {
     }
   }
 
-  // Clean section title helper (removes raw numbers like "1. " or "૧. ")
-  const formatHeading = React.useCallback(
-    (headingObj) => {
-      if (!headingObj) return ""
-      const text =
-        headingObj[lang] ||
-        headingObj.gu ||
-        headingObj.en ||
-        (typeof headingObj === "string" ? headingObj : "")
-      return text.replace(/^([0-9]+|[૦-૯]+)\.\s*/, "").trim()
-    },
-    [lang]
-  )
+  // Reaction click
+  const handleReactionClick = (key) => {
+    if (userReaction === key) return // already reacted
+    setReactions((prev) => ({
+      ...prev,
+      [key]: prev[key] + 1
+    }))
+    setUserReaction(key)
+    showToast(lang === "gu" ? "પ્રતિભાવ આપવા બદલ આભાર! 🙏" : "Thank you for your reaction! 🙏")
+  }
+
+  // Gujarati numerals formatter helper
+  const formatNumber = (num) => {
+    if (lang !== "gu") return typeof num === "number" ? num.toLocaleString() : num
+    const guDigits = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+    return String(num).replace(/[0-9]/g, (d) => guDigits[d])
+  }
 
   // Related stories filtered to exclude current article
   const relatedStories = React.useMemo(() => {
@@ -296,16 +227,6 @@ function ArticleDetailContent({ initialId }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
-      {/* Dynamic Scroll Reading Progress Indicator */}
-      <div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#fdc72d] via-[#d9a100] to-[#008d7f] z-50 transition-[width] duration-150 ease-out pointer-events-none"
-        style={{ width: `${readingProgress}%` }}
-        role="progressbar"
-        aria-valuenow={Math.round(readingProgress)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      />
-
       {/* 1. TOP GLOBAL HEADER */}
       <AstroHeader
         config={data.config}
@@ -316,10 +237,19 @@ function ArticleDetailContent({ initialId }) {
         onToggleLang={handleToggleLang}
       />
 
-      {/* 2. MAIN CONTENT CONTAINER */}
+      {/* 2. STICKY READING PROGRESS BAR (Positioned just under sticky header) */}
+      <div className="sticky top-[108px] sm:top-[124px] z-40 w-full overflow-hidden">
+        <Progress
+          value={readingProgress}
+          className="h-1 rounded-none gap-0 bg-border/40 [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:rounded-none [&_[data-slot=progress-track]]:bg-border/40 [&_[data-slot=progress-indicator]]:bg-[#d9a100]"
+          aria-label="Article reading progress"
+        />
+      </div>
+
+      {/* 3. MAIN CONTENT CONTAINER */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
-        {/* Top Breadcrumb */}
-        <div className="mb-6">
+        {/* Top Breadcrumb & Badges Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
           <Breadcrumb>
             <BreadcrumbList className="text-xs sm:text-sm font-medium">
               <BreadcrumbItem>
@@ -331,11 +261,9 @@ function ArticleDetailContent({ initialId }) {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/categories" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors font-medium text-muted-foreground">
-                    {article.category[lang]}
-                  </Link>
-                </BreadcrumbLink>
+                <BreadcrumbPage className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors font-medium text-muted-foreground">
+                  {article.category[lang]}
+                </BreadcrumbPage>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -345,6 +273,21 @@ function ArticleDetailContent({ initialId }) {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+
+          {/* Badges */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="bg-[#fdc72d] text-[#1b1c1a] text-xs font-bold px-2.5 py-1 rounded-md shadow-xs">
+              {article.category[lang]}
+            </span>
+            {article.subBadges.map((badge, idx) => (
+              <span
+                key={idx}
+                className="bg-[#008d7f]/15 text-[#008d7f] dark:text-[#52c7bb] text-xs font-semibold px-2.5 py-1 rounded-md border border-[#008d7f]/30"
+              >
+                {badge[lang]}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* 2-Column Grid Layout: 70% Article + 30% Sticky Sidebar */}
@@ -368,22 +311,30 @@ function ArticleDetailContent({ initialId }) {
                   <div className="relative">
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
-                        src={article.author?.image || "/images/author-dr-vishal-modi.jpg"}
-                        alt={article.author?.name?.[lang] || "Dr. Vishal Modi"}
+                        src={article.author.image}
+                        alt={article.author.name[lang]}
                         className="object-cover"
                       />
                       <AvatarFallback className="bg-[#fdc72d] text-[#1b1c1a] font-bold">
                         {article.author.name[lang]?.substring(0, 2) || "VM"}
                       </AvatarFallback>
                     </Avatar>
+                    {article.author.verified && (
+                      <span
+                        className="absolute -bottom-1 -right-1 bg-[#008d7f] text-white rounded-full p-0.5 shadow-xs"
+                        title={lang === "gu" ? "પ્રમાણિત જ્યોતિષાચાર્ય" : "Verified Astrologer"}
+                      >
+                        <ShieldCheck className="h-3 w-3" />
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col">
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm sm:text-base text-foreground leading-tight">
                         {article.author?.name?.[lang] || article.author?.name?.gu || article.author?.name || "ડૉ. વિશાલ મોદી"}
                       </span>
-                      <span className="text-[11px] text-[#008d7f] dark:text-[#52c7bb] font-semibold flex items-center gap-0.5">
-                        <CheckCircle className="h-3 w-3 inline text-[#008d7f] dark:text-[#52c7bb]" />
+                      <span className="text-[11px] text-[#008d7f] font-semibold flex items-center gap-0.5">
+                        <CheckCircle className="h-3 w-3 inline text-[#008d7f]" />
                         {lang === "gu" ? "પ્રમાણિત" : "Verified"}
                       </span>
                     </div>
@@ -397,12 +348,16 @@ function ArticleDetailContent({ initialId }) {
                 <div className="flex items-center flex-wrap gap-3 sm:gap-4 justify-between sm:justify-end">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium">
                     <span className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5 text-[#008d7f] dark:text-[#52c7bb]" />
+                      <Calendar className="h-3.5 w-3.5 text-[#008d7f]" />
                       {article.date?.[lang] || article.date?.gu || article.date || (lang === "gu" ? "૧૨ એપ્રિલ, ૨૦૨૫" : "April 12, 2025")}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-[#008d7f] dark:text-[#52c7bb]" />
+                      <Clock className="h-3.5 w-3.5 text-[#008d7f]" />
                       {article.readTime?.[lang] || article.readTime?.gu || article.readTime || (lang === "gu" ? "૫ મિનિટ વાંચન" : "5 min read")}
+                    </span>
+                    <span className="hidden sm:flex items-center gap-1">
+                      <Eye className="h-3.5 w-3.5 text-[#008d7f]" />
+                      {article.views?.[lang] || article.views?.gu || article.views || (lang === "gu" ? "૧૪,૫૨૦ દર્શકો" : "14,520 views")}
                     </span>
                   </div>
 
@@ -524,9 +479,8 @@ function ArticleDetailContent({ initialId }) {
 
             {/* HERO VISUAL WITH OVERLAY BUTTONS (As seen in Reference Image 2) */}
             <figure className="relative rounded-2xl overflow-hidden shadow-lg border border-border/40 group h-[280px] sm:h-[380px] md:h-[440px]">
-              <SafeImage
+              <Image
                 src={article.heroImage}
-                fallbackSrc="/images/bahucharaji-temple.jpg"
                 alt={article.heroImageAlt || article.title[lang]}
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
@@ -537,18 +491,34 @@ function ArticleDetailContent({ initialId }) {
               {/* Dark Gradient Overlay for Contrast */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30" />
 
-              {/* Floating Back Navigation Button Overlaid on Top of Image */}
-              <div className="absolute top-4 left-4 pointer-events-none">
-                {/* Back Button with Safe Fallback */}
+              {/* Floating Action Buttons Overlaid on Top of Image */}
+              <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                {/* Back Button */}
                 <button
-                  type="button"
-                  onClick={handleSafeBack}
-                  className="pointer-events-auto w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                  title={lang === "gu" ? "પાછા જાઓ (મુખ્ય પૃષ્ઠ / અગાઉનું પેજ)" : "Go Back (Home / Previous Page)"}
-                  aria-label={lang === "gu" ? "પાછા જાઓ" : "Go Back"}
+                  onClick={() => router.back()}
+                  className="pointer-events-auto w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+                  title={lang === "gu" ? "પાછા જાઓ" : "Go Back"}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
+
+                {/* Right Bookmark & Share Buttons */}
+                <div className="pointer-events-auto flex items-center gap-2">
+                  <button
+                    onClick={toggleBookmark}
+                    className="w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+                    title={lang === "gu" ? "બુકમાર્ક કરો" : "Bookmark"}
+                  >
+                    <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-white" : ""}`} />
+                  </button>
+                  <button
+                    onClick={handleShareTrigger}
+                    className="w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+                    title={lang === "gu" ? "શેર કરો" : "Share"}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Bottom Caption & Suvarna Darshan Badge */}
@@ -563,50 +533,77 @@ function ArticleDetailContent({ initialId }) {
               </div>
             </figure>
 
-            {/* AUDIO LISTENING PLAYER COMPONENT (Dynamic Duration from Article Word Count) */}
+            {/* AUDIO LISTENING PLAYER COMPONENT (As seen in Reference Image 1) */}
             <AudioArticlePlayer
-              articleText={fullArticleAudioText || article.audioText?.[lang] || ""}
+              articleText={article.audioText[lang]}
               lang={lang}
               title={lang === "gu" ? "આ લેખ સાંભળો" : "Listen to this Article"}
+              durationSeconds={432}
             />
+
+            {/* SOCIAL SHARE BAR (Above Content) */}
+            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/60 rounded-xl shadow-xs">
+              <span className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2">
+                <Share2 className="h-4 w-4 text-[#d9a100]" />
+                {lang === "gu" ? "મિત્રો સાથે શેર કરો:" : "Share with friends:"}
+              </span>
+              <div className="flex items-center gap-2">
+                {/* WhatsApp */}
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white text-xs font-bold shadow hover:opacity-95 transition-opacity cursor-pointer"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  <span>WhatsApp</span>
+                </button>
+                {/* Copy Link */}
+                <button
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#121310] border border-border/60 text-xs font-semibold text-foreground shadow-xs hover:bg-[#eae8e1] dark:hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  {copiedLink ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copiedLink ? (lang === "gu" ? "કૉપિ થઈ!" : "Copied!") : (lang === "gu" ? "લિંક કૉપિ" : "Copy Link")}</span>
+                </button>
+              </div>
+            </div>
 
             {/* ARTICLE BODY CONTENT */}
             <div className="flex flex-col gap-6 text-foreground font-sans text-base sm:text-lg leading-relaxed">
-              {/* Lead Paragraph with vertical accent (decorative accent card in Gujarati, drop-cap in English) */}
-              <div className="relative pl-4 sm:pl-5 py-3 pr-4 rounded-r-2xl bg-gradient-to-r from-[#fdc72d]/10 via-[#fdc72d]/5 to-transparent dark:from-[#fdc72d]/15 dark:via-transparent border-l-4 border-[#d9a100] shadow-2xs overflow-hidden">
-                {lang === "gu" ? (
-                  <p className="font-medium text-foreground text-base sm:text-lg leading-relaxed">
-                    {article?.leadParagraph?.gu ||
-                      "ગુજરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."}
-                  </p>
-                ) : (
-                  <p className="font-medium text-foreground text-base sm:text-lg leading-relaxed">
-                    <span className="text-4xl sm:text-5xl font-serif font-extrabold text-[#d9a100] dark:text-[#fdc72d] float-left mr-2.5 leading-none select-none mt-0.5">
-                      {(
-                        article?.leadParagraph?.en ||
-                        "The sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."
-                      ).charAt(0)}
+              {/* Lead Paragraph with vertical accent and drop cap */}
+              {article.lead && article.lead[lang] ? (
+                <div className="relative pl-4 border-l-4 border-[#d9a100]">
+                  <p className="font-medium text-foreground leading-relaxed">
+                    <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
+                      {Array.from(article.lead[lang])[0]}
                     </span>
-                    {(
-                      article?.leadParagraph?.en ||
-                      "The sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."
-                    ).slice(1)}
+                    {Array.from(article.lead[lang]).slice(1).join("")}
                   </p>
-                )}
+                </div>
+              ) : !article.lead ? (
+              <div className="relative pl-4 border-l-4 border-[#d9a100]">
+                <p className="font-medium text-foreground leading-relaxed">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
+                    {lang === "gu" ? "ગુ" : "T"}
+                  </span>
+                  {lang === "gu"
+                    ? "જરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."
+                    : "he sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."}
+                </p>
               </div>
+              ) : null}
 
               {/* Subsection 1 */}
-              {article.sections && article.sections[0] && (
+              {article.sections[0] && (
                 <div className="flex flex-col gap-3 pt-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {formatHeading(article.sections[0].heading)}
+                      {article.sections[0].heading[lang]}
                     </h2>
                   </div>
-                  {article.sections[0].paragraphs?.map((para, pIdx) => (
+                  {article.sections[0].paragraphs.map((para, pIdx) => (
                     <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para[lang] || para.gu || para}
+                      {para[lang]}
                     </p>
                   ))}
                 </div>
@@ -675,7 +672,7 @@ function ArticleDetailContent({ initialId }) {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {formatHeading(article.sections[1].heading)}
+                      {article.sections[1].heading[lang] || article.sections[1].heading.gu || article.sections[1].heading}
                     </h2>
                   </div>
                   {article.sections[1].paragraphs?.map((para, pIdx) => (
@@ -727,7 +724,7 @@ function ArticleDetailContent({ initialId }) {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {formatHeading(article.sections[2].heading)}
+                      {article.sections[2].heading[lang] || article.sections[2].heading.gu || article.sections[2].heading}
                     </h2>
                   </div>
                   {article.sections[2].paragraphs?.map((para, pIdx) => (
@@ -748,28 +745,97 @@ function ArticleDetailContent({ initialId }) {
                     {article.sankalpPuja.subtitle[lang] || article.sankalpPuja.subtitle.gu || article.sankalpPuja.subtitle}
                   </p>
                   <Button
-                    onClick={() => setSankalpModalOpen(true)}
-                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer flex items-center gap-1.5"
+                    onClick={() => showToast(lang === "gu" ? "પૂજા નોંધણી ફોર્મ ખોલવામાં આવી રહ્યું છે..." : "Opening Puja registration form...")}
+                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
                   >
-                    <Sparkles className="h-4 w-4" />
-                    <span>
-                      {article.sankalpPuja.buttonText?.[lang]?.replace("●", "").trim() ||
-                        article.sankalpPuja.buttonText?.gu?.replace("●", "").trim() ||
-                        (lang === "gu" ? "સંકલ્પ નોંધાવો" : "Book Sankalp Puja")}
-                    </span>
+                    {article.sankalpPuja.buttonText?.[lang] || article.sankalpPuja.buttonText?.gu || (lang === "gu" ? "સંકલ્પ નોંધાવો ●" : "Book Sankalp Puja ●")}
                   </Button>
                 </div>
               )}
 
+              {/* INTERACTIVE REACTIONS BAR */}
+              <div className="mt-4 p-4 sm:p-5 bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/60 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <Award className="h-4 w-4 text-[#d9a100]" />
+                  {lang === "gu" ? "આ લેખ તમને કેવો લાગ્યો?" : "How did you find this article?"}
+                </span>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => handleReactionClick("divine")}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
+                      userReaction === "divine"
+                        ? "bg-[#fdc72d] text-[#1b1c1a] border-[#fdc72d] font-bold"
+                        : "bg-white dark:bg-[#121310] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
+                    }`}
+                  >
+                    <span>🙏 {lang === "gu" ? "દિવ્ય લાગ્યો" : "Divine"}</span>
+                    <span className="font-bold">({formatNumber(reactions.divine)})</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleReactionClick("insightful")}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
+                      userReaction === "insightful"
+                        ? "bg-[#fdc72d] text-[#1b1c1a] border-[#fdc72d] font-bold"
+                        : "bg-white dark:bg-[#121310] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
+                    }`}
+                  >
+                    <span>📖 {lang === "gu" ? "જ્ઞાનવર્ધક" : "Insightful"}</span>
+                    <span className="font-bold">({formatNumber(reactions.insightful)})</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleReactionClick("wonderful")}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
+                      userReaction === "wonderful"
+                        ? "bg-[#fdc72d] text-[#1b1c1a] border-[#fdc72d] font-bold"
+                        : "bg-white dark:bg-[#121310] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
+                    }`}
+                  >
+                    <span>❤️ {lang === "gu" ? "અદ્ભુત" : "Wonderful"}</span>
+                    <span className="font-bold">({formatNumber(reactions.wonderful)})</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Family Share Bar */}
+              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
+                <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:text-left">
+                  {lang === "gu" ? "લેખ ગમ્યો હોય તો પરિવાર અને મિત્રો સાથે શેર કરો:" : "Enjoyed the article? Share with family & friends:"}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleShareWhatsApp}
+                    className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    <span>WhatsApp</span>
+                  </button>
+                  <button
+                    onClick={handleShareTelegram}
+                    className="px-3 py-1.5 bg-[#0088cc] hover:bg-[#0077b5] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
+                    <span>Telegram</span>
+                  </button>
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-3 py-1.5 bg-white dark:bg-[#121310] border border-border/70 hover:bg-muted text-foreground rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                  >
+                    {copiedLink ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+                    <span>{copiedLink ? (lang === "gu" ? "કૉપિ થઈ!" : "Copied!") : (lang === "gu" ? "લિંક કૉપિ" : "Copy Link")}</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* AUTHOR COMPREHENSIVE BIO CARD */}
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
-                <SafeImage
-                  src={article.author?.image || "/images/author-dr-vishal-modi.jpg"}
-                  fallbackSrc="/images/author-dr-vishal-modi.jpg"
-                  alt={article.author?.name?.[lang] || "Dr. Vishal Modi"}
+                <Image
+                  src={article.author.image}
+                  alt={article.author.name[lang]}
                   fill
                   sizes="96px"
                   className="object-cover"
@@ -789,28 +855,17 @@ function ArticleDetailContent({ initialId }) {
                 </p>
                 <div className="flex items-center justify-center sm:justify-start gap-3 mt-2 flex-wrap">
                   <Button
-                    asChild
+                    onClick={() => router.push("/")}
                     variant="outline"
                     size="sm"
-                    className="text-xs font-bold rounded-lg border-border/80 hover:bg-[#fdc72d]/10 hover:border-[#fdc72d]/60 transition-colors cursor-pointer"
+                    className="text-xs font-bold rounded-lg border-border/80"
                   >
-                    <Link href="/about-us#publications">
-                      {lang === "gu" ? "લેખકના અન્ય આર્ટિકલ્સ" : "More by Author"}
-                    </Link>
+                    {lang === "gu" ? "લેખકના અન્ય આર્ટિકલ્સ" : "More by Author"}
                   </Button>
                   <Button
-                    onClick={() =>
-                      window.open(
-                        getWhatsAppUrl(
-                          lang === "gu"
-                            ? "જય શ્રી કૃષ્ણ ડૉ. વિશાલ મોદી, મને જ્યોતિષ અને કુંડળી પરામર્શ માટે સમય આપશો."
-                            : "Hello Dr. Vishal Modi, I would like to book a Vedic astrology consultation."
-                        ),
-                        "_blank"
-                      )
-                    }
+                    onClick={() => window.open(data.config.founder.whatsappUrl, "_blank")}
                     size="sm"
-                    className="bg-[#008d7f] hover:bg-[#007468] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                    className="bg-[#008d7f] hover:bg-[#007468] text-white text-xs font-bold rounded-lg"
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
                     {lang === "gu" ? "પરામર્શ માટે સંપર્ક કરો" : "Contact for Consultation"}
@@ -822,9 +877,12 @@ function ArticleDetailContent({ initialId }) {
             {/* RELATED ARTICLES SECTION */}
             <section className="flex flex-col gap-4 pt-6 border-t border-border/60">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                  {lang === "gu" ? "સંબંધિત ધાર્મિક લેખો" : "Related Spiritual Articles"}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-[#d9a100]" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                    {lang === "gu" ? "સંબંધિત ધાર્મિક લેખો" : "Related Spiritual Articles"}
+                  </h2>
+                </div>
                 <Link
                   href="/"
                   className="text-xs sm:text-sm font-bold text-[#008d7f] dark:text-[#52c7bb] hover:underline flex items-center gap-1"
@@ -834,50 +892,45 @@ function ArticleDetailContent({ initialId }) {
                 </Link>
               </div>
 
-              {/* 3 Related Cards Grid (Semantic Next.js <Link> Cards) */}
+              {/* 3 Related Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {relatedStories.map((story) => (
-                  <Link
+                  <Card
                     key={story.id}
-                    href={`/article/${story.id}`}
-                    className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
+                    onClick={() => router.push(`/article/${story.id}`)}
+                    className="pt-0 group overflow-hidden rounded-2xl border-border/60 hover:border-[#fdc72d]/70 hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between bg-card"
                   >
-                    <Card
-                      className="pt-0 overflow-hidden rounded-2xl border-border/60 group-hover:border-[#fdc72d]/70 group-hover:shadow-lg transition-all flex flex-col justify-between bg-card h-full"
-                    >
-                      <div className="relative h-40 overflow-hidden bg-muted">
-                        <SafeImage
-                          src={story.image}
-                          fallbackSrc="/images/bahucharaji-temple.jpg"
-                          alt={story.title}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <span className="absolute top-2 left-2 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
-                          {story.tag}
+                    <div className="relative h-40 overflow-hidden bg-muted">
+                      <Image
+                        src={story.image}
+                        alt={story.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <span className="absolute top-2 left-2 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                        {story.tag}
+                      </span>
+                    </div>
+                    <CardContent className="flex flex-col justify-between flex-1 gap-2">
+                      <h3 className="font-bold text-sm text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2 leading-snug">
+                        {story.title}
+                      </h3>
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/50">
+                        <span>{story.date}</span>
+                        <span className="text-[#008d7f] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                          {lang === "gu" ? "વાંચો →" : "Read →"}
                         </span>
                       </div>
-                      <CardContent className="flex flex-col justify-between flex-1 gap-2">
-                        <h3 className="font-bold text-sm text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2 leading-snug">
-                          {story.title}
-                        </h3>
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/50">
-                          <span>{story.date}</span>
-                          <span className="text-[#008d7f] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
-                            {lang === "gu" ? "વાંચો →" : "Read →"}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </section>
           </article>
 
-          {/* RIGHT: INFORMATIVE SIDEBAR (4 cols) */}
-          <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24 self-start">
+          {/* RIGHT: 30% STICKY INFORMATIVE SIDEBAR (4 cols) */}
+          <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-[128px]">
             {/* WIDGET 1: SOCIAL CONNECT COUNTERS */}
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
@@ -885,49 +938,35 @@ function ArticleDetailContent({ initialId }) {
                   <Users className="h-4 w-4 text-[#d9a100]" />
                   {lang === "gu" ? "જોડાયેલા રહો" : "Stay Connected"}
                 </span>
-                <span className="text-[11px] text-[#008d7f] dark:text-[#52c7bb] font-bold bg-[#008d7f]/10 dark:bg-[#008d7f]/20 px-2 py-0.5 rounded-md">
-                  {lang === "gu" ? "૮૫,૦૦૦+ સત્સંગી" : "85,000+ Community"}
+                <span className="text-xs text-[#008d7f] dark:text-[#52c7bb] font-bold">
+                  {lang === "gu" ? "૫૦,૦૦૦+ સભ્યો" : "50,000+ Members"}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <Link
-                  href={SITE_CONTACT.social.facebook}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#1877F2]/50 hover:shadow-xs transition-all text-center group"
+                  href="#"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#1877F2]/50 transition-colors text-center"
                 >
-                  <div className="text-[#1877F2] mb-1 flex justify-center">
-                    <svg className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                    </svg>
-                  </div>
-                  <span className="font-bold text-xs text-foreground group-hover:text-[#1877F2] transition-colors">{formatDigits("28K", lang)}</span>
+                  <span className="font-bold text-xs text-[#1877F2]">Facebook</span>
+                  <span className="text-xs font-bold text-foreground mt-0.5">૨૮K</span>
                   <span className="text-[10px] text-muted-foreground">{lang === "gu" ? "ફોલોઅર્સ" : "Fans"}</span>
                 </Link>
                 <Link
-                  href={SITE_CONTACT.social.youtube}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#FF0000]/50 hover:shadow-xs transition-all text-center group"
+                  href="#"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#FF0000]/50 transition-colors text-center"
                 >
-                  <div className="text-[#FF0000] mb-1 flex justify-center">
-                    <svg className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                    </svg>
-                  </div>
-                  <span className="font-bold text-xs text-foreground group-hover:text-[#FF0000] transition-colors">{formatDigits("15K", lang)}</span>
+                  <span className="font-bold text-xs text-[#FF0000]">YouTube</span>
+                  <span className="text-xs font-bold text-foreground mt-0.5">૧૫K</span>
                   <span className="text-[10px] text-muted-foreground">{lang === "gu" ? "સબસ્ક્રાઇબર" : "Subs"}</span>
                 </Link>
                 <Link
-                  href={SITE_CONTACT.social.whatsappChannel}
+                  href="https://wa.me/919825000000"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#25D366]/50 hover:shadow-xs transition-all text-center group"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#25D366]/50 transition-colors text-center"
                 >
-                  <div className="text-[#25D366] mb-1 flex justify-center">
-                    <MessageCircle className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  </div>
-                  <span className="font-bold text-xs text-foreground group-hover:text-[#25D366] transition-colors">{formatDigits("42K", lang)}</span>
+                  <span className="font-bold text-xs text-[#25D366]">WhatsApp</span>
+                  <span className="text-xs font-bold text-foreground mt-0.5">૪૨K</span>
                   <span className="text-[10px] text-muted-foreground">{lang === "gu" ? "સભ્યો" : "Members"}</span>
                 </Link>
               </div>
@@ -936,19 +975,19 @@ function ArticleDetailContent({ initialId }) {
             {/* WIDGET 2: TODAY'S PANCHANG WIDGET */}
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sun className="h-4 w-4 text-[#d9a100]" />
+                <div>
                   <h4 className="font-bold text-sm text-foreground">
                     {data.panchang.widgetTitle}
                   </h4>
+                  <span className="text-[11px] text-muted-foreground">
+                    {data.panchang.samvatTitle}
+                  </span>
                 </div>
-                <span className="text-[11px] bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] px-2 py-0.5 rounded-md font-bold">
-                  {lang === "gu" ? "આજનું પંચાંગ" : "Today"}
-                </span>
+                {/* Circular Sun Indicator Icon */}
+                <div className="w-10 h-10 rounded-full bg-[#fdc72d]/20 border border-[#fdc72d] flex items-center justify-center text-[#d9a100]">
+                  <Sun className="h-5 w-5" />
+                </div>
               </div>
-              <span className="text-xs text-muted-foreground font-medium -mt-1 block">
-                {data.panchang.samvatTitle}
-              </span>
 
               {/* Panchang Rows */}
               <div className="space-y-1.5 text-xs">
@@ -959,14 +998,14 @@ function ArticleDetailContent({ initialId }) {
                   >
                     <span className="text-muted-foreground">{row.label}:</span>
                     <span className={`font-semibold ${row.isAlert ? "text-destructive" : row.isAuspicious ? "text-[#008d7f] dark:text-[#52c7bb]" : "text-foreground"}`}>
-                      {formatDigits(row.value, lang)}
+                      {row.value}
                     </span>
                   </div>
                 ))}
               </div>
 
               <Link
-                href="/dainik-panchang"
+                href="/"
                 className="w-full text-center py-2 rounded-xl bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] font-bold text-xs hover:bg-[#fdc72d]/25 transition-colors flex items-center justify-center gap-1"
               >
                 {data.panchang.buttonText}
@@ -974,7 +1013,39 @@ function ArticleDetailContent({ initialId }) {
               </Link>
             </div>
 
-            {/* WIDGET 3: MYSHOP SPIRITUAL STORE MINI SHOWCASE */}
+            {/* WIDGET 3: 1-ON-1 ASTROLOGICAL CONSULTATION CTA CARD */}
+            <div className="relative bg-gradient-to-br from-[#1b1c1a] to-[#243532] text-white rounded-2xl p-5 shadow-lg overflow-hidden flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black px-2 py-0.5 rounded">
+                  {lang === "gu" ? "વન-ટુ-વન માર્ગદર્શન" : "1-on-1 Guidance"}
+                </span>
+              </div>
+              <h3 className="font-extrabold text-base text-[#fdc72d] leading-snug">
+                {lang === "gu" ? "જીવનની સમસ્યાઓનું જ્યોતિષીય સમાધાન મેળવો" : "Get Vedic Astrological Solutions for Life Challenges"}
+              </h3>
+              <p className="text-xs text-white/80 leading-relaxed">
+                {lang === "gu"
+                  ? "ડૉ. વિશાલ મોદી સાથે જન્મકુંડળી વિશ્લેષણ, કારકિર્દી, લગ્ન અને વ્યવસાય માટે વ્યક્તિગત પરામર્શ મેળવો."
+                  : "Book personalized Kundali reading for career, marriage, health and business with Dr. Vishal Modi."}
+              </p>
+              <div className="flex flex-col gap-2 mt-1">
+                <Button
+                  onClick={() => showToast(lang === "gu" ? "પરામર્શ સ્લોટ પસંદ કરો..." : "Opening consultation calendar...")}
+                  className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs py-2 rounded-xl"
+                >
+                  {data.consultation.bookButton}
+                </Button>
+                <Button
+                  onClick={() => window.open(data.config.founder.whatsappUrl, "_blank")}
+                  className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs py-2 rounded-xl"
+                >
+                  <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                  {data.consultation.whatsappButton}
+                </Button>
+              </div>
+            </div>
+
+            {/* WIDGET 4: MYSHOP SPIRITUAL STORE MINI SHOWCASE */}
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
@@ -988,18 +1059,17 @@ function ArticleDetailContent({ initialId }) {
                 </span>
               </div>
 
-              {/* 3 Products (Semantic Link Items) */}
+              {/* 3 Products */}
               <div className="flex flex-col gap-2">
                 {data.products.slice(0, 3).map((prod) => (
-                  <Link
+                  <div
                     key={prod.id}
-                    href={`/myshop/product/${prod.id}`}
-                    className="flex items-center gap-3 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
+                    className="flex items-center gap-3 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
+                    onClick={() => showToast(lang === "gu" ? `પસંદ કર્યો: ${prod.name}` : `Selected: ${prod.name}`)}
                   >
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
-                      <SafeImage
+                      <Image
                         src={prod.image}
-                        fallbackSrc="/images/sacred-vedic-hero.jpg"
                         alt={prod.name}
                         fill
                         sizes="48px"
@@ -1022,7 +1092,7 @@ function ArticleDetailContent({ initialId }) {
                         </span>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
 
@@ -1034,12 +1104,12 @@ function ArticleDetailContent({ initialId }) {
               </Link>
             </div>
 
-            {/* WIDGET 4: MOST POPULAR ARTICLES (વાંચકોની પસંદ 1-3) */}
+            {/* WIDGET 5: MOST POPULAR ARTICLES (વાંચકોની પસંદ 1-3) */}
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4 text-[#d9a100]" />
                 <h4 className="font-bold text-sm text-foreground">
-                  {lang === "gu" ? "વાંચકોની પસંદ" : "Readers' Choice - Most Popular"}
+                  {lang === "gu" ? "વાંચકોની પસંદ (Most Popular)" : "Readers' Choice (Most Popular)"}
                 </h4>
               </div>
 
@@ -1047,23 +1117,23 @@ function ArticleDetailContent({ initialId }) {
                 {data.popular.map((item, idx) => {
                   const targetSlug = idx === 0 ? "hero-1" : idx === 1 ? "jyotirling-1" : "hero-2"
                   return (
-                    <Link
+                    <div
                       key={idx}
-                      href={`/article/${targetSlug}`}
-                      className="flex items-start gap-2.5 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
+                      onClick={() => router.push(`/article/${targetSlug}`)}
+                      className="flex items-start gap-2.5 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
                     >
-                      <span className="w-5 h-5 rounded-full bg-[#fdc72d] text-[#1b1c1a] font-bold text-center leading-5 shrink-0 text-[11px]">
-                        {item.rank}
+                    <span className="w-5 h-5 rounded-full bg-[#fdc72d] text-[#1b1c1a] font-bold text-center leading-5 shrink-0 text-[11px]">
+                      {item.rank}
+                    </span>
+                    <div className="flex flex-col min-w-0">
+                      <h5 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
+                        {item.title}
+                      </h5>
+                      <span className="text-[10px] text-muted-foreground mt-0.5">
+                        {item.reads}
                       </span>
-                      <div className="flex flex-col min-w-0">
-                        <h5 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
-                          {item.title}
-                        </h5>
-                        <span className="text-[10px] text-muted-foreground mt-0.5">
-                          {item.reads}
-                        </span>
-                      </div>
-                    </Link>
+                    </div>
+                    </div>
                   )
                 })}
               </div>
@@ -1071,148 +1141,6 @@ function ArticleDetailContent({ initialId }) {
           </aside>
         </div>
       </main>
-
-      {/* LIVE SANKALP PUJA INQUIRY MODAL */}
-      <Dialog open={sankalpModalOpen} onOpenChange={setSankalpModalOpen}>
-        <DialogContent className="max-w-md w-[92vw] p-5 sm:p-6 rounded-2xl bg-card border border-[#fdc72d]/50 shadow-2xl">
-          <DialogHeader className="text-left space-y-1.5 pb-2 border-b border-border/60">
-            <div className="flex items-center gap-2">
-              <span className="p-1 rounded-lg bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] tracking-wider uppercase">
-                {lang === "gu" ? "વૈદિક સંકલ્પ પૂજા નોંધણી" : "Vedic Sankalp Puja Registration"}
-              </span>
-            </div>
-            <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
-              {article.sankalpPuja?.title?.[lang] || article.sankalpPuja?.title?.gu || (lang === "gu" ? "લાઈવ સંકલ્પ પૂજા & આશીર્વાદ" : "Live Sankalp Puja & Blessings")}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              {lang === "gu"
-                ? "તમારા ગોત્ર અને નામ અનુસાર પવિત્ર તિથિએ શાસ્ત્રોક્ત વિધિથી વિશેષ સંકલ્પ કરવામાં આવશે."
-                : "A sacred Vedic Sankalp will be consecrated in your Gotra and family name on this auspicious Tithi."}
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSankalpSubmit} className="flex flex-col gap-3.5 py-2">
-            {/* Devotee Name */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                <span>{lang === "gu" ? "યજમાન / ભાવિકનું પૂરું નામ *" : "Devotee Full Name *"}</span>
-                <span className="text-[10px] text-muted-foreground font-normal">{lang === "gu" ? "સંકલ્પ માટે" : "For Sankalp"}</span>
-              </label>
-              <Input
-                type="text"
-                required
-                value={sankalpForm.devoteeName}
-                onChange={(e) => setSankalpForm((prev) => ({ ...prev, devoteeName: e.target.value }))}
-                placeholder={lang === "gu" ? "દા.ત. રમેશભાઈ પટેલ" : "e.g. Ramesh Patel"}
-                className="h-10 text-sm rounded-xl bg-background border-border/70 focus:border-[#fdc72d]"
-              />
-            </div>
-
-            {/* Gotra */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-foreground">
-                  {lang === "gu" ? "ગોત્ર" : "Gotra"}
-                </label>
-                <Input
-                  type="text"
-                  value={sankalpForm.gotra}
-                  onChange={(e) => setSankalpForm((prev) => ({ ...prev, gotra: e.target.value }))}
-                  placeholder={lang === "gu" ? "દા.ત. કશ્યપ, ભારદ્વાજ" : "e.g. Kashyap, Bharadwaj"}
-                  className="h-10 text-sm rounded-xl bg-background border-border/70 focus:border-[#fdc72d]"
-                />
-              </div>
-
-              {/* City / Town */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-foreground">
-                  {lang === "gu" ? "શહેર / ગામ" : "City / Native Town"}
-                </label>
-                <Input
-                  type="text"
-                  value={sankalpForm.city}
-                  onChange={(e) => setSankalpForm((prev) => ({ ...prev, city: e.target.value }))}
-                  placeholder={lang === "gu" ? "દા.ત. અમદાવાદ" : "e.g. Ahmedabad"}
-                  className="h-10 text-sm rounded-xl bg-background border-border/70 focus:border-[#fdc72d]"
-                />
-              </div>
-            </div>
-
-            {/* Sankalp Purpose */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-foreground">
-                {lang === "gu" ? "સંકલ્પ મનોકામના / હેતુ" : "Sankalp Intention / Purpose"}
-              </label>
-              <select
-                value={sankalpForm.sankalpPurpose}
-                onChange={(e) => setSankalpForm((prev) => ({ ...prev, sankalpPurpose: e.target.value }))}
-                className="h-10 px-3 text-sm rounded-xl bg-background border border-border/70 text-foreground outline-none focus:border-[#fdc72d] transition-colors cursor-pointer"
-              >
-                {lang === "gu" ? (
-                  <>
-                    <option value="મનોકામના પૂર્તિ & સંકટ નિવારણ">મનોકામના પૂર્તિ & સંકટ નિવારણ</option>
-                    <option value="દીર્ઘાયુષ્ય & સ્વાસ્થ્ય સુખાકારી">દીર્ઘાયુષ્ય & સ્વાસ્થ્ય સુખાકારી</option>
-                    <option value="વ્યાપાર વૃદ્ધિ & લક્ષ્મી કૃપા">વ્યાપાર વૃદ્ધિ & લક્ષ્મી કૃપા</option>
-                    <option value="નવગ્રહ દોષ & શનિ સાડાસાતી શાંતિ">નવગ્રહ દોષ & શનિ સાડાસાતી શાંતિ</option>
-                    <option value="સંતાન સુખ & પારિવારિક શાંતિ">સંતાન સુખ & પારિવારિક શાંતિ</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="Fulfillment of Wishes & Relief from Troubles">Fulfillment of Wishes & Relief from Troubles</option>
-                    <option value="Good Health & Longevity">Good Health & Longevity</option>
-                    <option value="Business Growth & Prosperity">Business Growth & Prosperity</option>
-                    <option value="Planetary Affliction & Shani Shanti">Planetary Affliction & Shani Shanti</option>
-                    <option value="Family Harmony & Progeny Blessings">Family Harmony & Progeny Blessings</option>
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* WhatsApp Contact Number */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-foreground">
-                {lang === "gu" ? "WhatsApp મોબાઇલ નંબર *" : "WhatsApp Mobile Number *"}
-              </label>
-              <Input
-                type="tel"
-                required
-                value={sankalpForm.phone}
-                onChange={(e) => setSankalpForm((prev) => ({ ...prev, phone: e.target.value }))}
-                placeholder={lang === "gu" ? "૯૮૨૫૦..." : "98250..."}
-                className="h-10 text-sm rounded-xl bg-background border-border/70 focus:border-[#fdc72d]"
-              />
-              <span className="text-[10px] text-muted-foreground">
-                {lang === "gu"
-                  ? "પૂજા સમય અને દર્શન વિગતો આ નંબર પર WhatsApp કરવામાં આવશે."
-                  : "Puja schedule and live darshan details will be sent to this WhatsApp number."}
-              </span>
-            </div>
-
-            <div className="mt-2 flex items-center justify-end gap-2 pt-2 border-t border-border/60">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setSankalpModalOpen(false)}
-                className="rounded-xl text-xs font-semibold cursor-pointer"
-              >
-                {lang === "gu" ? "રદ કરો" : "Cancel"}
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5"
-              >
-                <MessageCircle className="h-4 w-4 text-[#1b1c1a]" />
-                <span>{lang === "gu" ? "સંકલ્પ નોંધાવો" : "Confirm Sankalp"}</span>
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
 
       {/* 4. FOOTER */}
       <AstroFooter
@@ -1226,7 +1154,7 @@ function ArticleDetailContent({ initialId }) {
   )
 }
 
-export default function ArticleDetailClient({ initialId }) {
+export default function ArticleDetailClient({ initialId, initialArticle }) {
   return (
     <React.Suspense
       fallback={
@@ -1236,7 +1164,7 @@ export default function ArticleDetailClient({ initialId }) {
         </div>
       }
     >
-      <ArticleDetailContent initialId={initialId} />
+      <ArticleDetailContent initialId={initialId} initialArticle={initialArticle} />
     </React.Suspense>
   )
 }

@@ -60,7 +60,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { getAstroData } from "@/lib/data/astro-data"
-import { PANCHANG_DATA } from "@/lib/data/panchang-data"
+import { usePanchangData } from "@/lib/api/hooks/use-panchang-data"
 import { useLanguage } from "@/components/language-provider"
 import { formatDigits } from "@/lib/utils"
 
@@ -73,7 +73,7 @@ export default function DainikPanchangClient() {
     setSiteData(getAstroData(lang))
   }, [lang])
 
-  const panchang = PANCHANG_DATA
+  const panchang = usePanchangData(lang)
 
   // Interactive States
   const [selectedCityId, setSelectedCityId] = useState("ahmedabad")

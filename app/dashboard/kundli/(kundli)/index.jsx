@@ -20,7 +20,8 @@ import {
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
-import { DASHBOARD_DATA } from "@/lib/data/dashboard-data"
+import { withDashboardData } from "@/components/dashboard-gate"
+import { userService } from "@/lib/api"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,63 +35,74 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 
-export default function KundliClient() {
+function KundliClient({ data, refresh }) {
   const router = useRouter()
   const { lang } = useLanguage()
-  const data = DASHBOARD_DATA
   const isEn = lang === "en"
 
   // Saved Kundlis list with dynamic state
-  const [kundlis, setKundlis] = React.useState(data.savedKundlis.list)
+  const kundlis = data.savedKundlis.list
+  const [isSaving, setIsSaving] = React.useState(false)
 
   // Add Kundli Modal State
   const [addOpen, setAddOpen] = React.useState(false)
   const [fullName, setFullName] = React.useState("")
-  const [relation, setRelation] = React.useState("માતા (Mother)")
+  const [relation, setRelation] = React.useState("parent")
   const [dob, setDob] = React.useState("")
   const [tob, setTob] = React.useState("")
-  const [city, setCity] = React.useState("અમદાવાદ (Ahmedabad)")
+  const [city, setCity] = React.useState("")
 
   // Chart Inspection Modal State
   const [inspectOpen, setInspectOpen] = React.useState(false)
   const [selectedKundli, setSelectedKundli] = React.useState(null)
 
-  const handleAddKundli = (e) => {
+  const handleAddKundli = async (e) => {
     e.preventDefault()
     if (!fullName.trim()) {
       toast.error(isEn ? "Please enter full name." : "કૃપા કરીને પૂરું નામ દાખલ કરો.")
       return
     }
-
-    const newK = {
-      id: `kundli-${Date.now()}`,
-      relation: { gu: relation, en: relation },
-      name: { gu: fullName, en: fullName },
-      dob: {
-        gu: `${dob || "૧૫/૦૫/૧૯૯૫"} • ${tob || "૧૦:૩૦ AM"}`,
-        en: `${dob || "15/05/1995"} • ${tob || "10:30 AM"}`
-      },
-      city: { gu: city, en: city },
-      initial: {
-        gu: fullName.charAt(0) || "કું",
-        en: fullName.charAt(0).toUpperCase() || "K"
-      },
-      rashiLagna: { gu: "કર્ક / સિંહ", en: "Cancer / Leo" },
-      nakshatra: { gu: "પુષ્ય (ચરણ ૨)", en: "Pushya (Pada 2)" },
-      dasha: { gu: "શનિ-બુધ (વિંશોત્તરી)", en: "Saturn-Mercury" },
-      isSelf: false
+    if (!dob) {
+      toast.error(isEn ? "Please enter the birth date." : "કૃપા કરીને જન્મ તારીખ દાખલ કરો.")
+      return
     }
 
-    setKundlis((prev) => [...prev, newK])
-    setAddOpen(false)
-    setFullName("")
-    setDob("")
-    setTob("")
-    toast.success(
-      isEn
-        ? `Kundli for ${fullName} saved successfully to your vault!`
-        : `${fullName}ની કુંડળી તમારા વોલ્ટમાં સેવ થઈ ગઈ!`
-    )
+    setIsSaving(true)
+    try {
+      await userService.kundlis.create({
+        name: fullName.trim(),
+        relation,
+        birth_date: dob,
+        birth_time: tob || undefined,
+        birth_place: city.trim() || undefined,
+      })
+      await refresh()
+      setAddOpen(false)
+      setFullName("")
+      setDob("")
+      setTob("")
+      setCity("")
+      toast.success(
+        isEn
+          ? `Kundli for ${fullName} saved successfully to your vault!`
+          : `${fullName}ની કુંડળી તમારા વોલ્ટમાં સેવ થઈ ગઈ!`
+      )
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleDeleteKundli = async (k) => {
+    try {
+      await userService.kundlis.remove(k.id)
+      setInspectOpen(false)
+      await refresh()
+      toast.success(isEn ? "Kundli removed from your vault." : "કુંડળી વોલ્ટમાંથી દૂર કરાઈ.")
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   const handleInspect = (k) => {
@@ -246,12 +258,12 @@ export default function KundliClient() {
                   onChange={(e) => setRelation(e.target.value)}
                   className="w-full h-9 rounded-md border border-input bg-background px-2.5 py-1 text-xs font-medium"
                 >
-                  <option value="માતા (Mother)">માતા (Mother)</option>
-                  <option value="પિતા (Father)">પિતા (Father)</option>
-                  <option value="ભાઈ (Brother)">ભાઈ (Brother)</option>
-                  <option value="બહેન (Sister)">બહેન (Sister)</option>
-                  <option value="સંતાન (Child)">સંતાન (Child)</option>
-                  <option value="અન્ય (Other)">અન્ય (Other)</option>
+                  <option value="self">સ્વયં (Self)</option>
+                  <option value="spouse">જીવનસાથી (Spouse)</option>
+                  <option value="parent">માતા-પિતા (Parent)</option>
+                  <option value="child">સંતાન (Child)</option>
+                  <option value="sibling">ભાઈ-બહેન (Sibling)</option>
+                  <option value="other">અન્ય (Other)</option>
                 </select>
               </div>
 
@@ -298,7 +310,7 @@ export default function KundliClient() {
               <Button type="button" variant="outline" onClick={() => setAddOpen(false)} className="h-8 text-xs">
                 {isEn ? "Cancel" : "રદ કરો"}
               </Button>
-              <Button type="submit" className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs">
+              <Button type="submit" disabled={isSaving} className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs">
                 {isEn ? "Save Kundli" : "કુંડળી સેવ કરો"}
               </Button>
             </DialogFooter>
@@ -364,6 +376,13 @@ export default function KundliClient() {
                   {isEn ? "Download Kundli PDF" : "કુંડળી PDF ડાઉનલોડ"}
                 </Button>
                 <Button
+                  onClick={() => handleDeleteKundli(selectedKundli)}
+                  variant="outline"
+                  className="h-8 text-xs font-bold text-destructive"
+                >
+                  {isEn ? "Delete" : "કાઢી નાખો"}
+                </Button>
+                <Button
                   onClick={() => setInspectOpen(false)}
                   className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs"
                 >
@@ -377,3 +396,5 @@ export default function KundliClient() {
     </DashboardShell>
   )
 }
+
+export default withDashboardData(KundliClient)

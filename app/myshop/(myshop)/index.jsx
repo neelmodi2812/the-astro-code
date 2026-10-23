@@ -85,7 +85,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getAstroData } from "@/lib/data/astro-data"
-import { getShopData } from "@/lib/data/shop-data"
+import { useShopData } from "@/lib/api/hooks/use-shop-data"
 import { useLanguage } from "@/components/language-provider"
 
 // Helper map to dynamically render Lucide icons by name
@@ -118,11 +118,10 @@ export default function ShopClient() {
 
   // Dynamic localization states
   const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
-  const [shopData, setShopData] = React.useState(() => getShopData(lang))
+  const shopData = useShopData(lang)
 
   React.useEffect(() => {
     setSiteData(getAstroData(lang))
-    setShopData(getShopData(lang))
   }, [lang])
 
   // Filter, Search and Sorting States

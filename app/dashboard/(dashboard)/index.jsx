@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
-import { DASHBOARD_DATA } from "@/lib/data/dashboard-data"
+import { withDashboardData } from "@/components/dashboard-gate"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,10 +32,9 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 
-export default function DashboardClient() {
+function DashboardClient({ data }) {
   const router = useRouter()
   const { lang } = useLanguage()
-  const data = DASHBOARD_DATA
   const isEn = lang === "en"
 
   // Quick Add Kundli Modal State
@@ -467,3 +466,5 @@ export default function DashboardClient() {
     </DashboardShell>
   )
 }
+
+export default withDashboardData(DashboardClient)

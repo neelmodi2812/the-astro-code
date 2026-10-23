@@ -77,7 +77,9 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { getAstroData } from "@/lib/data/astro-data"
-import { getShopData, getCategoryMeta, getCategoryProducts } from "@/lib/data/shop-data"
+import { getCategoryMeta } from "@/lib/data/shop-data"
+import { useShopData, useLiveCategories } from "@/lib/api/hooks/use-shop-data"
+import { withLiveCategoryCount } from "@/lib/api/adapters/shop"
 import { useLanguage } from "@/components/language-provider"
 
 // Helper map to dynamically render Lucide icons by name
@@ -110,16 +112,20 @@ export default function CategoryClient({ categorySlug }) {
 
   // Dynamic localization states
   const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
-  const [shopData, setShopData] = React.useState(() => getShopData(lang))
-  const [categoryMeta, setCategoryMeta] = React.useState(() => getCategoryMeta(categorySlug, lang))
-  const [products, setProducts] = React.useState(() => getCategoryProducts(categorySlug, lang))
+  const shopData = useShopData(lang)
+  const liveCategories = useLiveCategories(lang)
+  const categoryMeta = React.useMemo(
+    () => withLiveCategoryCount(getCategoryMeta(categorySlug, lang), categorySlug, liveCategories),
+    [categorySlug, lang, liveCategories]
+  )
+  const products = React.useMemo(
+    () => shopData.products.filter((p) => p.category === categorySlug),
+    [shopData.products, categorySlug]
+  )
 
   React.useEffect(() => {
     setSiteData(getAstroData(lang))
-    setShopData(getShopData(lang))
-    setCategoryMeta(getCategoryMeta(categorySlug, lang))
-    setProducts(getCategoryProducts(categorySlug, lang))
-  }, [lang, categorySlug])
+  }, [lang])
 
   // Search, sort and pagination state
   const [searchQuery, setSearchQuery] = React.useState("")

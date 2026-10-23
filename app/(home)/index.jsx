@@ -15,21 +15,14 @@ import { AstroFooter } from "@/components/astro-footer"
 import { SpiritualStoreShowcase } from "@/components/spiritual-store-showcase"
 import { OurServicesSection } from "@/components/our-services-section"
 
-import {
-  getAstroData,
-  getAstroLandingData
-} from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useLanguage } from "@/components/language-provider"
 import { toast } from "@/components/ui/sonner"
 
 export default function HomeClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const [data, setData] = React.useState(() => getAstroData(lang))
-
-  React.useEffect(() => {
-    setData(getAstroData(lang))
-  }, [lang])
+  const data = useHomeData(lang)
 
   const [activeCategory, setActiveCategory] = React.useState("home")
   const [activeFilter, setActiveFilter] = React.useState(null)
@@ -40,22 +33,6 @@ export default function HomeClient() {
     setLang(newLang)
     toast.info(newLang === "en" ? "Language switched to English" : "ભાષા બદલાઈ: ગુજરાતી")
   }
-
-  // API Integration Layer:
-  // When backend API URL is configured in NEXT_PUBLIC_ASTRO_API_URL, loads fresh data from endpoint.
-  React.useEffect(() => {
-    async function loadData() {
-      try {
-        const liveData = await getAstroLandingData(lang)
-        if (liveData) {
-          setData(liveData)
-        }
-      } catch (err) {
-        console.warn("Could not fetch remote API data, using localized dataset fallback:", err)
-      }
-    }
-    loadData()
-  }, [lang])
 
   const handleSelectCategory = (catId) => {
     setActiveCategory(catId)

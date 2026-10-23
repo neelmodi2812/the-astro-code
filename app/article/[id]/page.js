@@ -2,11 +2,19 @@ import { Suspense } from "react"
 import ArticleDetailClient from "./(article)"
 import { ARTICLES_DATA, getArticleById, getAllArticleIds } from "@/lib/data/article-data"
 import { JsonLd } from "@/components/seo-structured-data"
+import { getArticleBundle, getArticleSlugs } from "@/lib/api/server/articles"
+
+/** Live article first (so admin-created articles work), bundled static article as fallback. */
+async function resolveArticle(id) {
+  const live = await getArticleBundle(id)
+  return { live, article: live ?? getArticleById(id) }
+}
 
 export async function generateStaticParams() {
   const ids = getAllArticleIds()
+  const liveSlugs = await getArticleSlugs()
   const uniqueIds = Array.from(
-    new Set([...ids, "1", "hero-1", "hero-2", "hero-3", "hero-4", "feat-1", "feat-2", "jyotirling-1", "jyotirling-2", "jyotirling-3", "insight-1", "insight-2"])
+    new Set([...ids, ...liveSlugs, "1", "hero-1", "hero-2", "hero-3", "hero-4", "feat-1", "feat-2", "jyotirling-1", "jyotirling-2", "jyotirling-3", "insight-1", "insight-2"])
   )
   return uniqueIds.map((id) => ({ id }))
 }
@@ -17,7 +25,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const resolvedParams = await params
   const articleId = resolvedParams?.id || "hero-1"
-  const article = getArticleById(articleId)
+  const { article } = await resolveArticle(articleId)
 
   if (!article) {
     return {
@@ -49,7 +57,7 @@ export async function generateMetadata({ params }) {
       siteName: "The Astro Code",
       type: "article",
       locale: "gu_IN",
-      publishedTime: "2025-04-12T06:00:00.000Z",
+      publishedTime: article.publishedAt || "2025-04-12T06:00:00.000Z",
       authors: [article.author?.name?.gu || "ડૉ. વિશાલ મોદી"],
       section: article.category?.gu || "વૈદિક આધ્યાત્મ",
       images: [
@@ -78,7 +86,7 @@ export async function generateMetadata({ params }) {
 async function ArticleDetailContentWrapper({ params }) {
   const resolvedParams = await params
   const articleId = resolvedParams?.id || "hero-1"
-  const article = getArticleById(articleId)
+  const { live, article } = await resolveArticle(articleId)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
 
   const articleSchema = {
@@ -91,8 +99,8 @@ async function ArticleDetailContentWrapper({ params }) {
     "headline": article.title?.gu || article.title?.en,
     "description": article.subtitle?.gu || article.subtitle?.en,
     "image": [article.heroImage || `${siteUrl}/the_astro_code_golden_yantra_logo.png`],
-    "datePublished": "2025-04-12T06:00:00+05:30",
-    "dateModified": "2025-04-12T06:00:00+05:30",
+    "datePublished": article.publishedAt || "2025-04-12T06:00:00+05:30",
+    "dateModified": article.publishedAt || "2025-04-12T06:00:00+05:30",
     "inLanguage": "gu",
     "author": {
       "@type": "Person",
@@ -140,7 +148,7 @@ async function ArticleDetailContentWrapper({ params }) {
     <>
       <JsonLd data={articleSchema} />
       <JsonLd data={breadcrumbSchema} />
-      <ArticleDetailClient initialId={articleId} />
+      <ArticleDetailClient initialId={articleId} initialArticle={live} />
     </>
   )
 }

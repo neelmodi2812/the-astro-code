@@ -19,15 +19,14 @@ import {
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
-import { DASHBOARD_DATA } from "@/lib/data/dashboard-data"
+import { withDashboardData } from "@/components/dashboard-gate"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
-export default function ConsultationsClient() {
+function ConsultationsClient({ data }) {
   const router = useRouter()
   const { lang } = useLanguage()
-  const data = DASHBOARD_DATA
   const isEn = lang === "en"
 
   // User questions notebook state
@@ -74,6 +73,7 @@ export default function ConsultationsClient() {
         </div>
 
         {/* UPCOMING SESSION CARD */}
+        {!data.upcomingConsultation.isPlaceholder && (
         <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-3">
             <div className="flex items-center gap-2.5">
@@ -133,6 +133,8 @@ export default function ConsultationsClient() {
           </div>
         </div>
 
+        )}
+
         {/* INTERACTIVE QUESTION NOTEBOOK */}
         <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
@@ -165,7 +167,6 @@ export default function ConsultationsClient() {
             </Button>
           </form>
         </div>
-
         {/* PAST CONSULTATIONS HISTORY */}
         <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-foreground">
@@ -218,3 +219,5 @@ export default function ConsultationsClient() {
     </DashboardShell>
   )
 }
+
+export default withDashboardData(ConsultationsClient)

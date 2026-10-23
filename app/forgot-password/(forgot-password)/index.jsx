@@ -8,20 +8,14 @@ import {
   ShieldCheck,
   Key,
   Lock,
-  Smartphone,
   Mail,
   ArrowRight,
   CheckCircle2,
   Headphones,
   MessageCircle,
   UserCheck,
-  Compass,
-  Eye,
-  EyeOff,
-  RefreshCw,
   Sparkles,
   LogIn,
-  AlertCircle,
   HelpCircle,
   Check
 } from "lucide-react"
@@ -31,6 +25,7 @@ import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
 import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
 import { FORGOT_PASSWORD_DATA } from "@/lib/data/forgot-password-data"
+import { authService } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -51,145 +46,13 @@ export default function ForgotPasswordClient() {
   const data = FORGOT_PASSWORD_DATA
   const isEn = lang === "en"
 
-  // Recovery Mode: "phone" | "email"
-  const [mode, setMode] = React.useState("phone")
-
-  // Phone Mode State
-  const [mobileNumber, setMobileNumber] = React.useState("")
-  const [otpSent, setOtpSent] = React.useState(false)
-  const [otpValue, setOtpValue] = React.useState("")
-  const [isSendingOtp, setIsSendingOtp] = React.useState(false)
-  const [isVerifyingOtp, setIsVerifyingOtp] = React.useState(false)
-  const [otpVerified, setOtpVerified] = React.useState(false)
-  const [resendTimer, setResendTimer] = React.useState(0)
-
-  // Password Reset State (Step 2)
-  const [newPassword, setNewPassword] = React.useState("")
-  const [confirmPassword, setConfirmPassword] = React.useState("")
-  const [showNewPassword, setShowNewPassword] = React.useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
-  const [isResettingPassword, setIsResettingPassword] = React.useState(false)
-
-  // Email Mode State
+  // Email recovery (a reset link is emailed; the new password is set on /reset-password)
   const [emailAddress, setEmailAddress] = React.useState("")
   const [emailSent, setEmailSent] = React.useState(false)
   const [isSendingEmail, setIsSendingEmail] = React.useState(false)
 
-  // Countdown timer effect
-  React.useEffect(() => {
-    let interval = null
-    if (resendTimer > 0) {
-      interval = setInterval(() => {
-        setResendTimer((prev) => prev - 1)
-      }, 1000)
-    }
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [resendTimer])
-
-  // Handle phone input changes (10 digits strictly)
-  const handleMobileChange = (e) => {
-    const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10)
-    setMobileNumber(cleaned)
-  }
-
-  // Send OTP handler
-  const handleSendOtp = (e) => {
-    e.preventDefault()
-    if (mobileNumber.length !== 10) {
-      toast.error(
-        isEn
-          ? "Please enter a valid 10-digit mobile number."
-          : "કૃપા કરીને માન્ય ૧૦-અંકનો મોબાઇલ નંબર દાખલ કરો."
-      )
-      return
-    }
-
-    setIsSendingOtp(true)
-    setTimeout(() => {
-      setIsSendingOtp(false)
-      setOtpSent(true)
-      setResendTimer(30)
-      toast.success(
-        isEn
-          ? `Verification OTP sent to +91 ${mobileNumber}`
-          : `સુરક્ષા OTP +૯૧ ${mobileNumber} પર મોકલી દેવાયો છે!`
-      )
-    }, 800)
-  }
-
-  // Verify OTP handler
-  const handleVerifyOtp = (e) => {
-    e.preventDefault()
-    if (otpValue.length !== 6) {
-      toast.error(
-        isEn
-          ? "Please enter the 6-digit OTP received via SMS."
-          : "કૃપા કરીને SMS દ્વારા મળેલ ૬-અંકનો OTP દાખલ કરો."
-      )
-      return
-    }
-
-    setIsVerifyingOtp(true)
-    setTimeout(() => {
-      setIsVerifyingOtp(false)
-      setOtpVerified(true)
-      toast.success(
-        isEn
-          ? "OTP verified successfully! Now choose your new password."
-          : "OTP સફળતાપૂર્વક ચકાસાયો! હવે નવો પાસવર્ડ બનાવો."
-      )
-    }, 700)
-  }
-
-  // Resend OTP handler
-  const handleResendOtp = () => {
-    if (resendTimer > 0) return
-    setResendTimer(30)
-    toast.info(
-      isEn
-        ? "New OTP sent to your registered mobile number."
-        : "તમારા રજિસ્ટર્ડ નંબર પર નવો OTP મોકલવામાં આવ્યો છે."
-    )
-  }
-
-  // Reset Password Final Submission
-  const handlePasswordReset = (e) => {
-    e.preventDefault()
-    if (newPassword.length < 8) {
-      toast.error(
-        isEn
-          ? "Password must be at least 8 characters long."
-          : "પાસવર્ડ ઓછામાં ઓછો ૮ અક્ષરનો હોવો જોઈએ."
-      )
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      toast.error(
-        isEn
-          ? "New password and confirmation password do not match."
-          : "બંને પાસવર્ડ એકબીજા સાથે મેળ ખાતા નથી."
-      )
-      return
-    }
-
-    setIsResettingPassword(true)
-    setTimeout(() => {
-      setIsResettingPassword(false)
-      toast.success(
-        isEn
-          ? "Password reset successfully! Redirecting to login..."
-          : "પાસવર્ડ સફળતાપૂર્વક બદલાઈ ગયો છે! લૉગિન પેજ પર લઈ જઈ રહ્યા છીએ..."
-      )
-      setTimeout(() => {
-        router.push("/login")
-      }, 1500)
-    }, 900)
-  }
-
   // Send Email Reset Link
-  const handleSendEmailLink = (e) => {
+  const handleSendEmailLink = async (e) => {
     e.preventDefault()
     if (!emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
       toast.error(
@@ -201,15 +64,19 @@ export default function ForgotPasswordClient() {
     }
 
     setIsSendingEmail(true)
-    setTimeout(() => {
-      setIsSendingEmail(false)
+    try {
+      await authService.forgotPassword(emailAddress, lang)
       setEmailSent(true)
       toast.success(
         isEn
           ? `Password reset link sent to ${emailAddress}`
           : `રીસેટ લિંક ${emailAddress} પર મોકલી દેવાઈ છે!`
       )
-    }, 800)
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsSendingEmail(false)
+    }
   }
 
   return (
@@ -370,175 +237,24 @@ export default function ForgotPasswordClient() {
                     <span>{data.rightColumn.sacredShloka[lang] || data.rightColumn.sacredShloka.gu}</span>
                   </div>
                   <Badge variant="outline" className="text-[10px] font-bold border-border text-muted-foreground">
-                    {otpVerified
-                      ? (data.rightColumn.stepIndicator.step2[lang] || data.rightColumn.stepIndicator.step2.gu)
-                      : (data.rightColumn.stepIndicator.step1[lang] || data.rightColumn.stepIndicator.step1.gu)}
+                    {data.rightColumn.stepIndicator.step1[lang] || data.rightColumn.stepIndicator.step1.gu}
                   </Badge>
                 </div>
 
                 {/* Main Heading & Subtitle */}
                 <div className="space-y-1">
                   <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                    {otpVerified
-                      ? (data.rightColumn.newPasswordSection.title[lang] || data.rightColumn.newPasswordSection.title.gu)
-                      : (data.rightColumn.title[lang] || data.rightColumn.title.gu)}
+                    {data.rightColumn.title[lang] || data.rightColumn.title.gu}
                   </h1>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    {otpVerified
-                      ? (data.rightColumn.newPasswordSection.subtitle[lang] || data.rightColumn.newPasswordSection.subtitle.gu)
-                      : (data.rightColumn.subtitle[lang] || data.rightColumn.subtitle.gu)}
+                    {data.rightColumn.subtitle[lang] || data.rightColumn.subtitle.gu}
                   </p>
                 </div>
 
-                {/* STEP 1: Identification (Phone vs Email tabs) */}
-                {!otpVerified && (
-                  <>
-                    {/* Recovery Mode Switcher Tabs */}
-                    <div className="grid grid-cols-2 p-1 bg-muted/60 dark:bg-[#20211d] rounded-xl border border-border/60 max-w-md">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMode("phone")
-                          setOtpSent(false)
-                        }}
-                        className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                          mode === "phone"
-                            ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        <Smartphone className="h-3.5 w-3.5" />
-                        <span>{data.rightColumn.tabs.phone[lang] || data.rightColumn.tabs.phone.gu}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMode("email")
-                          setEmailSent(false)
-                        }}
-                        className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                          mode === "email"
-                            ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        <Mail className="h-3.5 w-3.5" />
-                        <span>{data.rightColumn.tabs.email[lang] || data.rightColumn.tabs.email.gu}</span>
-                      </button>
-                    </div>
-
-                    {/* PHONE OTP MODE */}
-                    {mode === "phone" && (
-                      <div className="space-y-4">
-                        <form onSubmit={handleSendOtp} className="space-y-4">
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-foreground">
-                              {data.rightColumn.phoneForm.label[lang] || data.rightColumn.phoneForm.label.gu}{" "}
-                              <span className="text-destructive">*</span>
-                            </label>
-                            
-                            <div className="flex items-center bg-card dark:bg-[#20211d] rounded-lg border border-border focus-within:ring-2 focus-within:ring-[#fdc72d]/60 focus-within:border-[#fdc72d] transition-all">
-                              <div className="flex items-center gap-1.5 px-3 py-2 bg-muted/60 dark:bg-[#252622] rounded-l-lg text-xs font-bold text-foreground select-none shrink-0 border-r border-border">
-                                <span className="text-sm">🇮🇳</span>
-                                <span>{data.rightColumn.phoneForm.prefix[lang] || data.rightColumn.phoneForm.prefix.gu}</span>
-                              </div>
-                              <Input
-                                type="tel"
-                                maxLength={10}
-                                required
-                                value={mobileNumber}
-                                onChange={handleMobileChange}
-                                placeholder={data.rightColumn.phoneForm.placeholder}
-                                className="h-10 border-0 shadow-none focus-visible:ring-0 text-sm font-semibold tracking-wide"
-                              />
-                              <Smartphone className="h-4 w-4 text-muted-foreground mr-3 shrink-0" />
-                            </div>
-
-                            <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
-                              <HelpCircle className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                              <span>{data.rightColumn.phoneForm.note[lang] || data.rightColumn.phoneForm.note.gu}</span>
-                            </p>
-                          </div>
-
-                          {!otpSent && (
-                            <Button
-                              type="submit"
-                              disabled={isSendingOtp || mobileNumber.length !== 10}
-                              className="w-full h-11 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs sm:text-sm rounded-lg shadow-sm gap-2 cursor-pointer transition-all active:scale-[0.99]"
-                            >
-                              <span>
-                                {isSendingOtp
-                                  ? (data.rightColumn.phoneForm.sendingBtn[lang] || data.rightColumn.phoneForm.sendingBtn.gu)
-                                  : (data.rightColumn.phoneForm.submitBtn[lang] || data.rightColumn.phoneForm.submitBtn.gu)}
-                              </span>
-                              <ArrowRight className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </form>
-
-                        {/* OTP Verification Box (Revealed upon sending) */}
-                        {otpSent && (
-                          <div className="p-4 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border space-y-3 animate-in fade-in-50 duration-200">
-                            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm">
-                              <CheckCircle2 className="h-4 w-4 shrink-0" />
-                              <span>{data.rightColumn.otpSection.title[lang] || data.rightColumn.otpSection.title.gu}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {data.rightColumn.otpSection.desc[lang] || data.rightColumn.otpSection.desc.gu}
-                            </p>
-
-                            <form onSubmit={handleVerifyOtp} className="space-y-3 pt-1">
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="text"
-                                  maxLength={6}
-                                  value={otpValue}
-                                  onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                  placeholder={data.rightColumn.otpSection.placeholder}
-                                  className="w-36 h-10 tracking-widest text-center font-bold text-base bg-card dark:bg-[#181914] text-foreground border-border"
-                                />
-
-                                <Button
-                                  type="submit"
-                                  disabled={isVerifyingOtp || otpValue.length !== 6}
-                                  className="h-10 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-lg shadow-sm cursor-pointer"
-                                >
-                                  {isVerifyingOtp ? (
-                                    <span>{data.rightColumn.otpSection.verifyingBtn[lang] || data.rightColumn.otpSection.verifyingBtn.gu}</span>
-                                  ) : (
-                                    <span className="flex items-center gap-1">
-                                      <Check className="h-3.5 w-3.5" />
-                                      {data.rightColumn.otpSection.verifyBtn[lang] || data.rightColumn.otpSection.verifyBtn.gu}
-                                    </span>
-                                  )}
-                                </Button>
-                              </div>
-
-                              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-                                <span>{data.rightColumn.otpSection.resendPrompt[lang] || data.rightColumn.otpSection.resendPrompt.gu}</span>
-                                {resendTimer > 0 ? (
-                                  <span className="text-[#8a6800] dark:text-[#fdc72d] font-bold">
-                                    {resendTimer}s {isEn ? "remaining" : "બાકી"}
-                                  </span>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={handleResendOtp}
-                                    className="text-[#8a6800] dark:text-[#fdc72d] font-bold hover:underline cursor-pointer"
-                                  >
-                                    {data.rightColumn.otpSection.resendBtn[lang] || data.rightColumn.otpSection.resendBtn.gu}
-                                  </button>
-                                )}
-                              </div>
-                            </form>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* EMAIL LINK MODE */}
-                    {mode === "email" && (
+                {/* Identification: registered email */}
+                <>
+                    {/* EMAIL LINK */}
+                    {(
                       <div className="space-y-4">
                         <form onSubmit={handleSendEmailLink} className="space-y-4">
                           <div className="space-y-1.5">
@@ -609,76 +325,7 @@ export default function ForgotPasswordClient() {
                         <Check className="h-3 w-3" />
                       </span>
                     </div>
-                  </>
-                )}
-
-                {/* STEP 2: Set New Password (Rendered once OTP is verified) */}
-                {otpVerified && (
-                  <form onSubmit={handlePasswordReset} className="space-y-4 animate-in fade-in-50 duration-200">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-foreground">
-                        {data.rightColumn.newPasswordSection.newPasswordLabel[lang] || data.rightColumn.newPasswordSection.newPasswordLabel.gu}{" "}
-                        <span className="text-destructive">*</span>
-                      </label>
-                      <div className="relative">
-                        <Lock className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          required
-                          type={showNewPassword ? "text" : "password"}
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder={data.rightColumn.newPasswordSection.placeholder}
-                          className="h-10 pl-10 pr-10 text-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
-                        >
-                          {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-foreground">
-                        {data.rightColumn.newPasswordSection.confirmPasswordLabel[lang] || data.rightColumn.newPasswordSection.confirmPasswordLabel.gu}{" "}
-                        <span className="text-destructive">*</span>
-                      </label>
-                      <div className="relative">
-                        <Lock className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          required
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder={data.rightColumn.newPasswordSection.placeholder}
-                          className="h-10 pl-10 pr-10 text-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={isResettingPassword || !newPassword || !confirmPassword}
-                      className="w-full h-11 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs sm:text-sm rounded-lg shadow-sm gap-2 cursor-pointer transition-all active:scale-[0.99]"
-                    >
-                      <span>
-                        {isResettingPassword
-                          ? (data.rightColumn.newPasswordSection.savingBtn[lang] || data.rightColumn.newPasswordSection.savingBtn.gu)
-                          : (data.rightColumn.newPasswordSection.submitBtn[lang] || data.rightColumn.newPasswordSection.submitBtn.gu)}
-                      </span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </form>
-                )}
+                </>
 
               </div>
 

@@ -1,3 +1,13 @@
+/**
+ * Product/category/article images uploaded in the Laravel admin are served from the API host.
+ */
+const apiUrl = new URL(process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1")
+const apiImagePattern = {
+  protocol: apiUrl.protocol.replace(":", ""),
+  hostname: apiUrl.hostname,
+  ...(apiUrl.port ? { port: apiUrl.port } : {}),
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
@@ -5,6 +15,7 @@ const nextConfig = {
   partialPrefetching: true,
   images: {
     remotePatterns: [
+      apiImagePattern,
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',

@@ -72,25 +72,18 @@ import {
 import { toast } from "@/components/ui/sonner"
 import { useLanguage } from "@/components/language-provider"
 import { getAstroData } from "@/lib/data/astro-data"
-import {
-  getProductById,
-  getRelatedProducts
-} from "@/lib/data/product-data"
+import { useProduct } from "@/lib/api/hooks/use-product"
 
 const CART_STORAGE_KEY = "astro_cart_items"
 const WISHLIST_STORAGE_KEY = "astro_wishlist_items"
 
-export default function ProductDetailClient({ productId }) {
+export default function ProductDetailClient({ productId, initialBundle }) {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
   const currentLang = lang || "gu"
 
   const astroData = React.useMemo(() => getAstroData(currentLang), [currentLang])
-  const product = React.useMemo(() => getProductById(productId, currentLang), [productId, currentLang])
-  const relatedProducts = React.useMemo(
-    () => (product ? getRelatedProducts(product.id, product.category, currentLang, 4) : []),
-    [product, currentLang]
-  )
+  const { product, related: relatedProducts } = useProduct(productId, currentLang, initialBundle)
 
   const imagesList = React.useMemo(() => {
     return product?.images && product.images.length > 0 ? product.images : (product ? [product.image] : [])

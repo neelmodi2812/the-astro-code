@@ -15,7 +15,7 @@ import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
 import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
-import { DASHBOARD_DATA } from "@/lib/data/dashboard-data"
+import { useDashboardContext } from "@/components/dashboard-gate"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import {
   Breadcrumb,
@@ -31,7 +31,7 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
   const pathname = usePathname()
   const { lang, setLang } = useLanguage()
   const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
-  const data = DASHBOARD_DATA
+  const data = useDashboardContext()
   const isEn = lang === "en"
 
   const mobileTabs = [

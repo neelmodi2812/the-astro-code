@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { getProductById, getAllProductIds } from "@/lib/data/product-data"
+import { getProductBundle, getCatalogSlugs } from "@/lib/api/server/catalog"
 import { JsonLd } from "@/components/seo-structured-data"
 import ProductDetailClient from "./ProductDetailClient"
 
@@ -11,13 +12,23 @@ import ProductDetailClient from "./ProductDetailClient"
  */
 export const instant = false
 
+/**
+ * Live catalog first (bundled static catalog as fallback), so products created
+ * in the Laravel admin work without a code change.
+ */
+async function resolveProduct(id, lang) {
+  const bundle = await getProductBundle(id, lang)
+  return { bundle, product: bundle?.product ?? getProductById(id, lang) }
+}
+
 export async function generateStaticParams() {
-  return getAllProductIds().map((id) => ({ id }))
+  const live = await getCatalogSlugs()
+  return [...new Set([...getAllProductIds(), ...live.products])].map((id) => ({ id }))
 }
 
 export async function generateMetadata({ params }) {
   const { id } = await params
-  const product = getProductById(id, "en")
+  const { product } = await resolveProduct(id, "en")
 
   if (!product) {
     return {
@@ -62,7 +73,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductPage({ params }) {
   const { id } = await params
-  const product = getProductById(id, "gu")
+  const { bundle, product } = await resolveProduct(id, "gu")
 
   if (!product) {
     notFound()

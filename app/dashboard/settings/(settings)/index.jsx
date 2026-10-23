@@ -20,31 +20,51 @@ import {
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
-import { DASHBOARD_DATA } from "@/lib/data/dashboard-data"
+import { withDashboardData } from "@/components/dashboard-gate"
+import { authService, userService } from "@/lib/api"
+import { clearDashboardCache } from "@/lib/api/hooks/use-dashboard-data"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 
-export default function SettingsClient() {
+function SettingsClient({ data, refresh }) {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const data = DASHBOARD_DATA
   const isEn = lang === "en"
 
   // Editable Profile State
   const [name, setName] = React.useState(data.userProfile.name[lang] || data.userProfile.name.gu)
-  const [email, setEmail] = React.useState(data.userProfile.email)
-  const [phone, setPhone] = React.useState(data.userProfile.phone.en)
-  const [city, setCity] = React.useState("અમદાવાદ (Ahmedabad)")
+  const [email] = React.useState(data.userProfile.email)
+  const [phone, setPhone] = React.useState(data.userProfile.phone.en === "—" ? "" : data.userProfile.phone.en)
+  const [city, setCity] = React.useState(data.userProfile.city || "")
+  const [isSaving, setIsSaving] = React.useState(false)
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    toast.success(
-      isEn
-        ? "Profile & settings saved successfully!"
-        : "તમારી પ્રોફાઇલ અને સેટિંગ્સ સફળતાપૂર્વક સાચવાઈ ગઈ!"
-    )
+    setIsSaving(true)
+    try {
+      await userService.updateProfile({ name: name.trim(), phone: phone.trim() || undefined, city: city.trim() || undefined })
+      refresh()
+      toast.success(
+        isEn
+          ? "Profile & settings saved successfully!"
+          : "તમારી પ્રોફાઇલ અને સેટિંગ્સ સફળતાપૂર્વક સાચવાઈ ગઈ!"
+      )
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } finally {
+      clearDashboardCache()
+      router.replace("/login")
+    }
   }
 
   return (
@@ -61,6 +81,12 @@ export default function SettingsClient() {
               ? "Manage your personal profile, registered astrological details, and preferences."
               : "તમારી વ્યક્તિગત જન્મ વિગતો, ભાષા પસંદગી અને સુરક્ષા સેટિંગ્સનું સંચાલન."}
           </p>
+        </div>
+
+        <div className="flex justify-end">
+          <Button type="button" variant="outline" onClick={handleLogout} className="h-9 text-xs font-bold">
+            {isEn ? "Sign out" : "લૉગ આઉટ"}
+          </Button>
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
@@ -91,7 +117,8 @@ export default function SettingsClient() {
                 <Input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  readOnly
+                  disabled
                   className="h-10 text-sm"
                 />
               </div>
@@ -219,6 +246,7 @@ export default function SettingsClient() {
             </Button>
             <Button
               type="submit"
+              disabled={isSaving}
               className="h-10 px-6 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-2xs gap-1.5"
             >
               <Check className="h-4 w-4" />
@@ -232,3 +260,5 @@ export default function SettingsClient() {
     </DashboardShell>
   )
 }
+
+export default withDashboardData(SettingsClient)

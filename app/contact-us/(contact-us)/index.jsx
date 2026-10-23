@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { toast } from "sonner"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
@@ -84,6 +85,7 @@ import {
 import { getAstroData } from "@/lib/data/astro-data"
 import { CONTACT_DATA } from "@/lib/data/contact-data"
 import { useLanguage } from "@/components/language-provider"
+import { astrologyService, contactService } from "@/lib/api"
 
 export default function ContactUsClient() {
   const router = useRouter()
@@ -129,9 +131,27 @@ export default function ContactUsClient() {
   const [modalSuccess, setModalSuccess] = React.useState(false)
 
   // Handle Main Inquiry Form Submission
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault()
     if (!formData.fullName.trim() || !formData.phoneNumber.trim() || !formData.messageText.trim()) return
+
+    try {
+      await astrologyService.bookConsultation(
+        {
+          full_name: formData.fullName.trim(),
+          phone: formData.phoneNumber.trim(),
+          email: formData.emailAddress.trim() || undefined,
+          birth_date: formData.dob || undefined,
+          birth_place: formData.birthPlace.trim() || undefined,
+          problem_category: formData.consultationCategory,
+          message: formData.messageText.trim(),
+        },
+        lang
+      )
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
 
     setFormSubmitted(true)
     setTimeout(() => {
@@ -150,9 +170,21 @@ export default function ContactUsClient() {
   }
 
   // Handle Sidebar WhatsApp Newsletter
-  const handleSidebarNewsletter = (e) => {
+  const handleSidebarNewsletter = async (e) => {
     e.preventDefault()
-    if (!sidebarPhone.trim()) return
+    const contact = sidebarPhone.trim()
+    if (!contact) return
+
+    try {
+      await contactService.subscribeNewsletter(contact, {
+        type: contact.includes("@") ? "email" : "whatsapp",
+        lang,
+      })
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
+
     setSidebarSuccess(true)
     setTimeout(() => {
       setSidebarPhone("")
@@ -161,9 +193,24 @@ export default function ContactUsClient() {
   }
 
   // Handle Quick Modal Booking
-  const handleModalSubmit = (e) => {
+  const handleModalSubmit = async (e) => {
     e.preventDefault()
     if (!modalForm.name.trim() || !modalForm.phone.trim()) return
+
+    try {
+      await astrologyService.bookConsultation(
+        {
+          full_name: modalForm.name.trim(),
+          phone: modalForm.phone.trim(),
+          problem_category: modalForm.topic,
+        },
+        lang
+      )
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
+
     setModalSuccess(true)
     setTimeout(() => {
       setModalSuccess(false)
