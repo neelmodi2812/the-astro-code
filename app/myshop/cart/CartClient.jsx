@@ -75,9 +75,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/sonner"
 import { shopService } from "@/lib/api"
+import { StripePaymentForm } from "@/components/stripe-payment-form"
 import { loadLiveCatalog } from "@/lib/api/hooks/use-shop-data"
 import { useLanguage } from "@/components/language-provider"
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import {
   getCartData
 } from "@/lib/data/cart-data"
@@ -90,24 +91,20 @@ export default function CartClient() {
   const { lang, setLang } = useLanguage()
   const currentLang = lang || "gu"
 
-  const astroData = React.useMemo(() => getAstroData(currentLang), [currentLang])
+  const astroData = useHomeData(currentLang)
+  const founder = astroData.config?.founder
   const cartData = React.useMemo(() => getCartData(currentLang), [currentLang])
+  const supportWhatsappUrl = founder?.whatsappUrl || cartData.trustPillars.supportStrip.whatsappUrl
 
   // Cart Items State - Initialized from localStorage if present, else DEFAULT_CART_ITEMS
   const [cartItems, setCartItems] = React.useState([])
   const [savedItems, setSavedItems] = React.useState([])
   const [isClientLoaded, setIsClientLoaded] = React.useState(false)
 
-  // Vedic Sankalp Customization State
-  const [sankalpIncluded, setSankalpIncluded] = React.useState(true)
-  const [yajmanName, setYajmanName] = React.useState(cartData.sankalpBox.defaultYajman)
-  const [gotraName, setGotraName] = React.useState(cartData.sankalpBox.defaultGotra)
-  const [isEditingSankalp, setIsEditingSankalp] = React.useState(false)
 
   // Coupon Voucher State
-  const [couponInput, setCouponInput] = React.useState("VEDIC10")
-  // Welcome offer is pre-applied; the server confirms (or drops) it once the subtotal is known
-  const [appliedCoupon, setAppliedCoupon] = React.useState({ code: "VEDIC10", discountPercent: 10 })
+  const [couponInput, setCouponInput] = React.useState("")
+  const [appliedCoupon, setAppliedCoupon] = React.useState(null)
   const [isPlacingOrder, setIsPlacingOrder] = React.useState(false)
   const [placedTotal, setPlacedTotal] = React.useState(0)
   const [couponError, setCouponError] = React.useState("")
@@ -120,15 +117,15 @@ export default function CartClient() {
 
   // Checkout Modal State
   const [isCheckoutOpen, setIsCheckoutOpen] = React.useState(false)
-  const [checkoutStep, setCheckoutStep] = React.useState(1) // 1: Form, 2: Success
+  const [checkoutStep, setCheckoutStep] = React.useState(1) // 1: Form, 2: Success, 3: Stripe payment
+  const [paymentSession, setPaymentSession] = React.useState(null)
   const [orderId, setOrderId] = React.useState("")
   const [checkoutForm, setCheckoutForm] = React.useState({
-    fullName: cartData.sankalpBox.defaultYajman,
-    phone: "9876543210",
-    gotra: cartData.sankalpBox.defaultGotra,
-    address: "B-402, Shivam Residency, SG Highway",
-    city: "Ahmedabad",
-    pincode: "380054",
+    fullName: "",
+    phone: "",
+    address: "",
+    city: "",
+    pincode: "",
     paymentMethod: "cod"
   })
 
@@ -259,10 +256,6 @@ export default function CartClient() {
     }
   }, [isClientLoaded, appliedCouponCode, subtotal, currentLang])
 
-  // Ganga Jal milestone (Threshold: ₹4,000)
-  const GANGAJAL_THRESHOLD = 4000
-  const gangajalProgress = Math.min(100, Math.round((subtotal / GANGAJAL_THRESHOLD) * 100))
-  const gangajalDiff = Math.max(0, GANGAJAL_THRESHOLD - subtotal)
 
   // Helpers for digits and currency
   const toDigits = React.useCallback(
@@ -407,8 +400,6 @@ export default function CartClient() {
     if (isPlacingOrder || cartItems.length === 0) return
 
     const noteLines = [
-      checkoutForm.gotra && `Gotra: ${checkoutForm.gotra}`,
-      sankalpIncluded && `Sankalp: ${yajmanName} (${gotraName})`,
       checkoutForm.paymentMethod === "whatsapp" && "Customer prefers WhatsApp confirmation",
     ].filter(Boolean)
 
@@ -435,8 +426,23 @@ export default function CartClient() {
       setPlacedTotal(Number(res.data.total_amount))
       setOrderId(res.data.order_number)
       updateCartState([])
-      setCheckoutStep(2)
       setActiveStep(3)
+
+      let nextStep = 2
+      if (res.requires_payment) {
+        try {
+          const payment = await shopService.startPayment(res.data.order_number, checkoutForm.phone.trim())
+          setPaymentSession({
+            clientSecret: payment.data.client_secret,
+            publishableKey: payment.data.publishable_key,
+          })
+          nextStep = 3
+        } catch (paymentError) {
+          // The order exists; it simply stays unpaid until payment is retried or taken another way.
+          toast.error(paymentError.message)
+        }
+      }
+      setCheckoutStep(nextStep)
       toast.success(
         currentLang === "gu"
           ? `ઓર્ડર નોંધાઈ ગયો છે! ઓર્ડર નંબર: ${res.data.order_number}`
@@ -459,17 +465,13 @@ export default function CartClient() {
       )
       .join("%0A")
 
-    const sankalpText = sankalpIncluded
-      ? `%0A%0A🪔 *વૈદિક પૂજા સંકલ્પ:*%0Aયજમાન: ${yajmanName}%0Aગોત્ર: ${gotraName}`
-      : ""
-
     const couponText = appliedCoupon
       ? `%0Aકૂપન: ${appliedCoupon.code} (-₹${couponDiscount})`
       : ""
 
-    const message = `*નમસ્તે The Astro Code,*%0Aહું નીચે મુજબની સિદ્ધ સાધના સામગ્રી ઓર્ડર કરવા માંગુ છું:%0A%0A${itemsList}${sankalpText}%0A%0A💰 *કુલ રકમ:* ₹${finalTotal}${couponText}%0A🚚 *ડિલિવરી:* મફત (FREE)%0A%0Aકૃપા કરીને મારો ઓર્ડર કન્ફર્મ કરો.`
+    const message = `*નમસ્તે The Astro Code,*%0Aહું નીચે મુજબની સિદ્ધ સાધના સામગ્રી ઓર્ડર કરવા માંગુ છું:%0A%0A${itemsList}%0A%0A💰 *કુલ રકમ:* ₹${finalTotal}${couponText}%0A🚚 *ડિલિવરી:* મફત (FREE)%0A%0Aકૃપા કરીને મારો ઓર્ડર કન્ફર્મ કરો.`
 
-    return `https://wa.me/917940008108?text=${message}`
+    return `${supportWhatsappUrl}${supportWhatsappUrl.includes("?") ? "&" : "?"}text=${message}`
   }
 
   return (
@@ -691,40 +693,10 @@ export default function CartClient() {
                     </div>
                   </div>
 
-                  {/* Free Shipping & Haridwar Ganga Jal Progress Meter */}
-                  <div className="p-4 sm:p-5 rounded-xl bg-muted/50 border border-border/60 flex flex-col gap-2.5">
-                    <div className="flex flex-wrap items-center justify-between text-xs sm:text-sm font-medium gap-2">
-                      <span className="flex items-center gap-2 text-[#00685d] dark:text-[#fdc72d] font-bold">
-                        <Truck className="h-4 w-4 text-[#fdc72d]" />
-                        <span>{cartData.cartHeader.freeShippingActive}</span>
-                      </span>
-                      <span className="text-muted-foreground font-semibold">
-                        {gangajalDiff > 0 ? (
-                          <>
-                            {cartData.cartHeader.gangaJalThresholdPrefix}
-                            {toDigits(gangajalDiff.toLocaleString("en-IN"))}
-                            {cartData.cartHeader.gangaJalThresholdSuffix}
-                          </>
-                        ) : (
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-                            <CheckCircle2 className="h-4 w-4" />
-                            {cartData.cartHeader.gangaJalUnlocked}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-
-                    {/* Progress Track */}
-                    <div className="w-full bg-muted-foreground/15 h-3 rounded-full overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-[#00685d] to-[#008d7f] dark:from-[#fdc72d] dark:to-[#d9a100] h-full rounded-full transition-all duration-700 ease-out"
-                        style={{ width: `${gangajalProgress}%` }}
-                      />
-                    </div>
-
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {cartData.cartHeader.thresholdGoalNote(subtotal, gangajalDiff)}
-                    </p>
+                  {/* Free shipping notice (delivery is free on every order) */}
+                  <div className="p-4 rounded-xl bg-muted/50 border border-border/60 flex items-center gap-2 text-xs sm:text-sm text-[#00685d] dark:text-[#fdc72d] font-bold">
+                    <Truck className="h-4 w-4 text-[#fdc72d]" />
+                    <span>{cartData.cartHeader.freeShippingActive}</span>
                   </div>
                 </div>
 
@@ -864,51 +836,6 @@ export default function CartClient() {
                   })}
                 </div>
 
-                {/* Free Vedic Gifts Included Callout Banner */}
-                <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="p-2.5 rounded-xl bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]">
-                      <Gift className="h-6 w-6" />
-                    </span>
-                    <div>
-                      <h3 className="text-base sm:text-lg font-bold text-foreground">
-                        {cartData.freeGiftsSection.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {cartData.freeGiftsSection.subtitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    {cartData.freeGiftsSection.gifts.map((gift) => (
-                      <div
-                        key={gift.id}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50"
-                      >
-                        <div className="w-12 h-12 rounded-lg bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                          {gift.icon === "Droplets" ? (
-                            <Droplets className="h-6 w-6" />
-                          ) : (
-                            <Sparkles className="h-6 w-6" />
-                          )}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs sm:text-sm font-bold text-foreground truncate">
-                            {gift.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground truncate">
-                            {gift.description}
-                          </span>
-                          <span className="text-[10px] font-bold text-[#00685d] dark:text-[#fdc72d] mt-0.5">
-                            {cartData.freeGiftsSection.freeBadge}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Table Bottom Actions */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                   <Button
@@ -988,114 +915,8 @@ export default function CartClient() {
                 )}
               </div>
 
-              {/* RIGHT COLUMN: Sticky Order Summary & Vedic Sankalp Box (35% width) */}
+              {/* RIGHT COLUMN: Sticky Order Summary & Order Summary (35% width) */}
               <aside className="w-full lg:w-[35%] flex flex-col gap-6 lg:sticky lg:top-[180px]">
-                {/* Vedic Personalized Sankalp Checkbox Box */}
-                <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-4">
-                  <div className="flex items-center gap-2.5">
-                    <span className="p-2 rounded-lg bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]">
-                      <BookOpen className="h-5 w-5" />
-                    </span>
-                    <h3 className="text-base sm:text-lg font-bold text-foreground">
-                      {cartData.sankalpBox.title}
-                    </h3>
-                  </div>
-
-                  <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-muted/50 hover:bg-muted border border-border/60 transition-colors">
-                    <Checkbox
-                      checked={sankalpIncluded}
-                      onCheckedChange={(checked) => setSankalpIncluded(!!checked)}
-                      className="mt-0.5 data-[state=checked]:bg-[#00685d] data-[state=checked]:border-[#00685d]"
-                    />
-                    <div className="flex flex-col text-foreground">
-                      <span className="text-xs sm:text-sm font-bold leading-snug">
-                        {cartData.sankalpBox.checkboxLabel}
-                      </span>
-                      <span className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                        {cartData.sankalpBox.checkboxDesc}
-                      </span>
-                    </div>
-                  </label>
-
-                  {/* Devotee Name & Gotra fields */}
-                  {sankalpIncluded && (
-                    <div className="flex flex-col gap-2 pt-1">
-                      {isEditingSankalp ? (
-                        <div className="flex flex-col gap-2.5">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-bold uppercase text-muted-foreground">
-                              {cartData.sankalpBox.yajmanLabel}
-                            </span>
-                            <Input
-                              value={yajmanName}
-                              onChange={(e) => setYajmanName(e.target.value)}
-                              className="h-9 text-xs rounded-lg"
-                              placeholder={cartData.sankalpBox.defaultYajman}
-                            />
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-bold uppercase text-muted-foreground">
-                              {cartData.sankalpBox.gotraLabel}
-                            </span>
-                            <Input
-                              value={gotraName}
-                              onChange={(e) => setGotraName(e.target.value)}
-                              className="h-9 text-xs rounded-lg"
-                              placeholder={cartData.sankalpBox.defaultGotra}
-                            />
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setIsEditingSankalp(false)
-                              toast.success(
-                                currentLang === "gu"
-                                  ? "સંકલ્પ વિગત સાચવવામાં આવી."
-                                  : "Sankalp details saved."
-                              )
-                            }}
-                            className="bg-[#00685d] hover:bg-[#005048] text-white text-xs rounded-lg mt-1"
-                          >
-                            <Check className="h-3.5 w-3.5 mr-1" />
-                            {cartData.sankalpBox.saveBtn}
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div className="flex flex-col p-2.5 rounded-xl bg-muted/60 border border-border/40">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase">
-                              {cartData.sankalpBox.yajmanLabel}
-                            </span>
-                            <span className="font-bold text-foreground truncate mt-0.5">
-                              {yajmanName}
-                            </span>
-                          </div>
-                          <div className="flex flex-col p-2.5 rounded-xl bg-muted/60 border border-border/40">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase">
-                              {cartData.sankalpBox.gotraLabel}
-                            </span>
-                            <span className="font-bold text-foreground truncate mt-0.5">
-                              {gotraName}
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setIsEditingSankalp(true)}
-                            className="col-span-2 text-left text-xs text-[#00685d] dark:text-[#fdc72d] font-bold flex items-center gap-1 hover:underline pt-1"
-                          >
-                            <Edit2 className="h-3 w-3" />
-                            <span>
-                              {currentLang === "gu"
-                                ? "નામ અથવા ગોત્ર બદલો (Edit Devotee Info)"
-                                : "Edit Devotee Info"}
-                            </span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
                 {/* Order Summary Card */}
                 <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-md flex flex-col gap-4">
                   <h2 className="text-lg sm:text-xl font-bold text-foreground border-b border-border/60 pb-3">
@@ -1125,19 +946,6 @@ export default function CartClient() {
                         <span>- {formatPrice(couponDiscount)}</span>
                       </div>
                     )}
-
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Sparkles className="h-4 w-4 text-[#d9a100]" />
-                        <span>{cartData.orderSummary.consecrationLabel}</span>
-                      </span>
-                      <span className="text-[#00685d] dark:text-[#fdc72d] font-bold">
-                        {cartData.orderSummary.freeTag}{" "}
-                        <span className="line-through text-muted-foreground font-normal text-xs ml-1">
-                          {cartData.orderSummary.consecrationOriginalCost}
-                        </span>
-                      </span>
-                    </div>
 
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span>{cartData.orderSummary.shippingLabel}</span>
@@ -1325,13 +1133,13 @@ export default function CartClient() {
                 </span>
               </div>
               <a
-                href={cartData.trustPillars.supportStrip.whatsappUrl}
+                href={supportWhatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-xl bg-[#00685d] text-white hover:bg-[#005048] font-bold text-xs flex items-center gap-2 transition-colors shadow-xs"
               >
                 <MessageCircle className="h-4 w-4" />
-                <span>{cartData.trustPillars.supportStrip.buttonText}</span>
+                <span>{founder?.phone ? `${currentLang === "gu" ? "WhatsApp પર સહાય મેળવો" : "Get help on WhatsApp"}: ${founder.phone}` : cartData.trustPillars.supportStrip.buttonText}</span>
               </a>
             </div>
           </div>
@@ -1421,21 +1229,6 @@ export default function CartClient() {
                       setCheckoutForm({ ...checkoutForm, phone: e.target.value })
                     }
                     placeholder={cartData.checkoutModal.phonePlaceholder}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-
-                {/* Gotra */}
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
-                    {cartData.checkoutModal.gotraLabel}
-                  </Label>
-                  <Input
-                    value={checkoutForm.gotra}
-                    onChange={(e) =>
-                      setCheckoutForm({ ...checkoutForm, gotra: e.target.value })
-                    }
-                    placeholder={cartData.checkoutModal.gotraPlaceholder}
                     className="h-9 text-xs rounded-lg"
                   />
                 </div>
@@ -1548,6 +1341,29 @@ export default function CartClient() {
                 </Button>
               </DialogFooter>
             </form>
+          ) : checkoutStep === 3 && paymentSession ? (
+            /* Stripe payment step */
+            <div className="flex flex-col gap-3">
+              <DialogHeader className="space-y-1.5">
+                <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
+                  <span>{currentLang === "gu" ? "ઓનલાઇન ચુકવણી" : "Online Payment"}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {currentLang === "gu" ? `ઓર્ડર નંબર: ${orderId}` : `Order ${orderId}`}
+                </DialogDescription>
+              </DialogHeader>
+              <StripePaymentForm
+                clientSecret={paymentSession.clientSecret}
+                publishableKey={paymentSession.publishableKey}
+                amountLabel={formatPrice(placedTotal)}
+                lang={currentLang}
+                onPaid={() => {
+                  setPaymentSession(null)
+                  setCheckoutStep(2)
+                }}
+              />
+            </div>
           ) : (
             /* Order Placed Success View */
             <div className="flex flex-col items-center text-center py-4 gap-4">
@@ -1569,10 +1385,6 @@ export default function CartClient() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">યજમાન:</span>
                   <span className="font-bold text-foreground">{checkoutForm.fullName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">ગોત્ર:</span>
-                  <span className="font-bold text-foreground">{checkoutForm.gotra}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">સરનામું:</span>

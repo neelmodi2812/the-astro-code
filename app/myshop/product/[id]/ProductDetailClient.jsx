@@ -133,9 +133,6 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(0)
   const [selectedVariant, setSelectedVariant] = React.useState(product.variants?.[0] || null)
   const [qty, setQty] = React.useState(1)
-  const [sankalpOpted, setSankalpOpted] = React.useState(true)
-  const [devoteeName, setDevoteeName] = React.useState("")
-  const [gotraName, setGotraName] = React.useState("")
   const [isWishlisted, setIsWishlisted] = React.useState(false)
   const [cartCount, setCartCount] = React.useState(3)
   const [copiedMantra, setCopiedMantra] = React.useState(false)
@@ -528,14 +525,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
           price: currentPrice,
           originalPrice: originalPrice,
           qty: qty,
-          category: product.category,
-          ritualAddon: sankalpOpted
-            ? currentLang === "gu"
-              ? `સંકલ્પ સેવા: ${devoteeName.trim() || "યજમાન"} (${gotraName.trim() || "કશ્યપ ગોત્ર"})`
-              : `Sankalp: ${devoteeName.trim() || "Devotee"} (${gotraName.trim() || "Kashyap Gotra"})`
-            : currentLang === "gu"
-              ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા સામેલ"
-              : "Vedic Consecration Included"
+          category: product.category
         })
       }
 
@@ -627,7 +617,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                     className="hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors capitalize"
                   >
                     <Link href={`/myshop/${product.category}`}>
-                      {product.category}
+                      {product.categoryName || product.category}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -981,7 +971,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                     </span>
                     <span className="text-border">•</span>
                     <span className="text-[11px] font-bold text-[#00685d] dark:text-[#fdc72d] uppercase">
-                      {product.category}
+                      {product.categoryName || product.category}
                     </span>
                   </div>
 
@@ -1059,88 +1049,6 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   </span>
                 </p>
 
-                {/* Streamlined Pincode Delivery Estimator */}
-                <div className="pt-3 border-t border-border/60 flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      <Truck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
-                      <span>{currentLang === "gu" ? "ડિલિવરી અંદાજ અને પિનકોડ:" : "Estimated Delivery & Pincode:"}</span>
-                    </span>
-                    <span className="text-[11px] font-medium text-muted-foreground">
-                      {currentLang === "gu" ? "કેશ ઓન ડિલિવરી (COD) ઉપલબ્ધ" : "Cash on Delivery Available"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <Input
-                        type="text"
-                        maxLength={6}
-                        value={pincode}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "").slice(0, 6)
-                          setPincode(val)
-                          if (pincodeStatus) setPincodeStatus(null)
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            checkPincodeDelivery(pincode)
-                          }
-                        }}
-                        placeholder={currentLang === "gu" ? "૬ અંકનો પિનકોડ દાખલ કરો" : "Enter 6-digit Pincode"}
-                        className="h-9 text-xs rounded-xl bg-muted/30 pr-8"
-                      />
-                      {pincode && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPincode("")
-                            setPincodeStatus(null)
-                            setDeliveryEstimate(null)
-                          }}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs p-1 cursor-pointer"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => checkPincodeDelivery(pincode)}
-                      className="h-9 px-4 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-xs shadow-xs cursor-pointer shrink-0"
-                    >
-                      {currentLang === "gu" ? "ચકાસો" : "Check"}
-                    </Button>
-                  </div>
-
-                  {/* Successful Estimate Result Box */}
-                  {pincodeStatus === "valid" && deliveryEstimate && (
-                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between gap-2 text-xs animate-in fade-in duration-200">
-                      <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
-                        <span>
-                          {currentLang === "gu"
-                            ? `અપેક્ષિત ડિલિવરી: ${deliveryEstimate.gu} સુધીમાં`
-                            : `Expected Delivery: By ${deliveryEstimate.en}`}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-muted-foreground hidden sm:inline">
-                        {currentLang === "gu" ? "અભિમંત્રિત સુરક્ષિત પેકિંગ" : "Consecrated Sealed Box"}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Invalid Pincode Error Notice */}
-                  {pincodeStatus === "invalid" && (
-                    <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-                      {currentLang === "gu"
-                        ? "કૃપા કરીને માન્ય ૬ અંકનો ભારતીય પિનકોડ દાખલ કરો."
-                        : "Please enter a valid 6-digit Indian postal pincode."}
-                    </p>
-                  )}
-                </div>
               </div>
 
               {/* Available Variants Selector with Full Bead Specifications */}
@@ -1227,84 +1135,6 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                 </div>
               )}
 
-              {/* Vedic Personalized Sankalp Certificate Box (Clean & Streamlined) */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border/80 flex flex-col gap-3">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <Checkbox
-                    checked={sankalpOpted}
-                    onCheckedChange={(c) => setSankalpOpted(!!c)}
-                    className="mt-0.5 data-[state=checked]:bg-[#00685d] data-[state=checked]:border-[#00685d]"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-xs sm:text-sm font-bold text-foreground leading-snug">
-                      {currentLang === "gu"
-                        ? "મારા નામ અને ગોત્ર સાથે પૂજા સંકલ્પ પત્રિકા સામેલ કરો (મફત સુવિધા)"
-                        : "Include Consecrated Sankalp Certificate in my name & gotra (Free)"}
-                    </span>
-                    <span className="text-xs text-muted-foreground mt-0.5">
-                      {currentLang === "gu"
-                        ? "ડૉ. વિશાલ મોદી અને આચાર્યો દ્વારા આપના નામ-ગોત્ર સાથે અભિમંત્રિત કરી મોકલાશે."
-                        : "Energized in your personal name and gotra by learned Acharyas before dispatch."}
-                    </span>
-                  </div>
-                </label>
-
-                {sankalpOpted && (
-                  <div className="flex flex-col gap-2.5 pt-1">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-bold uppercase text-muted-foreground">
-                          {currentLang === "gu" ? "યજમાનનું નામ" : "Devotee Full Name"}
-                        </span>
-                        <Input
-                          value={devoteeName}
-                          onChange={(e) => setDevoteeName(e.target.value)}
-                          placeholder={currentLang === "gu" ? "દા.ત. રોહિતભાઈ પારેખ" : "e.g. Rohit Parekh"}
-                          className="h-9 text-xs rounded-xl bg-card"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-bold uppercase text-muted-foreground">
-                          {currentLang === "gu" ? "ગોત્ર (વૈકલ્પિક)" : "Gotra (Optional)"}
-                        </span>
-                        <Input
-                          value={gotraName}
-                          onChange={(e) => setGotraName(e.target.value)}
-                          placeholder={currentLang === "gu" ? "દા.ત. કશ્યપ ગોત્ર (અથવા ખાલી રાખો)" : "e.g. Kashyap Gotra (or leave blank)"}
-                          className="h-9 text-xs rounded-xl bg-card"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Unobtrusive Gotra Helper */}
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const defaultGotra = currentLang === "gu" ? "કશ્યપ" : "Kashyap"
-                          setGotraName(defaultGotra)
-                          toast.info(
-                            currentLang === "gu"
-                              ? "શાસ્ત્રોક્ત નિયમ અનુસાર આપમેળે 'કશ્યપ ગોત્ર' પસંદ થયેલ છે."
-                              : "Automatically set to 'Kashyap Gotra' according to Vedic traditions."
-                          )
-                        }}
-                        className="text-[#00685d] dark:text-[#fdc72d] hover:underline font-semibold cursor-pointer flex items-center gap-1"
-                      >
-                        <HelpCircle className="h-3 w-3" />
-                        <span>{currentLang === "gu" ? "ગોત્ર ખબર નથી? કશ્યપ ગોત્ર લાગુ કરો" : "Don't know Gotra? Apply Kashyap Gotra"}</span>
-                      </button>
-
-                      <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                        {currentLang === "gu"
-                          ? "(ખાલી રાખશો તો પણ આપમેળે 'કશ્યપ ગોત્ર' થી પૂજિત થશે)"
-                          : "(If blank, Vedic default Kashyap Gotra is applied)"}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Quantity Stepper & Main Action Buttons */}
               <div className="flex flex-col gap-3 pt-1">
                 {/* Responsive Action Grid: Never crowds on tablets (768px-1024px) or mobile */}
@@ -1374,7 +1204,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
               <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs text-muted-foreground pt-1">
                 <span className="flex items-center gap-1.5 font-medium">
                   <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
-                  <span>{currentLang === "gu" ? "૧૦૦% અસલ નેપાળી ખાતરી" : "100% Authentic Nepali"}</span>
+                  <span>{currentLang === "gu" ? "૧૦૦% પ્રમાણિત ખાતરી" : "100% Authenticity Guarantee"}</span>
                 </span>
                 <span className="text-border">•</span>
                 <span className="flex items-center gap-1.5 font-medium">
@@ -1446,7 +1276,14 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                       shortLabel: currentLang === "gu" ? "પ્રશ્નોત્તરી" : "FAQs",
                       fullLabel: currentLang === "gu" ? "પ્રશ્નોત્તરી (FAQs)" : "FAQs"
                     },
-                  ].map((tab, idx) => {
+                  ]
+                    // The certificate and specification tabs describe rudraksha beads; FAQs only exist when entered in the admin.
+                    .filter((tab) => {
+                      if (tab.id === "labcert" || tab.id === "specs") return ["rudraksha", "malas"].includes(product.category)
+                      if (tab.id === "faqs") return product.faqs?.length > 0
+                      return true
+                    })
+                    .map((tab, idx) => {
                     const isActive = activeTab === tab.id
                     return (
                       <button
@@ -1884,8 +1721,8 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         </td>
                         <td className="p-3.5 sm:p-4 text-muted-foreground">
                           {currentLang === "gu"
-                            ? "ગંગોત્રી ગંગાજળ શીશી, શુદ્ધ ચંદન, વૈદિક સંકલ્પ પત્રિકા અને સુરક્ષિત લાકડાની ભેટ બોક્સ"
-                            : "Gangotri holy water vial, sacred Chandan, Vedic Sankalp certificate & gift box"}
+                            ? "ગંગોત્રી ગંગાજળ શીશી, શુદ્ધ ચંદન અને સુરક્ષિત લાકડાની ભેટ બોક્સ"
+                            : "Gangotri holy water vial, sacred Chandan & gift box"}
                         </td>
                       </tr>
                     </tbody>
@@ -1919,164 +1756,58 @@ export default function ProductDetailClient({ productId, initialBundle }) {
             )}
           </div>
 
-          {/* DEDICATED DEVOTEE FEEDBACK & REVIEWS SECTION (Reference: temp-product-details-2.html) */}
-          <section className="mt-14 sm:mt-18 p-6 sm:p-8 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-6 sm:gap-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <span className="text-xs font-bold text-[#00685d] dark:text-[#fdc72d] tracking-wider uppercase">
-                  {currentLang === "gu" ? "પ્રમાણિત અનુભવો • ૧૦૦% સાચો પ્રતિસાદ" : "Verified Experiences • 100% Authentic Feedback"}
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mt-1">
-                  {currentLang === "gu" ? "ભક્તોના આશીર્વાદ અને સાચા પ્રતિસાદ" : "Devotee Blessings & Authentic Feedback"}
+          {/* Customer reviews: only real ones from the API are shown (none are invented) */}
+          {product.reviews?.length > 0 && (
+            <section className="mt-14 sm:mt-18 p-6 sm:p-8 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground">
+                  {currentLang === "gu" ? "ગ્રાહકોના પ્રતિભાવ" : "Customer Reviews"}
                 </h2>
-              </div>
-              <Button
-                variant="outline"
-                className="rounded-xl font-bold text-xs self-start md:self-auto gap-2 border-border"
-                onClick={() => toast.success(currentLang === "gu" ? "તમારો અનુભવ શેર કરવા બદલ આભાર! સમીક્ષા ફોર્મ ટૂંક સમયમાં ખુલશે." : "Thank you! Review submission form will open shortly.")}
-              >
-                <Star className="h-4 w-4 text-[#fdc72d] fill-current" />
-                <span>{currentLang === "gu" ? "તમારો પ્રતિસાદ લખો" : "Write a Review"}</span>
-              </Button>
-            </div>
-
-            {/* Rating Breakdown Bento */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-              {/* Big Score Card */}
-              <div className="lg:col-span-4 p-6 rounded-2xl bg-muted/40 border border-border/80 flex flex-col items-center justify-center text-center">
-                <div className="text-5xl font-black text-[#00685d] dark:text-[#fdc72d] leading-none mb-2">
-                  {toDigits(product.rating || 4.9)}
-                </div>
-                <div className="flex text-[#fdc72d] mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-current" />
-                  ))}
-                </div>
-                <span className="text-xs text-muted-foreground font-medium">
-                  {currentLang === "gu"
-                    ? `${toDigits(product.reviewsCount || 142)} ચકાસાયેલ ગ્રાહકો દ્વારા ૫ માંથી રેટિંગ`
-                    : `Rated out of 5 by ${product.reviewsCount || 142} verified devotees`}
-                </span>
-                <span className="mt-3 text-[11px] font-bold bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/10 dark:text-[#fdc72d] px-3 py-1 rounded-full">
-                  {currentLang === "gu" ? "૯૮% ભક્તો અન્યોને ભલામણ કરે છે" : "98% Devotees recommend this item"}
-                </span>
-              </div>
-
-              {/* Progress Bars */}
-              <div className="lg:col-span-8 p-6 rounded-2xl bg-muted/40 border border-border/80 flex flex-col justify-center gap-2.5">
-                {[
-                  { star: currentLang === "gu" ? "૫ સ્ટાર" : "5 Star", pct: 92, label: currentLang === "gu" ? "૯૨%" : "92%" },
-                  { star: currentLang === "gu" ? "૪ સ્ટાર" : "4 Star", pct: 6, label: currentLang === "gu" ? "૬%" : "6%" },
-                  { star: currentLang === "gu" ? "૩ સ્ટાર" : "3 Star", pct: 1.5, label: currentLang === "gu" ? "૧.૫%" : "1.5%" },
-                  { star: currentLang === "gu" ? "૨ સ્ટાર" : "2 Star", pct: 0.3, label: currentLang === "gu" ? "૦.૩%" : "0.3%" },
-                  { star: currentLang === "gu" ? "૧ સ્ટાર" : "1 Star", pct: 0.2, label: currentLang === "gu" ? "૦.૨%" : "0.2%" },
-                ].map((row, idx) => (
-                  <div key={idx} className="flex items-center gap-3 text-xs">
-                    <span className="w-14 font-semibold text-foreground">{row.star}</span>
-                    <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
-                      <div
-                        className="bg-[#00685d] dark:bg-[#fdc72d] h-full rounded-full transition-all"
-                        style={{ width: `${row.pct}%` }}
-                      />
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl font-black text-[#00685d] dark:text-[#fdc72d] leading-none">
+                    {toDigits(product.rating)}
+                  </span>
+                  <div className="flex flex-col">
+                    <div className="flex text-[#fdc72d]">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`h-4 w-4 ${i < Math.round(product.rating) ? "fill-current" : ""}`} />
+                      ))}
                     </div>
-                    <span className="w-10 text-right font-bold text-muted-foreground">{row.label}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {currentLang === "gu"
+                        ? `${toDigits(product.reviewsCount)} સમીક્ષાઓ`
+                        : `${product.reviewsCount} reviews`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+                {product.reviews.map((rev, idx) => (
+                  <div
+                    key={idx}
+                    className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col justify-between gap-4"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex text-[#fdc72d]">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`h-3.5 w-3.5 ${i < (rev.rating || 5) ? "fill-current" : ""}`} />
+                          ))}
+                        </div>
+                        {rev.date && <span className="text-[11px] text-muted-foreground">{rev.date}</span>}
+                      </div>
+                      {rev.title && <h4 className="font-bold text-sm text-foreground leading-snug">{rev.title}</h4>}
+                      <p className="text-xs text-muted-foreground leading-relaxed">&ldquo;{rev.comment}&rdquo;</p>
+                    </div>
+                    {rev.name && (
+                      <div className="pt-2 border-t border-border/50 text-xs font-bold text-foreground">{rev.name}</div>
+                    )}
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Devotee Review Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-              {(currentLang === "gu"
-                ? [
-                    {
-                      name: "રોહિતભાઈ પારેખ",
-                      location: "બોડકદેવ, અમદાવાદ",
-                      date: "૨ દિવસ પહેલા",
-                      title: "અદ્ભુત દૈવીય સ્પંદન અને અસલી ગુણવત્તા!",
-                      comment: "મેં મારા પિતાજી માટે મંગાવી હતી. પાર્સલ ખોલતા જ ચંદન અને કપૂરની સુગંધથી મન પ્રફુલ્લિત થઈ ગયું. લેબ સર્ટિફિકેટ પણ સાથે મળ્યું. ડૉ. વિશાલ મોદી અને સમગ્ર ટીમને ખૂબ ખૂબ સાધુવાદ.",
-                      initial: "રો"
-                    },
-                    {
-                      name: "મીનાક્ષીબેન સોની",
-                      location: "અડાજણ, સુરત",
-                      date: "૧ અઠવાડિયા પહેલા",
-                      title: "મારા નામે સંકલ્પ સાથે પૂજા કરી આપી",
-                      comment: "મેં ઓર્ડર કરતી વખતે ગોત્ર અને નામ લખ્યું હતું, પૂજાનું વિધિવત સર્ટિફિકેટ સાથે મળ્યું. ધારણ કર્યા પછી માનસિક ચિંતાઓમાં ભારે રાહત અનુભવાય છે. સામગ્રી એકદમ મજબૂત અને નેચરલ છે.",
-                      initial: "મી"
-                    },
-                    {
-                      name: "હર્ષદભાઈ ત્રિવેદી",
-                      location: "વડોદરા",
-                      date: "૨ અઠવાડિયા પહેલા",
-                      title: "પેકિંગ અને ગંગાજળ ભેટ અત્યંત સુંદર",
-                      comment: "સુરક્ષિત પેકિંગમાં આવી. સાથે જે ગંગોત્રી ગંગાજળની નાની બોટલ અને અયોધ્યા ચંદન આપ્યું તે ખૂબ જ પવિત્ર છે. બજારમાં મળતી નકલી વસ્તુઓ કરતાં આ ૧૦૦ ગણી શ્રેષ્ઠ અને અધિકૃત છે.",
-                      initial: "હ"
-                    }
-                  ]
-                : [
-                    {
-                      name: "Rohit Parekh",
-                      location: "Bodakdev, Ahmedabad",
-                      date: "2 days ago",
-                      title: "Divine energy and authentic Nepali quality!",
-                      comment: "Ordered this sacred mala for my father. As soon as I opened the consecrated package, the subtle aroma of pure sandalwood and camphor brought instant peace. Govt. Lab Certificate was included. Deep gratitude to Dr. Vishal Modi and the team.",
-                      initial: "R"
-                    },
-                    {
-                      name: "Meenakshi Soni",
-                      location: "Adajan, Surat",
-                      date: "1 week ago",
-                      title: "Consecrated with my personal name and gotra",
-                      comment: "I provided my name and Gotra during checkout, and received the official Sankalp Puja Certificate. Wearing it daily has brought profound calmness to my mind and improved focus. Truly authentic natural beads.",
-                      initial: "M"
-                    },
-                    {
-                      name: "Harshad Trivedi",
-                      location: "Vadodara",
-                      date: "2 weeks ago",
-                      title: "Pristine packaging & complimentary Gangajal vial",
-                      comment: "Arrived in tamper-proof sacred packaging. The complementary holy Gangajal vial and consecrated Chandan were such a thoughtful blessing. Infinitely superior and more authentic than commercial market items.",
-                      initial: "H"
-                    }
-                  ]
-              ).map((rev, idx) => (
-                <div
-                  key={idx}
-                  className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col justify-between gap-4"
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex text-[#fdc72d]">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                        ))}
-                      </div>
-                      <span className="text-[11px] text-muted-foreground">{rev.date}</span>
-                    </div>
-                    <h4 className="font-bold text-sm text-foreground leading-snug">
-                      {rev.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      "{rev.comment}"
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-2 border-t border-border/50">
-                    <div className="w-9 h-9 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center shrink-0">
-                      {rev.initial}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-foreground leading-none">{rev.name}</span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 mt-1">
-                        <CheckCircle2 className="h-3 w-3" /> {currentLang === "gu" ? "પ્રમાણિત ખરીદનાર" : "Verified Buyer"} • {rev.location}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Related / Recommended Products Section */}
           {relatedProducts.length > 0 && (

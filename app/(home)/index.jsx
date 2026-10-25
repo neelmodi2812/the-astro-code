@@ -16,6 +16,8 @@ import { SpiritualStoreShowcase } from "@/components/spiritual-store-showcase"
 import { OurServicesSection } from "@/components/our-services-section"
 
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
+import { useCategorySections } from "@/lib/api/hooks/use-nav-menu"
+import { adaptHeroStory } from "@/lib/api/adapters/home"
 import { useLanguage } from "@/components/language-provider"
 import { toast } from "@/components/ui/sonner"
 
@@ -23,6 +25,7 @@ export default function HomeClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
   const data = useHomeData(lang)
+  const categorySections = useCategorySections(lang)
 
   const [activeCategory, setActiveCategory] = React.useState("home")
   const [activeFilter, setActiveFilter] = React.useState(null)
@@ -63,27 +66,20 @@ export default function HomeClient() {
     router.push(`/article/${targetId}`)
   }
 
-  // Filter hero stories if a filter is active
+  // A category pill shows that category's own latest articles; no pill shows the featured hero stories.
   const displayedHeroStories = React.useMemo(() => {
     if (!activeFilter) return data.heroStories
-    const filterLabel = data.categories.find((c) => c.id === activeFilter)?.label
-    if (!filterLabel) return data.heroStories
-    const filtered = data.heroStories.filter(
-      (s) => s.tag.toLowerCase().includes(filterLabel.toLowerCase()) || s.title.toLowerCase().includes(filterLabel.toLowerCase())
-    )
-    return filtered.length > 0 ? filtered : data.heroStories
-  }, [data.heroStories, activeFilter, data.categories])
+    const section = categorySections?.find((sec) => sec.category.slug === activeFilter)
+    if (!section) return data.heroStories
+    return section.articles.slice(0, 4).map((a) => adaptHeroStory(a, lang))
+  }, [data.heroStories, activeFilter, categorySections, lang])
 
+  // Sub-heading follows the selected category pill instead of always naming one category
   const currentCategoryTitle = React.useMemo(() => {
-    if (activeCategory === "home") {
-      return lang === "gu" ? "શ્રી બહુચર માં નું રજવાડું & મુખ્ય સમાચારો" : "Shri Bahuchar Maa Rajwadu & Featured Articles"
-    }
-    if (activeCategory === "bahuchar-maa-rajwadu") {
-      return lang === "gu" ? "શ્રી બહુચર માં નું રજવાડું" : "Shri Bahuchar Maa Rajwadu"
-    }
-    const navMatch = data.navLinks.find((n) => n.id === activeCategory)
-    return navMatch ? navMatch.label : (lang === "gu" ? "શ્રી બહુચર માં નું રજવાડું" : "Shri Bahuchar Maa Rajwadu")
-  }, [activeCategory, data.navLinks, lang])
+    const filter = activeFilter && data.categories.find((c) => c.id === activeFilter)
+    if (filter) return filter.label
+    return lang === "gu" ? "મુખ્ય લેખો અને સમાચારો" : "Featured Articles & Latest News"
+  }, [activeFilter, data.categories, lang])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
@@ -103,19 +99,19 @@ export default function HomeClient() {
         {/* 2. Live Panchang & Breaking News Strip (Commented out as requested) */}
         {/* <LiveTicker ticker={data.ticker} /> */}
 
-        {/* 3. Vedic Astrological Portal Hero Section (Version 1 - Commented out) */}
-        {/* 
+        {/* 3. Vedic Astrological Portal Hero Section (Version 1) */}
         <VedicPortalHero
           panchang={data.panchang}
           founder={data.config?.founder}
         />
-        */}
 
-        {/* 3. Mystical Temple Sunset & Zodiac Meditation Hero Section */}
+        {/* 3. Mystical Temple Sunset & Zodiac Meditation Hero Section (Version 2 - Inactive) */}
+        {/*
         <MysticalTempleHero
           panchang={data.panchang}
           founder={data.config?.founder}
         />
+        */}
 
         {/* 4. Breadcrumb & Category Filter Pills */}
         <CategoryBar

@@ -220,10 +220,69 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     return String(num).replace(/[0-9]/g, (d) => guDigits[d])
   }
 
-  // Related stories filtered to exclude current article
+  // The article's own related articles when the API provides them, else home hero stories (minus this one)
   const relatedStories = React.useMemo(() => {
+    if (article.related?.length) {
+      return article.related.slice(0, 3).map((r) => ({
+        id: r.id,
+        image: r.image,
+        title: r.title?.[lang] ?? r.title?.gu ?? "",
+        tag: r.tag?.[lang] ?? r.tag?.gu ?? "",
+        date: r.date?.[lang] ?? r.date?.gu ?? "",
+      }))
+    }
     return data.heroStories.filter((s) => s.id !== articleId).slice(0, 3)
-  }, [data.heroStories, articleId])
+  }, [article.related, data.heroStories, articleId, lang])
+
+  // Determine current active navigation category based on article data
+  const currentCategoryNavId = React.useMemo(() => {
+    const rawId = String(articleId || "").toLowerCase()
+    const rawSlug = String(article?.slug || "").toLowerCase()
+    const catGu = String(article?.category?.gu || "").toLowerCase()
+    const catEn = String(article?.category?.en || "").toLowerCase()
+
+    if (
+      rawId.startsWith("jyotirling") ||
+      rawSlug.includes("jyotirling") ||
+      rawSlug.includes("somnath") ||
+      rawSlug.includes("mahakal") ||
+      rawSlug.includes("dwarka") ||
+      catGu.includes("જ્યોતિર્લિંગ") ||
+      catEn.includes("jyotirling")
+    ) {
+      return "jyotirling"
+    }
+
+    if (
+      rawId.startsWith("feat") ||
+      rawSlug.includes("anand-no-garbo") ||
+      rawSlug.includes("bhakto") ||
+      catGu.includes("ધાર્મિક") ||
+      catEn.includes("dharmik")
+    ) {
+      return "dharmik"
+    }
+
+    if (
+      rawSlug.includes("kaal-sarp") ||
+      rawSlug.includes("kundli") ||
+      catGu.includes("જ્યોતિષ") ||
+      catEn.includes("astrology")
+    ) {
+      return "jyotishshastra"
+    }
+
+    if (
+      rawSlug.includes("moolank") ||
+      rawSlug.includes("numerology") ||
+      catGu.includes("અંક") ||
+      catEn.includes("numerology")
+    ) {
+      return "ankashastra"
+    }
+
+    return "bahuchar-maa-rajwadu"
+  }, [articleId, article])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
@@ -232,7 +291,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
         config={data.config}
         topBar={data.topBar}
         navLinks={data.navLinks}
-        activeCategory="bahuchar-maa-rajwadu"
+        activeCategory={currentCategoryNavId}
         lang={lang}
         onToggleLang={handleToggleLang}
       />
@@ -1014,34 +1073,67 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 3: 1-ON-1 ASTROLOGICAL CONSULTATION CTA CARD */}
-            <div className="relative bg-gradient-to-br from-[#1b1c1a] to-[#243532] text-white rounded-2xl p-5 shadow-lg overflow-hidden flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <span className="bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black px-2 py-0.5 rounded">
+            <div className="relative bg-gradient-to-br from-[#1b1c1a] via-[#1f2a27] to-[#243532] text-white rounded-3xl p-5 sm:p-6 shadow-xl ring-1 ring-[#fdc72d]/20 overflow-hidden flex flex-col gap-4">
+              {/* Decorative golden glow + yantra ring */}
+              <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-[#fdc72d]/20 blur-3xl" />
+              <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 h-40 w-40 rounded-full bg-[#008d7f]/20 blur-3xl" />
+              <Sparkles aria-hidden className="pointer-events-none absolute top-4 right-4 h-16 w-16 text-[#fdc72d]/10" />
+
+              <div className="relative flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full">
+                  <Sparkles className="h-3 w-3" />
                   {lang === "gu" ? "વન-ટુ-વન માર્ગદર્શન" : "1-on-1 Guidance"}
                 </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  {lang === "gu" ? "ઉપલબ્ધ" : "Available"}
+                </span>
               </div>
-              <h3 className="font-extrabold text-base text-[#fdc72d] leading-snug">
-                {lang === "gu" ? "જીવનની સમસ્યાઓનું જ્યોતિષીય સમાધાન મેળવો" : "Get Vedic Astrological Solutions for Life Challenges"}
-              </h3>
-              <p className="text-xs text-white/80 leading-relaxed">
-                {lang === "gu"
-                  ? "ડૉ. વિશાલ મોદી સાથે જન્મકુંડળી વિશ્લેષણ, કારકિર્દી, લગ્ન અને વ્યવસાય માટે વ્યક્તિગત પરામર્શ મેળવો."
-                  : "Book personalized Kundali reading for career, marriage, health and business with Dr. Vishal Modi."}
-              </p>
-              <div className="flex flex-col gap-2 mt-1">
+
+              <div className="relative flex flex-col gap-2">
+                <h3 className="font-extrabold text-lg sm:text-xl text-[#fdc72d] leading-snug">
+                  {lang === "gu" ? "જીવનની સમસ્યાઓનું જ્યોતિષીય સમાધાન મેળવો" : "Get Vedic Astrological Solutions for Life Challenges"}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-white/75 leading-relaxed">
+                  {lang === "gu"
+                    ? "ડૉ. વિશાલ મોદી સાથે જન્મકુંડળી વિશ્લેષણ, કારકિર્દી, લગ્ન અને વ્યવસાય માટે વ્યક્તિગત પરામર્શ મેળવો."
+                    : "Book personalized Kundali reading for career, marriage, health and business with Dr. Vishal Modi."}
+                </p>
+              </div>
+
+              <ul className="relative flex flex-col gap-1.5 rounded-2xl bg-white/5 border border-white/10 p-3">
+                {(lang === "gu"
+                  ? ["જન્મકુંડળી અને ગ્રહ દોષ વિશ્લેષણ", "કારકિર્દી, લગ્ન અને આરોગ્ય માર્ગદર્શન", "સરળ ઉપાય અને રત્ન સલાહ"]
+                  : ["Kundali & planetary dosha analysis", "Career, marriage & health guidance", "Practical remedies & gemstone advice"]
+                ).map((point) => (
+                  <li key={point} className="flex items-start gap-2 text-xs text-white/85">
+                    <Check className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#fdc72d]" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="relative flex flex-col gap-2.5">
                 <Button
-                  onClick={() => showToast(lang === "gu" ? "પરામર્શ સ્લોટ પસંદ કરો..." : "Opening consultation calendar...")}
-                  className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs py-2 rounded-xl"
+                  onClick={() => router.push("/contact-us")}
+                  className="group w-full h-11 bg-gradient-to-r from-[#fdc72d] to-[#f0b400] hover:from-[#ffd24d] hover:to-[#fdc72d] text-[#1b1c1a] font-extrabold text-sm rounded-xl shadow-[0_6px_20px_-6px_rgba(253,199,45,0.6)] transition-all"
                 >
+                  <Award className="h-4 w-4 mr-1.5" />
                   {data.consultation.bookButton}
+                  <ChevronRight className="h-4 w-4 ml-auto transition-transform group-hover:translate-x-0.5" />
                 </Button>
                 <Button
                   onClick={() => window.open(data.config.founder.whatsappUrl, "_blank")}
-                  className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs py-2 rounded-xl"
+                  className="w-full h-11 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-sm rounded-xl shadow-[0_6px_20px_-8px_rgba(37,211,102,0.7)] transition-all"
                 >
-                  <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                  <MessageCircle className="h-4 w-4 mr-1.5" />
                   {data.consultation.whatsappButton}
                 </Button>
+              </div>
+
+              <div className="relative flex items-center justify-center gap-1.5 text-[10px] text-white/55">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]/80" />
+                {lang === "gu" ? "૧૦૦% ગોપનીય • પ્રમાણિત જ્યોતિષાચાર્ય" : "100% confidential • Verified astrologer"}
               </div>
             </div>
 
@@ -1065,7 +1157,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   <div
                     key={prod.id}
                     className="flex items-center gap-3 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
-                    onClick={() => showToast(lang === "gu" ? `પસંદ કર્યો: ${prod.name}` : `Selected: ${prod.name}`)}
+                    onClick={() => router.push(`/myshop/product/${prod.id}`)}
                   >
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
                       <Image

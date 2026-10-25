@@ -212,7 +212,7 @@ export function MysticalTempleHero({ panchang = {}, founder = {}, onBookConsulta
   ]
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#0c1322] text-white min-h-[460px] sm:min-h-[500px] lg:min-h-[540px] flex items-center shadow-lg transition-colors">
+    <section className="relative w-full overflow-hidden bg-[#0c121e] text-white min-h-[500px] lg:min-h-[560px] flex items-center shadow-xl transition-colors">
 
       {/* 1. PANORAMIC BACKGROUND ARTWORK: Mystical Temple Sunset & Zodiac Meditation */}
       <div className="absolute inset-0 z-0">
@@ -222,99 +222,118 @@ export function MysticalTempleHero({ panchang = {}, founder = {}, onBookConsulta
           className="w-full h-full object-cover object-right md:object-[center_right] select-none"
         />
 
-        {/* Soft, Transparent Atmospheric Overlay: Keeps left mountains and landscape clearly visible with zero lines */}
+        {/* Dynamic Multi-layered Atmospheric Overlay: Warm Sunrise Gold + Radiant Light */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "linear-gradient(to right, rgba(7, 12, 20, 0.52) 0%, rgba(7, 12, 20, 0.35) 25%, rgba(7, 12, 20, 0.35) 48%, rgba(7, 12, 20, 0.35) 70%, rgba(7, 12, 20, 0.35) 100%)"
+              "linear-gradient(to right, rgba(12, 16, 24, 0.72) 0%, rgba(15, 18, 28, 0.50) 38%, rgba(15, 18, 28, 0.20) 70%, rgba(12, 16, 24, 0.15) 100%)"
+          }}
+        />
+
+        {/* Celestial Warm Golden Sunlight Halo on Left */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at 20% 35%, rgba(253, 199, 45, 0.16) 0%, rgba(255, 150, 0, 0.08) 35%, transparent 65%)"
           }}
         />
       </div>
 
-      {/* 2. FOREGROUND CONTENT: Clean, Elegant, Crisp Vedic Portal Elements */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-        <div className="max-w-2xl flex flex-col space-y-5 text-left">
+      {/* 2. FOREGROUND CONTENT: Luxurious Frosted Glass Sanctum Card */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-14">
+        <div className="max-w-2xl">
 
-          {/* Eyebrow: Exact Golden Lotus + Sacred Shlok matching Image 1 */}
-          <div className="inline-flex items-center gap-2.5 self-start text-xs sm:text-[13px] font-bold tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
-            <SacredLotusIcon className="h-5 w-5 text-[#fdc72d] shrink-0" />
-            <span className="text-[#fdc72d] font-black text-sm">॥</span>
-            <span className="text-white tracking-[0.14em] font-extrabold text-xs sm:text-[13px]">
-              {isEn ? "SHREE GANESHAY NAMAH" : "શ્રી ગણેશાય નમઃ"}
-            </span>
-            <span className="text-[#fdc72d] font-black text-sm">॥</span>
-          </div>
+          {/* Frosted Glass Sanctum Container — Ensures 100% Contrast & Legibility */}
+          <div className="relative rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 backdrop-blur-xl bg-black/40 sm:bg-black/35 border border-white/20 sm:border-[#fdc72d]/30 shadow-[0_20px_50px_rgba(0,0,0,0.55)] ring-1 ring-white/10 flex flex-col space-y-4 sm:space-y-5 text-left">
 
-          {/* Majestic Hero Headline (Geist Sans Typography with Golden Accent) */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[45px] font-extrabold tracking-tight leading-[1.18] drop-shadow-[0_2px_14px_rgba(0,0,0,0.85)]">
-            <span className="text-[#ffffff] block">
-              {t.titlePrefix}
-            </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffd976] via-[#fdc72d] to-[#f4b400] drop-shadow-[0_2px_10px_rgba(253,199,45,0.3)]">
-              {t.titleSuffix}
-            </span>
-          </h1>
+            {/* Sacred Eyebrow Pill */}
+            <div className="inline-flex items-center gap-2 self-start px-3 py-1 rounded-full bg-[#fdc72d]/15 border border-[#fdc72d]/40 text-xs sm:text-[13px] font-bold tracking-widest uppercase shadow-sm">
+              <SacredLotusIcon className="h-4 w-4 text-[#fdc72d] shrink-0 animate-pulse" />
+              <span className="text-[#fdc72d] font-black text-xs">॥</span>
+              <span className="text-[#ffd976] tracking-[0.14em] font-extrabold text-[11px] sm:text-xs">
+                {isEn ? "SHREE GANESHAY NAMAH" : "શ્રી ગણેશાય નમઃ"}
+              </span>
+              <span className="text-[#fdc72d] font-black text-xs">॥</span>
+            </div>
 
-          {/* Subtitle / Description */}
-          <p className="text-sm sm:text-base md:text-lg text-neutral-100/95 max-w-xl leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] font-medium">
-            {t.description}
-          </p>
+            {/* Majestic Hero Headline (Bilingual & High Contrast) */}
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-extrabold tracking-tight leading-[1.2] drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+              <span className="text-white block">
+                {t.titlePrefix}
+              </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffe082] via-[#fdc72d] to-[#f4b400] drop-shadow-[0_2px_14px_rgba(253,199,45,0.4)]">
+                {t.titleSuffix}
+              </span>
+            </h1>
 
-          {/* The 2 Primary Action Buttons Side-by-Side */}
-          <div className="flex flex-wrap items-center gap-3.5 pt-1">
-            {/* 1. Book Consultation (Solid Saffron Button) */}
-            <button
-              type="button"
-              onClick={handleConsultation}
-              className="relative group overflow-hidden inline-flex items-center justify-center gap-2.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-black text-sm sm:text-base px-6 sm:px-7 py-3 rounded-full sm:rounded-xl shadow-[0_8px_24px_rgba(253,199,45,0.35)] active:scale-95 transition-all cursor-pointer border border-[#f5b81a]"
-            >
-              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-[#1b1c1a]" />
-              <span>{t.bookConsultCta}</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              <span className="absolute top-0 -left-[100%] w-full h-full bg-white/35 skew-x-12 group-hover:left-[100%] transition-all duration-700 pointer-events-none" />
-            </button>
+            {/* Subtitle / Description */}
+            <p className="text-xs sm:text-sm md:text-base text-neutral-200 leading-relaxed font-normal">
+              {t.description}
+            </p>
 
-            {/* 2. Kundali Analysis (Translucent Glassmorphic Button with Golden Border) */}
-            <Link
-              href="/dashboard/kundli"
-              className="group inline-flex items-center justify-center gap-2.5 bg-black/45 hover:bg-black/65 backdrop-blur-md border border-[#fdc72d]/70 hover:border-[#fdc72d] text-white font-bold text-sm sm:text-base px-5 sm:px-6 py-3 rounded-full sm:rounded-xl shadow-md active:scale-95 transition-all cursor-pointer"
-            >
-              <SacredYantraIcon className="h-4 w-4 sm:h-5 sm:w-5 text-[#fdc72d]" />
-              <span>{t.kundaliCta}</span>
-              <ArrowRight className="h-4 w-4 text-[#fdc72d] transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
+            {/* The 2 Primary Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              {/* 1. Book Consultation (Solid Saffron Gradient Button) */}
+              <button
+                type="button"
+                onClick={handleConsultation}
+                className="relative group overflow-hidden inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#ffd447] via-[#fdc72d] to-[#f4b400] hover:from-[#ffe066] hover:to-[#e6a800] text-[#1b1c1a] font-extrabold text-xs sm:text-sm md:text-base px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(253,199,45,0.45)] hover:shadow-[0_6px_28px_rgba(253,199,45,0.65)] active:scale-95 transition-all cursor-pointer border border-[#f5b81a]"
+              >
+                <Calendar className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-[#1b1c1a]" />
+                <span>{t.bookConsultCta}</span>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <span className="absolute top-0 -left-[100%] w-full h-full bg-white/40 skew-x-12 group-hover:left-[100%] transition-all duration-700 pointer-events-none" />
+              </button>
 
-          {/* 5 Circular Golden Quick Services Strip */}
-          <div className="pt-4 flex flex-wrap items-center gap-3 sm:gap-4 md:gap-5 border-t border-white/15">
-            {quickServices.map((svc) => {
-              const Icon = svc.icon
-              const content = (
-                <div className="flex items-center gap-2.5 group cursor-pointer transition-transform hover:-translate-y-0.5">
-                  <div className="w-10 h-10 rounded-full border border-[#fdc72d]/70 group-hover:border-[#fdc72d] bg-black/50 backdrop-blur-md flex items-center justify-center text-[#fdc72d] shadow-sm group-hover:scale-108 group-hover:bg-[#fdc72d]/15 transition-all">
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
-                  <span className="text-[11px] sm:text-xs font-bold text-neutral-100 group-hover:text-[#fdc72d] leading-tight whitespace-pre-line drop-shadow-sm transition-colors">
-                    {svc.label}
-                  </span>
-                </div>
-              )
+              {/* 2. Kundali Analysis (High-Contrast Luminous Glass Button) */}
+              <Link
+                href="/dashboard/kundli"
+                className="group inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-[#fdc72d]/70 hover:border-[#fdc72d] text-white hover:text-[#ffd976] font-bold text-xs sm:text-sm md:text-base px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer"
+              >
+                <SacredYantraIcon className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-[#fdc72d]" />
+                <span>{t.kundaliCta}</span>
+                <ArrowRight className="h-4 w-4 text-[#fdc72d] transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
 
-              if (svc.onClick) {
-                return (
-                  <button key={svc.id} type="button" onClick={svc.onClick} className="text-left">
-                    {content}
-                  </button>
-                )
-              }
+            {/* 5 Quick Services Strip — Sleek Glass Capsules */}
+            <div className="pt-3 border-t border-white/15">
+              <div className="text-[11px] uppercase tracking-wider font-bold text-[#ffd976]/90 mb-2.5">
+                {isEn ? "Quick Vedic Consultations & Guidance:" : "ઝડપી જ્યોતિષ સેવાઓ અને પરામર્શ:"}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap items-center gap-2 sm:gap-2.5">
+                {quickServices.map((svc) => {
+                  const Icon = svc.icon
+                  const badgeContent = (
+                    <div className="w-full flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-[#fdc72d]/15 border border-white/15 hover:border-[#fdc72d]/60 backdrop-blur-md transition-all group cursor-pointer shadow-xs hover:-translate-y-0.5">
+                      <div className="w-7 h-7 rounded-lg bg-[#fdc72d]/20 text-[#fdc72d] flex items-center justify-center shrink-0 border border-[#fdc72d]/30 group-hover:scale-105 transition-transform">
+                        <Icon className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] sm:text-xs font-semibold text-neutral-100 group-hover:text-[#ffd976] whitespace-nowrap leading-tight transition-colors">
+                        {svc.label.replace("\n", " ")}
+                      </span>
+                    </div>
+                  )
 
-              return (
-                <Link key={svc.id} href={svc.href}>
-                  {content}
-                </Link>
-              )
-            })}
+                  if (svc.onClick) {
+                    return (
+                      <button key={svc.id} type="button" onClick={svc.onClick} className="text-left">
+                        {badgeContent}
+                      </button>
+                    )
+                  }
+
+                  return (
+                    <Link key={svc.id} href={svc.href} className="inline-block">
+                      {badgeContent}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
           </div>
 
         </div>

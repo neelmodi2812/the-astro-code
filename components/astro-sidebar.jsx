@@ -66,27 +66,27 @@ export function AstroSidebar({
             {/* Centered Choghadiya status (e.g. Auspicious Choghadiya / શુભ ચોઘડિયું) */}
             <text
               x="80"
-              y="68"
+              y="66"
               textAnchor="middle"
               className="fill-[#8a6800] dark:fill-[#fdc72d]"
-              fontSize="11"
+              fontSize="10"
               fontWeight="700"
               letterSpacing="0.2"
             >
-              {panchang.choghadiyaStatus}
+              {panchang.choghadiyaStatus || (lang === "gu" ? "શુભ ચોઘડિયું" : "Auspicious Muhurta")}
             </text>
             
-            {/* Centered Active Muhurta (e.g. Amrit / અમૃત) - clear vertical separation */}
+            {/* Centered Active Muhurta (e.g. Amrit / અમૃત) */}
             <text
               x="80"
-              y="94"
+              y="90"
               textAnchor="middle"
               className="fill-[#bb171f] dark:fill-[#ff7b7b]"
-              fontSize="18"
+              fontSize={String(panchang.activeMuhurta || "").length > 8 ? "13" : "18"}
               fontWeight="900"
               letterSpacing="0.3"
             >
-              {panchang.activeMuhurta}
+              {String(panchang.activeMuhurta || "").split("(")[0].trim()}
             </text>
             
             {/* 8 Cardinal & Ordinal Astronomical Constellation Dots */}
@@ -129,7 +129,7 @@ export function AstroSidebar({
         <div className="flex items-center gap-3.5 mb-3.5">
           <Avatar className="size-14 border-2 border-[#fdc72d] shadow-sm shrink-0">
             <AvatarImage
-              src={founder.image || "/images/author-dr-vishal-modi.jpg"}
+              src={(!founder?.image || founder.image.includes("unsplash.com")) ? "/images/author-dr-vishal-modi.jpg" : founder.image}
               alt={founder.name}
               className="object-cover"
             />

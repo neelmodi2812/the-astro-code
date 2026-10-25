@@ -4,32 +4,21 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import {
   BookOpen,
   Search,
   Sparkles,
-  MapPin,
   Calendar,
-  Eye,
   Heart,
-  Compass,
-  Calculator,
-  Flower2,
   CheckCircle2,
   MessageCircle,
   Send,
-  Phone,
-  Clock,
-  ArrowRight,
   ChevronRight,
   X,
-  Star,
   Award,
   AlertCircle,
-  Sun,
-  Flame,
-  ShieldCheck,
-  Check
+  Sun
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -66,7 +55,10 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
-import { getAstroData, SITE_CONTACT, getWhatsAppUrl } from "@/lib/data/astro-data"
+import { getWhatsAppUrl } from "@/lib/data/astro-data"
+import { astrologyService, contactService } from "@/lib/api"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
+import { useCategorySections } from "@/lib/api/hooks/use-nav-menu"
 import { CATEGORIES_DATA } from "@/lib/data/categories-data"
 import { useLanguage } from "@/components/language-provider"
 
@@ -75,14 +67,39 @@ export default function CategoriesClient() {
   const { lang, setLang } = useLanguage()
 
   // Dynamic Astro Data for Header & Footer
-  const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
+  const siteData = useHomeData(lang)
 
-  React.useEffect(() => {
-    setSiteData(getAstroData(lang))
-  }, [lang])
-
-  // Category page localized content
+  // Static page copy (headings, labels, scripture banner); the directory itself comes from the API
   const pageData = CATEGORIES_DATA[lang] || CATEGORIES_DATA.gu
+  const founder = siteData.config?.founder
+  const sections = useCategorySections(lang)
+
+  const directory = React.useMemo(
+    () =>
+      (sections || [])
+        .filter(({ articles }) => articles.length > 0)
+        .map(({ category, articles }) => {
+          const first = articles[0]
+          return {
+            id: category.slug,
+            title: category.name,
+            description: category.description || first.subtitle || "",
+            subCategory: first.tag || "",
+            badge: `${category.articles_count ?? articles.length} ${lang === "gu" ? "લેખો" : "Articles"}`,
+            image: articles.find((a) => a.image)?.image || null,
+            imageAlt: first.image_alt || category.name,
+            link: `/article/${first.slug || first.id}`,
+            articles: articles.slice(0, 3),
+            totalArticles: Number(category.articles_count ?? articles.length),
+          }
+        }),
+    [sections, lang]
+  )
+  const totalArticles = directory.reduce((sum, c) => sum + c.totalArticles, 0)
+  const filterPills = React.useMemo(
+    () => [pageData.filterPills[0], ...directory.map((c) => ({ id: c.id, label: c.title }))],
+    [pageData.filterPills, directory]
+  )
 
   // State management
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -100,10 +117,9 @@ export default function CategoriesClient() {
 
   // Filter & Search Logic
   const filteredCategories = React.useMemo(() => {
-    return pageData.categories.filter((cat) => {
+    return directory.filter((cat) => {
       // 1. Filter pill match
-      const matchesFilter =
-        selectedFilter === "all" || cat.filterGroup === selectedFilter
+      const matchesFilter = selectedFilter === "all" || cat.id === selectedFilter
 
       // 2. Search query match
       if (!matchesFilter) return false
@@ -113,40 +129,28 @@ export default function CategoriesClient() {
       const titleMatch = cat.title.toLowerCase().includes(query)
       const descMatch = cat.description.toLowerCase().includes(query)
       const subMatch = cat.subCategory.toLowerCase().includes(query)
-      const badgeMatch = cat.badge.toLowerCase().includes(query)
+      const articleMatch = cat.articles.some((a) => a.title.toLowerCase().includes(query))
 
-      return titleMatch || descMatch || subMatch || badgeMatch
+      return titleMatch || descMatch || subMatch || articleMatch
     })
-  }, [pageData.categories, selectedFilter, searchQuery])
-
-  // Icon mapping helper
-  const renderCategoryIcon = (iconType) => {
-    switch (iconType) {
-      case "eye":
-        return <Eye className="h-3.5 w-3.5" />
-      case "map":
-        return <MapPin className="h-3.5 w-3.5" />
-      case "stars":
-        return <Sparkles className="h-3.5 w-3.5" />
-      case "calculator":
-        return <Calculator className="h-3.5 w-3.5" />
-      case "calendar":
-        return <Calendar className="h-3.5 w-3.5" />
-      case "spa":
-        return <Flower2 className="h-3.5 w-3.5" />
-      case "compass":
-        return <Compass className="h-3.5 w-3.5" />
-      case "heart":
-        return <Heart className="h-3.5 w-3.5" />
-      default:
-        return <BookOpen className="h-3.5 w-3.5" />
-    }
-  }
+  }, [directory, selectedFilter, searchQuery])
 
   // Handle WhatsApp Newsletter Submission
-  const handleWhatsappSubmit = (e) => {
+  const handleWhatsappSubmit = async (e) => {
     e.preventDefault()
-    if (!whatsappPhone.trim()) return
+    const contact = whatsappPhone.trim()
+    if (!contact) return
+
+    try {
+      await contactService.subscribeNewsletter(contact, {
+        type: contact.includes("@") ? "email" : "whatsapp",
+        lang,
+      })
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
+
     setWhatsappSuccess(true)
     setTimeout(() => {
       setWhatsappPhone("")
@@ -155,9 +159,25 @@ export default function CategoriesClient() {
   }
 
   // Handle Consultation Modal Submission
-  const handleConsultSubmit = (e) => {
+  const handleConsultSubmit = async (e) => {
     e.preventDefault()
     if (!consultForm.name.trim() || !consultForm.phone.trim()) return
+
+    try {
+      await astrologyService.bookConsultation(
+        {
+          full_name: consultForm.name.trim(),
+          phone: consultForm.phone.trim(),
+          problem_category: consultForm.topic,
+          message: `Preferred time: ${consultForm.preferredTime}`,
+        },
+        lang
+      )
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
+
     setConsultSuccess(true)
     setTimeout(() => {
       setConsultSuccess(false)
@@ -236,7 +256,7 @@ export default function CategoriesClient() {
             {/* Clean summary pill */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-card dark:bg-[#1f201c] border border-border/80 text-xs font-semibold text-foreground/90 shrink-0 self-start sm:self-end">
               <Sparkles className="h-3.5 w-3.5 text-[#008376] dark:text-[#fdc72d]" />
-              <span>{pageData.header.statCount} {pageData.header.statLabel}</span>
+              <span>{totalArticles > 0 ? `${totalArticles} ${pageData.header.statLabel}` : pageData.header.statLabel}</span>
             </div>
           </div>
         </div>
@@ -270,7 +290,7 @@ export default function CategoriesClient() {
 
           {/* Filter Chips (Clean, Responsive, Horizontal Wrapping / Scroll) */}
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0">
-            {pageData.filterPills.map((pill) => {
+            {filterPills.map((pill) => {
               const isActive = selectedFilter === pill.id
               return (
                 <button
@@ -312,8 +332,13 @@ export default function CategoriesClient() {
               </span>
             </div>
 
-            {/* Empty State */}
-            {filteredCategories.length === 0 ? (
+            {sections === null ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6" aria-busy="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-72 rounded-2xl bg-muted/60 animate-pulse" />
+                ))}
+              </div>
+            ) : filteredCategories.length === 0 ? (
               <div className="p-8 sm:p-12 text-center rounded-2xl bg-card dark:bg-[#1a1b17] border border-border/80 my-4">
                 <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-60" />
                 <h3 className="text-base font-bold text-foreground">
@@ -344,13 +369,15 @@ export default function CategoriesClient() {
                   >
                     {/* Image Header with Aspect Ratio */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                      <Image
-                        src={cat.image}
-                        alt={cat.imageAlt}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 40vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                      {cat.image && (
+                        <Image
+                          src={cat.image}
+                          alt={cat.imageAlt}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 40vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                       
                       {/* Top Badge */}
@@ -371,21 +398,38 @@ export default function CategoriesClient() {
 
                     {/* Card Content & Action */}
                     <CardContent className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-4">
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {cat.description}
-                      </p>
+                      <div className="flex flex-col gap-3">
+                        {cat.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                            {cat.description}
+                          </p>
+                        )}
+                        <ul className="flex flex-col gap-1.5">
+                          {cat.articles.map((a) => (
+                            <li key={a.slug || a.id}>
+                              <Link
+                                href={`/article/${a.slug || a.id}`}
+                                className="flex items-start gap-1.5 text-xs font-medium text-foreground/80 hover:text-[#008376] dark:hover:text-[#fdc72d] transition-colors"
+                              >
+                                <ChevronRight className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#d9a100]" />
+                                <span className="line-clamp-1">{a.title}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
                       <div className="pt-3 flex items-center justify-between text-xs font-bold border-t border-border/60">
                         <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
-                          {renderCategoryIcon(cat.iconType)}
-                          <span className="text-[11px]">{cat.metricLabel}</span>
+                          <BookOpen className="h-3.5 w-3.5" />
+                          <span className="text-[11px]">{cat.badge}</span>
                         </span>
 
                         <Link
                           href={cat.link}
                           className="inline-flex items-center gap-1 text-[#008376] dark:text-[#38b2a3] hover:text-[#00685d] dark:hover:text-[#fdc72d] font-bold group-hover:translate-x-0.5 transition-all"
                         >
-                          <span>{cat.readMore}</span>
+                          <span>{lang === "gu" ? "વધુ વાંચો" : "Read More"}</span>
                           <ChevronRight className="h-3.5 w-3.5" />
                         </Link>
                       </div>
@@ -407,50 +451,30 @@ export default function CategoriesClient() {
                     {pageData.sidebar.panchang.title}
                   </h3>
                 </div>
-                <Badge
-                  variant="outline"
-                  className="bg-emerald-50 text-[#008376] dark:bg-emerald-950/60 dark:text-[#38b2a3] border-emerald-200 dark:border-emerald-800 text-[10px] font-bold px-2 py-0.5"
-                >
-                  {pageData.sidebar.panchang.location}
-                </Badge>
               </div>
 
               <div className="flex flex-col gap-2.5 pt-3 text-xs">
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-muted/60 dark:bg-[#20211d]">
-                  <span className="text-muted-foreground flex items-center gap-1.5 font-medium">
-                    <Sun className="h-3.5 w-3.5 text-[#008376] dark:text-[#38b2a3]" />
-                    {pageData.sidebar.panchang.tithiLabel}
-                  </span>
-                  <span className="font-bold text-foreground text-right">
-                    {pageData.sidebar.panchang.tithiVal}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-muted/60 dark:bg-[#20211d]">
-                  <span className="text-muted-foreground flex items-center gap-1.5 font-medium">
-                    <Sparkles className="h-3.5 w-3.5 text-[#fdc72d]" />
-                    {pageData.sidebar.panchang.nakshatraLabel}
-                  </span>
-                  <span className="font-bold text-foreground text-right">
-                    {pageData.sidebar.panchang.nakshatraVal}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-[#00685d] dark:text-[#38b2a3] font-bold border border-emerald-200/70 dark:border-emerald-800/60">
-                  <span className="flex items-center gap-1.5">
-                    <Flame className="h-3.5 w-3.5 text-emerald-600 dark:text-[#38b2a3]" />
-                    {pageData.sidebar.panchang.shubhLabel}
-                  </span>
-                  <span>{pageData.sidebar.panchang.shubhVal}</span>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 font-semibold border border-red-200/70 dark:border-red-900/60">
-                  <span className="flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5 text-red-500" />
-                    {pageData.sidebar.panchang.rahuLabel}
-                  </span>
-                  <span>{pageData.sidebar.panchang.rahuVal}</span>
-                </div>
+                {siteData.panchang.samvatTitle && (
+                  <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-muted/60 dark:bg-[#20211d] font-bold text-foreground">
+                    <Sun className="h-3.5 w-3.5 text-[#008376] dark:text-[#38b2a3] shrink-0" />
+                    <span>{siteData.panchang.samvatTitle}</span>
+                  </div>
+                )}
+                {siteData.panchang.rows.map((row) => (
+                  <div
+                    key={row.label}
+                    className={`flex items-center justify-between gap-3 p-2.5 rounded-xl ${
+                      row.isAlert
+                        ? "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 font-semibold border border-red-200/70 dark:border-red-900/60"
+                        : row.isAuspicious
+                          ? "bg-emerald-50 dark:bg-emerald-950/50 text-[#00685d] dark:text-[#38b2a3] font-bold border border-emerald-200/70 dark:border-emerald-800/60"
+                          : "bg-muted/60 dark:bg-[#20211d]"
+                    }`}
+                  >
+                    <span className={row.isAlert || row.isAuspicious ? "" : "text-muted-foreground font-medium"}>{row.label}</span>
+                    <span className={`text-right ${row.isAlert || row.isAuspicious ? "" : "font-bold text-foreground"}`}>{row.value}</span>
+                  </div>
+                ))}
               </div>
 
               <Link
@@ -465,8 +489,8 @@ export default function CategoriesClient() {
             <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
               <div className="relative w-20 h-20 rounded-full mx-auto p-1 bg-gradient-to-tr from-[#008376] to-[#fdc72d] shadow-sm mb-3 overflow-hidden">
                 <Image
-                  src={pageData.sidebar.consultation.avatar}
-                  alt={pageData.sidebar.consultation.name}
+                  src={founder?.image || pageData.sidebar.consultation.avatar}
+                  alt={founder?.name || pageData.sidebar.consultation.name}
                   width={80}
                   height={80}
                   className="w-full h-full object-cover rounded-full"
@@ -478,14 +502,14 @@ export default function CategoriesClient() {
                 className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border-[#fdc72d]/40 text-[10px] font-black px-2.5 py-0.5 mb-2"
               >
                 <Award className="h-3 w-3 mr-1" />
-                {pageData.sidebar.consultation.goldMedalBadge}
+                {founder?.title || pageData.sidebar.consultation.goldMedalBadge}
               </Badge>
 
               <h3 className="text-base font-black text-foreground">
-                {pageData.sidebar.consultation.name}
+                {founder?.name || pageData.sidebar.consultation.name}
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                {pageData.sidebar.consultation.experience}
+                {founder?.description || pageData.sidebar.consultation.experience}
               </p>
 
               <div className="flex flex-col gap-2 mt-4">

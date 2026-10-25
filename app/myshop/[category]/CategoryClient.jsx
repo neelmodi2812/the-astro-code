@@ -184,7 +184,6 @@ export default function CategoryClient({ categorySlug }) {
           price: product.price,
           originalPrice: product.originalPrice || product.price,
           qty: qty,
-          ritualAddon: lang === "gu" ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા સામેલ" : "Vedic Consecration Included",
           category: product.category || categorySlug || "all"
         })
       }

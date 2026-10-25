@@ -148,7 +148,7 @@ export default async function ProductPage({ params }) {
     <>
       <JsonLd data={productSchema} />
       <JsonLd data={breadcrumbSchema} />
-      <ProductDetailClient productId={id} />
+      <ProductDetailClient productId={id} initialBundle={bundle} />
     </>
   )
 }

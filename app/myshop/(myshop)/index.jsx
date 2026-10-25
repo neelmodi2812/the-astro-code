@@ -84,7 +84,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useShopData } from "@/lib/api/hooks/use-shop-data"
 import { useLanguage } from "@/components/language-provider"
 
@@ -117,12 +117,21 @@ export default function ShopClient() {
   const { lang, setLang } = useLanguage()
 
   // Dynamic localization states
-  const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
+  const siteData = useHomeData(lang)
   const shopData = useShopData(lang)
 
-  React.useEffect(() => {
-    setSiteData(getAstroData(lang))
-  }, [lang])
+  // Astrologer CTA contact details come from the admin's founder settings, not the static shop copy.
+  const founder = siteData.config?.founder
+  const astrologerCta = React.useMemo(() => {
+    const base = shopData.astrologerCta
+    if (!founder?.phone) return base
+    return {
+      ...base,
+      phoneText: founder.phone,
+      phoneHref: `tel:${String(founder.phone).replace(/[^+\d]/g, "")}`,
+      whatsappHref: founder.whatsappUrl || base.whatsappHref,
+    }
+  }, [shopData.astrologerCta, founder])
 
   // Filter, Search and Sorting States
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -189,7 +198,6 @@ export default function ShopClient() {
           price: product.price,
           originalPrice: product.originalPrice || product.price,
           qty: qty,
-          ritualAddon: lang === "gu" ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા સામેલ" : "Vedic Consecration Included",
           category: product.category || "all"
         })
       }
@@ -806,10 +814,12 @@ export default function ShopClient() {
                           {shopData.featuredProduct.discount}
                         </Badge>
                       </div>
+                      {shopData.featuredProduct.originBadge && (
                       <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#1b1c1a]/95 backdrop-blur-md px-3 py-1 rounded-full text-[#00685d] dark:text-[#6ed8c8] text-[11px] font-bold flex items-center gap-1 shadow-sm">
                         <ShieldCheck className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
                         <span>{shopData.featuredProduct.originBadge}</span>
                       </div>
+                      )}
                     </Link>
 
                     {/* Featured Details Pane */}
@@ -1179,32 +1189,32 @@ export default function ShopClient() {
               <div className="space-y-2 max-w-2xl text-left">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-[#fdc72d] text-xs font-bold">
                   <MessageSquare className="h-3.5 w-3.5" />
-                  <span>{shopData.astrologerCta.tag}</span>
+                  <span>{astrologerCta.tag}</span>
                 </div>
                 <h2 className="text-lg sm:text-2xl font-extrabold text-white">
-                  {shopData.astrologerCta.title}
+                  {astrologerCta.title}
                 </h2>
                 <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
-                  {shopData.astrologerCta.desc}
+                  {astrologerCta.desc}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto shrink-0">
                 <Link
-                  href={shopData.astrologerCta.phoneHref}
+                  href={astrologerCta.phoneHref}
                   className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs sm:text-sm shadow hover:bg-[#eab318] transition-colors flex items-center justify-center gap-2"
                 >
                   <Phone className="h-4 w-4" />
-                  <span>{shopData.astrologerCta.phoneText}</span>
+                  <span>{astrologerCta.phoneText}</span>
                 </Link>
                 <Link
-                  href={shopData.astrologerCta.whatsappHref}
+                  href={astrologerCta.whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white text-[#00685d] font-bold text-xs sm:text-sm shadow hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
                 >
                   <MessageCircle className="h-4 w-4 text-[#25D366]" />
-                  <span>{shopData.astrologerCta.whatsappText}</span>
+                  <span>{astrologerCta.whatsappText}</span>
                 </Link>
               </div>
             </div>

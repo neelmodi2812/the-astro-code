@@ -50,6 +50,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useLanguage } from "@/components/language-provider"
 import { getWhatsAppUrl } from "@/lib/data/astro-data"
+import { useNavMenu } from "@/lib/api/hooks/use-nav-menu"
 
 // Rich, specific submenus for navigation dropdowns
 const SUBMENU_DATA = {
@@ -91,7 +92,7 @@ const SUBMENU_DATA = {
 export function AstroHeader({
   config = {},
   topBar = {},
-  navLinks = [],
+  navLinks: staticNavLinks = [],
   activeCategory,
   onSelectCategory,
   lang: propLang,
@@ -102,6 +103,8 @@ export function AstroHeader({
   const pathname = usePathname()
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
+  const { navLinks, submenus } = useNavMenu(lang, staticNavLinks)
+  const getSubItems = (item) => (item.dynamic ? submenus[item.id] || [] : SUBMENU_DATA[item.id] || [])
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [expandedCategory, setExpandedCategory] = React.useState(null)
 
@@ -167,6 +170,8 @@ export function AstroHeader({
   }
 
   const getItemHref = (itemId) => {
+    const dynamicItem = navLinks.find((item) => item.id === itemId && item.dynamic)
+    if (dynamicItem) return dynamicItem.href
     if (itemId === "home") return "/"
     if (itemId === "bahuchar-maa-rajwadu") return "/article/hero-1"
     if (itemId === "jyotirling") return "/article/jyotirling-1"
@@ -181,7 +186,10 @@ export function AstroHeader({
   }
 
   const handleNavClick = (itemId) => {
-    if (itemId === "home") {
+    const dynamicItem = navLinks.find((item) => item.id === itemId && item.dynamic)
+    if (dynamicItem) {
+      router.push(dynamicItem.href)
+    } else if (itemId === "home") {
       router.push("/")
     } else if (itemId === "bahuchar-maa-rajwadu") {
       router.push("/article/hero-1")
@@ -207,33 +215,58 @@ export function AstroHeader({
     }
   }
 
-  const checkIsActive = (item) => {
+  const activeNavId = React.useMemo(() => {
     if (pathname === "/") {
-      return item.id === "home"
+      return activeCategory || "home"
     }
-    if ((pathname === "/myshop" || pathname?.startsWith("/myshop")) && (item.id === "myshop" || item.id === "shop")) {
-      return true
+    if (pathname === "/myshop" || pathname?.startsWith("/myshop")) {
+      return "myshop"
     }
-    if (pathname === "/dainik-panchang" && (item.id === "dainik-panchang" || item.id === "panchang")) {
-      return true
+    if (pathname === "/dainik-panchang" || pathname?.startsWith("/dainik-panchang")) {
+      return "dainik-panchang"
     }
-    if (pathname === "/categories" && (item.id === "categories" || item.id === "more")) {
-      return true
+    if (pathname === "/about-us" || pathname?.startsWith("/about-us")) {
+      return "more"
     }
-    if (pathname === "/about-us" && (item.id === "about-us" || item.id === "more")) {
-      return true
+    if (pathname === "/contact-us" || pathname?.startsWith("/contact-us")) {
+      return "more"
     }
-    if (pathname === "/contact-us" && (item.id === "contact-us" || item.id === "more")) {
-      return true
+    if (pathname === "/categories" || pathname?.startsWith("/categories")) {
+      return "more"
     }
-    if (pathname && pathname.startsWith("/article/hero") && item.id === "bahuchar-maa-rajwadu") {
-      return true
+
+    // Article detail pages: determine exactly one active navigation pill
+    if (pathname?.startsWith("/article/")) {
+      const owner = navLinks.find((item) => item.dynamic && (submenus[item.id] || []).some((sub) => sub.href === pathname))
+      if (owner) return owner.id
+      if (
+        pathname.startsWith("/article/jyotirling") ||
+        pathname.includes("somnath") ||
+        pathname.includes("mahakaleshwar") ||
+        pathname.includes("dwarkadhish") ||
+        activeCategory === "jyotirling"
+      ) {
+        return "jyotirling"
+      }
+      if (
+        pathname.startsWith("/article/hero") ||
+        pathname.includes("bahuchar") ||
+        activeCategory === "bahuchar-maa-rajwadu"
+      ) {
+        return "bahuchar-maa-rajwadu"
+      }
+      if (activeCategory && activeCategory !== "home") {
+        return activeCategory
+      }
+      return "bahuchar-maa-rajwadu"
     }
-    if (pathname && pathname.startsWith("/article/jyotirling") && item.id === "jyotirling") {
-      return true
-    }
-    return activeCategory === item.id
-  }
+
+    if (activeCategory) return activeCategory
+    return ""
+  }, [pathname, activeCategory, navLinks, submenus])
+
+  const checkIsActive = (item) => activeNavId === item.id
+
 
 
 
@@ -453,7 +486,7 @@ export function AstroHeader({
             >
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
-                const subItems = SUBMENU_DATA[item.id] || []
+                const subItems = getSubItems(item)
                 const hasSub = Boolean(item.hasSubmenu && subItems.length > 1)
 
                 if (hasSub) {
@@ -655,7 +688,7 @@ export function AstroHeader({
               </div>
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
-                const subItems = SUBMENU_DATA[item.id] || []
+                const subItems = getSubItems(item)
                 const hasSub = item.hasSubmenu && subItems.length > 1
                 const isExpanded = expandedCategory === item.id
 

@@ -28,6 +28,8 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
     founder?.image ||
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBZFBXexCd0t6yOz7CMbXbM6FnzEAd207Dy7jPa_kJvzRXjiigq5gHQUQdqToeXFlFI1deo_Ab4OVv2fNPBiBiAYTfDte0SilYEqr1arECX02LB3fnkH_gfCsLJ3BK2H9bZBAgugnR5nqVAA9QuPEOzVhbo6lbXYh3iSNON0FMQWcAV3XH-2NpDnao1PPZqsTYeul4tflFK62pT3AksEJEmjqPmOir_HhqtcbLsuXkRwlmuirfcUmgf"
 
+  const founderName = founder?.name || (isEn ? "Dr. Vishal Modi (Ph.D.)" : "ડૉ. વિશાલ મોદી (Ph.D.)")
+
   const handleConsultation = () => {
     if (onBookConsultation) {
       onBookConsultation()
@@ -36,83 +38,9 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
     const message = isEn
       ? "Hello Dr. Vishal Modi, I would like to book a personal astrology consultation."
       : "જય શ્રી કૃષ્ણ ડૉ. વિશાલ મોદી, મને વ્યક્તિગત જ્યોતિષ પરામર્શ માટે અપોઇન્ટમેન્ટ જોઈએ છે."
-    window.open(`https://wa.me/919825000000?text=${encodeURIComponent(message)}`, "_blank")
+    const base = founder?.whatsappUrl || "https://wa.me/919825000000"
+    window.open(`${base}${base.includes("?") ? "&" : "?"}text=${encodeURIComponent(message)}`, "_blank")
   }
-
-  // 3 Distinct Eminent Astrologers in Tri-Oval Sacred Composition
-  const astrologers = React.useMemo(() => [
-    {
-      id: "vidushi-saanvi",
-      image: "/images/hero-astrologer-3.jpg",
-      name: isEn ? "Vidushi Saanvi Sharma" : "વિદુષી સાન્વી શર્મા",
-      title: isEn ? "Vedic Jyotish & Numerology Vidushi" : "વૈદિક જ્યોતિષ & અંકશાસ્ત્ર વિદુષી",
-      specialty: isEn ? "Planetary Harmony & Auspicious Muhurat" : "ગ્રહ શાંતિ પૂજન & શુભ મુહૂર્ત માર્ગદર્શન",
-      badge: isEn ? "Celestial Guide" : "દિવ્ય ગ્રહ માર્ગદર્શિકા",
-      experience: isEn ? "14+ Yrs Experience" : "૧૪+ વર્ષ અનુભવ",
-      rating: "4.92★",
-      onlineStatus: isEn ? "Live Consultation" : "લાઈવ પરામર્શ",
-      icon: Sparkles
-    },
-    {
-      id: "pandit-ram-naresh",
-      image: "/images/hero-astrologer-2.jpg",
-      name: isEn ? "Pt. Ram Naresh Sharma" : "પં. રામ નરેશ શર્મા",
-      title: isEn ? "Kundali & Shani Remedies Specialist" : "કુંડળી & શનિ દોષ વિશેષજ્ઞ",
-      specialty: isEn ? "Birth Chart Analysis & Planetary Transit Remedies" : "જન્મકુંડળી વિશ્લેષણ & ગ્રહ ગોચર ઉપાય",
-      badge: isEn ? "Top Rated Astrologer" : "સર્વોચ્ચ રેટિંગ જ્યોતિષી",
-      experience: isEn ? "18+ Yrs Experience" : "૧૮+ વર્ષ અનુભવ",
-      rating: "4.95★",
-      onlineStatus: isEn ? "Available Online" : "ઓનલાઇન ઉપલબ્ધ",
-      icon: ShieldCheck
-    },
-    {
-      id: "acharya-vidyadhar",
-      image: "/images/hero-astrologer-1.jpg",
-      name: isEn ? "Acharya Vidyadhar Shastri" : "આચાર્ય વિદ્યાધર શાસ્ત્રી",
-      title: isEn ? "Senior Vedic Acharya & Gold Medalist" : "વરિષ્ઠ વૈદિક આચાર્ય & ગોલ્ડ મેડાલિસ્ટ",
-      specialty: isEn ? "Handwritten Sanskrit Kundali & Shastric Precision" : "હસ્તલિખિત સંસ્કૃત કુંડળી & શાસ્ત્રોક્ત ગણતરી",
-      badge: isEn ? "100% Vedic Certified" : "૧૦૦% શાસ્ત્રોક્ત પ્રમાણિત",
-      experience: isEn ? "32+ Yrs Experience" : "૩૨+ વર્ષ અનુભવ",
-      rating: "4.98★",
-      onlineStatus: isEn ? "Sanctum Darshan" : "શાસ્ત્રોક્ત દર્શન",
-      icon: CheckCircle2
-    }
-  ], [isEn])
-
-  // Center astrologer (index 1: Pt. Ram Naresh Sharma) starts active
-  const [activeAstrologer, setActiveAstrologer] = React.useState(1)
-  const [isPaused, setIsPaused] = React.useState(false)
-
-  // Automatically cycle through the 3 astrologers one by one smoothly
-  React.useEffect(() => {
-    if (isPaused) return
-    const timer = setInterval(() => {
-      setActiveAstrologer((prev) => (prev + 1) % astrologers.length)
-    }, 3800)
-    return () => clearInterval(timer)
-  }, [isPaused, astrologers.length])
-
-  const currentAstro = astrologers[activeAstrologer]
-
-  // Key Impact & Trust Metrics
-  const metrics = React.useMemo(() => [
-    {
-      value: isEn ? "5Cr+" : "૫ કરોડ+",
-      label: isEn ? "Users Guided" : "સાધકોને માર્ગદર્શન"
-    },
-    {
-      value: isEn ? "50,000+" : "૫૦,૦૦૦+",
-      label: isEn ? "Verified Astrologers" : "પ્રમાણિત જ્યોતિષાચાર્ય"
-    },
-    {
-      value: isEn ? "13+" : "૧૩+",
-      label: isEn ? "Languages Supported" : "ભાષાઓમાં પરામર્શ"
-    },
-    {
-      value: "4.9★",
-      label: isEn ? "Devotee Trust Rating" : "વિશ્વાસપાત્ર રેટિંગ"
-    }
-  ], [isEn])
 
   // Concise, refined texts avoiding cognitive overload
   const t = {
@@ -131,7 +59,6 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
     freeKundaliCta: isEn ? "Kundali Analysis" : "કુંડળી વિશ્લેષણ",
     founderBadge: isEn ? "GOLD MEDALIST" : "ગોલ્ડ મેડાલિસ્ટ",
     founderName: isEn ? "Dr. Vishal Modi (Ph.D.)" : "ડૉ. વિશાલ મોદી (Ph.D.)",
-    founderRating: isEn ? "4.9★ Devotee Satisfaction" : "૪.૯★ (૫૦,૦૦૦+ સાધકો)",
     badgePurity: isEn ? "100% Vedic Certified" : "૧૦૦% શાસ્ત્રોક્ત પ્રમાણિત",
     imageCaption: isEn ? "Consecrated Maha Meru Yantra & Sacred Vedic Astrology" : "પ્રાણ-પ્રતિષ્ઠિત મહામેરુ શ્રી યંત્ર & વૈદિક જ્યોતિષ દર્શન",
     quickAccessLabel: isEn ? "QUICK VEDIC ACCESS:" : "ઝડપી સેવાઓ:"
@@ -222,126 +149,38 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
               RIGHT COLUMN: TRI-OVAL HARMONIOUS ASTROLOGER COMPOSITION
               (Matching reference 3-oval overlapping layout with golden ring)
               ============================================================== */}
-          <div
-            className="lg:col-span-5 relative flex flex-col items-center justify-center mt-6 lg:mt-0 w-full"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
+          <div className="lg:col-span-5 relative flex flex-col items-center justify-center mt-6 lg:mt-0 w-full">
             {/* Ambient subtle decorative golden aura glow */}
             <div className="absolute -top-6 right-0 w-52 h-52 bg-[#fdc72d]/15 dark:bg-[#fdc72d]/8 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-6 left-0 w-52 h-52 bg-[#008376]/12 dark:bg-[#008376]/8 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Live Astrologers Online Status Pill */}
-            <div className="mb-4 self-center sm:self-end inline-flex items-center gap-2 bg-white/95 dark:bg-[#1f211c]/95 border border-[#e2d5b8] dark:border-white/10 rounded-full px-3.5 py-1 shadow-2xs backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="text-[11px] font-bold text-[#1b1c1a] dark:text-neutral-200">
-                {isEn ? "1,240+ Verified Astrologers Online" : "૧,૨૪૦+ પ્રમાણિત જ્યોતિષીઓ ઓનલાઇન"}
-              </span>
-            </div>
-
-            {/* 3 Vertical Oval Shapes Overlapping Composition (Matching reference image) */}
+            {/* Founder portrait in the golden-ringed oval */}
             <div className="relative w-full max-w-[440px] flex items-center justify-center py-2 select-none">
-              {/* Left Oval: Vidushi Saanvi (Index 0) */}
-              <div
-                onClick={() => setActiveAstrologer(0)}
-                className={`relative cursor-pointer transition-all duration-700 ease-out -mr-6 sm:-mr-8 ${
-                  activeAstrologer === 0
-                    ? "z-30 scale-105"
-                    : "z-10 scale-95 opacity-85 hover:opacity-100 hover:scale-98"
-                }`}
-              >
-                <div
-                  className={`relative w-[125px] sm:w-[155px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted transition-all duration-500 isolate ${
-                    activeAstrologer === 0
-                      ? "ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-2xl"
-                      : "border border-black/10 dark:border-white/15 shadow-md"
-                  }`}
-                >
-                  <img
-                    src={astrologers[0].image}
-                    alt={astrologers[0].name}
-                    className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
-                  />
-                </div>
-              </div>
-
-              {/* Center Oval: Pt. Ram Naresh Sharma (Index 1) - Prominent with Golden Ring */}
-              <div
-                onClick={() => setActiveAstrologer(1)}
-                className={`relative cursor-pointer transition-all duration-700 ease-out ${
-                  activeAstrologer === 1
-                    ? "z-30 scale-105 sm:scale-108 -translate-y-1"
-                    : "z-20 scale-100 opacity-95 hover:opacity-100"
-                }`}
-              >
-                <div
-                  className={`relative w-[155px] sm:w-[190px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted transition-all duration-500 isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-2xl ${
-                    activeAstrologer === 1 ? "shadow-[0_16px_36px_rgba(253,199,45,0.32)]" : ""
-                  }`}
-                >
-                  <img
-                    src={astrologers[1].image}
-                    alt={astrologers[1].name}
-                    className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
-                  />
-                </div>
-              </div>
-
-              {/* Right Oval: Acharya Vidyadhar Shastri (Index 2) */}
-              <div
-                onClick={() => setActiveAstrologer(2)}
-                className={`relative cursor-pointer transition-all duration-700 ease-out -ml-6 sm:-ml-8 ${
-                  activeAstrologer === 2
-                    ? "z-30 scale-105"
-                    : "z-10 scale-95 opacity-85 hover:opacity-100 hover:scale-98"
-                }`}
-              >
-                <div
-                  className={`relative w-[125px] sm:w-[155px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted transition-all duration-500 isolate ${
-                    activeAstrologer === 2
-                      ? "ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-2xl"
-                      : "border border-black/10 dark:border-white/15 shadow-md"
-                  }`}
-                >
-                  <img
-                    src={astrologers[2].image}
-                    alt={astrologers[2].name}
-                    className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
-                  />
-                </div>
+              <div className="relative w-[190px] sm:w-[230px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
+                <img
+                  src={founderImage}
+                  alt={founderName}
+                  className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
+                />
               </div>
             </div>
 
-            {/* Dynamic Interactive Astrologer Spotlight Card */}
-            <div className="w-full max-w-[450px] mt-2 rounded-2xl bg-white dark:bg-[#1a1c18] border border-black/5 dark:border-white/10 p-3 sm:p-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)] flex items-center justify-between gap-3 transition-all duration-300">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#fdc72d] bg-muted shadow-2xs">
-                    <img
-                      src={currentAstro.image}
-                      alt={currentAstro.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-1.5 ring-white dark:ring-[#1a1c18]" />
+            {/* Founder spotlight card */}
+            <div className="w-full max-w-[450px] mt-2 rounded-2xl bg-white dark:bg-[#1a1c18] border border-black/5 dark:border-white/10 p-3 sm:p-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)] flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-[13px] font-black text-foreground truncate">
+                    {founderName}
+                  </span>
+                  <span className="bg-[#fdc72d] text-[#1b1c1a] text-[9px] font-black px-1.5 py-0.2 rounded shrink-0">
+                    {t.founderBadge}
+                  </span>
                 </div>
-
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs sm:text-[13px] font-black text-foreground truncate">
-                      {currentAstro.name}
-                    </span>
-                    <span className="bg-[#fdc72d] text-[#1b1c1a] text-[9px] font-black px-1.5 py-0.2 rounded shrink-0">
-                      {currentAstro.badge}
-                    </span>
-                  </div>
+                {founder?.title && (
                   <p className="text-[10px] sm:text-[11px] text-[#00685d] dark:text-[#38b2a3] font-bold truncate">
-                    {currentAstro.specialty}
+                    {founder.title}
                   </p>
-                </div>
+                )}
               </div>
 
               {/* Direct WhatsApp Consultation Action */}
@@ -354,45 +193,9 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
                 <span>{isEn ? "Consult" : "પરામર્શ"}</span>
               </button>
             </div>
-
-            {/* Shape Progress Indicator Dots */}
-            <div className="flex items-center gap-1.5 mt-2.5">
-              {astrologers.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setActiveAstrologer(idx)}
-                  aria-label={`Select astrologer ${idx + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
-                    activeAstrologer === idx
-                      ? "w-6 bg-[#fdc72d]"
-                      : "w-2 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400"
-                  }`}
-                />
-              ))}
-            </div>
-
           </div>
 
         </div>
-
-        {/* ==============================================================
-            3. KEY IMPACT & TRUST METRICS NUMBERS BAR
-            (Replacing Quick Vedic Access as explicitly requested)
-            ============================================================== */}
-        <div className="mt-8 pt-6 border-t border-[#e2d5b8]/70 dark:border-white/10 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {metrics.map((metric, idx) => (
-            <div key={idx} className="flex flex-col items-start sm:items-center text-left sm:text-center">
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1b1c1a] dark:text-white tracking-tight">
-                {metric.value}
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-[#6e5d3b] dark:text-neutral-300 mt-0.5">
-                {metric.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
       </div>
 
     </section>

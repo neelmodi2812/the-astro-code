@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Geist, Geist_Mono, Noto_Serif_Gujarati } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Gujarati } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/language-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const notoSerifGujarati = Noto_Serif_Gujarati({
-  variable: "--font-noto-serif-gujarati",
+const notoSansGujarati = Noto_Sans_Gujarati({
+  variable: "--font-noto-sans-gujarati",
   subsets: ["gujarati"],
   display: "swap",
 });
@@ -132,7 +132,7 @@ export default function RootLayout({ children }) {
     <html
       lang="gu"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${notoSerifGujarati.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansGujarati.variable} h-full antialiased`}
     >
       <head>
         <GlobalJsonLd />

@@ -5,14 +5,30 @@ import { MessageSquare, CheckCircle2, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
+import { contactService } from "@/lib/api"
+import { useLanguage } from "@/components/language-provider"
 
 export function DevotionalCTA({ newsletter = {} }) {
   const [phone, setPhone] = React.useState("")
   const [submitted, setSubmitted] = React.useState(false)
+  const { lang } = useLanguage()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!phone) return
+    const number = phone.trim()
+    if (!number) return
+
+    try {
+      await contactService.subscribeNewsletter(number.startsWith("+") ? number : `+91${number.replace(/\D/g, "")}`, {
+        type: "whatsapp",
+        lang,
+      })
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
+
     setSubmitted(true)
     setTimeout(() => {
       setSubmitted(false)

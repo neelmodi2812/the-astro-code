@@ -17,7 +17,16 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { useLanguage } from "@/components/language-provider"
+import { toast } from "sonner"
+import { contactService } from "@/lib/api"
 import { ASTRO_DATA_GU, ASTRO_DATA_EN, SITE_CONTACT } from "@/lib/data/astro-data"
+
+/** The copyright copy is bundled with a fixed year; show the current one in the page's digits. */
+function withCurrentYear(text, isEn) {
+  const year = String(new Date().getFullYear())
+  const gu = year.replace(/\d/g, (d) => "૦૧૨૩૪૫૬૭૮૯"[d])
+  return text.replace(/2025|૨૦૨૫/, isEn ? year : gu)
+}
 
 export function AstroFooter({ config: propConfig, footer: propFooter, lang: propLang }) {
   // Seamless reactive language handling from props or React context
@@ -48,9 +57,17 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
   const [email, setEmail] = React.useState("")
   const [subscribed, setSubscribed] = React.useState(false)
 
-  const handleEmailSubscribe = (e) => {
+  const handleEmailSubscribe = async (e) => {
     e.preventDefault()
     if (!email) return
+
+    try {
+      await contactService.subscribeNewsletter(email.trim(), { type: "email", lang: isEn ? "en" : "gu" })
+    } catch (error) {
+      toast.error(error.message)
+      return
+    }
+
     setSubscribed(true)
     setTimeout(() => {
       setSubscribed(false)
@@ -311,10 +328,13 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
         <Separator className="bg-border/70 my-7" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm font-medium text-foreground/85 dark:text-foreground/80">
           <p className="leading-relaxed text-center md:text-left">
-            {footer.copyright ||
-              (isEn
-                ? "© 2025 The Astro Code. All Rights Reserved. Spiritual guidance for devotees."
-                : "© ૨૦૨૫ The Astro Code. સર્વાધિકાર સુરક્ષિત. આધ્યાત્મિક સેવાઓ ભાવિક જનોના હિતાર્થે.")}
+            {withCurrentYear(
+              footer.copyright ||
+                (isEn
+                  ? "© 2025 The Astro Code. All Rights Reserved. Spiritual guidance for devotees."
+                  : "© ૨૦૨૫ The Astro Code. સર્વાધિકાર સુરક્ષિત. આધ્યાત્મિક સેવાઓ ભાવિક જનોના હિતાર્થે."),
+              isEn
+            )}
           </p>
           <div className="flex items-center flex-wrap justify-center gap-4 sm:gap-6 font-semibold">
             <Link href="/about-us" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
