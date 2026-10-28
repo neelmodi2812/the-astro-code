@@ -9,7 +9,7 @@ import { Lock } from "lucide-react"
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { authService } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,7 +47,7 @@ export default function ResetPasswordClient() {
   const searchParams = useSearchParams()
   const { lang, setLang } = useLanguage()
   const copy = COPY[lang] || COPY.gu
-  const siteData = getAstroData(lang)
+  const siteData = useHomeData(lang)
 
   const token = searchParams.get("token") || ""
   const email = searchParams.get("email") || ""

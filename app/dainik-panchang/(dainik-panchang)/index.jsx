@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { usePanchangData } from "@/lib/api/hooks/use-panchang-data"
 import { useLanguage } from "@/components/language-provider"
 import { formatDigits } from "@/lib/utils"
@@ -64,11 +64,7 @@ import { formatDigits } from "@/lib/utils"
 export default function DainikPanchangClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const [siteData, setSiteData] = useState(() => getAstroData(lang))
-
-  useEffect(() => {
-    setSiteData(getAstroData(lang))
-  }, [lang])
+  const siteData = useHomeData(lang)
 
   const panchang = usePanchangData(lang)
 

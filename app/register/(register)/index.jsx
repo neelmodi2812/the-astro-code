@@ -28,9 +28,10 @@ import {
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { REGISTER_DATA } from "@/lib/data/register-data"
 import { authService } from "@/lib/api"
+import { getRegisterSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -48,7 +49,7 @@ import {
 export default function RegisterClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
+  const siteData = useHomeData(lang)
   const data = REGISTER_DATA
 
   // Form State
@@ -89,71 +90,29 @@ export default function RegisterClient() {
     handleChange("mobileNumber", cleaned)
   }
 
-  // Validate form
+  // Validate form using Zod schema
   const validateForm = () => {
-    const newErrors = {}
+    const schema = getRegisterSchema(lang)
+    const result = schema.safeParse(formData)
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName =
-        lang === "gu"
-          ? "કૃપા કરીને તમારું પૂરું નામ દાખલ કરો."
-          : "Please enter your full name."
+    if (!result.success) {
+      const newErrors = {}
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0]
+        if (field && !newErrors[field]) {
+          newErrors[field] = issue.message
+        }
+      })
+      setErrors(newErrors)
+      const firstError = Object.values(newErrors)[0]
+      if (firstError) {
+        toast.error(firstError)
+      }
+      return false
     }
 
-    if (formData.mobileNumber.trim().length !== 10) {
-      newErrors.mobileNumber =
-        lang === "gu"
-          ? "કૃપા કરીને માન્ય ૧૦-અંકનો મોબાઇલ નંબર દાખલ કરો."
-          : "Please enter a valid 10-digit mobile number."
-    }
-
-    if (
-      !formData.emailAddress.trim() ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress.trim())
-    ) {
-      newErrors.emailAddress =
-        lang === "gu"
-          ? "કૃપા કરીને માન્ય ઈમેલ એડ્રેસ દાખલ કરો."
-          : "Please enter a valid email address."
-    }
-
-    if (!formData.dob) {
-      newErrors.dob =
-        lang === "gu"
-          ? "કુંડળી ગણતરી માટે જન્મ તારીખ જરૂરી છે."
-          : "Date of birth is required for Kundali calculations."
-    }
-
-    if (!formData.birthPlace.trim()) {
-      newErrors.birthPlace =
-        lang === "gu"
-          ? "કૃપા કરીને જન્મ સ્થળ અથવા શહેર દાખલ કરો."
-          : "Please enter your birth place or city."
-    }
-
-    if (formData.password.length < 8) {
-      newErrors.password =
-        lang === "gu"
-          ? "પાસવર્ડ ઓછામાં ઓછો ૮ અક્ષરનો હોવો જોઈએ."
-          : "Password must be at least 8 characters long."
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword =
-        lang === "gu"
-          ? "પાસવર્ડ મેળ ખાતો નથી (પાસવર્ડ સરખા નથી)."
-          : "Passwords do not match."
-    }
-
-    if (!formData.agreeTerms) {
-      newErrors.agreeTerms =
-        lang === "gu"
-          ? "કૃપા કરીને નિયમો અને શરતો સ્વીકારો."
-          : "Please agree to the Terms of Service."
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    setErrors({})
+    return true
   }
 
   // Handle Form Submission
@@ -161,11 +120,6 @@ export default function RegisterClient() {
     e.preventDefault()
 
     if (!validateForm()) {
-      toast.error(
-        lang === "gu"
-          ? "કૃપા કરીને ફોર્મમાં જરૂરી વિગતો યોગ્ય રીતે ભરો."
-          : "Please fill all required fields correctly."
-      )
       return
     }
 
@@ -184,6 +138,14 @@ export default function RegisterClient() {
       )
       router.push("/myshop")
     } catch (error) {
+      if (error?.errors) {
+        const serverErrors = {}
+        if (error.errors.email) serverErrors.emailAddress = Array.isArray(error.errors.email) ? error.errors.email[0] : error.errors.email
+        if (error.errors.phone) serverErrors.mobileNumber = Array.isArray(error.errors.phone) ? error.errors.phone[0] : error.errors.phone
+        if (error.errors.name) serverErrors.fullName = Array.isArray(error.errors.name) ? error.errors.name[0] : error.errors.name
+        if (error.errors.password) serverErrors.password = Array.isArray(error.errors.password) ? error.errors.password[0] : error.errors.password
+        setErrors((prev) => ({ ...prev, ...serverErrors }))
+      }
       toast.error(error.message)
     } finally {
       setIsSubmitting(false)

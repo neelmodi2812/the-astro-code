@@ -71,7 +71,7 @@ export function CategoryBar({
   categories,
   activeFilter,
   onSelectFilter,
-  title = "Shri Bahuchar Maa Rajwadu & Featured Articles",
+  title,
   showBreadcrumb = false
 }) {
   const { lang } = useLanguage()
@@ -95,7 +95,7 @@ export function CategoryBar({
 
         {/* 2. Subtitle / Current Section Scope */}
         <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#1b1c1a]/90 dark:text-neutral-200 tracking-tight">
-          {title}
+          {title || (isEn ? "Featured Articles & Sacred Archives" : "મુખ્ય લેખો અને પવિત્ર દર્શન સંગ્રહ")}
         </h3>
 
         {/* 3. Category Filter Pills (Standalone Pill Badges matching user image) */}

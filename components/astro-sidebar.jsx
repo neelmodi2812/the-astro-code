@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { formatDigits } from "@/lib/utils"
-import { SITE_CONTACT } from "@/lib/data/astro-data"
+import { SITE_CONTACT } from "@/lib/config/contact"
 
 export function AstroSidebar({
   panchang,
@@ -184,7 +184,7 @@ export function AstroSidebar({
 
         <ol className="space-y-3.5 text-xs">
           {popular.map((item, idx) => {
-            const targetSlug = idx === 0 ? "hero-1" : idx === 1 ? "jyotirling-1" : "feat-1"
+            const targetSlug = item.id || item.slug || "hero-1-bahuchar-maa-pragatya"
             return (
               <li key={idx}>
                 <Link

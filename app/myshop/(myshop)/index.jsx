@@ -1148,10 +1148,10 @@ export default function ShopClient() {
                 return (
                   <div
                     key={idx}
-                    className="bg-card dark:bg-[#20221e] p-5 rounded-xl border border-border/70 shadow-xs flex flex-col items-start space-y-2.5 relative hover:border-[#00685d]/40 transition-colors"
+                    className="bg-card dark:bg-[#20221e] p-5 rounded-xl border border-border/70 shadow-xs flex flex-col items-start gap-3 h-full relative hover:border-[#00685d]/40 transition-colors"
                   >
                     <span
-                      className={`w-9 h-9 rounded-full ${stepColors[idx % 4]} text-base font-extrabold flex items-center justify-center shadow-xs`}
+                      className={`size-10 rounded-full shrink-0 aspect-square ${stepColors[idx % 4]} text-base font-bold flex items-center justify-center leading-none tabular-nums select-none shadow-xs`}
                     >
                       {st.num}
                     </span>

@@ -21,10 +21,10 @@ import { adaptHeroStory } from "@/lib/api/adapters/home"
 import { useLanguage } from "@/components/language-provider"
 import { toast } from "@/components/ui/sonner"
 
-export default function HomeClient() {
+export default function HomeClient({ initialFeed = null }) {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const data = useHomeData(lang)
+  const data = useHomeData(lang, initialFeed)
   const categorySections = useCategorySections(lang)
 
   const [activeCategory, setActiveCategory] = React.useState("home")
@@ -62,7 +62,7 @@ export default function HomeClient() {
   }
 
   const handleArticleClick = (article) => {
-    const targetId = article?.id || "hero-1"
+    const targetId = article?.slug || article?.id || "hero-1-bahuchar-maa-pragatya"
     router.push(`/article/${targetId}`)
   }
 

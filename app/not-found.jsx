@@ -21,7 +21,7 @@ import {
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import { getAstroData } from "@/lib/data/astro-data"
+import { getSiteShell } from "@/lib/config/site"
 import { useLanguage } from "@/components/language-provider"
 import {
   Breadcrumb,
@@ -190,7 +190,7 @@ const NOT_FOUND_DATA = {
 export default function NotFound() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const siteData = React.useMemo(() => getAstroData(lang), [lang])
+  const siteData = React.useMemo(() => getSiteShell(lang), [lang])
   const content = NOT_FOUND_DATA[lang] || NOT_FOUND_DATA.gu
   const [searchQuery, setSearchQuery] = React.useState("")
 

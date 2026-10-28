@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Sun,
   MessageSquare,
@@ -47,45 +47,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useLanguage } from "@/components/language-provider"
-import { getWhatsAppUrl } from "@/lib/data/astro-data"
+import { getWhatsAppUrl } from "@/lib/config/contact"
+import { toast } from "sonner"
+import { useAuth } from "@/lib/api/hooks/use-auth"
 import { useNavMenu } from "@/lib/api/hooks/use-nav-menu"
 
-// Rich, specific submenus for navigation dropdowns
-const SUBMENU_DATA = {
-  "bahuchar-maa-rajwadu": [
-    { label: { gu: "ચૈત્રી સુદ પૂનમ પ્રાગટ્ય", en: "Chaitri Sud Poonam Manifestation" }, href: "/article/hero-1" },
-    { label: { gu: "ચુંવાળ બહુચરાજી પરચાઓ", en: "Chunval Bahucharaji Miracles" }, href: "/article/hero-2" },
-    { label: { gu: "વરખડી વૃક્ષ પ્રાગટ્ય દર્શન", en: "Sacred Varkhadi Tree Darshan" }, href: "/article/hero-3" },
-    { label: { gu: "માં બહુચરને લાડુનો ગોખ શા માટે?", en: "Sacred Laddu Offering Legend" }, href: "/article/hero-4" },
-    { label: { gu: "આનંદના ગરબાનો મહિમા & પાઠ", en: "Anand No Garbo Glory & Recitation" }, href: "/article/feat-1" },
-  ],
-  "jyotirling": [
-    { label: { gu: "પ્રથમ જ્યોતિર્લિંગ સોમનાથ મહાદેવ", en: "First Jyotirling: Somnath Mahadev" }, href: "/article/jyotirling-1" },
-    { label: { gu: "મહાકાલેશ્વર ઉજ્જૈન ભસ્મ આરતી", en: "Mahakaleshwar Ujjain Aarti" }, href: "/article/feat-2" },
-    { label: { gu: "બાર જ્યોતિર્લિંગ સંપુર્ણ દર્શન વિષય", en: "All 12 Jyotirlingas Comprehensive Guide" }, href: "/categories" },
-  ],
-  "dharmik": [
-    { label: { gu: "શાસ્ત્રોક્ત પૂજા વિધિ & સંસ્કાર", en: "Vedic Puja Vidhi & Daily Rituals" }, href: "/categories" },
-    { label: { gu: "સિદ્ધ સાધના સામગ્રી & યંત્ર", en: "Consecrated Yantras & Spiritual Items" }, href: "/myshop" },
-    { label: { gu: "ધાર્મિક વ્રત કથાઓ & ઉપવાસ", en: "Spiritual Stories & Fasting Rules" }, href: "/categories" },
-  ],
-  "jyotishshastra": [
-    { label: { gu: "જન્મકુંડળી & ગ્રહ દોષ વિશ્લેષણ", en: "Kundali & Dosha Analysis" }, href: "/categories" },
-    { label: { gu: "શનિ સાડાસાતી & કાલસર્પ ઉપાય", en: "Shani Sade Sati Remedies" }, href: "/categories" },
-    { label: { gu: "ડૉ. વિશાલ મોદી સાથે પરામર્શ બુકિંગ", en: "Book Astrologer Consultation" }, href: "/contact-us" },
-  ],
-  "ankashastra": [
-    { label: { gu: "મૂળાંક અને ભાગ્યાંક રહસ્યો", en: "Mulank & Bhagyank Secrets" }, href: "/categories" },
-    { label: { gu: "નામ અંકશાસ્ત્ર લકી નંબર", en: "Name Numerology & Lucky Number" }, href: "/categories" },
-  ],
-  "more": [
-    { label: { gu: "તમામ વિષય સંગ્રહ", en: "All Categories & Topics Directory" }, href: "/categories" },
-    { label: { gu: "પ્રેરણાત્મક ધાર્મિક કથાઓ", en: "Inspirational Spiritual Stories" }, href: "/article/feat-2" },
-    { label: { gu: "અમારા વિશે & સંસ્થા પરિચય", en: "About Us & Institute History" }, href: "/about-us" },
-    { label: { gu: "સંપર્ક કરો & મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
-    { label: { gu: "જ્યોતિષ પરામર્શ સીધી વાતચીત", en: "Direct Astrologer Consultation" }, href: "/contact-us" },
-  ],
-}
+// Valid application routes for the "More" navigation dropdown
+const MORE_SUBMENU = [
+  { label: { gu: "તમામ વિષય સંગ્રહ", en: "All Categories Directory" }, href: "/categories" },
+  { label: { gu: "દૈનિક પંચાંગ અને ચોઘડિયા", en: "Daily Panchang & Choghadiya" }, href: "/dainik-panchang" },
+  { label: { gu: "MyShop વૈદિક સ્ટોર", en: "MyShop Spiritual Store" }, href: "/myshop" },
+  { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us & History" }, href: "/about-us" },
+  { label: { gu: "સંપર્ક કરો અને મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
+]
 
 export function AstroHeader({
   config = {},
@@ -101,9 +75,24 @@ export function AstroHeader({
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
   const { navLinks, submenus } = useNavMenu(lang, staticNavLinks)
-  const getSubItems = (item) => (item.dynamic ? submenus[item.id] || [] : SUBMENU_DATA[item.id] || [])
+  const getSubItems = (item) => (item.id === "more" ? MORE_SUBMENU : submenus[item.id] || [])
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [expandedCategory, setExpandedCategory] = React.useState(null)
+
+  const router = useRouter()
+  const { isAuthenticated, user, mounted, logout } = useAuth()
+  const displayName = user?.name ? user.name.split(" ")[0] : (lang === "gu" ? "ભક્ત" : "Devotee")
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "U"
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast.success(lang === "gu" ? "સફળતાપૂર્વક લૉગ આઉટ થયા." : "Logged out successfully.")
+      router.push("/login")
+    } catch (error) {
+      toast.error(error?.message || "Failed to logout")
+    }
+  }
 
   // Lock background body scroll when mobile drawer is open
   React.useEffect(() => {
@@ -167,19 +156,15 @@ export function AstroHeader({
   }
 
   const getItemHref = (itemId) => {
-    const dynamicItem = navLinks.find((item) => item.id === itemId && item.dynamic)
-    if (dynamicItem) return dynamicItem.href
+    const dynamicItem = navLinks.find((item) => item.id === itemId)
+    if (dynamicItem?.href) return dynamicItem.href
     if (itemId === "home") return "/"
-    if (itemId === "bahuchar-maa-rajwadu") return "/article/hero-1"
-    if (itemId === "jyotirling") return "/article/jyotirling-1"
-    if (itemId === "dharmik" || itemId === "jyotishshastra" || itemId === "ankashastra" || itemId === "categories" || itemId === "more" || itemId === "vishay-sangrah") return "/categories"
-    if (itemId === "preranatmak") return "/article/feat-2"
-    if (itemId === "about" || itemId === "about-us") return "/about-us"
     if (itemId === "panchang" || itemId === "dainik-panchang") return "/dainik-panchang"
-    if (itemId === "contact" || itemId === "contact-us") return "/contact-us"
-    if (itemId === "cart") return "/myshop/cart"
     if (itemId === "shop" || itemId === "myshop" || itemId === "vedic-shop") return "/myshop"
-    return "/"
+    if (itemId === "cart") return "/myshop/cart"
+    if (itemId === "about" || itemId === "about-us") return "/about-us"
+    if (itemId === "contact" || itemId === "contact-us") return "/contact-us"
+    return "/categories"
   }
 
   const activeNavId = React.useMemo(() => {
@@ -202,30 +187,22 @@ export function AstroHeader({
       return "more"
     }
 
-    // Article detail pages: determine exactly one active navigation pill
+    // Article detail pages: determine active navigation category from API
     if (pathname?.startsWith("/article/")) {
-      const owner = navLinks.find((item) => item.dynamic && (submenus[item.id] || []).some((sub) => sub.href === pathname))
+      const owner = navLinks.find((item) => (submenus[item.id] || []).some((sub) => sub.href === pathname))
       if (owner) return owner.id
       if (
-        pathname.startsWith("/article/jyotirling") ||
         pathname.includes("somnath") ||
         pathname.includes("mahakaleshwar") ||
         pathname.includes("dwarkadhish") ||
-        activeCategory === "jyotirling"
+        pathname.includes("jyotirling")
       ) {
         return "jyotirling"
-      }
-      if (
-        pathname.startsWith("/article/hero") ||
-        pathname.includes("bahuchar") ||
-        activeCategory === "bahuchar-maa-rajwadu"
-      ) {
-        return "bahuchar-maa-rajwadu"
       }
       if (activeCategory && activeCategory !== "home") {
         return activeCategory
       }
-      return "bahuchar-maa-rajwadu"
+      return "dharmik"
     }
 
     if (activeCategory) return activeCategory
@@ -310,7 +287,7 @@ export function AstroHeader({
                     >
                       <ShoppingBag className="h-4.5 w-4.5" />
                       {cartCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black rounded-full flex items-center justify-center">
+                        <span className="absolute -top-1 -right-1 size-4 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black rounded-full flex items-center justify-center shrink-0 aspect-square leading-none">
                           {cartCount}
                         </span>
                       )}
@@ -322,63 +299,103 @@ export function AstroHeader({
                 </Tooltip>
               </div>
 
-              {/* User Account Dropdown (Visible on Mobile & Desktop) */}
+              {/* User Profile Action: Direct link to /login when guest; Dropdown with greeting when authenticated */}
               <div className="flex items-center shrink-0">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label={lang === "gu" ? "મારું એકાઉન્ટ" : "My Account"}
-                      className="h-10 w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
-                    >
-                      <User className="h-5 w-5 text-foreground" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#181916] shadow-xl">
-                    <DropdownMenuGroup>
-                      <DropdownMenuLabel className="font-bold text-xs px-2 py-1.5 text-foreground flex items-center gap-2">
-                        <User className="h-3.5 w-3.5 text-[#d9a100]" />
-                        <span>{lang === "gu" ? "મારું પ્રોફાઇલ & એકાઉન્ટ" : "My Profile & Account"}</span>
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 font-bold text-[#8a6800] dark:text-[#fdc72d] bg-[#fdc72d]/10 rounded-lg mb-1">
-                        <Link href="/dashboard" className="flex items-center gap-2.5 w-full">
-                          <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
-                          <span>{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
-                        <Link href="/login" className="flex items-center gap-2.5 w-full">
-                          <LogIn className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                          <span>{lang === "gu" ? "લૉગિન" : "Sign In"}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
-                        <Link href="/register" className="flex items-center gap-2.5 w-full">
-                          <UserPlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                          <span>{lang === "gu" ? "નવું એકાઉન્ટ" : "Register"}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg">
-                        <Link href="/contact-us" className="flex items-center gap-2.5 w-full">
-                          <MessageCircle className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                          <span>{lang === "gu" ? "જ્યોતિષ પરામર્શ સહાય" : "Astrology Consultation"}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg flex items-center gap-2.5">
-                        <Link href="/about-us" className="flex items-center gap-2.5 w-full">
-                          <Info className="h-3.5 w-3.5 shrink-0" />
-                          <span>{lang === "gu" ? "અમારા વિશે" : "About Us"}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {!mounted || !isAuthenticated ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/login"
+                        aria-label={lang === "gu" ? "લૉગિન કરો" : "Sign In"}
+                        className="h-10 w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
+                      >
+                        <User className="h-5 w-5 text-foreground" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>{lang === "gu" ? "લૉગિન કરો" : "Sign In"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label={lang === "gu" ? "મારું એકાઉન્ટ" : "My Account"}
+                        className="h-10 px-2.5 sm:px-3 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
+                      >
+                        <div className="h-7 w-7 rounded-full bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none shadow-xs">
+                          {userInitial}
+                        </div>
+                        <span className="text-xs font-bold text-foreground max-w-[120px] truncate leading-tight">
+                          Hi! {displayName}
+                        </span>
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-xl bg-card dark:bg-[#181916] shadow-xl border border-border">
+                      <DropdownMenuGroup>
+                        <div className="px-3 py-2.5 bg-muted/40 dark:bg-[#20211d] rounded-lg mb-1 border border-border/40">
+                          <p className="text-xs font-extrabold text-foreground truncate">
+                            Hi! {user?.name || (lang === "gu" ? "ભક્ત" : "Devotee")}
+                          </p>
+                          {user?.email && (
+                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                              {user.email}
+                            </p>
+                          )}
+                        </div>
+
+                        <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 font-bold text-[#8a6800] dark:text-[#fdc72d] bg-[#fdc72d]/10 rounded-lg mb-1">
+                          <Link href="/dashboard" className="flex items-center gap-2.5 w-full">
+                            <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
+                            <span>{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
+                          <Link href="/dashboard/orders" className="flex items-center gap-2.5 w-full">
+                            <ShoppingBag className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <span>{lang === "gu" ? "મારા ઓર્ડર્સ" : "My Orders"}</span>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
+                          <Link href="/dashboard/kundli" className="flex items-center gap-2.5 w-full">
+                            <Sparkles className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <span>{lang === "gu" ? "કુંડળી સંગ્રહ" : "Kundli Vault"}</span>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg mb-1">
+                          <Link href="/dashboard/addresses" className="flex items-center gap-2.5 w-full">
+                            <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <span>{lang === "gu" ? "સાચવેલા સરનામાં" : "Saved Addresses"}</span>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild className="cursor-pointer text-xs py-2 px-2.5 flex items-center gap-2.5 text-foreground hover:bg-muted rounded-lg">
+                          <Link href="/dashboard/settings" className="flex items-center gap-2.5 w-full">
+                            <Settings className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <span>{lang === "gu" ? "સેટિંગ્સ & પ્રોફાઇલ" : "Settings & Profile"}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+
+                      <DropdownMenuSeparator className="my-1 bg-border/60" />
+
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          onClick={handleLogout}
+                          className="cursor-pointer text-xs py-2 px-2.5 text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2.5 font-bold"
+                        >
+                          <LogOut className="h-3.5 w-3.5 shrink-0" />
+                          <span>{lang === "gu" ? "લૉગ આઉટ કરો" : "Sign Out"}</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
               <Separator orientation="vertical" className="h-5 hidden md:block bg-border/60 mx-0.5" />
@@ -390,8 +407,8 @@ export function AstroHeader({
                   onClick={() => handleLangChange("gu")}
                   aria-label="ગુજરાતી ભાષા"
                   className={`px-2.5 sm:px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "gu"
-                      ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                      : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground"
+                    ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
+                    : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground"
                     }`}
                 >
                   ગુજ
@@ -401,8 +418,8 @@ export function AstroHeader({
                   onClick={() => handleLangChange("en")}
                   aria-label="English Language"
                   className={`px-2.5 sm:px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "en"
-                      ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                      : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground"
+                    ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
+                    : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground"
                     }`}
                 >
                   EN
@@ -451,7 +468,7 @@ export function AstroHeader({
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
                 const subItems = getSubItems(item)
-                const hasSub = Boolean(item.hasSubmenu && subItems.length > 1)
+                const hasSub = Boolean(item.hasSubmenu && subItems.length > 0)
 
                 if (hasSub) {
                   return (
@@ -460,8 +477,8 @@ export function AstroHeader({
                         <button
                           type="button"
                           className={`group px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
-                              ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
-                              : "text-[#1b1c1a] hover:bg-black/10"
+                            ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
+                            : "text-[#1b1c1a] hover:bg-black/10"
                             }`}
                         >
                           <span>{item.label}</span>
@@ -513,8 +530,8 @@ export function AstroHeader({
                     href={getItemHref(item.id)}
                     onClick={() => onSelectCategory && onSelectCategory(item.id)}
                     className={`px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
-                        ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
-                        : "text-[#1b1c1a] hover:bg-black/10"
+                      ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
+                      : "text-[#1b1c1a] hover:bg-black/10"
                       }`}
                   >
                     <span>{item.label}</span>
@@ -595,8 +612,8 @@ export function AstroHeader({
                   onClick={() => handleLangChange("gu")}
                   aria-label="ગુજરાતી ભાષા"
                   className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "gu"
-                      ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                      : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground hover:bg-muted/40"
+                    ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
+                    : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground hover:bg-muted/40"
                     }`}
                 >
                   ગુજ
@@ -606,8 +623,8 @@ export function AstroHeader({
                   onClick={() => handleLangChange("en")}
                   aria-label="English Language"
                   className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${lang === "en"
-                      ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                      : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground hover:bg-muted/40"
+                    ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
+                    : "text-[#1b1c1a]/75 dark:text-white/75 hover:text-foreground hover:bg-muted/40"
                     }`}
                 >
                   EN
@@ -623,25 +640,60 @@ export function AstroHeader({
               </div>
             </div>
 
-            {/* Mobile Quick Action Buttons: Dashboard & Store */}
-            <div className="grid grid-cols-2 gap-2.5">
-              <Link
-                href="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
-              >
-                <LayoutDashboard className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
-                <span>{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
-              </Link>
-              <Link
-                href="/myshop"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
-              >
-                <ShoppingBag className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
-                <span>{lang === "gu" ? "સ્ટોર" : "Store"}</span>
-              </Link>
-            </div>
+            {/* Mobile Quick Action Buttons: Dashboard & Store / Sign In */}
+            {mounted && isAuthenticated ? (
+              <div className="flex flex-col gap-2 p-3 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-full bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none">
+                    {userInitial}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-foreground truncate">Hi! {displayName}</span>
+                    {user?.email && <span className="text-[10px] text-muted-foreground truncate">{user.email}</span>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center p-2 rounded-lg bg-card dark:bg-[#1a1b18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-1.5"
+                  >
+                    <LayoutDashboard className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span>{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      handleLogout()
+                    }}
+                    className="flex items-center justify-center p-2 rounded-lg bg-card dark:bg-[#1a1b18] text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors gap-1.5"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    <span>{lang === "gu" ? "લૉગ આઉટ" : "Sign Out"}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2.5">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center p-2.5 rounded-xl bg-[#00685d] text-white text-xs font-bold hover:bg-[#005048] transition-colors gap-2 cursor-pointer shadow-xs"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>{lang === "gu" ? "લૉગિન કરો" : "Sign In"}</span>
+                </Link>
+                <Link
+                  href="/myshop"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
+                >
+                  <ShoppingBag className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
+                  <span>{lang === "gu" ? "સ્ટોર" : "Store"}</span>
+                </Link>
+              </div>
+            )}
 
             <Separator className="my-1 bg-border/50" />
 
@@ -653,7 +705,7 @@ export function AstroHeader({
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
                 const subItems = getSubItems(item)
-                const hasSub = item.hasSubmenu && subItems.length > 1
+                const hasSub = item.hasSubmenu && subItems.length > 0
                 const isExpanded = expandedCategory === item.id
 
                 if (hasSub) {
@@ -663,8 +715,8 @@ export function AstroHeader({
                         type="button"
                         onClick={() => toggleExpand(item.id)}
                         className={`w-full text-left py-2.5 px-3 text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-2 cursor-pointer ${isActive
-                            ? "text-[#8a6800] dark:text-[#fdc72d]"
-                            : "text-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d]"
+                          ? "text-[#8a6800] dark:text-[#fdc72d]"
+                          : "text-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d]"
                           }`}
                       >
                         <span>{item.label}</span>
@@ -714,8 +766,8 @@ export function AstroHeader({
                       setMobileMenuOpen(false)
                     }}
                     className={`w-full text-left py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer min-h-[42px] ${isActive
-                        ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                        : "hover:bg-muted dark:hover:bg-[#22231f] text-foreground border border-border/30"
+                      ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
+                      : "hover:bg-muted dark:hover:bg-[#22231f] text-foreground border border-border/30"
                       }`}
                   >
                     <span className="flex items-center gap-2">

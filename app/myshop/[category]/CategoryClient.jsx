@@ -68,7 +68,7 @@ import {
   SelectGroup,
   SelectItem,
 } from "@/components/ui/select"
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { getCategoryMeta } from "@/lib/data/shop-data"
 import { useShopData, useLiveCategories } from "@/lib/api/hooks/use-shop-data"
 import { withLiveCategoryCount } from "@/lib/api/adapters/shop"
@@ -103,7 +103,7 @@ export default function CategoryClient({ categorySlug }) {
   const { lang, setLang } = useLanguage()
 
   // Dynamic localization states
-  const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
+  const siteData = useHomeData(lang)
   const shopData = useShopData(lang)
   const liveCategories = useLiveCategories(lang)
   const categoryMeta = React.useMemo(
@@ -114,10 +114,6 @@ export default function CategoryClient({ categorySlug }) {
     () => shopData.products.filter((p) => p.category === categorySlug),
     [shopData.products, categorySlug]
   )
-
-  React.useEffect(() => {
-    setSiteData(getAstroData(lang))
-  }, [lang])
 
   // Search, sort and pagination state
   const [searchQuery, setSearchQuery] = React.useState("")

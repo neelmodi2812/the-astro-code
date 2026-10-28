@@ -19,7 +19,8 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { useLanguage } from "@/components/language-provider"
 import { toast } from "sonner"
 import { contactService } from "@/lib/api"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN, SITE_CONTACT } from "@/lib/data/astro-data"
+import { SITE_CONTACT } from "@/lib/config/contact"
+import { getSiteShell } from "@/lib/config/site"
 
 /** The copyright copy is bundled with a fixed year; show the current one in the page's digits. */
 function withCurrentYear(text, isEn) {
@@ -35,7 +36,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
   const isEn = activeLang === "en"
 
   // Base localized dataset
-  const localizedData = isEn ? ASTRO_DATA_EN : ASTRO_DATA_GU
+  const localizedData = getSiteShell(activeLang)
   const config = propConfig || localizedData.config
   const footer = propFooter || localizedData.footer
 
@@ -180,13 +181,13 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               {footer.dharmikTitle || (isEn ? "Spiritual & Darshan" : "ધાર્મિક & દર્શન")}
             </div>
             <Link
-              href="/article/hero-1"
+              href="/article/hero-1-bahuchar-maa-pragatya"
               className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
             >
               {isEn ? "Shri Bahuchar Maa Rajwadu & History" : "શ્રી બહુચર માં નું રજવાડું & ઇતિહાસ"}
             </Link>
             <Link
-              href="/article/jyotirling-1"
+              href="/article/somnath-mahadev-pratham-jyotirling"
               className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
             >
               {isEn ? "12 Holy Jyotirlinga Darshan Guide" : "૧૨ પવિત્ર જ્યોતિર્લિંગ દર્શન માર્ગદર્શિકા"}
@@ -204,7 +205,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               {isEn ? "Daily Stotras, Mantras & Aarti" : "નિત્ય સ્તોત્ર, મંત્ર અને આરતી સંગ્રહ"}
             </Link>
             <Link
-              href="/article/feat-2"
+              href="/categories"
               className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
             >
               {isEn ? "Inspirational Spiritual Stories & Preaching" : "પ્રેરણાદાયી ધાર્મિક કથાઓ & ઉપદેશ"}

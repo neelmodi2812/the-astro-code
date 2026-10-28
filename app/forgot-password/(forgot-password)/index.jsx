@@ -23,7 +23,7 @@ import {
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { FORGOT_PASSWORD_DATA } from "@/lib/data/forgot-password-data"
 import { authService } from "@/lib/api"
 import { Button } from "@/components/ui/button"
@@ -42,7 +42,7 @@ import {
 export default function ForgotPasswordClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
+  const siteData = useHomeData(lang)
   const data = FORGOT_PASSWORD_DATA
   const isEn = lang === "en"
 

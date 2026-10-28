@@ -1201,7 +1201,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               <div className="flex flex-col gap-2">
                 {data.popular.map((item, idx) => {
-                  const targetSlug = idx === 0 ? "hero-1" : idx === 1 ? "jyotirling-1" : "hero-2"
+                  const targetSlug = item.id || item.slug || "hero-1-bahuchar-maa-pragatya"
                   return (
                     <div
                       key={idx}

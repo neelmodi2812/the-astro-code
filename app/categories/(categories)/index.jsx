@@ -55,7 +55,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
-import { getWhatsAppUrl } from "@/lib/data/astro-data"
+import { getWhatsAppUrl } from "@/lib/config/contact"
 import { astrologyService, contactService } from "@/lib/api"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useCategorySections } from "@/lib/api/hooks/use-nav-menu"
@@ -203,10 +203,10 @@ export default function CategoriesClient() {
           if (id === "home") router.push("/")
           else if (id === "about-us" || id === "about") router.push("/about-us")
           else if (id === "dainik-panchang" || id === "panchang") router.push("/dainik-panchang")
-          else if (id === "bahuchar-maa-rajwadu") router.push("/article/hero-1")
-          else if (id === "jyotirling") router.push("/article/jyotirling-1")
-          else if (id === "dharmik") router.push("/article/feat-2")
-          else if (id === "jyotishshastra") router.push("/article/feat-1")
+          
+          
+          
+          
         }}
         lang={lang}
         onToggleLang={(newLang) => setLang(newLang)}

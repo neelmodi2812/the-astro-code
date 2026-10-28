@@ -58,7 +58,7 @@ import {
 } from "@/components/ui/accordion"
 import { toast } from "@/components/ui/sonner"
 import { useLanguage } from "@/components/language-provider"
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useProduct } from "@/lib/api/hooks/use-product"
 
 const CART_STORAGE_KEY = "astro_cart_items"
@@ -68,7 +68,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const { lang, setLang } = useLanguage()
   const currentLang = lang || "gu"
 
-  const astroData = React.useMemo(() => getAstroData(currentLang), [currentLang])
+  const astroData = useHomeData(currentLang)
   const { product, related: relatedProducts } = useProduct(productId, currentLang, initialBundle)
 
   const imagesList = React.useMemo(() => {

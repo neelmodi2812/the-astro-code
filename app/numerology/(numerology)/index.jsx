@@ -8,7 +8,7 @@ import { Hash, Loader2, Sparkles } from "lucide-react"
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { astrologyService } from "@/lib/api"
@@ -17,7 +17,7 @@ export default function NumerologyClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
   const isEn = lang === "en"
-  const siteData = isEn ? ASTRO_DATA_EN : ASTRO_DATA_GU
+  const siteData = useHomeData(lang)
 
   const [birthDate, setBirthDate] = React.useState("")
   const [result, setResult] = React.useState(null)

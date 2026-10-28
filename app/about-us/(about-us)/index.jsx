@@ -69,18 +69,14 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { ABOUT_DATA } from "@/lib/data/about-data"
 import { useLanguage } from "@/components/language-provider"
 
 export default function AboutUsClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
-
-  React.useEffect(() => {
-    setSiteData(getAstroData(lang))
-  }, [lang])
+  const siteData = useHomeData(lang)
 
   const about = ABOUT_DATA
 

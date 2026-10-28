@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
   Lock,
-  ShieldCheck,
   Sparkles,
   BookOpen,
   Sun,
@@ -16,21 +15,20 @@ import {
   EyeOff,
   ArrowRight,
   UserPlus,
-  Compass,
-  PhoneCall,
   KeyRound,
+  AlertCircle,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { LOGIN_DATA } from "@/lib/data/login-data"
 import { authService } from "@/lib/api"
+import { getLoginSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Breadcrumb,
@@ -44,10 +42,11 @@ import {
 export default function LoginClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
+  const siteData = useHomeData(lang)
   const data = LOGIN_DATA
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [errors, setErrors] = React.useState({})
 
   // Email & Password
   const [email, setEmail] = React.useState("")
@@ -55,29 +54,33 @@ export default function LoginClient() {
   const [showPassword, setShowPassword] = React.useState(false)
   const [rememberSession, setRememberSession] = React.useState(true)
 
-  // Form submit: Password Mode
+  // Form submit: Password Mode with Zod Validation
   const handlePasswordSubmit = async (e) => {
     e.preventDefault()
-    if (!email || !email.includes("@")) {
-      toast.error(
-        lang === "gu"
-          ? "કૃપા કરીને માન્ય ઈમેલ એડ્રેસ દાખલ કરો."
-          : "Please enter a valid email address."
-      )
-      return
-    }
-    if (!password || password.length < 6) {
-      toast.error(
-        lang === "gu"
-          ? "પાસવર્ડ ઓછામાં ઓછો ૬ અક્ષરનો હોવો જોઈએ."
-          : "Password must be at least 6 characters."
-      )
+    setErrors({})
+
+    const schema = getLoginSchema(lang)
+    const result = schema.safeParse({ email, password })
+
+    if (!result.success) {
+      const fieldErrors = {}
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0]
+        if (field && !fieldErrors[field]) {
+          fieldErrors[field] = issue.message
+        }
+      })
+      setErrors(fieldErrors)
+      const firstError = Object.values(fieldErrors)[0]
+      if (firstError) {
+        toast.error(firstError)
+      }
       return
     }
 
     setIsSubmitting(true)
     try {
-      await authService.login({ email, password })
+      await authService.login({ email: email.trim(), password })
       toast.success(
         lang === "gu"
           ? "ઈમેલ ચકાસણી સફળ! તમારું સત્ર શરૂ થઈ ગયું છે."
@@ -85,6 +88,13 @@ export default function LoginClient() {
       )
       router.push("/myshop")
     } catch (error) {
+      if (error?.errors) {
+        const apiErrors = {}
+        Object.entries(error.errors).forEach(([k, msgs]) => {
+          apiErrors[k] = Array.isArray(msgs) ? msgs[0] : msgs
+        })
+        setErrors(apiErrors)
+      }
       toast.error(error.message)
     } finally {
       setIsSubmitting(false)
@@ -241,7 +251,7 @@ export default function LoginClient() {
                       {/* Email Input */}
                       <div className="space-y-1.5">
                         <label htmlFor="user-email" className="block text-xs font-bold text-foreground">
-                          {data.rightColumn.pwdForm.emailLabel[lang]}
+                          {data.rightColumn.pwdForm.emailLabel[lang]} <span className="text-destructive">*</span>
                         </label>
                         <div className="relative">
                           <Mail className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -249,19 +259,29 @@ export default function LoginClient() {
                             id="user-email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => {
+                              setEmail(e.target.value)
+                              if (errors.email) setErrors((prev) => ({ ...prev, email: "" }))
+                            }}
                             placeholder={data.rightColumn.pwdForm.emailPlaceholder[lang]}
-                            className="pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d]"
-                            required
+                            className={`pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
+                              errors.email ? "border-destructive ring-1 ring-destructive" : ""
+                            }`}
                           />
                         </div>
+                        {errors.email && (
+                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1 mt-1">
+                            <AlertCircle className="h-3 w-3 shrink-0" />
+                            <span>{errors.email}</span>
+                          </p>
+                        )}
                       </div>
 
                       {/* Password Input */}
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <label htmlFor="user-password" className="text-xs font-bold text-foreground">
-                            {data.rightColumn.pwdForm.passwordLabel[lang]}
+                            {data.rightColumn.pwdForm.passwordLabel[lang]} <span className="text-destructive">*</span>
                           </label>
                           <Link
                             href="/forgot-password"
@@ -276,10 +296,14 @@ export default function LoginClient() {
                             id="user-password"
                             type={showPassword ? "text" : "password"}
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                              setPassword(e.target.value)
+                              if (errors.password) setErrors((prev) => ({ ...prev, password: "" }))
+                            }}
                             placeholder={data.rightColumn.pwdForm.passwordPlaceholder[lang]}
-                            className="pl-10 pr-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d]"
-                            required
+                            className={`pl-10 pr-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
+                              errors.password ? "border-destructive ring-1 ring-destructive" : ""
+                            }`}
                           />
                           <button
                             type="button"
@@ -290,6 +314,12 @@ export default function LoginClient() {
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
                         </div>
+                        {errors.password && (
+                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1 mt-1">
+                            <AlertCircle className="h-3 w-3 shrink-0" />
+                            <span>{errors.password}</span>
+                          </p>
+                        )}
                       </div>
 
                       {/* Remember Checkbox */}
@@ -346,50 +376,7 @@ export default function LoginClient() {
             </div>
           </div>
 
-          {/* 3. Trust Pillars / Spiritual Assurance Banner */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
-            {data.trustPillars.map((pillar) => {
-              const IconComp =
-                pillar.icon === "ShieldCheck"
-                  ? ShieldCheck
-                  : pillar.icon === "Compass"
-                  ? Compass
-                  : PhoneCall
-
-              return (
-                <Card key={pillar.id} className="p-5 border-border/80 shadow-xs bg-card">
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                      <IconComp className="h-5 w-5" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-sm font-bold text-foreground">
-                        {pillar.title[lang]}
-                      </h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {pillar.desc[lang]}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-
-          {/* 4. Astrological Note Banner */}
-          <div className="mt-6 p-4 rounded-xl bg-muted/50 dark:bg-[#161714] border border-border/70 text-center flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs">
-            <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
-            <span className="text-muted-foreground">
-              {data.astrologicalBanner.text[lang]}
-            </span>
-            <span className="text-border hidden sm:inline">•</span>
-            <Link
-              href="/dainik-panchang"
-              className="font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
-            >
-              {data.astrologicalBanner.linkText[lang]}
-            </Link>
-          </div>
+          
 
         </div>
       </main>
