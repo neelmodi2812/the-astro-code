@@ -11,10 +11,9 @@ import {
   Plus,
   Package,
   Calendar,
-  Check,
   BookOpen,
   Truck,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"

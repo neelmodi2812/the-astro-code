@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Image from "next/image"
-import { Sparkles, Image as ImageIcon } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 /**
  * SafeImage component that prevents black boxes and broken images.

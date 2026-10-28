@@ -2,25 +2,11 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import {
-  Sparkles,
-  Calendar,
-  Clock,
-  ArrowRight,
-  ShieldCheck,
-  ShoppingBag,
-  Compass,
-  MessageCircle,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react"
+import { Sparkles, ArrowRight, MessageCircle } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 
 export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultation }) {
-  const router = useRouter()
   const { lang } = useLanguage()
   const isEn = lang === "en"
 

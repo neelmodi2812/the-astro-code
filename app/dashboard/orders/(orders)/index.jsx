@@ -4,21 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import {
-  Package,
-  Truck,
-  Check,
-  FileText,
-  Navigation,
-  ArrowLeft,
-  ShoppingBag,
-  ExternalLink,
-  RotateCcw,
-  Clock,
-  Sparkles,
-  ShieldCheck,
-  ChevronRight
-} from "lucide-react"
+import { Package, Truck, Check, FileText, Navigation, ShoppingBag } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { withDashboardData } from "@/components/dashboard-gate"

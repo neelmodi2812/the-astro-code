@@ -235,7 +235,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               {isEn ? "Kundali Analysis & Planetary Doshas" : "કુંડળી વિશ્લેષણ અને ગ્રહદોષ નિવારણ"}
             </Link>
             <Link
-              href="/categories"
+              href="/numerology"
               className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
             >
               {isEn ? "Numerology & Destiny Number" : "અંકશાસ્ત્ર (ન્યુમરોલોજી) અને ભાગ્યાંક"}

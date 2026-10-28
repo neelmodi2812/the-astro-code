@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import Image from "next/image"
+
 import { useRouter } from "next/navigation"
 import {
   Home,
@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Lock,
   Sparkles,
-  Droplets,
   Trash2,
   Plus,
   Minus,
@@ -25,36 +24,21 @@ import {
   Phone,
   HelpCircle,
   RotateCcw,
-  BookOpen,
   Award,
   Truck,
-  Check,
-  Edit2,
-  Heart,
   CreditCard,
   Wallet,
   Landmark,
   BadgePercent,
-  Gift,
-  ShieldAlert,
-  ArrowUpRight
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/ui/card"
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Progress } from "@/components/ui/progress"
+
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -101,13 +85,11 @@ export default function CartClient() {
   const [savedItems, setSavedItems] = React.useState([])
   const [isClientLoaded, setIsClientLoaded] = React.useState(false)
 
-
   // Coupon Voucher State
   const [couponInput, setCouponInput] = React.useState("")
   const [appliedCoupon, setAppliedCoupon] = React.useState(null)
   const [isPlacingOrder, setIsPlacingOrder] = React.useState(false)
   const [placedTotal, setPlacedTotal] = React.useState(0)
-  const [couponError, setCouponError] = React.useState("")
 
   // Stepper state
   const [activeStep, setActiveStep] = React.useState(1)
@@ -256,7 +238,6 @@ export default function CartClient() {
     }
   }, [isClientLoaded, appliedCouponCode, subtotal, currentLang])
 
-
   // Helpers for digits and currency
   const toDigits = React.useCallback(
     (num) => {
@@ -360,7 +341,6 @@ export default function CartClient() {
 
   const handleApplyCoupon = async (e) => {
     e?.preventDefault()
-    setCouponError("")
     const cleanCode = couponInput.trim().toUpperCase()
     if (!cleanCode) return
 
@@ -379,7 +359,6 @@ export default function CartClient() {
       )
     } catch (error) {
       const message = error.status === 422 ? error.message : cartData.orderSummary.invalidCoupon
-      setCouponError(message)
       toast.error(message)
     }
   }
@@ -387,7 +366,6 @@ export default function CartClient() {
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null)
     setCouponInput("")
-    setCouponError("")
     toast.info(
       currentLang === "gu"
         ? "કૂપન કોડ દૂર કરવામાં આવ્યો."
@@ -964,8 +942,7 @@ export default function CartClient() {
                           value={couponInput}
                           onChange={(e) => {
                             setCouponInput(e.target.value.toUpperCase())
-                            setCouponError("")
-                          }}
+                                                  }}
                           placeholder={cartData.orderSummary.couponPlaceholder}
                           className="h-10 pl-9 uppercase tracking-wider text-xs sm:text-sm font-bold rounded-xl"
                         />

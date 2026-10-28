@@ -10,6 +10,8 @@ import {
   Package,
   Video,
   Settings,
+  Heart,
+  MapPin,
   Phone,
   MessageCircle,
   Sparkles,
@@ -87,6 +89,18 @@ export function DashboardSidebar() {
       href: "/dashboard/consultations",
       icon: Video,
       alert: true
+    },
+    {
+      id: "wishlist",
+      label: { gu: "મારી વિશલિસ્ટ (Wishlist)", en: "My Wishlist" },
+      href: "/dashboard/wishlist",
+      icon: Heart
+    },
+    {
+      id: "addresses",
+      label: { gu: "મારા સરનામાં (Addresses)", en: "Saved Addresses" },
+      href: "/dashboard/addresses",
+      icon: MapPin
     },
     {
       id: "settings",

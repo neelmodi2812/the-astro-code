@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useWishlist } from "@/lib/api/hooks/use-wishlist"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -30,23 +31,14 @@ import {
   MessageSquare,
   MessageCircle,
   X,
-  ChevronRight,
   Eye,
   CheckCircle2,
-  ArrowUpDown,
   Home,
-  HelpCircle,
-  Package
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -135,7 +127,7 @@ export default function CategoryClient({ categorySlug }) {
 
   // Cart & Wishlist States
   const [cart, setCart] = React.useState([])
-  const [wishlist, setWishlist] = React.useState({})
+  const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(lang)
   const [addedAnimationId, setAddedAnimationId] = React.useState(null)
 
   // Quick View & Order Modal State
@@ -145,12 +137,6 @@ export default function CategoryClient({ categorySlug }) {
   const [orderPhone, setOrderPhone] = React.useState("")
   const [orderAddress, setOrderAddress] = React.useState("")
   const [orderSuccess, setOrderSuccess] = React.useState(false)
-
-  // Category Icon helper
-  const renderCategoryIcon = (iconName, className = "h-5 w-5") => {
-    const IconComponent = ICON_MAP[iconName] || Gem
-    return <IconComponent className={className} />
-  }
 
   // Add to Cart handler
   const handleAddToCart = (product, qty = 1) => {
@@ -208,16 +194,17 @@ export default function CategoryClient({ categorySlug }) {
   }
 
   // Toggle Wishlist handler
-  const handleToggleWishlist = (productId) => {
-    setWishlist((prev) => {
-      const next = { ...prev, [productId]: !prev[productId] }
-      if (next[productId]) {
+  const handleToggleWishlist = async (product) => {
+    try {
+      const added = await toggleWishlist(product)
+      if (added) {
         toast.success(lang === "gu" ? "વિશલિસ્ટમાં ઉમેરાયું!" : "Added to Wishlist!")
       } else {
         toast.info(lang === "gu" ? "વિશલિસ્ટમાંથી દૂર કરાયું." : "Removed from Wishlist.")
       }
-      return next
-    })
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   // Direct WhatsApp Checkout for Modal
@@ -546,7 +533,7 @@ export default function CategoryClient({ categorySlug }) {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {paginatedProducts.map((product) => {
-                  const isWishlisted = !!wishlist[product.id]
+                  const isWishlisted = isInWishlist(product.id)
                   const isJustAdded = addedAnimationId === product.id
 
                   return (
@@ -594,7 +581,7 @@ export default function CategoryClient({ categorySlug }) {
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  handleToggleWishlist(product.id)
+                                  handleToggleWishlist(product)
                                 }}
                                 className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#1b1c1a]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
                                   isWishlisted

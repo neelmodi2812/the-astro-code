@@ -3,9 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import {
-  Sparkles,
   Sun,
   MessageSquare,
   User,
@@ -20,11 +19,11 @@ import {
   Info,
   LogIn,
   UserPlus,
-  LayoutDashboard
+  LayoutDashboard,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+
 import { Badge } from "@/components/ui/badge"
 import {
   Sheet,
@@ -34,7 +33,6 @@ import {
   SheetFooter,
   SheetTitle,
   SheetDescription,
-  SheetClose
 } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
@@ -99,7 +97,6 @@ export function AstroHeader({
   onToggleLang,
   cartCount = 0
 }) {
-  const router = useRouter()
   const pathname = usePathname()
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
@@ -185,36 +182,6 @@ export function AstroHeader({
     return "/"
   }
 
-  const handleNavClick = (itemId) => {
-    const dynamicItem = navLinks.find((item) => item.id === itemId && item.dynamic)
-    if (dynamicItem) {
-      router.push(dynamicItem.href)
-    } else if (itemId === "home") {
-      router.push("/")
-    } else if (itemId === "bahuchar-maa-rajwadu") {
-      router.push("/article/hero-1")
-    } else if (itemId === "jyotirling") {
-      router.push("/article/jyotirling-1")
-    } else if (itemId === "dharmik" || itemId === "jyotishshastra" || itemId === "ankashastra" || itemId === "categories" || itemId === "more" || itemId === "vishay-sangrah") {
-      router.push("/categories")
-    } else if (itemId === "preranatmak") {
-      router.push("/article/feat-2")
-    } else if (itemId === "about" || itemId === "about-us") {
-      router.push("/about-us")
-    } else if (itemId === "panchang" || itemId === "dainik-panchang") {
-      router.push("/dainik-panchang")
-    } else if (itemId === "contact" || itemId === "contact-us") {
-      router.push("/contact-us")
-    } else if (itemId === "cart") {
-      router.push("/myshop/cart")
-    } else if (itemId === "shop" || itemId === "myshop" || itemId === "vedic-shop") {
-      router.push("/myshop")
-    }
-    if (onSelectCategory) {
-      onSelectCategory(itemId)
-    }
-  }
-
   const activeNavId = React.useMemo(() => {
     if (pathname === "/") {
       return activeCategory || "home"
@@ -266,9 +233,6 @@ export function AstroHeader({
   }, [pathname, activeCategory, navLinks, submenus])
 
   const checkIsActive = (item) => activeNavId === item.id
-
-
-
 
   return (
     <header className="sticky top-0 w-full z-50 shadow-[0_4px_20px_-2px_rgba(37,26,0,0.12)] transition-all">

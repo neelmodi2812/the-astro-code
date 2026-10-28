@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useWishlist } from "@/lib/api/hooks/use-wishlist"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -29,30 +30,17 @@ import {
   Phone,
   MessageSquare,
   MessageCircle,
-  ExternalLink,
   X,
-  ChevronRight,
   Eye,
-  Info,
   CheckCircle2,
   SlidersHorizontal,
-  ArrowUpDown,
   Home,
-  CheckCircle,
-  Clock,
-  HelpCircle
+  HelpCircle,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -144,7 +132,7 @@ export default function ShopClient() {
 
   // Cart & Wishlist States
   const [cart, setCart] = React.useState([])
-  const [wishlist, setWishlist] = React.useState({})
+  const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(lang)
   const [addedAnimationId, setAddedAnimationId] = React.useState(null)
 
   // Quick View & Order Modal State
@@ -159,11 +147,6 @@ export default function ShopClient() {
   const renderCategoryIcon = (iconName, className = "h-5 w-5") => {
     const IconComponent = ICON_MAP[iconName] || Gem
     return <IconComponent className={className} />
-  }
-
-  // Toast Notification handler
-  const showToast = (message) => {
-    toast.success(message)
   }
 
   // Add to Cart handler
@@ -225,16 +208,17 @@ export default function ShopClient() {
   }
 
   // Toggle Wishlist handler
-  const handleToggleWishlist = (productId) => {
-    setWishlist((prev) => {
-      const next = { ...prev, [productId]: !prev[productId] }
-      if (next[productId]) {
+  const handleToggleWishlist = async (product) => {
+    try {
+      const added = await toggleWishlist(product)
+      if (added) {
         toast.success(lang === "gu" ? "વિશલિસ્ટમાં ઉમેરાયું!" : "Added to Wishlist!")
       } else {
         toast.info(lang === "gu" ? "વિશલિસ્ટમાંથી દૂર કરાયું." : "Removed from Wishlist.")
       }
-      return next
-    })
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   // Quick Category selection with smooth scroll to catalog
@@ -529,7 +513,6 @@ export default function ShopClient() {
               </button>
             </div>
 
-
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
               {shopData.quickCategories.map((cat) => {
                 const isSelected = selectedCategory === cat.id
@@ -573,7 +556,6 @@ export default function ShopClient() {
             </div>
           </div>
         </section>
-
 
         {/* 6. TWO-COLUMN ECOMMERCE CATALOG (25% Sidebar + 75% Main Content) */}
         <section id="shop-catalog-section" className="w-full bg-background pb-14 scroll-mt-20">
@@ -955,7 +937,7 @@ export default function ShopClient() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {paginatedProducts.map((product) => {
-                    const isWishlisted = !!wishlist[product.id]
+                    const isWishlisted = isInWishlist(product.id)
                     const isJustAdded = addedAnimationId === product.id
 
                     return (
@@ -1004,7 +986,7 @@ export default function ShopClient() {
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleToggleWishlist(product.id)
+                                    handleToggleWishlist(product)
                                   }}
                                   className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#1b1c1a]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
                                     isWishlisted

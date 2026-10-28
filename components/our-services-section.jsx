@@ -14,19 +14,14 @@ import {
   Clock,
   Star,
   CheckCircle2,
-  ArrowRight,
-  Phone,
   MessageCircle,
   Calendar,
   ChevronRight,
   Info,
-  ExternalLink,
   Check,
-  Zap
+  Zap,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -35,7 +30,7 @@ import {
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog"
-import { SITE_CONTACT, getWhatsAppUrl } from "@/lib/data/astro-data"
+import { getWhatsAppUrl } from "@/lib/data/astro-data"
 
 // Icon mapping helper
 const ICON_MAP = {

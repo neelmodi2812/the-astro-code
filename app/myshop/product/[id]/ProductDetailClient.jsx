@@ -1,13 +1,13 @@
 "use client"
 
 import * as React from "react"
+import { useWishlist } from "@/lib/api/hooks/use-wishlist"
 import Link from "next/link"
-import Image from "next/image"
+
 import { useRouter } from "next/navigation"
 import {
   Home,
   ShoppingCart,
-  ShoppingBag,
   ShieldCheck,
   Award,
   Truck,
@@ -19,42 +19,29 @@ import {
   Plus,
   Minus,
   ArrowLeft,
-  ArrowRight,
   MessageCircle,
   Phone,
   HelpCircle,
   Copy,
   CheckCircle2,
-  Share2,
   Calendar,
   Compass,
   FileCheck,
   Eye,
-  Info,
-  Droplets,
   Flame,
   Zap,
   ZoomIn,
-  ZoomOut,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
+
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -75,7 +62,6 @@ import { getAstroData } from "@/lib/data/astro-data"
 import { useProduct } from "@/lib/api/hooks/use-product"
 
 const CART_STORAGE_KEY = "astro_cart_items"
-const WISHLIST_STORAGE_KEY = "astro_wishlist_items"
 
 export default function ProductDetailClient({ productId, initialBundle }) {
   const router = useRouter()
@@ -133,7 +119,8 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(0)
   const [selectedVariant, setSelectedVariant] = React.useState(product.variants?.[0] || null)
   const [qty, setQty] = React.useState(1)
-  const [isWishlisted, setIsWishlisted] = React.useState(false)
+  const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(currentLang)
+  const isWishlisted = isInWishlist(product.id)
   const [cartCount, setCartCount] = React.useState(3)
   const [copiedMantra, setCopiedMantra] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("details")
@@ -368,13 +355,6 @@ export default function ProductDetailClient({ productId, initialBundle }) {
           setCartCount(items.reduce((acc, i) => acc + (i.qty || 1), 0))
         }
       }
-      const storedWishlist = localStorage.getItem(WISHLIST_STORAGE_KEY)
-      if (storedWishlist) {
-        const list = JSON.parse(storedWishlist)
-        if (Array.isArray(list) && list.includes(product.id)) {
-          setIsWishlisted(true)
-        }
-      }
     } catch {
       // silent
     }
@@ -404,100 +384,22 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const discountPercent = product.discountPercent || Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
   const totalItemPrice = currentPrice * qty
   const totalOriginalPrice = originalPrice * qty
-  const totalSavings = Math.max(0, totalOriginalPrice - totalItemPrice)
-
-  // Interactive Pincode Delivery Estimator State
-  const [pincode, setPincode] = React.useState("")
-  const [pincodeStatus, setPincodeStatus] = React.useState(null) // null | 'valid' | 'invalid'
-  const [deliveryEstimate, setDeliveryEstimate] = React.useState(null)
-
-  const checkPincodeDelivery = React.useCallback(
-    (code) => {
-      const clean = String(code || "").trim()
-      if (!/^[1-9][0-9]{5}$/.test(clean)) {
-        setPincodeStatus("invalid")
-        setDeliveryEstimate(null)
-        return
-      }
-
-      try {
-        localStorage.setItem("astro_user_pincode", clean)
-      } catch {
-        // silent
-      }
-
-      // Calculate estimated delivery date 3 days from now
-      const now = new Date()
-      const estDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-
-      const guDays = ["રવિવાર", "સોમવાર", "મંગળવાર", "બુધવાર", "ગુરુવાર", "શુક્રવાર", "શનિવાર"]
-      const guMonths = ["જાન્યુઆરી", "ફેબ્રુઆરી", "માર્ચ", "એપ્રિલ", "મે", "જૂન", "જુલાઈ", "ઓગસ્ટ", "સપ્ટેમ્બર", "ઓક્ટોબર", "નવેમ્બર", "ડિસેમ્બર"]
-
-      const enDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-      const enMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-      const dayNameGu = guDays[estDate.getDay()] || "ગુરુવાર"
-      const monthNameGu = guMonths[estDate.getMonth()] || "ઓક્ટોબર"
-      const dateNumGu = toDigits(estDate.getDate())
-
-      const dayNameEn = enDays[estDate.getDay()] || "Thursday"
-      const monthNameEn = enMonths[estDate.getMonth()] || "Oct"
-      const dateNumEn = estDate.getDate()
-
-      let hub = currentLang === "gu" ? "સમગ્ર ગુજરાત & ભારત એક્સપ્રેસ હબ" : "Gujarat & All-India Express Hub"
-      if (clean.startsWith("38")) hub = currentLang === "gu" ? "અમદાવાદ ઝોન" : "Ahmedabad Zone"
-      else if (clean.startsWith("39")) hub = currentLang === "gu" ? "સુરત / વડોદરા ઝોન" : "Surat / Vadodara Zone"
-      else if (clean.startsWith("36")) hub = currentLang === "gu" ? "રાજકોટ / સૌરાષ્ટ્ર ઝોન" : "Rajkot / Saurashtra Zone"
-      else if (clean.startsWith("40")) hub = currentLang === "gu" ? "મુંબઈ ઝોન" : "Mumbai Zone"
-      else if (clean.startsWith("11")) hub = currentLang === "gu" ? "દિલ્હી એનસીઆર ઝોન" : "Delhi NCR Zone"
-
-      setPincodeStatus("valid")
-      setDeliveryEstimate({
-        gu: `${dayNameGu}, ${dateNumGu} ${monthNameGu}`,
-        en: `${dayNameEn}, ${monthNameEn} ${dateNumEn}`,
-        hub
-      })
-    },
-    [currentLang, toDigits]
-  )
-
-  // Load saved pincode from localStorage on mount
-  React.useEffect(() => {
-    try {
-      const savedPincode = localStorage.getItem("astro_user_pincode")
-      if (savedPincode && /^[1-9][0-9]{5}$/.test(savedPincode)) {
-        setPincode(savedPincode)
-        checkPincodeDelivery(savedPincode)
-      }
-    } catch {
-      // silent
-    }
-  }, [checkPincodeDelivery])
 
   // Handlers
   const handleIncreaseQty = () => setQty((prev) => Math.min(10, prev + 1))
   const handleDecreaseQty = () => setQty((prev) => Math.max(1, prev - 1))
 
-  const handleToggleWishlist = () => {
-    setIsWishlisted((prev) => {
-      const next = !prev
-      try {
-        const stored = localStorage.getItem(WISHLIST_STORAGE_KEY)
-        let list = stored ? JSON.parse(stored) : []
-        if (!Array.isArray(list)) list = []
-        if (next) {
-          if (!list.includes(product.id)) list.push(product.id)
-          toast.success(currentLang === "gu" ? "વિશલિસ્ટમાં ઉમેરાયું!" : "Added to Wishlist!")
-        } else {
-          list = list.filter((id) => id !== product.id)
-          toast.info(currentLang === "gu" ? "વિશલિસ્ટમાંથી દૂર કરાયું." : "Removed from Wishlist.")
-        }
-        localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(list))
-      } catch {
-        // silent
+  const handleToggleWishlist = async () => {
+    try {
+      const added = await toggleWishlist(product)
+      if (added) {
+        toast.success(currentLang === "gu" ? "વિશલિસ્ટમાં ઉમેરાયું!" : "Added to Wishlist!")
+      } else {
+        toast.info(currentLang === "gu" ? "વિશલિસ્ટમાંથી દૂર કરાયું." : "Removed from Wishlist.")
       }
-      return next
-    })
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   const handleAddToCart = (directCheckout = false) => {

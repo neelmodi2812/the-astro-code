@@ -2,22 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import {
-  BookOpen,
-  Plus,
-  PlusCircle,
-  Eye,
-  Star,
-  Sparkles,
-  Calendar,
-  Clock,
-  Compass,
-  User,
-  ShieldCheck,
-  CheckCircle2
-} from "lucide-react"
+import { BookOpen, Plus, PlusCircle, Eye, Sparkles } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { withDashboardData } from "@/components/dashboard-gate"
@@ -36,7 +22,6 @@ import {
 } from "@/components/ui/dialog"
 
 function KundliClient({ data, refresh }) {
-  const router = useRouter()
   const { lang } = useLanguage()
   const isEn = lang === "en"
 

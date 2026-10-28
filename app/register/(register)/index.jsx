@@ -8,8 +8,6 @@ import {
   User,
   Phone,
   Mail,
-  Calendar,
-  Clock,
   MapPin,
   Lock,
   KeyRound,
@@ -23,9 +21,8 @@ import {
   Compass,
   PhoneCall,
   ArrowRight,
-  CheckCircle2,
   AlertCircle,
-  LogIn
+  LogIn,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -36,7 +33,7 @@ import { REGISTER_DATA } from "@/lib/data/register-data"
 import { authService } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {

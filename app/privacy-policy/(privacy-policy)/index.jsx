@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
+
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -11,18 +11,10 @@ import {
   ShoppingBag,
   CreditCard,
   Scale,
-  RefreshCw,
-  History,
-  KeyRound,
-  ShieldAlert,
-  LockKeyhole,
   Clock,
   CheckCircle2,
   XCircle,
-  Undo2,
-  Award,
   Sparkles,
-  Truck,
   Printer,
   Headphones,
   Mail,
@@ -30,18 +22,13 @@ import {
   MapPin,
   Info,
   Download,
-  AlertTriangle,
   ChevronRight,
   Send,
-  Check,
   Trash2,
-  HelpCircle,
   UserCheck,
-  Compass,
-  ArrowRight,
   ShieldCheck,
   FileText,
-  BadgeAlert
+  BadgeAlert,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -53,7 +40,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import {
   Breadcrumb,

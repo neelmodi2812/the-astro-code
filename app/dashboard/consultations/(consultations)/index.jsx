@@ -1,22 +1,9 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+
 import { toast } from "sonner"
-import {
-  Video,
-  Calendar,
-  Clock,
-  MessageSquare,
-  Sparkles,
-  CheckCircle2,
-  FileText,
-  User,
-  Plus,
-  Info,
-  Check
-} from "lucide-react"
+import { Video, Calendar, Clock, MessageSquare, Plus, Check } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { withDashboardData } from "@/components/dashboard-gate"
@@ -25,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 function ConsultationsClient({ data }) {
-  const router = useRouter()
   const { lang } = useLanguage()
   const isEn = lang === "en"
 

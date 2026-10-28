@@ -8,7 +8,9 @@ import {
   BookOpen,
   Package,
   Video,
-  Settings
+  Settings,
+  Heart,
+  MapPin
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -32,13 +34,14 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
   const { lang, setLang } = useLanguage()
   const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
   const data = useDashboardContext()
-  const isEn = lang === "en"
 
   const mobileTabs = [
     { id: "overview", label: { gu: "ડેશબોર્ડ", en: "Dashboard" }, href: "/dashboard", exact: true, icon: LayoutDashboard },
     { id: "kundli", label: { gu: "કુંડળી વોલ્ટ", en: "Kundli" }, href: "/dashboard/kundli", icon: BookOpen },
     { id: "orders", label: { gu: "ઓર્ડર્સ", en: "Orders" }, href: "/dashboard/orders", icon: Package },
     { id: "consultations", label: { gu: "પરામર્શ", en: "Consult" }, href: "/dashboard/consultations", icon: Video },
+    { id: "wishlist", label: { gu: "વિશલિસ્ટ", en: "Wishlist" }, href: "/dashboard/wishlist", icon: Heart },
+    { id: "addresses", label: { gu: "સરનામાં", en: "Addresses" }, href: "/dashboard/addresses", icon: MapPin },
     { id: "settings", label: { gu: "સેટિંગ્સ", en: "Settings" }, href: "/dashboard/settings", icon: Settings },
   ]
 

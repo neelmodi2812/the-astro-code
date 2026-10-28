@@ -12,8 +12,6 @@ import {
   Sunset,
   Sunrise,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
   CheckCircle2,
   AlertTriangle,
   Copy,
@@ -24,7 +22,6 @@ import {
   MapPin,
   X,
   Compass,
-  ArrowRight
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"

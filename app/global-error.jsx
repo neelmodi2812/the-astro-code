@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 
 /**
  * Root Global Error Boundary (app/global-error.jsx)

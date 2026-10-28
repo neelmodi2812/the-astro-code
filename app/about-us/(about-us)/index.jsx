@@ -27,24 +27,16 @@ import {
   ArrowRight,
   Lock,
   MessageSquare,
-  X,
   ChevronRight,
   Plus,
   Copy,
   GraduationCap,
-  FileCheck2
+  FileCheck2,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -100,7 +92,6 @@ export default function AboutUsClient() {
 
   // Newsletter Form State
   const [newsletterPhone, setNewsletterPhone] = React.useState("")
-  const [newsletterSuccess, setNewsletterSuccess] = React.useState(false)
 
   // Consultation Booking State
   const [bookingForm, setBookingForm] = React.useState({
@@ -148,10 +139,8 @@ export default function AboutUsClient() {
       toast.error(lang === "gu" ? "કૃપા કરીને ૧૦ અંકનો સાચો મોબાઈલ નંબર દાખલ કરો." : "Please enter a valid 10-digit phone number.")
       return
     }
-    setNewsletterSuccess(true)
     toast.success(about.sidebar.newsletter.successMsg[lang])
     setNewsletterPhone("")
-    setTimeout(() => setNewsletterSuccess(false), 5000)
   }
 
   const handleBookingSubmit = (e) => {

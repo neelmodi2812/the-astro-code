@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import ArticleDetailClient from "./(article)"
-import { ARTICLES_DATA, getArticleById, getAllArticleIds } from "@/lib/data/article-data"
+import { getArticleById, getAllArticleIds } from "@/lib/data/article-data"
 import { JsonLd } from "@/components/seo-structured-data"
 import { getArticleBundle, getArticleSlugs } from "@/lib/api/server/articles"
 

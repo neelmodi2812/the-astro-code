@@ -3,9 +3,9 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { AstroHeader } from "@/components/astro-header"
-import { LiveTicker } from "@/components/live-ticker"
+
 import { VedicPortalHero } from "@/components/vedic-portal-hero"
-import { MysticalTempleHero } from "@/components/mystical-temple-hero"
+
 import { CategoryBar } from "@/components/category-bar"
 import { HeroMagazine } from "@/components/hero-magazine"
 import { EditorialContent } from "@/components/editorial-content"

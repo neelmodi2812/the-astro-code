@@ -28,7 +28,7 @@ export function LanguageProvider({ children, defaultLang = "gu" }) {
         setLangState(match[2])
         document.documentElement.lang = match[2]
       }
-    } catch (e) {
+    } catch {
       // Ignore security errors in sandboxed iframes
     }
   }, [])
@@ -43,7 +43,7 @@ export function LanguageProvider({ children, defaultLang = "gu" }) {
       if (typeof document !== "undefined") {
         document.documentElement.lang = newLang
       }
-    } catch (e) {
+    } catch {
       // Ignore storage errors
     }
   }, [])

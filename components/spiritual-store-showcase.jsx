@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import Image from "next/image"
+
 import { SafeImage } from "@/components/ui/safe-image"
 import {
   ShoppingBag,
@@ -14,7 +14,6 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
 export function SpiritualStoreShowcase({
   storeSection = {},

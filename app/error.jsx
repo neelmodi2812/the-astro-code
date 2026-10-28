@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { AlertCircle, RefreshCw, Home, ShieldAlert } from "lucide-react"
+import { AlertCircle, RefreshCw, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 /**

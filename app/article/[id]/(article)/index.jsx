@@ -12,21 +12,18 @@ import {
   Clock,
   Eye,
   CheckCircle,
-  Volume2,
-  Printer,
   Sparkles,
   Sun,
   ShieldCheck,
   ChevronRight,
   Quote,
   MessageCircle,
-  Phone,
   Store,
   TrendingUp,
   Award,
   Users,
   Copy,
-  Check
+  Check,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -71,7 +68,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
   // Share menu state
   const [shareMenuOpen, setShareMenuOpen] = React.useState(false)
-  const shareMenuRef = React.useRef(null)
 
   // Bookmark state
   const [isBookmarked, setIsBookmarked] = React.useState(false)
@@ -101,8 +97,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     setLang(newLang)
     toast.info(newLang === "en" ? "Language switched to English" : "ભાષા બદલાઈ: ગુજરાતી")
   }
-
-
 
   // Scroll listener for reading progress
   React.useEffect(() => {
@@ -154,7 +148,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
           url: window.location.href
         })
         return
-      } catch (err) {
+      } catch {
         // User cancelled or share dismissed, fall back to dropdown toggle
       }
     }

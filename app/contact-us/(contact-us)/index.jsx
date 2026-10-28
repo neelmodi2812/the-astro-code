@@ -18,34 +18,15 @@ import {
   Send,
   Lock,
   ShieldCheck,
-  Award,
   ExternalLink,
-  ChevronDown,
-  ChevronUp,
   ChevronRight,
-  Star,
   User,
-  ShoppingBag,
   HelpCircle,
-  Flame,
-  AlertCircle,
-  ArrowRight,
-  X,
-  Compass,
-  Check,
-  Share2
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -115,7 +96,6 @@ export default function ContactUsClient() {
   const [formSubmitted, setFormSubmitted] = React.useState(false)
 
   // Accordion State for FAQs
-  const [openFaq, setOpenFaq] = React.useState("faq-1")
 
   // Sidebar Newsletter State
   const [sidebarPhone, setSidebarPhone] = React.useState("")
