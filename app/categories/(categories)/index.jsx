@@ -263,7 +263,7 @@ export default function CategoriesClient() {
       </section>
 
       {/* 3. SEARCH & INTUITIVE FILTER TABS (No clumsy arrows or duplicate badges) */}
-      <section className="w-full bg-card dark:bg-[#181916] py-4 px-4 sm:px-6 shadow-2xs border-b border-border/60 transition-colors sticky top-0 z-20 backdrop-blur-md bg-card/95 dark:bg-[#181916]/95">
+      <section className="w-full bg-card dark:bg-[#181916] py-4 px-4 sm:px-6 shadow-2xs border-b border-border/60 transition-colors relative z-20">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -365,7 +365,7 @@ export default function CategoriesClient() {
                 {filteredCategories.map((cat) => (
                   <Card
                     key={cat.id}
-                    className="overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#181914] hover:-translate-y-1"
+                    className="p-0 py-0 pt-0 gap-0 ring-0 overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#181914] hover:-translate-y-1"
                   >
                     {/* Image Header with Aspect Ratio */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-muted">
