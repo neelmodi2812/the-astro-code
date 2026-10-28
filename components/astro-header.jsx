@@ -20,6 +20,10 @@ import {
   LogIn,
   UserPlus,
   LayoutDashboard,
+  Sparkles,
+  MapPin,
+  Settings,
+  LogOut,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"

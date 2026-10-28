@@ -130,6 +130,9 @@ export default function RegisterClient() {
         email: formData.emailAddress.trim(),
         password: formData.password,
         phone: formData.mobileNumber || undefined,
+        date_of_birth: formData.dob || undefined,
+        time_of_birth: formData.birthTime || undefined,
+        place_of_birth: formData.birthPlace || undefined,
       })
       toast.success(
         lang === "gu"
@@ -638,45 +641,7 @@ export default function RegisterClient() {
             </div>
           </div>
 
-          {/* 3. Trust & Security 3-Pillars underneath */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
-            {data.trustPillars.map((pillar) => {
-              const IconComp =
-                pillar.icon === "ShieldCheck"
-                  ? ShieldCheck
-                  : pillar.icon === "Compass"
-                  ? Compass
-                  : PhoneCall
 
-              return (
-                <Card key={pillar.id} className="p-5 border-border/80 shadow-xs bg-card">
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                      <IconComp className="h-5 w-5" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-sm font-bold text-foreground">
-                        {pillar.title[lang]}
-                      </h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {pillar.desc[lang]}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-
-          {/* 4. Sacred Bottom Note / Benediction */}
-          <div className="mt-8 py-5 text-center bg-muted/40 dark:bg-[#161714] border border-border/70 rounded-xl space-y-1.5">
-            <p className="text-sm font-extrabold text-[#8a6800] dark:text-[#fdc72d] tracking-wider">
-              {data.sacredNote.mantra}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {data.sacredNote.text[lang]}
-            </p>
-          </div>
 
         </div>
       </main>

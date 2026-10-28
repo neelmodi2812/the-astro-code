@@ -86,7 +86,7 @@ export default function CategoriesClient() {
             description: category.description || first.subtitle || "",
             subCategory: first.tag || "",
             badge: `${category.articles_count ?? articles.length} ${lang === "gu" ? "લેખો" : "Articles"}`,
-            image: articles.find((a) => a.image)?.image || null,
+            image: articles.find((a) => a.image)?.image || "https://dummyjson.com/image/200x100",
             imageAlt: first.image_alt || category.name,
             link: `/article/${first.slug || first.id}`,
             articles: articles.slice(0, 3),

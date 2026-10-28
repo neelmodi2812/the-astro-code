@@ -44,6 +44,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -911,7 +912,29 @@ export default function ShopClient() {
               </div>
 
               {/* PRODUCTS CATALOG GRID */}
-              {paginatedProducts.length === 0 ? (
+              {shopData.loading && paginatedProducts.length === 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="rounded-xl overflow-hidden border border-border/80 shadow-xs bg-card dark:bg-[#1a1b18] p-0 flex flex-col justify-between"
+                    >
+                      <Skeleton className="h-52 w-full rounded-none" />
+                      <div className="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-3.5 w-1/3 rounded" />
+                          <Skeleton className="h-5 w-4/5 rounded" />
+                          <Skeleton className="h-3 w-1/2 rounded" />
+                        </div>
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+                          <Skeleton className="h-6 w-20 rounded" />
+                          <Skeleton className="h-8 w-24 rounded-lg" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : paginatedProducts.length === 0 ? (
                 <div className="bg-card dark:bg-[#1a1b18] rounded-xl p-10 text-center border border-border/80 space-y-3">
                   <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                     <Search className="h-6 w-6" />

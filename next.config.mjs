@@ -28,15 +28,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
-    ],
-  },
-  async rewrites() {
-    return [
       {
-        source: '/api/v1/:path*',
-        destination: `${apiUrl.origin}/api/v1/:path*`,
+        protocol: 'https',
+        hostname: 'dummyjson.com',
       },
-    ];
+    ],
   },
   async redirects() {
     return [

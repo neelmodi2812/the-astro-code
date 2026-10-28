@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Settings, User, Compass, Check, Lock, Globe, Trash2 } from "lucide-react"
+import { Settings, User, Compass, Check, Lock, Globe, Trash2, LogOut } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { withDashboardData } from "@/components/dashboard-gate"
@@ -52,20 +52,20 @@ function PasswordCard({ isEn }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-1">
           <label className="text-xs font-bold text-foreground">{isEn ? "Current password" : "હાલનો પાસવર્ડ"}</label>
-          <Input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} required autoComplete="current-password" className="h-10 text-sm" />
+          <Input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} required autoComplete="current-password" className="h-10 text-sm rounded-xl border-border/70" />
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-foreground">{isEn ? "New password" : "નવો પાસવર્ડ"}</label>
-          <Input type="password" value={next} onChange={(e) => setNext(e.target.value)} required minLength={6} autoComplete="new-password" className="h-10 text-sm" />
+          <Input type="password" value={next} onChange={(e) => setNext(e.target.value)} required minLength={6} autoComplete="new-password" className="h-10 text-sm rounded-xl border-border/70" />
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-foreground">{isEn ? "Confirm new password" : "નવો પાસવર્ડ ફરી લખો"}</label>
-          <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} autoComplete="new-password" className="h-10 text-sm" />
+          <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} autoComplete="new-password" className="h-10 text-sm rounded-xl border-border/70" />
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving} variant="outline" className="h-9 text-xs font-bold">
+        <Button type="submit" disabled={isSaving} variant="outline" className="h-9 px-4 text-xs font-bold rounded-xl">
           {isEn ? "Update Password" : "પાસવર્ડ અપડેટ કરો"}
         </Button>
       </div>
@@ -168,21 +168,28 @@ function SettingsClient({ data, refresh }) {
     <DashboardShell breadcrumbKey="settings">
       <div className="space-y-6">
         
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
-            <Settings className="h-6 w-6 text-[#8a6800] dark:text-[#fdc72d]" />
-            <span>{data.breadcrumb.settings[lang] || data.breadcrumb.settings.gu}</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {isEn
-              ? "Manage your personal profile, registered astrological details, and preferences."
-              : "તમારી વ્યક્તિગત જન્મ વિગતો, ભાષા પસંદગી અને સુરક્ષા સેટિંગ્સનું સંચાલન."}
-          </p>
-        </div>
+        {/* Page Heading & Sign Out Action */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+              <Settings className="h-6 w-6 text-[#8a6800] dark:text-[#fdc72d]" />
+              <span>{data.breadcrumb.settings[lang] || data.breadcrumb.settings.gu}</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              {isEn
+                ? "Manage your personal profile, registered astrological details, and preferences."
+                : "તમારી વ્યક્તિગત જન્મ વિગતો, ભાષા પસંદગી અને સુરક્ષા સેટિંગ્સનું સંચાલન."}
+            </p>
+          </div>
 
-        <div className="flex justify-end">
-          <Button type="button" variant="outline" onClick={handleLogout} className="h-9 text-xs font-bold">
-            {isEn ? "Sign out" : "લૉગ આઉટ"}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleLogout}
+            className="h-9 px-4 text-xs font-bold gap-1.5 border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 rounded-xl cursor-pointer self-start sm:self-auto shrink-0 transition-colors"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>{isEn ? "Sign Out" : "લૉગ આઉટ"}</span>
           </Button>
         </div>
 
@@ -203,7 +210,7 @@ function SettingsClient({ data, refresh }) {
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-10 text-sm"
+                  className="h-10 text-sm rounded-xl border-border/70"
                 />
               </div>
 
@@ -216,7 +223,7 @@ function SettingsClient({ data, refresh }) {
                   value={email}
                   readOnly
                   disabled
-                  className="h-10 text-sm"
+                  className="h-10 text-sm rounded-xl border-border/70"
                 />
               </div>
 
@@ -228,7 +235,7 @@ function SettingsClient({ data, refresh }) {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="h-10 text-sm"
+                  className="h-10 text-sm rounded-xl border-border/70"
                 />
               </div>
 
@@ -239,7 +246,7 @@ function SettingsClient({ data, refresh }) {
                 <Input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="h-10 text-sm"
+                  className="h-10 text-sm rounded-xl border-border/70"
                 />
               </div>
             </div>

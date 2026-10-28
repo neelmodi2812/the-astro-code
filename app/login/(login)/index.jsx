@@ -47,6 +47,7 @@ export default function LoginClient() {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [errors, setErrors] = React.useState({})
+  const [authError, setAuthError] = React.useState("")
 
   // Email & Password
   const [email, setEmail] = React.useState("")
@@ -58,6 +59,7 @@ export default function LoginClient() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault()
     setErrors({})
+    setAuthError("")
 
     const schema = getLoginSchema(lang)
     const result = schema.safeParse({ email, password })
@@ -71,10 +73,6 @@ export default function LoginClient() {
         }
       })
       setErrors(fieldErrors)
-      const firstError = Object.values(fieldErrors)[0]
-      if (firstError) {
-        toast.error(firstError)
-      }
       return
     }
 
@@ -95,7 +93,12 @@ export default function LoginClient() {
         })
         setErrors(apiErrors)
       }
-      toast.error(error.message)
+      const message =
+        error?.message ||
+        (lang === "gu"
+          ? "અમાન્ય ઈમેલ અથવા પાસવર્ડ."
+          : "Invalid email or password.")
+      setAuthError(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -243,6 +246,18 @@ export default function LoginClient() {
                     <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                       {data.rightColumn.subheading[lang]}
                     </p>
+
+                    {authError && (
+                      <div
+                        role="alert"
+                        className="mt-3.5 p-3 rounded-xl bg-destructive/10 border border-destructive/25 text-destructive flex items-center gap-2.5 animate-in fade-in-50 duration-200"
+                      >
+                        <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+                        <span className="text-xs sm:text-sm font-semibold leading-relaxed">
+                          {authError}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Email & password sign-in */}
@@ -261,6 +276,7 @@ export default function LoginClient() {
                             value={email}
                             onChange={(e) => {
                               setEmail(e.target.value)
+                              if (authError) setAuthError("")
                               if (errors.email) setErrors((prev) => ({ ...prev, email: "" }))
                             }}
                             placeholder={data.rightColumn.pwdForm.emailPlaceholder[lang]}
@@ -298,6 +314,7 @@ export default function LoginClient() {
                             value={password}
                             onChange={(e) => {
                               setPassword(e.target.value)
+                              if (authError) setAuthError("")
                               if (errors.password) setErrors((prev) => ({ ...prev, password: "" }))
                             }}
                             placeholder={data.rightColumn.pwdForm.passwordPlaceholder[lang]}
