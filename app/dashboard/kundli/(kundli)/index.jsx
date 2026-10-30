@@ -125,66 +125,91 @@ function KundliClient({ data, refresh }) {
           </Button>
         </div>
 
-        {/* Grid of Saved Kundlis */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {kundlis.map((k) => (
-            <div
-              key={k.id}
-              className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-2xs hover:border-[#fdc72d]/70 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      k.isSelf
-                        ? "bg-[#00685d] text-white"
-                        : "bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]"
-                    }`}
-                  >
-                    {k.relation[lang] || k.relation.gu}
-                  </span>
-                  <h3 className="font-bold text-base text-foreground mt-2">
-                    {k.name[lang] || k.name.gu}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {k.dob[lang] || k.dob.gu}
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] font-bold text-sm flex items-center justify-center border border-border/50">
-                  {(k.name[lang] || k.name.gu)?.charAt(0) || "•"}
-                </div>
-              </div>
-
-              <div className="space-y-2 text-xs bg-muted/40 dark:bg-[#20211d] p-3 rounded-xl border border-border/40">
-                <div className="flex justify-between text-muted-foreground text-[11px]">
-                  <span>{isEn ? "Birthplace:" : "જન્મસ્થળ:"}</span>
-                  <strong className="text-foreground">{k.city ? k.city[lang] || k.city.gu : "અમદાવાદ"}</strong>
-                </div>
-                <div className="flex justify-between text-muted-foreground text-[11px]">
-                  <span>{isEn ? "Rashi / Lagna:" : "રાશિ / લગ્ન:"}</span>
-                  <strong className="text-foreground">{k.rashiLagna[lang] || k.rashiLagna.gu}</strong>
-                </div>
-                <div className="flex justify-between text-muted-foreground text-[11px]">
-                  <span>{isEn ? "Nakshatra:" : "નક્ષત્ર:"}</span>
-                  <span className="font-semibold text-foreground">{k.nakshatra[lang] || k.nakshatra.gu}</span>
-                </div>
-                <div className="flex justify-between text-muted-foreground text-[11px]">
-                  <span>{isEn ? "Current Dasha:" : "વર્તમાન દશા:"}</span>
-                  <strong className="text-[#8a6800] dark:text-[#fdc72d]">{k.dasha[lang] || k.dasha.gu}</strong>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => handleInspect(k)}
-                variant="outline"
-                className="w-full h-9 text-xs font-bold rounded-xl border-border hover:bg-[#fdc72d]/20 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-all cursor-pointer gap-1.5"
-              >
-                <Eye className="h-4 w-4" />
-                <span>{isEn ? "Open Vedic Chart Analysis" : "કુંડળી વિશ્લેષણ ખોલો"}</span>
-              </Button>
+        {/* Grid or Empty State of Saved Kundlis */}
+        {kundlis.length === 0 ? (
+          <div className="py-14 px-6 text-center flex flex-col items-center justify-center space-y-4 bg-muted/20 dark:bg-[#181914] rounded-2xl border border-dashed border-border/70">
+            <div className="w-16 h-16 rounded-full bg-muted/60 dark:bg-[#20211d] flex items-center justify-center text-muted-foreground">
+              <BookOpen className="h-8 w-8 text-muted-foreground/60" />
             </div>
-          ))}
-        </div>
+            <div className="space-y-1.5 max-w-md">
+              <h3 className="text-base sm:text-lg font-bold text-foreground">
+                {isEn ? "No Saved Kundlis Found" : "કોઈ કુંડળી સેવ થયેલ નથી"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {isEn
+                  ? "Your Kundli Vault is currently empty. Add your birth chart or save family members' charts to unlock deep Vedic horoscope insights."
+                  : "તમારો કુંડળી વોલ્ટ અત્યારે ખાલી છે. વૈદિક જ્યોતિષ આધારિત વિશ્લેષણ મેળવવા તમારી અથવા પરિવારના સભ્યોની કુંડળી ઉમેરો."}
+              </p>
+            </div>
+            <Button
+              onClick={() => setAddOpen(true)}
+              className="mt-2 h-9 px-5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>{isEn ? "Add Your First Kundli" : "તમારી પ્રથમ કુંડળી ઉમેરો"}</span>
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {kundlis.map((k) => (
+              <div
+                key={k.id}
+                className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-2xs hover:border-[#fdc72d]/70 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        k.isSelf
+                          ? "bg-[#00685d] text-white"
+                          : "bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]"
+                      }`}
+                    >
+                      {k.relation[lang] || k.relation.gu}
+                    </span>
+                    <h3 className="font-bold text-base text-foreground mt-2">
+                      {k.name[lang] || k.name.gu}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {k.dob[lang] || k.dob.gu}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] font-bold text-sm flex items-center justify-center border border-border/50">
+                    {(k.name[lang] || k.name.gu)?.charAt(0) || "•"}
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs bg-muted/40 dark:bg-[#20211d] p-3 rounded-xl border border-border/40">
+                  <div className="flex justify-between text-muted-foreground text-[11px]">
+                    <span>{isEn ? "Birthplace:" : "જન્મસ્થળ:"}</span>
+                    <strong className="text-foreground">{k.city ? k.city[lang] || k.city.gu : "અમદાવાદ"}</strong>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground text-[11px]">
+                    <span>{isEn ? "Rashi / Lagna:" : "રાશિ / લગ્ન:"}</span>
+                    <strong className="text-foreground">{k.rashiLagna[lang] || k.rashiLagna.gu}</strong>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground text-[11px]">
+                    <span>{isEn ? "Nakshatra:" : "નક્ષત્ર:"}</span>
+                    <span className="font-semibold text-foreground">{k.nakshatra[lang] || k.nakshatra.gu}</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground text-[11px]">
+                    <span>{isEn ? "Current Dasha:" : "વર્તમાન દશા:"}</span>
+                    <strong className="text-[#8a6800] dark:text-[#fdc72d]">{k.dasha[lang] || k.dasha.gu}</strong>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => handleInspect(k)}
+                  variant="outline"
+                  className="w-full h-9 text-xs font-bold rounded-xl border-border hover:bg-[#fdc72d]/20 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-all cursor-pointer gap-1.5"
+                >
+                  <Eye className="h-4 w-4" />
+                  <span>{isEn ? "Open Vedic Chart Analysis" : "કુંડળી વિશ્લેષણ ખોલો"}</span>
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Educational Note Strip */}
         <div className="p-4 bg-muted/40 dark:bg-[#20211d] rounded-2xl border border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">

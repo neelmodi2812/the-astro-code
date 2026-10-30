@@ -45,7 +45,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
     tagline: isEn ? "UNLOCK HAPPINESS • VEDIC SPIRITUAL PORTAL" : "UNLOCK HAPPINESS • વૈદિક અધ્યાત્મ પોર્ટલ",
     logoUrl:
       config?.logoUrl ||
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBl8Ogqc3Lgxek9Poh6T6awNiHzAhMkqB-5xPT0DGQw2IkT_JcEk1jrF2XWfWhUcqqZUaq2yl1BcF9KyKGZG1FSAiWJCqFng25fFCfO60PSuH_WhIrXmepmxQpoTd8-3rYz6AP2u8k4zfujF7gqSn-OOWkejaV7jSUZYd-Vx2sZp3lWu2lhhmj59HfTP35AWQGI3JD_-LdFej4UXcxM7Nt4HhU6_7DSXUONbF2fKEY14WAQjMJ59pJkcLp2sxGLtwmBKA",
+      "/logo.png",
     founder: {
       location: isEn
         ? "Bodakdev, S.G. Highway, Ahmedabad, Gujarat - 380054"
@@ -83,25 +83,15 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
           
           {/* Column 1: Brand & About */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg overflow-hidden ring-1 ring-[#fdc72d] bg-[#121b1a] flex items-center justify-center p-0.5 shrink-0">
-                <Image
-                  src={safeConfig.logoUrl}
-                  alt={safeConfig.appName}
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover rounded"
-                />
-              </div>
-              <div>
-                <div className="text-base font-extrabold text-foreground leading-tight">
-                  {safeConfig.appName}
-                </div>
-                <div className="text-[10px] font-black text-[#8a6800] dark:text-[#fdc72d]">
-                  {safeConfig.tagline}
-                </div>
-              </div>
-            </div>
+            <Link href="/" className="inline-block" aria-label={safeConfig.appName}>
+              <Image
+                src={safeConfig.logoUrl || "/logo.png"}
+                alt={safeConfig.appName}
+                width={140}
+                height={52}
+                className="h-12 w-auto object-contain"
+              />
+            </Link>
 
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-1">
               {footer.about ||

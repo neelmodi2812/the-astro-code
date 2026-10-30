@@ -36,6 +36,8 @@ import {
   SlidersHorizontal,
   Home,
   HelpCircle,
+  Minus,
+  Plus,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -186,6 +188,7 @@ export default function ShopClient() {
         })
       }
       localStorage.setItem("astro_cart_items", JSON.stringify(items))
+      try { window.dispatchEvent(new Event("astro_cart_updated")) } catch {}
     } catch {
       // ignore
     }
@@ -299,6 +302,9 @@ export default function ShopClient() {
     sortBy
   ])
 
+  const GU_DIGITS = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+  const toDigits = (val) => (lang === "gu" ? String(val).replace(/\d/g, (d) => GU_DIGITS[Number(d)]) : String(val))
+
   // Pagination calculation
   const totalItems = filteredProducts.length
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1
@@ -312,10 +318,14 @@ export default function ShopClient() {
     if (!activeModalProduct) return
     const text = encodeURIComponent(
       lang === "gu"
-        ? `જય શ્રી કૃષ્ણ ડૉ. વિશાલ મોદી,\nહું MyShop પરથી "${activeModalProduct.name}" (જથ્થો: ${modalQty}) મંગાવવા માંગુ છું.\nકિંમત: ₹${activeModalProduct.price * modalQty}\nનામ: ${orderName || "ગ્રાહક"}\nફોન: ${orderPhone || "N/A"}\nસરનામું: ${orderAddress || "N/A"}`
-        : `Namaste Dr. Vishal Modi,\nI would like to order "${activeModalProduct.name}" (Quantity: ${modalQty}) from MyShop.\nPrice: ₹${activeModalProduct.price * modalQty}\nName: ${orderName || "Customer"}\nPhone: ${orderPhone || "N/A"}\nAddress: ${orderAddress || "N/A"}`
+        ? `જય શ્રી કૃષ્ણ The Astro Code,\nહું MyShop પરથી "${activeModalProduct.name}" (જથ્થો: ${modalQty}) મંગાવવા માંગુ છું.\nકિંમત: ₹${activeModalProduct.price * modalQty}\nનામ: ${orderName || "ગ્રાહક"}\nફોન: ${orderPhone || "N/A"}\nસરનામું: ${orderAddress || "N/A"}`
+        : `Namaste The Astro Code,\nI would like to order "${activeModalProduct.name}" (Quantity: ${modalQty}) from MyShop.\nPrice: ₹${activeModalProduct.price * modalQty}\nName: ${orderName || "Customer"}\nPhone: ${orderPhone || "N/A"}\nAddress: ${orderAddress || "N/A"}`
     )
-    window.open(`https://wa.me/919825000000?text=${text}`, "_blank")
+    const baseWhatsapp = founder?.whatsappUrl || "https://wa.me/917940008108"
+    const finalUrl = baseWhatsapp.includes("?")
+      ? `${baseWhatsapp}&text=${text}`
+      : `${baseWhatsapp}?text=${text}`
+    window.open(finalUrl, "_blank")
     setOrderSuccess(true)
     setTimeout(() => {
       setOrderSuccess(false)
@@ -782,7 +792,7 @@ export default function ShopClient() {
                       className="md:col-span-5 relative min-h-[260px] md:min-h-[320px] bg-muted overflow-hidden block group"
                     >
                       <Image
-                        src={shopData.featuredProduct.image}
+                        src={shopData.featuredProduct.image || "https://dummyjson.com/image/200x100"}
                         alt={shopData.featuredProduct.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 42vw"
@@ -973,7 +983,7 @@ export default function ShopClient() {
                         <div className="relative h-52 bg-muted overflow-hidden">
                           <Link href={`/myshop/product/${product.id}`} className="relative block w-full h-full">
                             <Image
-                              src={product.image}
+                              src={product.image || "https://dummyjson.com/image/200x100"}
                               alt={product.name}
                               fill
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -1110,10 +1120,10 @@ export default function ShopClient() {
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#1a1b18] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
                   <p className="text-xs text-muted-foreground">
                     {lang === "gu"
-                      ? `દર્શાવવામાં આવેલ: ${(currentPage - 1) * itemsPerPage + 1} થી ${Math.min(
+                      ? `દર્શાવવામાં આવેલ: ${toDigits((currentPage - 1) * itemsPerPage + 1)} થી ${toDigits(Math.min(
                           currentPage * itemsPerPage,
                           totalItems
-                        )} (કુલ ${totalItems} માંથી)`
+                        ))} (કુલ ${toDigits(totalItems)} માંથી)`
                       : `Showing: ${(currentPage - 1) * itemsPerPage + 1} to ${Math.min(
                           currentPage * itemsPerPage,
                           totalItems
@@ -1134,8 +1144,9 @@ export default function ShopClient() {
                             ? "bg-[#00685d] text-white shadow-2xs"
                             : "bg-muted text-foreground hover:bg-muted/80"
                         }`}
+                        aria-label={`${lang === "gu" ? "પૃષ્ઠ" : "Page"} ${toDigits(page)}`}
                       >
-                        {page}
+                        {toDigits(page)}
                       </button>
                     ))}
                   </div>
@@ -1259,7 +1270,7 @@ export default function ShopClient() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="w-full sm:w-44 h-44 rounded-xl overflow-hidden bg-muted shrink-0 border border-border/60 relative">
                   <Image
-                    src={activeModalProduct.image}
+                    src={activeModalProduct.image || "https://dummyjson.com/image/200x100"}
                     alt={activeModalProduct.name}
                     fill
                     sizes="176px"
@@ -1295,22 +1306,31 @@ export default function ShopClient() {
                 <span className="text-xs font-bold text-foreground">
                   {lang === "gu" ? "જથ્થો (Quantity):" : "Quantity:"}
                 </span>
-                <div className="flex items-center gap-2">
-                  <button
+                <div className="inline-flex items-center rounded-xl border border-border bg-card dark:bg-[#1a1b18] p-0.5 shadow-2xs">
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setModalQty((q) => Math.max(1, q - 1))}
-                    className="w-7 h-7 rounded-md bg-card border text-foreground font-bold flex items-center justify-center hover:bg-muted"
+                    disabled={modalQty <= 1}
+                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-40 cursor-pointer"
+                    aria-label={lang === "gu" ? "જથ્થો ઘટાડો" : "Decrease quantity"}
                   >
-                    -
-                  </button>
-                  <span className="w-8 text-center text-xs font-bold">{modalQty}</span>
-                  <button
+                    <Minus className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="w-9 text-center text-xs font-black text-foreground select-none">
+                    {lang === "gu" ? String(modalQty).replace(/\d/g, (d) => ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"][Number(d)]) : modalQty}
+                  </span>
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setModalQty((q) => q + 1)}
-                    className="w-7 h-7 rounded-md bg-card border text-foreground font-bold flex items-center justify-center hover:bg-muted"
+                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all cursor-pointer"
+                    aria-label={lang === "gu" ? "જથ્થો વધારો" : "Increase quantity"}
                   >
-                    +
-                  </button>
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </div>
 

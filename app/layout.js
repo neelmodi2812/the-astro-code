@@ -80,7 +80,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/the_astro_code_golden_yantra_logo.png",
+        url: "/logo.png",
         width: 800,
         height: 800,
         alt: "The Astro Code - Vedic Astrology & Spiritual Portal",
@@ -92,7 +92,7 @@ export const metadata = {
     title: "The Astro Code — Unlock Happiness | વૈદિક જ્યોતિષ & પંચાંગ",
     description:
       "સંપૂર્ણ વૈદિક જ્યોતિષ, સાત્વિક પંચાંગ, ચોઘડિયા અને ગોલ્ડ મેડાલિસ્ટ ડૉ. વિશાલ મોદીનું શાસ્ત્રોક્ત માર્ગદર્શન.",
-    images: ["/the_astro_code_golden_yantra_logo.png"],
+    images: ["/logo.png"],
     creator: "@theastrocode",
   },
   robots: {

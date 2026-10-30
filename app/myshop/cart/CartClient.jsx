@@ -23,7 +23,6 @@ import {
   MessageCircle,
   Phone,
   HelpCircle,
-  RotateCcw,
   Award,
   Truck,
   CreditCard,
@@ -156,6 +155,7 @@ export default function CartClient() {
     setCartItems(newItems)
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems))
+      try { window.dispatchEvent(new Event("astro_cart_updated")) } catch {}
     } catch {
       // ignore storage error
     }
@@ -685,7 +685,8 @@ export default function CartClient() {
                           className="w-full sm:w-36 h-36 rounded-xl bg-muted overflow-hidden shrink-0 relative border border-border/40 block group/thumb cursor-pointer"
                         >
                           <img
-                            src={item.image}
+                            src={item.image || "https://dummyjson.com/image/200x100"}
+                            onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                             alt={itemName}
                             className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500"
                           />
@@ -839,7 +840,8 @@ export default function CartClient() {
                         >
                           <div className="flex items-center gap-3 min-w-0 flex-1">
                             <img
-                              src={sItem.image}
+                              src={sItem.image || "https://dummyjson.com/image/200x100"}
+                              onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                               alt={getText(sItem.name)}
                               className="w-14 h-14 rounded-xl object-cover shrink-0 border border-border/40"
                             />
@@ -1044,67 +1046,7 @@ export default function CartClient() {
           )}
         </section>
 
-        {/* Bottom Guarantee & 4 Vedic Trust Pillars */}
-        <section className="w-full bg-card border-t border-border mt-8 py-12 md:py-16 px-4 sm:px-6 lg:px-8">
-          <div className="w-full max-w-7xl mx-auto flex flex-col gap-8">
-            <div className="text-center flex flex-col items-center gap-2">
-              <span className="px-3.5 py-1 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold text-xs tracking-wide">
-                {cartData.trustPillars.badge}
-              </span>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                {cartData.trustPillars.title}
-              </h2>
-            </div>
 
-            {/* 4 Pillars Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              {cartData.trustPillars.pillars.map((pillar, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col items-center text-center p-5 sm:p-6 rounded-2xl bg-muted/40 border border-border/60 hover:border-[#00685d]/40 transition-colors gap-3"
-                >
-                  <div className="w-12 h-12 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                    {pillar.icon === "ShieldCheck" ? (
-                      <ShieldCheck className="h-6 w-6" />
-                    ) : pillar.icon === "Award" || pillar.icon === "Sparkles" ? (
-                      <Award className="h-6 w-6" />
-                    ) : pillar.icon === "RotateCcw" ? (
-                      <RotateCcw className="h-6 w-6" />
-                    ) : (
-                      <Lock className="h-6 w-6" />
-                    )}
-                  </div>
-                  <h3 className="text-sm sm:text-base font-bold text-foreground">
-                    {pillar.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {pillar.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Quick Assistance WhatsApp Strip */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-muted/60 border border-border flex flex-wrap items-center justify-between gap-4 mt-2">
-              <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
-                <span className="text-xs sm:text-sm text-foreground">
-                  {cartData.trustPillars.supportStrip.text}{" "}
-                  <strong>{cartData.trustPillars.supportStrip.timing}</strong>
-                </span>
-              </div>
-              <a
-                href={supportWhatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 rounded-xl bg-[#00685d] text-white hover:bg-[#005048] font-bold text-xs flex items-center gap-2 transition-colors shadow-xs"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>{founder?.phone ? `${currentLang === "gu" ? "WhatsApp પર સહાય મેળવો" : "Get help on WhatsApp"}: ${founder.phone}` : cartData.trustPillars.supportStrip.buttonText}</span>
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Global Footer */}

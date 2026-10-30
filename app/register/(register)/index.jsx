@@ -67,6 +67,7 @@ export default function RegisterClient() {
   })
 
   const [errors, setErrors] = React.useState({})
+  const [formError, setFormError] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
@@ -81,6 +82,9 @@ export default function RegisterClient() {
     setFormData((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
+    }
+    if (formError) {
+      setFormError("")
     }
   }
 
@@ -106,12 +110,14 @@ export default function RegisterClient() {
       setErrors(newErrors)
       const firstError = Object.values(newErrors)[0]
       if (firstError) {
+        setFormError(firstError)
         toast.error(firstError)
       }
       return false
     }
 
     setErrors({})
+    setFormError("")
     return true
   }
 
@@ -149,7 +155,9 @@ export default function RegisterClient() {
         if (error.errors.password) serverErrors.password = Array.isArray(error.errors.password) ? error.errors.password[0] : error.errors.password
         setErrors((prev) => ({ ...prev, ...serverErrors }))
       }
-      toast.error(error.message)
+      const errMsg = error.message || (lang === "gu" ? "નોંધણી કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો." : "Registration failed. Please try again.")
+      setFormError(errMsg)
+      toast.error(errMsg)
     } finally {
       setIsSubmitting(false)
     }
@@ -164,7 +172,6 @@ export default function RegisterClient() {
         config={siteData.config}
         topBar={siteData.topBar}
         activeCategory="home"
-        cartCount={2}
         onSelectCategory={(id) => {
           if (id === "home") router.push("/")
           else if (id === "about-us") router.push("/about-us")
@@ -315,6 +322,19 @@ export default function RegisterClient() {
                       {data.rightColumn.subheading[lang]}
                     </p>
                   </div>
+
+                  {/* Top-Level Form Error Banner (Prominently visible on mobile & desktop) */}
+                  {formError && (
+                    <div
+                      role="alert"
+                      className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/25 text-destructive flex items-center gap-2.5 animate-in fade-in-50 duration-200"
+                    >
+                      <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+                      <span className="text-xs sm:text-sm font-semibold leading-relaxed">
+                        {formError}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Main Form Fields */}
                   <form onSubmit={handleSubmit} className="space-y-4">

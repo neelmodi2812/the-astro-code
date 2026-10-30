@@ -74,13 +74,45 @@ function DashboardClient({ data }) {
                 <span>{data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}</span>
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-              <span>{data.userProfile.birthDetails.rashi[lang] || data.userProfile.birthDetails.rashi.gu}</span>
-              <span className="text-border">•</span>
-              <span>{data.userProfile.birthDetails.nakshatra[lang] || data.userProfile.birthDetails.nakshatra.gu}</span>
-              <span className="text-border">•</span>
-              <span>{data.userProfile.birthDetails.city[lang] || data.userProfile.birthDetails.city.gu}</span>
-            </p>
+            {(() => {
+              const birthRashi = data.userProfile.birthDetails?.rashi?.[lang] || data.userProfile.birthDetails?.rashi?.gu || ""
+              const birthNakshatra = data.userProfile.birthDetails?.nakshatra?.[lang] || data.userProfile.birthDetails?.nakshatra?.gu || ""
+              const birthCity = data.userProfile.birthDetails?.city?.[lang] || data.userProfile.birthDetails?.city?.gu || ""
+              const isInvalid = (val) => !val || val === "-" || val === "—" || val === "–" || val === "•"
+              const validDetails = [
+                !isInvalid(birthRashi) && birthRashi,
+                !isInvalid(birthNakshatra) && birthNakshatra,
+                !isInvalid(birthCity) && birthCity,
+              ].filter(Boolean)
+
+              if (validDetails.length > 0) {
+                return (
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                    {validDetails.map((detail, idx) => (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <span className="text-border">•</span>}
+                        <span>{detail}</span>
+                      </React.Fragment>
+                    ))}
+                  </p>
+                )
+              }
+
+              return (
+                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                  <span>
+                    {isEn ? "Personalized Vedic Profile" : "વ્યક્તિકૃત વૈદિક પ્રોફાઇલ"}
+                  </span>
+                  <span className="text-border">•</span>
+                  <Link
+                    href="/dashboard/settings"
+                    className="text-xs font-semibold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
+                  >
+                    {isEn ? "Add birth details in Settings →" : "સેટિંગ્સમાં જન્મ વિગતો ઉમેરો →"}
+                  </Link>
+                </p>
+              )
+            })()}
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">

@@ -16,6 +16,8 @@ function OrdersClient({ data }) {
   const router = useRouter()
   const { lang } = useLanguage()
   const isEn = lang === "en"
+  const GU_DIGITS = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+  const toDigits = (n) => (isEn ? String(n) : String(n).replace(/\d/g, (d) => GU_DIGITS[Number(d)]))
 
   // Filter tab: "all" | "active" | "delivered"
   const [filter, setFilter] = React.useState("all")
@@ -68,7 +70,7 @@ function OrdersClient({ data }) {
                 filter === "all" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {isEn ? `All (${counts.all})` : `તમામ (${counts.all})`}
+              {isEn ? `All (${counts.all})` : `તમામ (${toDigits(counts.all)})`}
             </button>
             <button
               onClick={() => setFilter("active")}
@@ -76,7 +78,7 @@ function OrdersClient({ data }) {
                 filter === "active" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {isEn ? `In-Transit (${counts.active})` : `રવાના (${counts.active})`}
+              {isEn ? `In-Transit (${counts.active})` : `રવાના (${toDigits(counts.active)})`}
             </button>
             <button
               onClick={() => setFilter("delivered")}
@@ -84,7 +86,7 @@ function OrdersClient({ data }) {
                 filter === "delivered" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {isEn ? `Delivered (${counts.delivered})` : `ડિલિવર થયેલ (${counts.delivered})`}
+              {isEn ? `Delivered (${counts.delivered})` : `ડિલિવર થયેલ (${toDigits(counts.delivered)})`}
             </button>
           </div>
         </div>
@@ -111,7 +113,8 @@ function OrdersClient({ data }) {
             <div className="bg-muted/40 dark:bg-[#20211d] rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4 border border-border/50">
               <Link href="/myshop/product/nepali-5-mukhi-mala" className="shrink-0 group/order-img">
                 <img
-                  src={data.activeOrder.imageUrl}
+                  src={data.activeOrder.imageUrl || "https://dummyjson.com/image/200x100"}
+                  onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                   alt="Rudraksha"
                   className="w-20 h-20 rounded-lg object-cover shadow-2xs group-hover/order-img:scale-105 transition-transform duration-300 border border-border/50 cursor-pointer"
                 />
@@ -162,7 +165,7 @@ function OrdersClient({ data }) {
                       ) : st.status === "active" ? (
                         <Truck className="h-4 w-4" />
                       ) : (
-                        <span>{st.num}</span>
+                        <span>{toDigits(st.num)}</span>
                       )}
                     </div>
                     <span className="text-xs font-bold text-foreground">

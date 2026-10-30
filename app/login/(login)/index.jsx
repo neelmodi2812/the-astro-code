@@ -113,7 +113,6 @@ export default function LoginClient() {
         config={siteData.config}
         topBar={siteData.topBar}
         activeCategory="home"
-        cartCount={2}
         onSelectCategory={(id) => {
           if (id === "home") router.push("/")
           else if (id === "about-us") router.push("/about-us")

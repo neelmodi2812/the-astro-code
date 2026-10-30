@@ -61,54 +61,67 @@ export function DashboardSidebar() {
     toast.info(isEn ? "Japa counter reset." : "જાપ કાઉન્ટર રીસેટ કરવામાં આવ્યું.")
   }
 
-  const navItems = [
+  // Dynamic counts & alert states from actual dashboard context
+  const digits = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+  const toDigits = (n) => (isEn ? String(n) : String(n).replace(/\d/g, (d) => digits[Number(d)]))
+
+  const kundliCount = data.savedKundlis?.list?.length || 0
+  const activeOrdersCount = (data.ordersHistory || []).filter((o) => o.status === "in-transit").length
+  const hasUpcomingConsultation = Boolean(
+    data.upcomingConsultation && !data.upcomingConsultation.isPlaceholder
+  )
+
+  const navItems = React.useMemo(() => [
     {
       id: "overview",
       label: { gu: "ડેશબોર્ડ (Overview)", en: "Dashboard Overview" },
       href: "/dashboard",
       icon: LayoutDashboard,
-      exact: true
+      exact: true,
     },
     {
       id: "kundli",
       label: { gu: "કુંડળી વોલ્ટ (My Kundli)", en: "My Kundli Vault" },
       href: "/dashboard/kundli",
-      badge: "૩",
-      icon: BookOpen
+      badge: kundliCount > 0 ? toDigits(kundliCount) : null,
+      icon: BookOpen,
     },
     {
       id: "orders",
       label: { gu: "મારા ઓર્ડર્સ (My Orders)", en: "My Orders & Tracking" },
       href: "/dashboard/orders",
-      badge: { gu: "૧ સક્રિય", en: "1 Active" },
-      icon: Package
+      badge:
+        activeOrdersCount > 0
+          ? { gu: `${toDigits(activeOrdersCount)} સક્રિય`, en: `${activeOrdersCount} Active` }
+          : null,
+      icon: Package,
     },
     {
       id: "consultations",
       label: { gu: "જ્યોતિષ પરામર્શ (Consultations)", en: "Consultations Vault" },
       href: "/dashboard/consultations",
       icon: Video,
-      alert: true
+      alert: hasUpcomingConsultation,
     },
     {
       id: "wishlist",
       label: { gu: "મારી વિશલિસ્ટ (Wishlist)", en: "My Wishlist" },
       href: "/dashboard/wishlist",
-      icon: Heart
+      icon: Heart,
     },
     {
       id: "addresses",
       label: { gu: "મારા સરનામાં (Addresses)", en: "Saved Addresses" },
       href: "/dashboard/addresses",
-      icon: MapPin
+      icon: MapPin,
     },
     {
       id: "settings",
       label: { gu: "પ્રોફાઇલ & સેટિંગ્સ (Settings)", en: "Profile & Settings" },
       href: "/dashboard/settings",
-      icon: Settings
-    }
-  ]
+      icon: Settings,
+    },
+  ], [kundliCount, activeOrdersCount, hasUpcomingConsultation, isEn])
 
   const checkIsActive = (item) => {
     if (item.exact) {

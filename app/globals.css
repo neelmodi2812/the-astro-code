@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@300;400;500;600;700;800&family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Noto+Sans+Gujarati:wght@300;400;500;600;700;800;900&family=Noto+Sans:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -12,6 +12,8 @@
   --font-mono: var(--font-geist-mono), 'Geist Mono', monospace;
   --font-heading: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* Shadcn UI Semantic Tokens */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -36,81 +38,167 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Border Radius Scale */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
 
-  /* Custom Vedic Colors from DESIGN.MD */
-  --color-saffron: #fdc72d;
-  --color-saffron-dark: #d9a100;
-  --color-saffron-deep: #8a6800;
+  /* Brand & Vedic Astrology Palette (Aligned with "The Astro Code" Logo) */
+  --color-saffron: #f5b316;
+  --color-saffron-bright: #fdc72d;
+  --color-saffron-dark: #c98a00;
+  --color-saffron-deep: #8a5d00;
+  --color-saffron-text: #946600;
+  /* WCAG AA safe gold for text on light backgrounds */
+
+  --color-cosmic: #254689;
+  /* Primary Royal Blue from Logo */
+  --color-cosmic-light: #3b63b5;
+  --color-cosmic-dark: #182f5e;
+  --color-cosmic-deep: #0b101e;
+
+  /* Legacy tokens retained for backward compatibility */
   --color-teal: #008d7f;
   --color-teal-dark: #00685d;
-  --color-vermilion: #bb171f;
-  --color-charcoal: #141414;
-  --color-charcoal-warm: #1b1c1a;
+  --color-vermilion: #c81e24;
+  --color-charcoal: #0b101e;
+  --color-charcoal-warm: #131a2a;
 }
 
 :root {
   --font-noto-gujarati: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', 'Gujarati Sangam MN', 'Shruti', sans-serif;
-  --background: #faf9f5;
-  --foreground: #1b1c1a;
+
+  /* Warm Sacred Parchment Light Mode */
+  --background: #faf8f3;
+  --foreground: #121a2b;
+
   --card: #ffffff;
-  --card-foreground: #1b1c1a;
+  --card-foreground: #121a2b;
+
   --popover: #ffffff;
-  --popover-foreground: #1b1c1a;
-  --primary: #fdc72d;
-  --primary-foreground: #1b1c1a;
-  --secondary: #008d7f;
+  --popover-foreground: #121a2b;
+
+  /* Solar Gold Primary (High-converting CTA color with deep cosmic text) */
+  --primary: #f5b316;
+  --primary-foreground: #0f172a;
+
+  /* Cosmic Royal Blue Secondary (Matches "THE ASTRO CODE" logo typography) */
+  --secondary: #254689;
   --secondary-foreground: #ffffff;
-  --muted: #f0eee8;
-  --muted-foreground: #665f50;
-  --accent: #fdf5d6;
-  --accent-foreground: #1b1c1a;
-  --destructive: #bb171f;
-  --border: #e6e3da;
-  --input: #dedad0;
-  --ring: #fdc72d;
+
+  /* High-Contrast Muted & Accent Surfaces (WCAG AA+ Compliant) */
+  --muted: #f0ede4;
+  --muted-foreground: #4a5368;
+
+  --accent: #fef4d1;
+  --accent-foreground: #182f5e;
+
+  --destructive: #c81e24;
+
+  --border: #e2dec9;
+  --input: #d8d3be;
+  --ring: #254689;
+
+  /* Sidebar Tokens */
+  --sidebar: #f5f2e9;
+  --sidebar-foreground: #121a2b;
+  --sidebar-primary: #254689;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fef4d1;
+  --sidebar-accent-foreground: #182f5e;
+  --sidebar-border: #e2dec9;
+  --sidebar-ring: #254689;
+
   --radius: 0.625rem;
 }
 
 .dark {
-  --background: #141414;
-  --foreground: #f4f3ef;
-  --card: #1c1d1a;
-  --card-foreground: #f4f3ef;
-  --popover: #1c1d1a;
-  --popover-foreground: #f4f3ef;
+  /* Celestial Midnight Dark Mode */
+  --background: #0b101e;
+  --foreground: #f4f6fb;
+
+  --card: #131b2e;
+  --card-foreground: #f4f6fb;
+
+  --popover: #131b2e;
+  --popover-foreground: #f4f6fb;
+
+  /* Radiant Solar Gold Primary on Midnight Sky */
   --primary: #fdc72d;
-  --primary-foreground: #1b1c1a;
-  --secondary: #008d7f;
+  --primary-foreground: #0b101e;
+
+  /* Luminous Royal Blue Secondary */
+  --secondary: #3459a8;
   --secondary-foreground: #ffffff;
-  --muted: #242521;
-  --muted-foreground: #a6a195;
-  --accent: #2c2b22;
+
+  /* Astral Muted & Accent Surfaces (WCAG AA+ Compliant) */
+  --muted: #1a243b;
+  --muted-foreground: #9da8c2;
+
+  --accent: #1e2942;
   --accent-foreground: #fdc72d;
-  --destructive: #db3232;
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.16);
+
+  --destructive: #ef4444;
+
+  --border: rgba(253, 199, 45, 0.16);
+  --input: rgba(255, 255, 255, 0.14);
   --ring: #fdc72d;
+
+  /* Sidebar Tokens */
+  --sidebar: #0e1526;
+  --sidebar-foreground: #f4f6fb;
+  --sidebar-primary: #fdc72d;
+  --sidebar-primary-foreground: #0b101e;
+  --sidebar-accent: #1a243b;
+  --sidebar-accent-foreground: #fdc72d;
+  --sidebar-border: rgba(253, 199, 45, 0.14);
+  --sidebar-ring: #fdc72d;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   html {
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
+    line-height: 1.65;
+    overflow-x: clip;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, sans-serif;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+
+  /* Branded text selection for polished UX */
+  ::selection {
+    background-color: rgba(245, 179, 22, 0.28);
+    color: var(--foreground);
   }
 }
 
@@ -135,12 +223,14 @@ html[lang="en"] h6 {
   font-family: var(--font-geist-sans), 'Geist', sans-serif;
 }
 
+/* Keyframe Animations */
 @keyframes slideInLeft {
   from {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
+
   to {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -148,6 +238,7 @@ html[lang="en"] h6 {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -155,6 +246,7 @@ html[lang="en"] h6 {
 
 .drawer-slide-in {
   animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
 }
 
 .backdrop-fade-in {
@@ -165,16 +257,20 @@ html[lang="en"] h6 {
   from {
     transform: rotate(360deg);
   }
+
   to {
     transform: rotate(0deg);
   }
 }
 
 @keyframes celestialPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.92;
   }
+
   50% {
     transform: scale(1.08);
     opacity: 1;
@@ -183,69 +279,97 @@ html[lang="en"] h6 {
 
 @keyframes shimmerSlide {
   0% {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
+
   100% {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
-}
-
-.animate-spin-reverse {
-  animation: spinReverse 20s linear infinite;
-}
-
-.animate-spin-slow {
-  animation: spin 32s linear infinite;
-}
-
-.animate-celestial-pulse {
-  animation: celestialPulse 3s ease-in-out infinite;
-}
-
-.animate-shimmer-slide {
-  animation: shimmerSlide 2s ease-in-out infinite;
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.65;
+
+  0%,
+  100% {
+    opacity: 0.7;
     transform: scale(1);
-    filter: drop-shadow(0 0 20px rgba(253, 199, 45, 0.4));
+    filter: drop-shadow(0 0 18px rgba(245, 179, 22, 0.38));
   }
+
   50% {
     opacity: 1;
     transform: scale(1.04);
-    filter: drop-shadow(0 0 35px rgba(253, 199, 45, 0.7));
+    filter: drop-shadow(0 0 32px rgba(253, 199, 45, 0.68));
   }
 }
 
 @keyframes auraBreathe {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0.95);
     opacity: 0.35;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 0.65;
   }
 }
 
+.animate-spin-reverse {
+  animation: spinReverse 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-spin-slow {
+  animation: spin 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-celestial-pulse {
+  animation: celestialPulse 3s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-shimmer-slide {
+  animation: shimmerSlide 2s ease-in-out infinite;
+  will-change: transform;
+}
+
 .animate-pulse-glow {
   animation: pulseGlow 4s ease-in-out infinite;
+  will-change: transform, opacity, filter;
 }
 
 .animate-aura {
   animation: auraBreathe 6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Respect user motion preferences (Accessibility + Mobile Battery/CPU) */
+@media (prefers-reduced-motion: reduce) {
+
+  .animate-spin-reverse,
+  .animate-spin-slow,
+  .animate-celestial-pulse,
+  .animate-shimmer-slide,
+  .animate-pulse-glow,
+  .animate-aura {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* Sleek custom scrollbar utility for scrollable sidebars & panels */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgba(253, 199, 45, 0.4) transparent;
+  scrollbar-color: rgba(245, 179, 22, 0.45) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -253,12 +377,12 @@ html[lang="en"] h6 {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(253, 199, 45, 0.35);
+  background: rgba(245, 179, 22, 0.4);
   border-radius: 9999px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(253, 199, 45, 0.7);
+  background: rgba(245, 179, 22, 0.75);
 }
 
 /* Safe area padding utilities for mobile edge-to-edge support */

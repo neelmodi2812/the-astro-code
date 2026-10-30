@@ -368,7 +368,7 @@ export default function CategoriesClient() {
                     className="p-0 py-0 pt-0 gap-0 ring-0 overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#181914] hover:-translate-y-1"
                   >
                     {/* Image Header with Aspect Ratio */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    <div className="relative aspect-[2/1] overflow-hidden bg-muted">
                       {cat.image && (
                         <Image
                           src={cat.image}

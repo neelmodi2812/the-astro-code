@@ -59,7 +59,6 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
         config={siteData.config}
         topBar={siteData.topBar}
         activeCategory="login"
-        cartCount={1}
         onSelectCategory={(id) => {
           if (id === "home") router.push("/")
           else if (id === "about-us") router.push("/about-us")

@@ -122,7 +122,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const [qty, setQty] = React.useState(1)
   const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(currentLang)
   const isWishlisted = isInWishlist(product.id)
-  const [cartCount, setCartCount] = React.useState(3)
+  const [cartCount, setCartCount] = React.useState(0)
   const [copiedMantra, setCopiedMantra] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("details")
   const [isCertModalOpen, setIsCertModalOpen] = React.useState(false)
@@ -434,6 +434,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
       setCartCount(items.reduce((acc, i) => acc + (i.qty || 1), 0))
+      try { window.dispatchEvent(new Event("astro_cart_updated")) } catch {}
 
       if (directCheckout) {
         router.push("/myshop/cart")
