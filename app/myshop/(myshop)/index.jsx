@@ -345,7 +345,7 @@ export default function ShopClient() {
 
       <main className="flex-1 w-full bg-background">
         {/* 2. BREADCRUMBS & TOP TRUST HIGHLIGHTS BAR */}
-        <section className="w-full bg-[#f0f4f7] dark:bg-[#181a17] py-2.5 border-b border-border/60">
+        <section className="w-full bg-[#f0f4f7] dark:bg-[#0d3732] py-2.5 border-b border-border/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <Breadcrumb className="self-start sm:self-auto">
               <BreadcrumbList className="text-xs font-medium">
@@ -369,7 +369,7 @@ export default function ShopClient() {
               </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="flex items-center gap-3 sm:gap-4 font-semibold text-[11px] sm:text-xs text-[#00685d] dark:text-[#6ed8c8] self-start sm:self-auto">
+            <div className="flex items-center gap-3 sm:gap-4 font-semibold text-xs sm:text-xs text-[#00685d] dark:text-[#6ed8c8] self-start sm:self-auto">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]" />
                 <span>{shopData.topTrustBar.consecrated}</span>
@@ -418,13 +418,13 @@ export default function ShopClient() {
                       setCurrentPage(1)
                     }}
                     placeholder={shopData.hero.searchPlaceholder}
-                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-white text-[#1b1c1a] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-white text-[#0e3934] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-3 text-muted-foreground hover:text-[#1b1c1a]"
+                      className="absolute right-3 text-muted-foreground hover:text-[#0e3934]"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -437,7 +437,7 @@ export default function ShopClient() {
                     const el = document.getElementById("shop-catalog-section")
                     if (el) el.scrollIntoView({ behavior: "smooth" })
                   }}
-                  className="w-full sm:w-auto px-5 h-11 rounded-xl bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs sm:text-sm hover:bg-[#e6b11d] shadow-md transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
+                  className="w-full sm:w-auto px-5 h-11 rounded-xl bg-[#fdc72d] text-[#0e3934] font-bold text-xs sm:text-sm hover:bg-[#e6b11d] shadow-md transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
                 >
                   <span>{shopData.hero.searchButton}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -464,7 +464,7 @@ export default function ShopClient() {
                   <span className="text-sm font-extrabold text-[#fdc72d] tracking-wide">
                     {shopData.hero.sealTitle}
                   </span>
-                  <span className="text-[10px] text-white/80 uppercase font-bold tracking-widest">
+                  <span className="text-xs text-white/80 uppercase font-bold tracking-widest">
                     {shopData.hero.sealSubtitle}
                   </span>
                 </div>
@@ -474,21 +474,21 @@ export default function ShopClient() {
         </section>
 
         {/* 4. TRUST BADGES ROW (4 Authentic Guarantees) */}
-        <section className="w-full bg-card dark:bg-[#1a1b18] shadow-xs border-b border-border/60 py-4">
+        <section className="w-full bg-card dark:bg-[#0d3833] shadow-xs border-b border-border/60 py-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {shopData.trustBadges.map((badge) => {
               const IconComp = ICON_MAP[badge.icon] || ShieldCheck
               return (
                 <div
                   key={badge.id}
-                  className="flex items-center gap-2.5 p-3 rounded-xl bg-[#f0f4f7] dark:bg-[#222420] border border-border/40 hover:border-[#00685d]/40 transition-colors"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-[#f0f4f7] dark:bg-[#103d37] border border-border/40 hover:border-[#00685d]/40 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[#00685d]/10 dark:bg-[#00685d]/25 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                     <IconComp className="h-5 w-5" />
                   </div>
                   <div className="text-left overflow-hidden">
                     <p className="text-xs font-bold text-foreground truncate">{badge.title}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{badge.subtitle}</p>
+                    <p className="text-xs text-muted-foreground truncate">{badge.subtitle}</p>
                   </div>
                 </div>
               )
@@ -523,7 +523,7 @@ export default function ShopClient() {
                     className={`group flex flex-col items-center p-3.5 sm:p-4 rounded-xl border transition-all text-center cursor-pointer shadow-xs hover:shadow-md hover:scale-[1.02] ${
                       isSelected
                         ? "bg-[#00685d] text-white border-[#00685d] shadow-md scale-[1.02]"
-                        : "bg-card dark:bg-[#1a1b18] hover:bg-[#f0f4f7] dark:hover:bg-[#222420] border-border/80 text-foreground"
+                        : "bg-card dark:bg-[#0d3833] hover:bg-[#f0f4f7] dark:hover:bg-[#103d37] border-border/80 text-foreground"
                     }`}
                   >
                     <div
@@ -539,13 +539,13 @@ export default function ShopClient() {
                       {cat.name}
                     </span>
                     <span
-                      className={`text-[10px] block mt-0.5 ${
+                      className={`text-xs block mt-0.5 ${
                         isSelected ? "text-white/80" : "text-muted-foreground"
                       }`}
                     >
                       {cat.subtitle}
                     </span>
-                    <span className={`text-[9px] mt-1.5 font-bold flex items-center gap-0.5 ${
+                    <span className={`text-xs mt-1.5 font-bold flex items-center gap-0.5 ${
                       isSelected ? "text-[#fdc72d]" : "text-[#00685d] dark:text-[#fdc72d] opacity-0 group-hover:opacity-100 transition-opacity"
                     }`}>
                       {lang === "gu" ? "જુઓ" : "View"} <ArrowRight className="h-2.5 w-2.5" />
@@ -563,7 +563,7 @@ export default function ShopClient() {
             {/* LEFT SIDEBAR: FILTERS, ACCREDITATION & ASTROLOGY (25%) */}
             <aside className="w-full lg:w-1/4 flex flex-col gap-5 shrink-0">
               {/* Category Filter Card */}
-              <Card className="rounded-xl border border-border/80 shadow-xs bg-card dark:bg-[#1a1b18] overflow-hidden py-0 gap-0">
+              <Card className="rounded-xl border border-border/80 shadow-xs bg-card dark:bg-[#0d3833] overflow-hidden py-0 gap-0">
                 <CardHeader className="py-3 px-4 flex flex-row items-center justify-between border-b border-border/50">
                   <CardTitle className="text-sm font-bold flex items-center gap-1.5 text-foreground">
                     <Filter className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
@@ -572,7 +572,7 @@ export default function ShopClient() {
                   <button
                     type="button"
                     onClick={handleResetFilters}
-                    className="text-[11px] font-bold text-[#00685d] dark:text-[#fdc72d] hover:underline cursor-pointer"
+                    className="text-xs font-bold text-[#00685d] dark:text-[#fdc72d] hover:underline cursor-pointer"
                   >
                     {shopData.sidebar.reset}
                   </button>
@@ -603,7 +603,7 @@ export default function ShopClient() {
                           <span className="truncate">{cat.label}</span>
                         </span>
                         <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded-full shrink-0 font-bold ${
+                          className={`text-xs px-1.5 py-0.5 rounded-full shrink-0 font-bold ${
                             isSelected
                               ? "bg-white/20 text-white"
                               : "bg-muted text-muted-foreground"
@@ -618,7 +618,7 @@ export default function ShopClient() {
               </Card>
 
               {/* Purpose / Benefit Filter Card */}
-              <Card className="rounded-xl border border-border/80 shadow-xs bg-card dark:bg-[#1a1b18] overflow-hidden py-0 gap-0">
+              <Card className="rounded-xl border border-border/80 shadow-xs bg-card dark:bg-[#0d3833] overflow-hidden py-0 gap-0">
                 <CardHeader className="py-3 px-4 border-b border-border/50">
                   <CardTitle className="text-sm font-bold flex items-center gap-1.5 text-foreground">
                     <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -650,7 +650,7 @@ export default function ShopClient() {
               </Card>
 
               {/* Price Range Filter Card */}
-              <Card className="rounded-xl border border-border/80 shadow-xs bg-card dark:bg-[#1a1b18] overflow-hidden py-0 gap-0">
+              <Card className="rounded-xl border border-border/80 shadow-xs bg-card dark:bg-[#0d3833] overflow-hidden py-0 gap-0">
                 <CardHeader className="py-3 px-4 border-b border-border/50">
                   <CardTitle className="text-sm font-bold flex items-center gap-1.5 text-foreground">
                     <Award className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
@@ -692,7 +692,7 @@ export default function ShopClient() {
               </Card>
 
               {/* Authenticity Certificate Box */}
-              <div className="bg-gradient-to-br from-[#f0f4f7] to-[#e4e9ed] dark:from-[#20221e] dark:to-[#171815] rounded-xl p-4 border border-border/70 shadow-xs space-y-2.5">
+              <div className="bg-gradient-to-br from-[#f0f4f7] to-[#e4e9ed] dark:from-[#0f3c36] dark:to-[#0d3631] rounded-xl p-4 border border-border/70 shadow-xs space-y-2.5">
                 <div className="flex items-center gap-2 text-[#00685d] dark:text-[#6ed8c8]">
                   <ShieldCheck className="h-5 w-5" />
                   <h4 className="text-xs sm:text-sm font-extrabold text-foreground">
@@ -702,9 +702,9 @@ export default function ShopClient() {
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {shopData.sidebar.authenticityCard.desc}
                 </p>
-                <div className="bg-card dark:bg-[#272924] p-2.5 rounded-lg flex items-center justify-between border border-border/50">
+                <div className="bg-card dark:bg-[#11403a] p-2.5 rounded-lg flex items-center justify-between border border-border/50">
                   <div>
-                    <p className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                    <p className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold">
                       {shopData.sidebar.authenticityCard.approvedBy}
                     </p>
                     <p className="text-xs font-bold text-foreground">
@@ -717,19 +717,19 @@ export default function ShopClient() {
 
               {/* Astrological Assistance Card */}
               <div className="bg-gradient-to-br from-[#00685d] to-[#004e46] text-white rounded-xl p-4 shadow-md text-center space-y-2.5">
-                <div className="w-10 h-10 mx-auto rounded-full bg-[#fdc72d] text-[#1b1c1a] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 mx-auto rounded-full bg-[#fdc72d] text-[#0e3934] flex items-center justify-center font-bold">
                   <HelpCircle className="h-5 w-5" />
                 </div>
                 <h4 className="text-xs sm:text-sm font-bold text-white">
                   {shopData.sidebar.helpCard.title}
                 </h4>
-                <p className="text-[11px] text-white/80 leading-relaxed">
+                <p className="text-xs text-white/80 leading-relaxed">
                   {shopData.sidebar.helpCard.desc}
                 </p>
                 <Button
                   type="button"
                   onClick={() => router.push("/contact-us")}
-                  className="w-full py-2 bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
+                  className="w-full py-2 bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
                 >
                   {shopData.sidebar.helpCard.cta}
                 </Button>
@@ -739,13 +739,13 @@ export default function ShopClient() {
             {/* RIGHT MAIN CONTENT: SHOWCASE & CATALOG GRID (75%) */}
             <main className="w-full lg:w-3/4 flex flex-col gap-6">
               {/* Filter Bar & Sort Controls */}
-              <div className="bg-card dark:bg-[#1a1b18] rounded-xl p-3.5 sm:p-4 border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+              <div className="bg-card dark:bg-[#0d3833] rounded-xl p-3.5 sm:p-4 border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-2 self-start sm:self-auto">
                   <span className="text-xs sm:text-sm font-bold text-foreground">
                     {shopData.catalogSection.totalProductsPrefix} {filteredProducts.length}{" "}
                     {shopData.catalogSection.totalProductsSuffix}
                   </span>
-                  <Badge variant="outline" className="text-[10px] bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
+                  <Badge variant="outline" className="text-xs bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
                     {shopData.catalogSection.liveStockBadge}
                   </Badge>
                 </div>
@@ -773,7 +773,7 @@ export default function ShopClient() {
 
               {/* DOMINANT FEATURED PRODUCT SHOWCASE CARD (Nepali 5-Mukhi Rudraksha Mala) */}
               {selectedCategory === "all" && !searchQuery && (
-                <Card className="p-0 py-0 gap-0 rounded-2xl border border-border/80 shadow-md overflow-hidden bg-card dark:bg-[#1a1b18]">
+                <Card className="p-0 py-0 gap-0 rounded-2xl border border-border/80 shadow-md overflow-hidden bg-card dark:bg-[#0d3833]">
                   <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
                     {/* Featured Image Pane */}
                     <Link
@@ -789,15 +789,19 @@ export default function ShopClient() {
                         priority
                       />
                       <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                        <Badge className="bg-[#fdc72d] text-[#1b1c1a] font-bold text-[11px] shadow-xs hover:bg-[#fdc72d]">
-                          {shopData.featuredProduct.badge}
-                        </Badge>
-                        <Badge className="bg-[#bb171f] text-white font-bold text-[11px] shadow-xs hover:bg-[#bb171f]">
-                          {shopData.featuredProduct.discount}
-                        </Badge>
+                        {shopData.featuredProduct.badge && (
+                          <Badge className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs shadow-xs hover:bg-[#fdc72d]">
+                            {shopData.featuredProduct.badge}
+                          </Badge>
+                        )}
+                        {shopData.featuredProduct.discount && (
+                          <Badge className="bg-[#bb171f] text-white font-bold text-xs shadow-xs hover:bg-[#bb171f]">
+                            {shopData.featuredProduct.discount}
+                          </Badge>
+                        )}
                       </div>
                       {shopData.featuredProduct.originBadge && (
-                      <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#1b1c1a]/95 backdrop-blur-md px-3 py-1 rounded-full text-[#00685d] dark:text-[#6ed8c8] text-[11px] font-bold flex items-center gap-1 shadow-sm">
+                      <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#0e3934]/95 backdrop-blur-md px-3 py-1 rounded-full text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold flex items-center gap-1 shadow-sm">
                         <ShieldCheck className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
                         <span>{shopData.featuredProduct.originBadge}</span>
                       </div>
@@ -808,7 +812,7 @@ export default function ShopClient() {
                     <div className="md:col-span-7 p-4 sm:p-6 flex flex-col justify-between space-y-4">
                       <div>
                         {/* Rating row */}
-                        <div className="flex items-center gap-1.5 mb-1.5">
+                        <div className={`flex items-center gap-1.5 mb-1.5 ${shopData.featuredProduct.reviewsCount ? "" : "hidden"}`}>
                           <div className="flex items-center text-[#fdc72d]">
                             {[...Array(5)].map((_, i) => (
                               <Star key={i} className="h-3.5 w-3.5 fill-current" />
@@ -827,9 +831,11 @@ export default function ShopClient() {
                             {shopData.featuredProduct.name}
                           </h3>
                         </Link>
-                        <p className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-semibold mt-0.5">
-                          {shopData.featuredProduct.subtitle}
-                        </p>
+                        {shopData.featuredProduct.subtitle && (
+                          <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-semibold mt-0.5">
+                            {shopData.featuredProduct.subtitle}
+                          </p>
+                        )}
 
                         {/* Sacred USPs */}
                         <div className="grid grid-cols-2 gap-2 mt-4 text-xs text-muted-foreground">
@@ -838,7 +844,7 @@ export default function ShopClient() {
                             return (
                               <div
                                 key={idx}
-                                className="flex items-center gap-1.5 bg-[#f0f4f7] dark:bg-[#222420] p-2 rounded-lg"
+                                className="flex items-center gap-1.5 bg-[#f0f4f7] dark:bg-[#103d37] p-2 rounded-lg"
                               >
                                 <IconC className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8] shrink-0" />
                                 <span className="truncate">{usp.text}</span>
@@ -849,26 +855,30 @@ export default function ShopClient() {
                       </div>
 
                       {/* Price & Action Buttons */}
-                      <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#f0f4f7] dark:bg-[#222420] p-3 sm:p-4 rounded-xl border border-border/50">
+                      <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#f0f4f7] dark:bg-[#103d37] p-3 sm:p-4 rounded-xl border border-border/50">
                         <div>
                           <div className="flex items-baseline gap-2">
                             <span className="text-xl sm:text-2xl font-bold text-[#00685d] dark:text-[#6ed8c8]">
                               ₹{shopData.featuredProduct.price.toLocaleString("en-IN")}
                             </span>
-                            <span className="text-xs text-muted-foreground line-through">
-                              ₹{shopData.featuredProduct.originalPrice.toLocaleString("en-IN")}
-                            </span>
+                            {shopData.featuredProduct.originalPrice > shopData.featuredProduct.price && (
+                              <span className="text-sm text-muted-foreground line-through">
+                                ₹{shopData.featuredProduct.originalPrice.toLocaleString("en-IN")}
+                              </span>
+                            )}
                           </div>
-                          <p className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] font-bold">
-                            {shopData.featuredProduct.savingsText}
-                          </p>
+                          {shopData.featuredProduct.savingsText && (
+                            <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                              {shopData.featuredProduct.savingsText}
+                            </p>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
                           <Button
                             type="button"
                             onClick={() => handleAddToCart(shopData.featuredProduct)}
-                            className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                            className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#fdc72d] text-[#0e3934] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                           >
                             {addedAnimationId === shopData.featuredProduct.id ? (
                               <>
@@ -912,7 +922,7 @@ export default function ShopClient() {
 
               {/* PRODUCTS CATALOG GRID */}
               {paginatedProducts.length === 0 ? (
-                <div className="bg-card dark:bg-[#1a1b18] rounded-xl p-10 text-center border border-border/80 space-y-3">
+                <div className="bg-card dark:bg-[#0d3833] rounded-xl p-10 text-center border border-border/80 space-y-3">
                   <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                     <Search className="h-6 w-6" />
                   </div>
@@ -944,7 +954,7 @@ export default function ShopClient() {
                       <Card
                         key={product.id}
                         onClick={() => router.push(`/myshop/product/${product.id}`)}
-                        className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#1a1b18] cursor-pointer"
+                        className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#0d3833] cursor-pointer"
                       >
                         {/* Image Pane */}
                         <div className="relative h-52 bg-muted overflow-hidden">
@@ -957,7 +967,7 @@ export default function ShopClient() {
                               className="object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           </Link>
-                          <Badge className="absolute top-2.5 left-2.5 bg-[#00685d] text-white text-[10px] font-bold shadow-xs pointer-events-none">
+                          <Badge className="absolute top-2.5 left-2.5 bg-[#00685d] text-white text-xs font-bold shadow-xs pointer-events-none">
                             {product.badge}
                           </Badge>
                           <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
@@ -969,7 +979,7 @@ export default function ShopClient() {
                                     e.stopPropagation()
                                     router.push(`/myshop/product/${product.id}`)
                                   }}
-                                  className="w-8 h-8 rounded-full bg-white/85 dark:bg-[#1b1c1a]/85 text-foreground hover:text-[#00685d] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                                  className="w-8 h-8 rounded-full bg-white/85 dark:bg-[#0e3934]/85 text-foreground hover:text-[#00685d] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
                                   aria-label={lang === "gu" ? "વિગત જુઓ" : "View Details"}
                                 >
                                   <Eye className="h-4 w-4" />
@@ -988,7 +998,7 @@ export default function ShopClient() {
                                     e.stopPropagation()
                                     handleToggleWishlist(product)
                                   }}
-                                  className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#1b1c1a]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
+                                  className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#0e3934]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
                                     isWishlisted
                                       ? "text-[#bb171f]"
                                       : "text-muted-foreground hover:text-[#bb171f]"
@@ -1011,14 +1021,14 @@ export default function ShopClient() {
                         <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between space-y-3">
                           <div>
                             {/* Rating Stars */}
-                            <div className="flex items-center gap-1 text-[#fdc72d] mb-1">
+                            <div className={`flex items-center gap-1 text-[#fdc72d] mb-1 ${product.reviewsCount ? "" : "hidden"}`}>
                               {[...Array(5)].map((_, i) => (
                                 <Star key={i} className="h-3 w-3 fill-current" />
                               ))}
                               <span className="text-xs font-bold text-foreground ml-1">
                                 {product.rating}
                               </span>
-                              <span className="text-[11px] text-muted-foreground">
+                              <span className="text-xs text-muted-foreground">
                                 ({product.reviewsCount})
                               </span>
                             </div>
@@ -1041,11 +1051,13 @@ export default function ShopClient() {
                                 <span className="text-base font-bold text-[#00685d] dark:text-[#6ed8c8]">
                                   ₹{product.price.toLocaleString("en-IN")}
                                 </span>
-                                <span className="text-xs text-muted-foreground line-through">
-                                  ₹{product.originalPrice.toLocaleString("en-IN")}
-                                </span>
+                                {product.originalPrice > product.price && (
+                                  <span className="text-sm text-muted-foreground line-through">
+                                    ₹{product.originalPrice.toLocaleString("en-IN")}
+                                  </span>
+                                )}
                               </div>
-                              <span className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                              <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold">
                                 {product.savings}
                               </span>
                             </div>
@@ -1059,7 +1071,7 @@ export default function ShopClient() {
                               className={`px-3 h-8.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer ${
                                 isJustAdded
                                   ? "bg-[#00685d] text-white"
-                                  : "bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318]"
+                                  : "bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318]"
                               }`}
                             >
                               {isJustAdded ? (
@@ -1084,7 +1096,7 @@ export default function ShopClient() {
 
               {/* PAGINATION BANNER */}
               {filteredProducts.length > 0 && (
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#1a1b18] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#0d3833] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
                   <p className="text-xs text-muted-foreground">
                     {lang === "gu"
                       ? `દર્શાવવામાં આવેલ: ${(currentPage - 1) * itemsPerPage + 1} થી ${Math.min(
@@ -1123,7 +1135,7 @@ export default function ShopClient() {
         </section>
 
         {/* 7. 4-STEP VEDIC AUTHENTICITY / PRAN PRATISHTHA PROCESS */}
-        <section className="w-full bg-[#f0f4f7] dark:bg-[#181a17] py-12 border-t border-border/60">
+        <section className="w-full bg-[#f0f4f7] dark:bg-[#0d3732] py-12 border-t border-border/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-8">
             <div className="text-center max-w-2xl mx-auto space-y-2">
               <div className="inline-block px-3 py-1 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold uppercase tracking-wider">
@@ -1140,7 +1152,7 @@ export default function ShopClient() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {shopData.pranPratishthaSteps.steps.map((st, idx) => {
                 const stepColors = [
-                  "bg-[#fdc72d] text-[#1b1c1a]",
+                  "bg-[#fdc72d] text-[#0e3934]",
                   "bg-[#00685d] text-white",
                   "bg-[#8a6800] text-white",
                   "bg-[#bb171f] text-white"
@@ -1148,7 +1160,7 @@ export default function ShopClient() {
                 return (
                   <div
                     key={idx}
-                    className="bg-card dark:bg-[#20221e] p-5 rounded-xl border border-border/70 shadow-xs flex flex-col items-start space-y-2.5 relative hover:border-[#00685d]/40 transition-colors"
+                    className="bg-card dark:bg-[#0f3c36] p-5 rounded-xl border border-border/70 shadow-xs flex flex-col items-start space-y-2.5 relative hover:border-[#00685d]/40 transition-colors"
                   >
                     <span
                       className={`w-9 h-9 rounded-full ${stepColors[idx % 4]} text-base font-extrabold flex items-center justify-center shadow-xs`}
@@ -1184,7 +1196,7 @@ export default function ShopClient() {
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto shrink-0">
                 <Link
                   href={astrologerCta.phoneHref}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs sm:text-sm shadow hover:bg-[#eab318] transition-colors flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#fdc72d] text-[#0e3934] font-bold text-xs sm:text-sm shadow hover:bg-[#eab318] transition-colors flex items-center justify-center gap-2"
                 >
                   <Phone className="h-4 w-4" />
                   <span>{astrologerCta.phoneText}</span>
@@ -1215,11 +1227,11 @@ export default function ShopClient() {
         }}
       >
         {activeModalProduct && (
-          <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl bg-card dark:bg-[#1a1b18] border-border/80 max-h-[90vh] flex flex-col">
+          <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl bg-card dark:bg-[#0d3833] border-border/80 max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <DialogHeader className="p-4 border-b border-border/60 bg-muted/30 flex-row items-center justify-between space-y-0 pr-12">
               <div className="flex items-center gap-2">
-                <Badge className="bg-[#00685d] text-white text-[10px]">
+                <Badge className="bg-[#00685d] text-white text-xs">
                   {activeModalProduct.badge || "શુદ્ધ સાધના સામગ્રી"}
                 </Badge>
                 <DialogTitle className="text-xs font-bold text-foreground truncate max-w-[240px]">
@@ -1254,9 +1266,11 @@ export default function ShopClient() {
                     <span className="text-xl font-bold text-[#00685d] dark:text-[#6ed8c8]">
                       ₹{activeModalProduct.price.toLocaleString("en-IN")}
                     </span>
-                    <span className="text-xs text-muted-foreground line-through">
-                      ₹{activeModalProduct.originalPrice?.toLocaleString("en-IN")}
-                    </span>
+                    {activeModalProduct.originalPrice > activeModalProduct.price && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        ₹{activeModalProduct.originalPrice.toLocaleString("en-IN")}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed pt-1">
                     {activeModalProduct.details ||

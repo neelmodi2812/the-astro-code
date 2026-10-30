@@ -63,13 +63,13 @@ function DashboardClient({ data }) {
       <div className="space-y-5">
         
         {/* Welcome Executive Header */}
-        <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
                 {isEn ? `Welcome, ${data.userProfile.name.en}` : `નમસ્તે, ${data.userProfile.name.gu}`}
               </h1>
-              <Badge className="bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/40 text-[10px] font-bold">
+              <Badge className="bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/40 text-xs font-bold">
                 <Sparkles className="h-2.5 w-2.5 mr-1" />
                 <span>{data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}</span>
               </Badge>
@@ -97,7 +97,7 @@ function DashboardClient({ data }) {
             <Button
               onClick={() => router.push("/dashboard/consultations")}
               size="sm"
-              className="h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] shadow-xs cursor-pointer"
+              className="h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] shadow-xs cursor-pointer"
             >
               <Video className="h-3.5 w-3.5" />
               <span>{data.headerActions.joinRoom[lang] || data.headerActions.joinRoom.gu}</span>
@@ -111,18 +111,18 @@ function DashboardClient({ data }) {
             <div
               key={idx}
               onClick={() => router.push(m.href)}
-              className="bg-card dark:bg-[#181914] rounded-xl p-4 border border-border/70 shadow-2xs hover:border-[#fdc72d]/60 hover:shadow-sm transition-all cursor-pointer relative flex flex-col justify-between group"
+              className="bg-card dark:bg-[#0d3631] rounded-xl p-4 border border-border/70 shadow-2xs hover:border-[#fdc72d]/60 hover:shadow-sm transition-all cursor-pointer relative flex flex-col justify-between group"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     {m.title[lang] || m.title.gu}
                   </span>
                   <div className="text-lg font-black text-foreground mt-1">
                     {m.value[lang] || m.value.gu}
                   </div>
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-muted/60 dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-lg bg-muted/60 dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   {m.icon === "history_edu" && <BookOpen className="h-4 w-4" />}
                   {m.icon === "local_shipping" && <Truck className="h-4 w-4" />}
                   {m.icon === "calendar_month" && <Calendar className="h-4 w-4" />}
@@ -131,8 +131,8 @@ function DashboardClient({ data }) {
               </div>
 
               <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
-                <span className="truncate text-[11px]">{m.subtitle[lang] || m.subtitle.gu}</span>
-                <span className="text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] group-hover:underline">
+                <span className="truncate text-xs">{m.subtitle[lang] || m.subtitle.gu}</span>
+                <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] group-hover:underline">
                   {m.cta[lang] || m.cta.gu}
                 </span>
               </div>
@@ -144,11 +144,11 @@ function DashboardClient({ data }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           {/* WIDGET 1: Daily Gochar Snapshot */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-[#00685d] text-white text-[10px] font-bold">
+                  <Badge className="bg-[#00685d] text-white text-xs font-bold">
                     {data.dailyTransit.badge[lang] || data.dailyTransit.badge.gu}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
@@ -177,7 +177,7 @@ function DashboardClient({ data }) {
                   key={idx}
                   className={`text-center ${idx !== 0 ? "border-l border-border/40 pl-2" : ""}`}
                 >
-                  <span className="text-[10px] text-muted-foreground block font-medium">
+                  <span className="text-xs text-muted-foreground block font-medium">
                     {attr.label[lang] || attr.label.gu}
                   </span>
                   <span className="text-xs font-bold text-foreground block mt-0.5">
@@ -189,7 +189,7 @@ function DashboardClient({ data }) {
           </div>
 
           {/* WIDGET 2: Upcoming Consultation Quick Card */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                 <div className="flex items-center gap-2">
@@ -198,7 +198,7 @@ function DashboardClient({ data }) {
                     {isEn ? "Upcoming Live Session" : "આગામી વિડિયો પરામર્શ"}
                   </span>
                 </div>
-                <Badge className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/30 text-[10px] font-bold">
+                <Badge className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/30 text-xs font-bold">
                   {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
                 </Badge>
               </div>
@@ -220,14 +220,14 @@ function DashboardClient({ data }) {
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
-              <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Google Meet HD</span>
               </span>
               <Button
                 onClick={() => window.open(data.upcomingConsultation.meetUrl, "_blank")}
                 size="sm"
-                className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-lg shadow-2xs gap-1.5 cursor-pointer"
+                className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1.5 cursor-pointer"
               >
                 <Video className="h-3 w-3" />
                 <span>{isEn ? "Join Call" : "કૉલમાં જોડાઓ"}</span>
@@ -236,7 +236,7 @@ function DashboardClient({ data }) {
           </div>
 
           {/* WIDGET 3: Active Order Status */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                 <div className="flex items-center gap-2">
@@ -246,8 +246,8 @@ function DashboardClient({ data }) {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground font-mono">{data.activeOrder.orderNumber}</span>
-                  <Badge className="bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border border-[#00685d]/20 text-[10px] font-bold">
+                  <span className="text-xs text-muted-foreground font-mono">{data.activeOrder.orderNumber}</span>
+                  <Badge className="bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border border-[#00685d]/20 text-xs font-bold">
                     {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
                   </Badge>
                 </div>
@@ -263,7 +263,7 @@ function DashboardClient({ data }) {
                   <h4 className="font-bold text-xs text-foreground truncate">
                     {data.activeOrder.productName[lang] || data.activeOrder.productName.gu}
                   </h4>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
                     {data.activeOrder.currentStage[lang] || data.activeOrder.currentStage.gu}
                   </p>
                 </div>
@@ -285,7 +285,7 @@ function DashboardClient({ data }) {
                             : "bg-muted"
                         }`}
                       />
-                      <span className={`text-[9px] block truncate font-medium ${
+                      <span className={`text-xs block truncate font-medium ${
                         isActive ? "text-foreground font-bold" : "text-muted-foreground"
                       }`}>
                         {st.title[lang] || st.title.gu}
@@ -310,7 +310,7 @@ function DashboardClient({ data }) {
           </div>
 
           {/* WIDGET 4: Saved Kundlis Quick Summary */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                 <div className="flex items-center gap-2">
@@ -335,20 +335,20 @@ function DashboardClient({ data }) {
                     <Link
                       key={k.id}
                       href="/dashboard/kundli"
-                      className="p-2 px-2.5 bg-muted/40 dark:bg-[#20211d] rounded-lg border border-border/40 hover:border-[#fdc72d]/60 transition-all flex items-center justify-between gap-2 group"
+                      className="p-2 px-2.5 bg-muted/40 dark:bg-[#0f3c36] rounded-lg border border-border/40 hover:border-[#fdc72d]/60 transition-all flex items-center justify-between gap-2 group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-6 h-6 rounded-full bg-card dark:bg-[#181914] text-[#8a6800] dark:text-[#fdc72d] font-bold text-[11px] flex items-center justify-center shrink-0 border border-border/50">
+                        <div className="w-6 h-6 rounded-full bg-card dark:bg-[#0d3631] text-[#8a6800] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center shrink-0 border border-border/50">
                           {personInitial}
                         </div>
                         <span className="font-semibold text-xs text-foreground truncate group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
                           {personName}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           ({k.relation[lang] || k.relation.gu})
                         </span>
                       </div>
-                      <span className="text-[11px] font-medium text-muted-foreground shrink-0">
+                      <span className="text-xs font-medium text-muted-foreground shrink-0">
                         {k.rashiLagna[lang] || k.rashiLagna.gu}
                       </span>
                     </Link>
@@ -358,7 +358,7 @@ function DashboardClient({ data }) {
             </div>
 
             <div className="pt-3 border-t border-border/40 flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {data.savedKundlis.list.length} {isEn ? "Charts in Vault" : "કુંડળીઓ સંગ્રહિત"}
               </span>
               <Button
@@ -376,14 +376,14 @@ function DashboardClient({ data }) {
         </div>
 
         {/* Bottom Trust Guarantee */}
-        <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
             <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#6ed8c8]" />
             <span className="text-muted-foreground">
               {data.trustSecurity.title[lang] || data.trustSecurity.title.gu} — {data.trustSecurity.desc[lang] || data.trustSecurity.desc.gu}
             </span>
           </div>
-          <div className="flex items-center gap-2 font-bold text-[11px] text-[#8a6800] dark:text-[#fdc72d]">
+          <div className="flex items-center gap-2 font-bold text-xs text-[#8a6800] dark:text-[#fdc72d]">
             <span>ISO 9001:2015</span>
             <span>•</span>
             <span>Surya Siddhanta Ephemeris</span>
@@ -394,7 +394,7 @@ function DashboardClient({ data }) {
 
       {/* Quick Add Kundli Modal */}
       <Dialog open={addKundliOpen} onOpenChange={setAddKundliOpen}>
-        <DialogContent className="sm:max-w-md bg-card dark:bg-[#181914] border-border">
+        <DialogContent className="sm:max-w-md bg-card dark:bg-[#0d3631] border-border">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -455,7 +455,7 @@ function DashboardClient({ data }) {
               <Button type="button" variant="outline" onClick={() => setAddKundliOpen(false)} className="h-8 text-xs">
                 {isEn ? "Cancel" : "રદ કરો"}
               </Button>
-              <Button type="submit" className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs">
+              <Button type="submit" className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs">
                 {isEn ? "Save Kundli" : "કુંડળી સેવ કરો"}
               </Button>
             </DialogFooter>

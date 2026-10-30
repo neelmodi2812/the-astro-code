@@ -40,14 +40,14 @@ export function SafeImage({
   if (hasError || !currentSrc) {
     return (
       <div
-        className={`bg-gradient-to-br from-[#2a2416] via-[#1a1b18] to-[#121310] flex flex-col items-center justify-center p-3 text-center border border-[#fdc72d]/20 ${
+        className={`bg-gradient-to-br from-[#103d37] via-[#0d3833] to-[#0b332f] flex flex-col items-center justify-center p-3 text-center border border-[#fdc72d]/20 ${
           fill ? "absolute inset-0 w-full h-full" : "w-full h-full min-h-[120px]"
         } ${className}`}
       >
         <div className="w-9 h-9 rounded-full bg-[#fdc72d]/15 text-[#fdc72d] flex items-center justify-center mb-1.5 shadow-xs">
           <Sparkles className="h-4 w-4 text-[#fdc72d]" />
         </div>
-        <span className="text-[11px] font-bold text-[#fdc72d] line-clamp-1 max-w-[85%]">
+        <span className="text-xs font-bold text-[#fdc72d] line-clamp-1 max-w-[85%]">
           {alt || "The Astro Code"}
         </span>
       </div>

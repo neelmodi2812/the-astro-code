@@ -219,7 +219,7 @@ export default function NotFound() {
       />
 
       <main className="flex-1 w-full bg-background pt-3 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* 2. Top Breadcrumb Strip */}
           <div className="mb-6">
@@ -248,7 +248,7 @@ export default function NotFound() {
 
           {/* 3. Main Hero Card Area */}
           <div className="max-w-6xl mx-auto mb-12">
-            <div className="relative bg-card dark:bg-[#1a1b17] border border-border/80 rounded-2xl shadow-xl overflow-hidden p-6 sm:p-10 md:p-14">
+            <div className="relative bg-card dark:bg-[#0d3833] border border-border/80 rounded-2xl shadow-xl overflow-hidden p-6 sm:p-10 md:p-14">
 
               {/* Sacred Geometry Aura Accents */}
               <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#fdc72d]/15 blur-3xl pointer-events-none" />
@@ -257,7 +257,7 @@ export default function NotFound() {
               <div className="relative z-10 flex flex-col items-center text-center">
 
                 {/* Auspicious Sloka Pill */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 dark:bg-[#252622] text-[#8a6800] dark:text-[#fdc72d] text-xs sm:text-sm font-bold shadow-xs mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 dark:bg-[#113f39] text-[#8a6800] dark:text-[#fdc72d] text-xs sm:text-sm font-bold shadow-xs mb-6">
                   <Sparkles className="h-4 w-4 text-[#d9a100] shrink-0" />
                   <span className="tracking-wide">{content.sloka}</span>
                   <Sparkles className="h-4 w-4 text-[#d9a100] shrink-0" />
@@ -328,7 +328,7 @@ export default function NotFound() {
                   <Button
                     asChild
                     size="lg"
-                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-extrabold h-12 px-6 rounded-xl shadow-md transition-all gap-2 cursor-pointer"
+                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold h-12 px-6 rounded-xl shadow-md transition-all gap-2 cursor-pointer"
                   >
                     <Link href="/dainik-panchang">
                       <Calendar className="h-4 w-4" />
@@ -367,7 +367,7 @@ export default function NotFound() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={content.search.placeholder}
-                        className="w-full h-11 pl-10 pr-4 bg-muted/50 dark:bg-[#20211d] text-foreground text-xs sm:text-sm rounded-xl border-border focus-visible:ring-[#fdc72d]"
+                        className="w-full h-11 pl-10 pr-4 bg-muted/50 dark:bg-[#0f3c36] text-foreground text-xs sm:text-sm rounded-xl border-border focus-visible:ring-[#fdc72d]"
                       />
                     </div>
                     <Button
@@ -388,7 +388,7 @@ export default function NotFound() {
           <div className="max-w-6xl mx-auto mb-12">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-[11px] font-black tracking-widest text-[#8a6800] dark:text-[#fdc72d] uppercase">
+                <span className="text-xs font-black tracking-widest text-[#8a6800] dark:text-[#fdc72d] uppercase">
                   {content.recommendations.tag}
                 </span>
                 <h2 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight mt-0.5">
@@ -411,14 +411,14 @@ export default function NotFound() {
                   <Link
                     key={card.id}
                     href={card.href}
-                    className="group bg-card dark:bg-[#1a1b17] border border-border/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden hover:-translate-y-1"
+                    className="group bg-card dark:bg-[#0d3833] border border-border/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden hover:-translate-y-1"
                   >
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#fdc72d] to-[#00685d]" />
                     <div>
-                      <div className="w-12 h-12 rounded-xl bg-muted/60 dark:bg-[#252622] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-xl bg-muted/60 dark:bg-[#113f39] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <IconComponent className="h-6 w-6 text-[#00685d] dark:text-[#fdc72d]" />
                       </div>
-                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-bold uppercase tracking-wider mb-2">
                         {card.tag}
                       </span>
                       <h3 className="text-base font-bold text-foreground group-hover:text-[#00685d] dark:group-hover:text-[#fdc72d] transition-colors leading-snug">
@@ -446,7 +446,7 @@ export default function NotFound() {
                   <Headphones className="h-7 w-7 text-[#fdc72d]" />
                 </div>
                 <div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black uppercase tracking-wider mb-1">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#fdc72d] text-[#0e3934] text-xs font-black uppercase tracking-wider mb-1">
                     {content.callout.tag}
                   </span>
                   <h3 className="text-lg sm:text-xl font-bold text-white leading-tight">
@@ -474,7 +474,7 @@ export default function NotFound() {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 bg-[#fdc72d] text-[#1b1c1a] font-black text-xs sm:text-sm px-5 py-3 rounded-xl shadow-xs hover:bg-[#eab318] transition-colors"
+                  className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 bg-[#fdc72d] text-[#0e3934] font-black text-xs sm:text-sm px-5 py-3 rounded-xl shadow-xs hover:bg-[#eab318] transition-colors"
                 >
                   <MessageCircle className="h-4 w-4" />
                   <span>{content.callout.whatsappBtn}</span>

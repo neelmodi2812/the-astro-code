@@ -515,7 +515,7 @@ export default function CartClient() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
                     activeStep === 1
-                      ? "bg-[#fdc72d] text-[#1b1c1a]"
+                      ? "bg-[#fdc72d] text-[#0e3934]"
                       : "bg-muted text-foreground"
                   }`}
                 >
@@ -561,7 +561,7 @@ export default function CartClient() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
                     activeStep === 2
-                      ? "bg-[#fdc72d] text-[#1b1c1a]"
+                      ? "bg-[#fdc72d] text-[#0e3934]"
                       : "bg-muted text-foreground"
                   }`}
                 >
@@ -595,7 +595,7 @@ export default function CartClient() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
                     activeStep === 3
-                      ? "bg-[#fdc72d] text-[#1b1c1a]"
+                      ? "bg-[#fdc72d] text-[#0e3934]"
                       : "bg-muted text-foreground"
                   }`}
                 >
@@ -706,7 +706,7 @@ export default function CartClient() {
                             className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500"
                           />
                           {itemBadge && (
-                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#00685d]/95 text-white text-[10px] font-bold tracking-wide shadow-xs">
+                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#00685d]/95 text-white text-xs font-bold tracking-wide shadow-xs">
                               {itemBadge}
                             </span>
                           )}
@@ -749,7 +749,7 @@ export default function CartClient() {
                               <span className="flex-1 min-w-0 line-clamp-2">
                                 {itemAddon}
                               </span>
-                              <Badge className="ml-auto bg-[#00685d] text-white hover:bg-[#00685d] text-[10px] font-bold shrink-0">
+                              <Badge className="ml-auto bg-[#00685d] text-white hover:bg-[#00685d] text-xs font-bold shrink-0">
                                 {cartData.itemCard.freeTag}
                               </Badge>
                             </div>
@@ -767,7 +767,7 @@ export default function CartClient() {
                                 </span>
                               )}
                               {discount > 0 && (
-                                <span className="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 px-2 py-0.5 rounded-md">
+                                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 px-2 py-0.5 rounded-md">
                                   {toDigits(discount)}% {cartData.itemCard.discountSuffix}
                                 </span>
                               )}
@@ -1030,7 +1030,7 @@ export default function CartClient() {
                       <Landmark className="h-5 w-5" title="NetBanking" />
                       <Lock className="h-5 w-5" title="256-Bit SSL Encrypted" />
                     </div>
-                    <span className="text-[11px] text-muted-foreground/80 text-center leading-tight">
+                    <span className="text-xs text-muted-foreground/80 text-center leading-tight">
                       {cartData.orderSummary.securityGuarantee}
                     </span>
                   </div>

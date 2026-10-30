@@ -128,7 +128,7 @@ export default function HomeClient() {
         />
 
         {/* 5. Main Content: 70% Editorial (Left) + 30% Sidebar (Right) */}
-        <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-8">
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column (8 cols): Featured row, 12 Jyotirlingas, Astrology & Numerology */}
             <div className="lg:col-span-8">

@@ -186,7 +186,7 @@ export default function AboutUsClient() {
       />
 
       <main className="flex-1 w-full bg-background pt-4 pb-16">
-        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* 2. Top Breadcrumb & Scholarly Category Filter Chips Bar */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
@@ -227,7 +227,7 @@ export default function AboutUsClient() {
                   <TabsTrigger
                     key={chip.id}
                     value={chip.id}
-                    className="font-bold text-[11px] sm:text-xs px-3.5 py-1.5 rounded-lg uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer shadow-xs border border-border bg-card dark:bg-[#1f201c] text-foreground hover:bg-[#00685d]/10 hover:text-[#00685d] dark:hover:text-[#6ed8c8] data-active:bg-[#00685d] data-active:text-white data-active:border-[#00685d] data-active:ring-2 data-active:ring-[#00685d]/30 data-active:shadow-sm"
+                    className="font-bold text-xs sm:text-xs px-3.5 py-1.5 rounded-lg uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer shadow-xs border border-border bg-card dark:bg-[#0f3b35] text-foreground hover:bg-[#00685d]/10 hover:text-[#00685d] dark:hover:text-[#6ed8c8] data-active:bg-[#00685d] data-active:text-white data-active:border-[#00685d] data-active:ring-2 data-active:ring-[#00685d]/30 data-active:shadow-sm"
                   >
                     {chip[lang]}
                   </TabsTrigger>
@@ -237,7 +237,7 @@ export default function AboutUsClient() {
           </div>
 
           {/* 3. Editorial Header & Sacred Mission Hero Banner (shadcn/ui Card) */}
-          <Card className="relative border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-10 shadow-sm mb-8 overflow-hidden">
+          <Card className="relative border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-10 shadow-sm mb-8 overflow-hidden">
             {/* Ambient Gold Glow Accents */}
             <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[#fdc72d]/15 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-16 left-1/3 w-64 h-64 rounded-full bg-[#00685d]/10 blur-2xl pointer-events-none" />
@@ -246,7 +246,7 @@ export default function AboutUsClient() {
               <div className="flex items-center gap-2 mb-2">
                 <Badge
                   variant="outline"
-                  className="border-[#fdc72d]/60 text-[#8a6800] dark:text-[#fdc72d] text-[10px] sm:text-xs uppercase tracking-widest font-black bg-[#fdc72d]/10"
+                  className="border-[#fdc72d]/60 text-[#8a6800] dark:text-[#fdc72d] text-xs sm:text-xs uppercase tracking-widest font-black bg-[#fdc72d]/10"
                 >
                   {about.hero.legacyTag[lang]}
                 </Badge>
@@ -275,7 +275,7 @@ export default function AboutUsClient() {
             <div className="lg:col-span-8 flex flex-col gap-8">
 
               {/* A. Grand Scholar Profile Showcase (shadcn/ui Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 pt-6 sm:pt-8 shadow-sm relative overflow-hidden">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 pt-6 sm:pt-8 shadow-sm relative overflow-hidden">
                 <CardContent className="p-0">
                   <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-center md:items-start">
 
@@ -288,13 +288,13 @@ export default function AboutUsClient() {
                             alt={about.scholar.imageAlt}
                             className="w-full h-full object-cover rounded-full"
                           />
-                          <AvatarFallback className="text-xl font-bold bg-[#fdc72d] text-[#1b1c1a]">
+                          <AvatarFallback className="text-xl font-bold bg-[#fdc72d] text-[#0e3934]">
                             VM
                           </AvatarFallback>
                         </Avatar>
                       </div>
                       {/* Verified Guru Pill Badge */}
-                      <Badge className="absolute -bottom-2 right-3 sm:right-6 bg-[#00685d] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1 border-2 border-background">
+                      <Badge className="absolute -bottom-2 right-3 sm:right-6 bg-[#00685d] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1 border-2 border-background">
                         <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]" />
                         <span>{about.scholar.verifiedBadge[lang]}</span>
                       </Badge>
@@ -303,10 +303,10 @@ export default function AboutUsClient() {
                     {/* Scholar Bio Info */}
                     <div className="flex-1 flex flex-col text-center md:text-left">
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2">
-                        <Badge className="bg-[#00685d] text-white text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
+                        <Badge className="bg-[#00685d] text-white text-xs sm:text-xs font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">
                           {about.scholar.roleTag[lang]}
                         </Badge>
-                        <Badge variant="outline" className="text-[#8a6800] dark:text-[#fdc72d] text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded border-border/70 bg-muted/50">
+                        <Badge variant="outline" className="text-[#8a6800] dark:text-[#fdc72d] text-xs sm:text-xs font-bold px-2.5 py-0.5 rounded border-border/70 bg-muted/50">
                           {about.scholar.degreeTag[lang]}
                         </Badge>
                       </div>
@@ -329,7 +329,7 @@ export default function AboutUsClient() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => showToast(lang === "gu" ? "ફેસબુક પ્રોફાઇલ ખૂલી રહી છે..." : "Opening Facebook...")}
-                          className="bg-muted dark:bg-[#252622] text-[#00685d] dark:text-[#6ed8c8] hover:bg-[#00685d] hover:text-white"
+                          className="bg-muted dark:bg-[#113f39] text-[#00685d] dark:text-[#6ed8c8] hover:bg-[#00685d] hover:text-white"
                           title="Facebook Profile"
                         >
                           <Users className="h-4 w-4" />
@@ -338,7 +338,7 @@ export default function AboutUsClient() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => showToast(lang === "gu" ? "સંશોધન પત્રો ડાઉનલોડ ઉપલબ્ધ..." : "Academic Papers archive...")}
-                          className="bg-muted dark:bg-[#252622] text-[#00685d] dark:text-[#6ed8c8] hover:bg-[#00685d] hover:text-white"
+                          className="bg-muted dark:bg-[#113f39] text-[#00685d] dark:text-[#6ed8c8] hover:bg-[#00685d] hover:text-white"
                           title="Academic Papers"
                         >
                           <BookOpen className="h-4 w-4" />
@@ -347,7 +347,7 @@ export default function AboutUsClient() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => showToast(lang === "gu" ? "વિડિઓ પ્રવચન સંગ્રહ..." : "Video lectures archive...")}
-                          className="bg-muted dark:bg-[#252622] text-[#00685d] dark:text-[#6ed8c8] hover:bg-[#00685d] hover:text-white"
+                          className="bg-muted dark:bg-[#113f39] text-[#00685d] dark:text-[#6ed8c8] hover:bg-[#00685d] hover:text-white"
                           title="Video Lectures"
                         >
                           <Play className="h-4 w-4" />
@@ -364,16 +364,16 @@ export default function AboutUsClient() {
                   </div>
 
                   {/* Scholarly Metrics Grid (4 Stat Cards using shadcn/ui) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-border/70 bg-muted/40 dark:bg-[#161714] rounded-xl p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-border/70 bg-muted/40 dark:bg-[#0c3631] rounded-xl p-4">
                     {about.scholar.stats.map((st, idx) => (
                       <div key={idx} className="flex flex-col text-center">
                         <span className="text-xl sm:text-2xl font-black text-[#8a6800] dark:text-[#fdc72d]">
                           {st.value[lang]}
                         </span>
-                        <span className="text-[11px] sm:text-xs text-foreground font-bold mt-0.5">
+                        <span className="text-xs sm:text-xs text-foreground font-bold mt-0.5">
                           {st.label[lang]}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {st.sub[lang]}
                         </span>
                       </div>
@@ -383,7 +383,7 @@ export default function AboutUsClient() {
               </Card>
 
               {/* B. Detailed Biography & Spiritual Journey (shadcn/ui Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-sm">
                 <CardHeader className="p-0 pb-3 border-b border-border/60">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-lg bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
@@ -426,11 +426,11 @@ export default function AboutUsClient() {
               </Card>
 
               {/* C. 4 Pillars of Expertise Grid (shadcn/ui Cards) */}
-              <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-sm">
                 <div className="pb-6">
                   <Badge
                     variant="outline"
-                    className="border-none p-0 text-[10px] sm:text-xs font-black text-[#8a6800] dark:text-[#fdc72d] uppercase tracking-wider"
+                    className="border-none p-0 text-xs sm:text-xs font-black text-[#8a6800] dark:text-[#fdc72d] uppercase tracking-wider"
                   >
                     {about.pillarsSection.tag[lang]}
                   </Badge>
@@ -449,12 +449,12 @@ export default function AboutUsClient() {
                       return (
                         <Card
                           key={pillar.id}
-                          className="bg-card dark:bg-[#141512] border-border/80 hover:border-[#fdc72d] rounded-xl flex flex-col justify-between transition-all hover:shadow-sm group ring-0 overflow-hidden"
+                          className="bg-card dark:bg-[#0c3430] border-border/80 hover:border-[#fdc72d] rounded-xl flex flex-col justify-between transition-all hover:shadow-sm group ring-0 overflow-hidden"
                         >
                           <CardHeader className="p-5 pb-2">
                             <div
                               className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 shadow-xs ${isGold
-                                ? "bg-[#fdc72d] text-[#1b1c1a]"
+                                ? "bg-[#fdc72d] text-[#0e3934]"
                                 : "bg-[#00685d] text-white"
                                 }`}
                             >
@@ -475,7 +475,7 @@ export default function AboutUsClient() {
                             </p>
                           </CardContent>
 
-                          <CardFooter className="px-5 py-3.5 border-t border-border/50 bg-muted/40 dark:bg-[#181915] flex items-center justify-between text-xs font-bold text-[#00685d] dark:text-[#6ed8c8]">
+                          <CardFooter className="px-5 py-3.5 border-t border-border/50 bg-muted/40 dark:bg-[#0d3732] flex items-center justify-between text-xs font-bold text-[#00685d] dark:text-[#6ed8c8]">
                             <span>{pillar.action[lang]}</span>
                             <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                           </CardFooter>
@@ -494,7 +494,7 @@ export default function AboutUsClient() {
             <aside className="lg:col-span-4 flex flex-col gap-6">
 
               {/* Widget 1: Live Choghadiya Ring & Quick Muhurat (shadcn Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center justify-between pb-3 mb-3 border-b border-border/50">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -506,7 +506,7 @@ export default function AboutUsClient() {
                 </div>
 
                 <CardContent className="p-0">
-                  <div className="bg-muted/40 dark:bg-[#141512] rounded-xl p-4 flex items-center gap-4">
+                  <div className="bg-muted/40 dark:bg-[#0c3430] rounded-xl p-4 flex items-center gap-4">
                     <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
                       <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                         <path
@@ -528,14 +528,14 @@ export default function AboutUsClient() {
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                         <Sparkles className="h-3.5 w-3.5 text-[#fdc72d]" />
-                        <span className="text-[10px] font-black text-[#00685d] dark:text-[#6ed8c8]">
+                        <span className="text-xs font-black text-[#00685d] dark:text-[#6ed8c8]">
                           અમૃત
                         </span>
                       </div>
                     </div>
 
                     <div className="flex-1 flex flex-col">
-                      <span className="text-[9px] font-black text-[#00685d] dark:text-[#6ed8c8] uppercase tracking-wider">
+                      <span className="text-xs font-black text-[#00685d] dark:text-[#6ed8c8] uppercase tracking-wider">
                         {about.sidebar.choghadiya.currentTag[lang]}
                       </span>
                       <span className="text-base font-black text-foreground">
@@ -544,7 +544,7 @@ export default function AboutUsClient() {
                       <span className="text-xs text-muted-foreground font-medium">
                         {about.sidebar.choghadiya.timeRange[lang]}
                       </span>
-                      <span className="text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] mt-0.5">
+                      <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] mt-0.5">
                         {about.sidebar.choghadiya.verdict[lang]}
                       </span>
                     </div>
@@ -561,7 +561,7 @@ export default function AboutUsClient() {
               </Card>
 
               {/* Widget 2: Doctor's Quick Clinic & Direct Card (shadcn Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center gap-3 pb-4">
                   <div className="w-13 h-13 rounded-full overflow-hidden bg-muted shrink-0 ring-2 ring-[#fdc72d]/40">
                     <Image
@@ -620,7 +620,7 @@ export default function AboutUsClient() {
                     </Button>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-1 border-t border-border/50 text-[11px]">
+                  <div className="flex items-center gap-2 pt-1 border-t border-border/50 text-xs">
                     <Clock className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8] shrink-0" />
                     <span>{about.sidebar.clinic.timings[lang]}</span>
                   </div>
@@ -628,7 +628,7 @@ export default function AboutUsClient() {
               </Card>
 
               {/* Widget 3: Stay Connected Social Stats (shadcn Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center gap-2 pb-3">
                   <Users className="h-4 w-4 text-[#00685d] dark:text-[#6ed8c8]" />
                   <h4 className="text-sm font-black text-foreground">
@@ -643,12 +643,12 @@ export default function AboutUsClient() {
                         key={idx}
                         type="button"
                         onClick={() => toast.info(ch.name[lang])}
-                        className="bg-muted/40 dark:bg-[#151613] rounded-xl p-2.5 text-center hover:bg-muted transition-colors flex flex-col items-center cursor-pointer border border-border/50"
+                        className="bg-muted/40 dark:bg-[#0c3530] rounded-xl p-2.5 text-center hover:bg-muted transition-colors flex flex-col items-center cursor-pointer border border-border/50"
                       >
                         <span className="text-sm font-black text-[#00685d] dark:text-[#6ed8c8]">
                           {ch.count}
                         </span>
-                        <span className="text-[10px] text-muted-foreground mt-0.5">
+                        <span className="text-xs text-muted-foreground mt-0.5">
                           {ch.name[lang]}
                         </span>
                       </button>
@@ -658,7 +658,7 @@ export default function AboutUsClient() {
               </Card>
 
               {/* Widget 4: MyShop Spiritual Store Highlights (shadcn Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center justify-between pb-4">
                   <div className="flex items-center gap-2">
                     <ShoppingBag className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -668,7 +668,7 @@ export default function AboutUsClient() {
                   </div>
                   <Link
                     href="/myshop"
-                    className="text-[11px] font-bold text-[#00685d] dark:text-[#6ed8c8] hover:underline"
+                    className="text-xs font-bold text-[#00685d] dark:text-[#6ed8c8] hover:underline"
                   >
                     {about.sidebar.store.viewAll[lang]}
                   </Link>
@@ -678,7 +678,7 @@ export default function AboutUsClient() {
                   {about.sidebar.store.products.map((p) => (
                     <div
                       key={p.id}
-                      className="flex items-center gap-3 bg-muted/40 dark:bg-[#151613] p-2.5 rounded-xl border border-border/50"
+                      className="flex items-center gap-3 bg-muted/40 dark:bg-[#0c3530] p-2.5 rounded-xl border border-border/50"
                     >
                       <Image
                         src={p.image}
@@ -694,14 +694,14 @@ export default function AboutUsClient() {
                         <div className="text-xs font-black text-[#00685d] dark:text-[#6ed8c8]">
                           {p.price[lang]}
                         </div>
-                        <span className="text-[10px] text-muted-foreground block">
+                        <span className="text-xs text-muted-foreground block">
                           {p.badge[lang]}
                         </span>
                       </div>
                       <Button
                         size="icon-sm"
                         onClick={() => handleAddToCart(p)}
-                        className="bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] shrink-0"
+                        className="bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] shrink-0"
                         title="Add to Cart"
                       >
                         <Plus className="h-4 w-4" />
@@ -712,7 +712,7 @@ export default function AboutUsClient() {
               </Card>
 
               {/* Widget 5: Readers' Favorite Articles (shadcn Card) */}
-              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center gap-2 pb-3">
                   <Flame className="h-4 w-4 text-[#bb171f]" />
                   <h4 className="text-sm font-black text-foreground">
@@ -734,7 +734,7 @@ export default function AboutUsClient() {
                         <span className="text-xs font-bold text-foreground group-hover:text-[#00685d] dark:group-hover:text-[#6ed8c8] transition-colors leading-snug">
                           {art.title[lang]}
                         </span>
-                        <span className="text-[10px] text-muted-foreground mt-0.5">
+                        <span className="text-xs text-muted-foreground mt-0.5">
                           {art.readTime[lang]}
                         </span>
                       </div>
@@ -771,14 +771,14 @@ export default function AboutUsClient() {
                     />
                     <Button
                       type="submit"
-                      className="w-full bg-[#fdc72d] text-[#1b1c1a] font-black text-xs py-2 rounded-lg hover:bg-[#eab318] flex items-center justify-center gap-1.5 cursor-pointer shadow-sm h-9"
+                      className="w-full bg-[#fdc72d] text-[#0e3934] font-black text-xs py-2 rounded-lg hover:bg-[#eab318] flex items-center justify-center gap-1.5 cursor-pointer shadow-sm h-9"
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>{about.sidebar.newsletter.button[lang]}</span>
                     </Button>
                   </form>
 
-                  <span className="text-[10px] text-gray-300 text-center mt-1">
+                  <span className="text-xs text-gray-300 text-center mt-1">
                     {about.sidebar.newsletter.freeNote[lang]}
                   </span>
                 </CardContent>
@@ -794,7 +794,7 @@ export default function AboutUsClient() {
           <div className="flex flex-col gap-8 mt-10 w-full">
 
             {/* D. Sacred Mission & Vision Banner (Unlock Happiness) - FULL WIDTH */}
-            <Card className="bg-[#1b1c1a] text-[#f6fafd] rounded-2xl p-6 sm:p-10 shadow-lg relative overflow-hidden border-[#fdc72d]/30 w-full ring-0">
+            <Card className="bg-[#00685d] text-white rounded-2xl p-6 sm:p-10 shadow-lg relative overflow-hidden border-[#fdc72d]/30 w-full ring-0">
               {/* Golden Ambient Glow */}
               <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-[#fdc72d]/15 blur-3xl pointer-events-none" />
 
@@ -804,7 +804,7 @@ export default function AboutUsClient() {
                   <div className="md:col-span-8 flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-[#fdc72d]" />
-                      <Badge variant="outline" className="text-[10px] sm:text-xs text-[#fdc72d] border-[#fdc72d]/40 uppercase tracking-widest font-black bg-[#fdc72d]/10">
+                      <Badge variant="outline" className="text-xs sm:text-xs text-[#fdc72d] border-[#fdc72d]/40 uppercase tracking-widest font-black bg-[#fdc72d]/10">
                         {about.mission.tag[lang]}
                       </Badge>
                     </div>
@@ -850,12 +850,12 @@ export default function AboutUsClient() {
             </Card>
 
             {/* E. CERTIFICATIONS & ACCREDITATIONS SECTION - FULL WIDTH (3-COLUMN GRID) */}
-            <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-10 pb-8 sm:pb-12 shadow-sm relative w-full">
+            <div className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-10 pb-8 sm:pb-12 shadow-sm relative w-full">
               <div className="pb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-1.5">
                     <Award className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
-                    <span className="text-[10px] sm:text-xs font-black text-[#8a6800] dark:text-[#fdc72d] uppercase tracking-wider">
+                    <span className="text-xs sm:text-xs font-black text-[#8a6800] dark:text-[#fdc72d] uppercase tracking-wider">
                       {about.certificationsSection.tag[lang]}
                     </span>
                   </div>
@@ -867,7 +867,7 @@ export default function AboutUsClient() {
                   </p>
                 </div>
 
-                <Badge className="bg-[#fdc72d] text-[#1b1c1a] font-extrabold text-xs px-3.5 py-1.5 self-start sm:self-center shrink-0 border-none shadow-xs">
+                <Badge className="bg-[#fdc72d] text-[#0e3934] font-extrabold text-xs px-3.5 py-1.5 self-start sm:self-center shrink-0 border-none shadow-xs">
                   {lang === "gu" ? "૬ અધિકૃત પ્રમાણપત્રો" : "6 Verified Accreditations"}
                 </Badge>
               </div>
@@ -879,15 +879,15 @@ export default function AboutUsClient() {
                     <Card
                       key={cert.id}
                       onClick={() => setSelectedCert(cert)}
-                      className="bg-card dark:bg-[#151613] border-border/80 hover:border-[#fdc72d] rounded-xl flex flex-col justify-between transition-all hover:shadow-md cursor-pointer group ring-0 overflow-hidden"
+                      className="bg-card dark:bg-[#0c3530] border-border/80 hover:border-[#fdc72d] rounded-xl flex flex-col justify-between transition-all hover:shadow-md cursor-pointer group ring-0 overflow-hidden"
                     >
                       <CardHeader className="p-5 pb-2">
                         {/* Header bar of cert card */}
                         <div className="flex items-start justify-between gap-2 mb-2.5">
-                          <Badge className="bg-[#00685d] text-white text-[10px] font-black px-2.5 py-0.5 rounded uppercase tracking-wider">
+                          <Badge className="bg-[#00685d] text-white text-xs font-black px-2.5 py-0.5 rounded uppercase tracking-wider">
                             {cert.badge[lang]}
                           </Badge>
-                          <span className="text-[11px] font-mono text-muted-foreground font-bold">
+                          <span className="text-xs font-mono text-muted-foreground font-bold">
                             {cert.year[lang]}
                           </span>
                         </div>
@@ -910,8 +910,8 @@ export default function AboutUsClient() {
                         </p>
                       </CardContent>
 
-                      <CardFooter className="px-5 py-3.5 border-t border-border/50 bg-muted/40 dark:bg-[#181915] flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono">
+                      <CardFooter className="px-5 py-3.5 border-t border-border/50 bg-muted/40 dark:bg-[#0d3732] flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono">
                           <FileCheck2 className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8]" />
                           <span>{cert.regNo}</span>
                         </div>
@@ -944,9 +944,9 @@ export default function AboutUsClient() {
             </div>
 
             {/* F. Direct Consultation Booking Call to Action - FULL WIDTH (shadcn Card) */}
-            <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8 w-full">
+            <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8 w-full">
               <CardContent className="p-0 flex-1 text-center md:text-left">
-                <Badge className="bg-[#8a6800] text-white dark:bg-[#fdc72d] dark:text-[#1b1c1a] text-[10px] font-black px-2.5 py-0.5 rounded uppercase tracking-wider">
+                <Badge className="bg-[#8a6800] text-white dark:bg-[#fdc72d] dark:text-[#0e3934] text-xs font-black px-2.5 py-0.5 rounded uppercase tracking-wider">
                   {about.consultationCta.tag[lang]}
                 </Badge>
 
@@ -971,7 +971,7 @@ export default function AboutUsClient() {
               <div className="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto shrink-0">
                 <Button
                   onClick={() => setBookingModalOpen(true)}
-                  className="bg-[#fdc72d] text-[#1b1c1a] font-black text-xs sm:text-sm px-7 py-3 rounded-xl hover:bg-[#eab318] shadow-sm flex items-center justify-center gap-2 cursor-pointer h-12"
+                  className="bg-[#fdc72d] text-[#0e3934] font-black text-xs sm:text-sm px-7 py-3 rounded-xl hover:bg-[#eab318] shadow-sm flex items-center justify-center gap-2 cursor-pointer h-12"
                 >
                   <Calendar className="h-4 w-4" />
                   <span>{about.consultationCta.buttonBooking[lang]}</span>
@@ -996,7 +996,7 @@ export default function AboutUsClient() {
             </Card>
 
             {/* G. Bottom Authenticity Pledge Banner - FULL WIDTH (shadcn Card) */}
-            <Card className="p-6 sm:p-7 bg-muted/60 dark:bg-[#151613] border-border/80 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left w-full">
+            <Card className="p-6 sm:p-7 bg-muted/60 dark:bg-[#0c3530] border-border/80 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left w-full">
               <div className="flex items-center gap-3.5">
                 <div className="w-11 h-11 rounded-full bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                   <ShieldCheck className="h-6 w-6" />
@@ -1037,13 +1037,13 @@ export default function AboutUsClient() {
         }}
       >
         {selectedCert && (
-          <DialogContent className="max-w-lg rounded-2xl p-6 shadow-2xl bg-card dark:bg-[#1a1b17] border-border">
+          <DialogContent className="max-w-lg rounded-2xl p-6 shadow-2xl bg-card dark:bg-[#0d3833] border-border">
             <DialogHeader className="p-0 pb-4 flex-row items-center gap-3 space-y-0 pr-8">
               <div className="w-12 h-12 rounded-xl bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                 <Award className="h-6 w-6" />
               </div>
               <div>
-                <Badge variant="outline" className="text-[10px] font-black uppercase text-[#8a6800] dark:text-[#fdc72d] tracking-wider border-[#fdc72d]/40">
+                <Badge variant="outline" className="text-xs font-black uppercase text-[#8a6800] dark:text-[#fdc72d] tracking-wider border-[#fdc72d]/40">
                   {selectedCert.badge[lang]}
                 </Badge>
                 <DialogTitle className="text-base sm:text-lg font-black text-foreground mt-1">
@@ -1057,7 +1057,7 @@ export default function AboutUsClient() {
             </DialogDescription>
 
             <div className="p-0 space-y-3">
-              <div className="space-y-3 bg-muted/40 dark:bg-[#141512] p-4 rounded-xl text-xs">
+              <div className="space-y-3 bg-muted/40 dark:bg-[#0c3430] p-4 rounded-xl text-xs">
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground font-medium">
                     {lang === "gu" ? "પ્રમાણિત સંસ્થા:" : "Issuing Authority:"}
@@ -1111,7 +1111,7 @@ export default function AboutUsClient() {
                   setSelectedCert(null)
                   setBookingModalOpen(true)
                 }}
-                className="bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs h-9 hover:bg-[#eab318]"
+                className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs h-9 hover:bg-[#eab318]"
               >
                 {lang === "gu" ? "પરામર્શ માટે સંપર્ક કરો" : "Consult Dr. Modi"}
               </Button>
@@ -1124,7 +1124,7 @@ export default function AboutUsClient() {
       {/* MODAL 2: DIRECT CONSULTATION BOOKING FORM                */}
       {/* ======================================================== */}
       <Dialog open={bookingModalOpen} onOpenChange={setBookingModalOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-6 shadow-2xl bg-card dark:bg-[#1a1b17] border-border">
+        <DialogContent className="max-w-md rounded-2xl p-6 shadow-2xl bg-card dark:bg-[#0d3833] border-border">
           <DialogHeader className="p-0 pb-4 flex-row items-center gap-2.5 space-y-0 pr-8">
             <Calendar className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d]" />
             <DialogTitle className="text-lg font-black text-foreground">
@@ -1221,7 +1221,7 @@ export default function AboutUsClient() {
               </Button>
               <Button
                 type="submit"
-                className="bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs h-9 hover:bg-[#eab318]"
+                className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs h-9 hover:bg-[#eab318]"
               >
                 {lang === "gu" ? "WhatsApp પર કન્ફર્મ કરો" : "Confirm via WhatsApp"}
               </Button>

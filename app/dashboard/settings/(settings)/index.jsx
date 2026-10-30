@@ -43,7 +43,7 @@ function PasswordCard({ isEn }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
       <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
         <Lock className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
         <span>{isEn ? "Change Password" : "પાસવર્ડ બદલો"}</span>
@@ -103,7 +103,7 @@ function DeleteAccountCard({ isEn }) {
   }
 
   return (
-    <form onSubmit={handleDelete} className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-red-200 dark:border-red-900/50 shadow-sm space-y-4">
+    <form onSubmit={handleDelete} className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-red-200 dark:border-red-900/50 shadow-sm space-y-4">
       <h2 className="text-sm sm:text-base font-bold text-red-600 flex items-center gap-2 border-b border-border/40 pb-2.5">
         <Trash2 className="h-4 w-4" />
         <span>{isEn ? "Delete Account" : "ખાતું કાઢી નાખો"}</span>
@@ -189,7 +189,7 @@ function SettingsClient({ data, refresh }) {
         <form onSubmit={handleSave} className="space-y-6">
           
           {/* Personal Profile Section */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
             <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
               <User className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
               <span>{isEn ? "Personal Account Details" : "વ્યક્તિગત ખાતાની વિગતો"}</span>
@@ -246,32 +246,32 @@ function SettingsClient({ data, refresh }) {
           </div>
 
           {/* Astrological Chart Profile (Readonly Verified) */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
             <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
               <Compass className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
               <span>{isEn ? "Registered Vedic Astrological Chart" : "નોંધાયેલી વૈદિક જન્મકુંડળી વિગતો"}</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 bg-muted/40 dark:bg-[#20211d] rounded-xl border border-border/40">
-                <span className="text-[10px] text-muted-foreground block">{isEn ? "Birth Date & Time" : "જન્મ તારીખ & સમય"}</span>
+              <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40">
+                <span className="text-xs text-muted-foreground block">{isEn ? "Birth Date & Time" : "જન્મ તારીખ & સમય"}</span>
                 <strong className="text-foreground">{data.userProfile.birthDetails.dateTime[lang] || data.userProfile.birthDetails.dateTime.gu}</strong>
               </div>
 
-              <div className="p-3 bg-muted/40 dark:bg-[#20211d] rounded-xl border border-border/40">
-                <span className="text-[10px] text-muted-foreground block">{isEn ? "Rashi (Moon Sign)" : "ચંદ્ર રાશિ"}</span>
+              <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40">
+                <span className="text-xs text-muted-foreground block">{isEn ? "Rashi (Moon Sign)" : "ચંદ્ર રાશિ"}</span>
                 <strong className="text-foreground">{data.userProfile.birthDetails.rashi[lang] || data.userProfile.birthDetails.rashi.gu}</strong>
               </div>
 
-              <div className="p-3 bg-muted/40 dark:bg-[#20211d] rounded-xl border border-border/40">
-                <span className="text-[10px] text-muted-foreground block">{isEn ? "Lagna (Ascendant)" : "લગ્ન ભાવ"}</span>
+              <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40">
+                <span className="text-xs text-muted-foreground block">{isEn ? "Lagna (Ascendant)" : "લગ્ન ભાવ"}</span>
                 <strong className="text-foreground">{data.userProfile.birthDetails.lagna[lang] || data.userProfile.birthDetails.lagna.gu}</strong>
               </div>
             </div>
           </div>
 
           {/* Language & Security */}
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
             <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
               <Globe className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
               <span>{isEn ? "Preferences & Security" : "પસંદગી & સુરક્ષા"}</span>
@@ -287,12 +287,12 @@ function SettingsClient({ data, refresh }) {
                 </p>
               </div>
 
-              <div className="inline-flex p-1 bg-muted/60 dark:bg-[#20211d] rounded-xl border border-border/50">
+              <div className="inline-flex p-1 bg-muted/60 dark:bg-[#0f3c36] rounded-xl border border-border/50">
                 <button
                   type="button"
                   onClick={() => setLang("gu")}
                   className={`px-3 py-1 text-xs font-bold rounded-lg cursor-pointer ${
-                    lang === "gu" ? "bg-[#fdc72d] text-[#1b1c1a]" : "text-muted-foreground hover:text-foreground"
+                    lang === "gu" ? "bg-[#fdc72d] text-[#0e3934]" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   ગુજરાતી
@@ -301,7 +301,7 @@ function SettingsClient({ data, refresh }) {
                   type="button"
                   onClick={() => setLang("en")}
                   className={`px-3 py-1 text-xs font-bold rounded-lg cursor-pointer ${
-                    lang === "en" ? "bg-[#fdc72d] text-[#1b1c1a]" : "text-muted-foreground hover:text-foreground"
+                    lang === "en" ? "bg-[#fdc72d] text-[#0e3934]" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   English
@@ -323,7 +323,7 @@ function SettingsClient({ data, refresh }) {
             <Button
               type="submit"
               disabled={isSaving}
-              className="h-10 px-6 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-2xs gap-1.5"
+              className="h-10 px-6 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5"
             >
               <Check className="h-4 w-4" />
               <span>{isEn ? "Save Changes" : "ફેરફારો સાચવો"}</span>

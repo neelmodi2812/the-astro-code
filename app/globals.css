@@ -49,26 +49,26 @@
   --color-teal: #008d7f;
   --color-teal-dark: #00685d;
   --color-vermilion: #bb171f;
-  --color-charcoal: #141414;
-  --color-charcoal-warm: #1b1c1a;
+  --color-charcoal: #0c3430;
+  --color-charcoal-warm: #0e3934;
 }
 
 :root {
   --font-noto-gujarati: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', 'Gujarati Sangam MN', 'Shruti', sans-serif;
   --background: #faf9f5;
-  --foreground: #1b1c1a;
+  --foreground: #0e3934;
   --card: #ffffff;
-  --card-foreground: #1b1c1a;
+  --card-foreground: #0e3934;
   --popover: #ffffff;
-  --popover-foreground: #1b1c1a;
+  --popover-foreground: #0e3934;
   --primary: #fdc72d;
-  --primary-foreground: #1b1c1a;
+  --primary-foreground: #0e3934;
   --secondary: #008d7f;
   --secondary-foreground: #ffffff;
   --muted: #f0eee8;
   --muted-foreground: #665f50;
   --accent: #fdf5d6;
-  --accent-foreground: #1b1c1a;
+  --accent-foreground: #0e3934;
   --destructive: #bb171f;
   --border: #e6e3da;
   --input: #dedad0;
@@ -77,19 +77,19 @@
 }
 
 .dark {
-  --background: #141414;
+  --background: #0c3430;
   --foreground: #f4f3ef;
-  --card: #1c1d1a;
+  --card: #0e3934;
   --card-foreground: #f4f3ef;
-  --popover: #1c1d1a;
+  --popover: #0e3934;
   --popover-foreground: #f4f3ef;
   --primary: #fdc72d;
-  --primary-foreground: #1b1c1a;
+  --primary-foreground: #0e3934;
   --secondary: #008d7f;
   --secondary-foreground: #ffffff;
-  --muted: #242521;
+  --muted: #103e38;
   --muted-foreground: #a6a195;
-  --accent: #2c2b22;
+  --accent: #12413b;
   --accent-foreground: #fdc72d;
   --destructive: #db3232;
   --border: rgba(255, 255, 255, 0.12);
@@ -268,4 +268,67 @@ html[lang="en"] h6 {
 
 .pb-safe-generous {
   padding-bottom: max(1.75rem, env(safe-area-inset-bottom, 24px));
+}
+
+/* ------------------------------------------------------------------
+   Gujarati readability
+   Gujarati conjuncts and matras break apart under letter-spacing, get
+   clipped by tight line-heights, and turn clumsy at 800/900 weights.
+   These rules sit outside @layer so they beat the Tailwind utilities.
+------------------------------------------------------------------- */
+html[lang="gu"] body {
+  line-height: 1.75;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[lang="gu"] [class*="tracking-"] {
+  letter-spacing: 0 !important;
+}
+
+html[lang="gu"] .font-black,
+html[lang="gu"] .font-extrabold {
+  font-weight: 700;
+}
+
+html[lang="gu"] h1 {
+  line-height: 1.3;
+}
+
+html[lang="gu"] h2,
+html[lang="gu"] h3,
+html[lang="gu"] h4 {
+  line-height: 1.4;
+}
+
+html[lang="gu"] .leading-none {
+  line-height: 1.3;
+}
+
+html[lang="gu"] .leading-tight {
+  line-height: 1.5;
+}
+
+html[lang="gu"] .leading-snug {
+  line-height: 1.6;
+}
+
+html[lang="gu"] [class*="leading-["] {
+  line-height: 1.35;
+}
+
+html[lang="gu"] .text-xs {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+html[lang="gu"] .text-sm {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+html[lang="gu"] .text-base {
+  font-size: 1.0625rem;
+  line-height: 1.75;
 }

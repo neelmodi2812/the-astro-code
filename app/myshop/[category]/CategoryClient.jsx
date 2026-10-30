@@ -282,7 +282,7 @@ export default function CategoryClient({ categorySlug }) {
 
       <main className="flex-1 w-full bg-background">
         {/* BREADCRUMBS */}
-        <section className="w-full bg-[#f0f4f7] dark:bg-[#181a17] py-2.5 border-b border-border/60">
+        <section className="w-full bg-[#f0f4f7] dark:bg-[#0d3732] py-2.5 border-b border-border/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <Breadcrumb className="self-start sm:self-auto">
               <BreadcrumbList className="text-xs font-medium">
@@ -318,7 +318,7 @@ export default function CategoryClient({ categorySlug }) {
               </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="flex items-center gap-3 sm:gap-4 font-semibold text-[11px] sm:text-xs text-[#00685d] dark:text-[#6ed8c8] self-start sm:self-auto">
+            <div className="flex items-center gap-3 sm:gap-4 font-semibold text-xs sm:text-xs text-[#00685d] dark:text-[#6ed8c8] self-start sm:self-auto">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]" />
                 <span>{shopData.topTrustBar.consecrated}</span>
@@ -376,13 +376,13 @@ export default function CategoryClient({ categorySlug }) {
                       setCurrentPage(1)
                     }}
                     placeholder={lang === "gu" ? `${categoryMeta.name} માં શોધો...` : `Search in ${categoryMeta.nameEn || categoryMeta.name}...`}
-                    className="w-full h-11 pl-10 pr-24 rounded-xl bg-white text-[#1b1c1a] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
+                    className="w-full h-11 pl-10 pr-24 rounded-xl bg-white text-[#0e3934] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
                   />
                   {searchQuery ? (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-3 text-muted-foreground hover:text-[#1b1c1a]"
+                      className="absolute right-3 text-muted-foreground hover:text-[#0e3934]"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -393,7 +393,7 @@ export default function CategoryClient({ categorySlug }) {
                         const el = document.getElementById("category-catalog")
                         if (el) el.scrollIntoView({ behavior: "smooth" })
                       }}
-                      className="absolute right-1.5 h-8 px-3 rounded-lg bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center gap-1 cursor-pointer"
+                      className="absolute right-1.5 h-8 px-3 rounded-lg bg-[#fdc72d] text-[#0e3934] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center gap-1 cursor-pointer"
                     >
                       <span>{lang === "gu" ? "શોધો" : "Search"}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -411,10 +411,10 @@ export default function CategoryClient({ categorySlug }) {
                   <span className="text-sm font-extrabold text-[#fdc72d] tracking-wide">
                     {categoryMeta.nameEn || categoryMeta.name}
                   </span>
-                  <span className="text-[10px] text-white/80 uppercase font-bold tracking-widest">
+                  <span className="text-xs text-white/80 uppercase font-bold tracking-widest">
                     {lang === "gu" ? "પ્રાણ પ્રતિષ્ઠા ગેરંટી" : "PRAN PRATISHTHA GUARANTEE"}
                   </span>
-                  <span className="text-[9px] text-[#fdc72d]/90 font-medium">
+                  <span className="text-xs text-[#fdc72d]/90 font-medium">
                     {filteredProducts.length} {lang === "gu" ? "પવિત્ર સામગ્રી" : "Sacred Items"}
                   </span>
                 </div>
@@ -424,21 +424,21 @@ export default function CategoryClient({ categorySlug }) {
         </section>
 
         {/* TRUST BADGES */}
-        <section className="w-full bg-card dark:bg-[#1a1b18] shadow-xs border-b border-border/60 py-4">
+        <section className="w-full bg-card dark:bg-[#0d3833] shadow-xs border-b border-border/60 py-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {shopData.trustBadges.map((badge) => {
               const IconComp = ICON_MAP[badge.icon] || ShieldCheck
               return (
                 <div
                   key={badge.id}
-                  className="flex items-center gap-2.5 p-3 rounded-xl bg-[#f0f4f7] dark:bg-[#222420] border border-border/40 hover:border-[#00685d]/40 transition-colors"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-[#f0f4f7] dark:bg-[#103d37] border border-border/40 hover:border-[#00685d]/40 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[#00685d]/10 dark:bg-[#00685d]/25 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                     <IconComp className="h-5 w-5" />
                   </div>
                   <div className="text-left overflow-hidden">
                     <p className="text-xs font-bold text-foreground truncate">{badge.title}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{badge.subtitle}</p>
+                    <p className="text-xs text-muted-foreground truncate">{badge.subtitle}</p>
                   </div>
                 </div>
               )
@@ -449,7 +449,7 @@ export default function CategoryClient({ categorySlug }) {
         {/* CATEGORY DESCRIPTION */}
         <section className="w-full bg-background py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-            <div className="bg-gradient-to-br from-[#f0f4f7] to-[#e4e9ed] dark:from-[#20221e] dark:to-[#171815] rounded-xl p-5 sm:p-6 border border-border/70 shadow-xs">
+            <div className="bg-gradient-to-br from-[#f0f4f7] to-[#e4e9ed] dark:from-[#0f3c36] dark:to-[#0d3631] rounded-xl p-5 sm:p-6 border border-border/70 shadow-xs">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#00685d]/10 dark:bg-[#00685d]/25 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                   <CategoryIcon className="h-5 w-5" />
@@ -457,7 +457,7 @@ export default function CategoryClient({ categorySlug }) {
                 <div className="space-y-1.5">
                   <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">
                     {categoryMeta.name}
-                    <Badge variant="outline" className="text-[10px] bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
+                    <Badge variant="outline" className="text-xs bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
                       {categoryMeta.productCount} {lang === "gu" ? "ઉત્પાદનો" : "Items"}
                     </Badge>
                   </h2>
@@ -474,13 +474,13 @@ export default function CategoryClient({ categorySlug }) {
         <section id="category-catalog" className="w-full bg-background pb-14 scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-6">
             {/* Sort Controls */}
-            <div className="bg-card dark:bg-[#1a1b18] rounded-xl p-3.5 sm:p-4 border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="bg-card dark:bg-[#0d3833] rounded-xl p-3.5 sm:p-4 border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-2 self-start sm:self-auto">
                 <span className="text-xs sm:text-sm font-bold text-foreground">
                   {shopData.catalogSection.totalProductsPrefix} {filteredProducts.length}{" "}
                   {shopData.catalogSection.totalProductsSuffix}
                 </span>
-                <Badge variant="outline" className="text-[10px] bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
+                <Badge variant="outline" className="text-xs bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
                   {shopData.catalogSection.liveStockBadge}
                 </Badge>
               </div>
@@ -507,7 +507,7 @@ export default function CategoryClient({ categorySlug }) {
 
             {/* Products Grid */}
             {paginatedProducts.length === 0 ? (
-              <div className="bg-card dark:bg-[#1a1b18] rounded-xl p-10 text-center border border-border/80 space-y-3">
+              <div className="bg-card dark:bg-[#0d3833] rounded-xl p-10 text-center border border-border/80 space-y-3">
                 <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                   <Search className="h-6 w-6" />
                 </div>
@@ -540,7 +540,7 @@ export default function CategoryClient({ categorySlug }) {
                     <Card
                       key={product.id}
                       onClick={() => router.push(`/myshop/product/${product.id}`)}
-                      className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#1a1b18] cursor-pointer"
+                      className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#0d3833] cursor-pointer"
                     >
                       {/* Image Pane */}
                       <div className="relative h-52 bg-muted overflow-hidden">
@@ -553,7 +553,7 @@ export default function CategoryClient({ categorySlug }) {
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         </Link>
-                        <Badge className="absolute top-2.5 left-2.5 bg-[#00685d] text-white text-[10px] font-bold shadow-xs pointer-events-none">
+                        <Badge className="absolute top-2.5 left-2.5 bg-[#00685d] text-white text-xs font-bold shadow-xs pointer-events-none">
                           {product.badge}
                         </Badge>
                         <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
@@ -565,7 +565,7 @@ export default function CategoryClient({ categorySlug }) {
                                   e.stopPropagation()
                                   router.push(`/myshop/product/${product.id}`)
                                 }}
-                                className="w-8 h-8 rounded-full bg-white/85 dark:bg-[#1b1c1a]/85 text-foreground hover:text-[#00685d] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                                className="w-8 h-8 rounded-full bg-white/85 dark:bg-[#0e3934]/85 text-foreground hover:text-[#00685d] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
                                 aria-label={lang === "gu" ? "વિગત જુઓ" : "View Details"}
                               >
                                 <Eye className="h-4 w-4" />
@@ -583,7 +583,7 @@ export default function CategoryClient({ categorySlug }) {
                                   e.stopPropagation()
                                   handleToggleWishlist(product)
                                 }}
-                                className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#1b1c1a]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
+                                className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#0e3934]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
                                   isWishlisted
                                     ? "text-[#bb171f]"
                                     : "text-muted-foreground hover:text-[#bb171f]"
@@ -604,14 +604,14 @@ export default function CategoryClient({ categorySlug }) {
                       <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between space-y-3">
                         <div>
                           {/* Rating Stars */}
-                          <div className="flex items-center gap-1 text-[#fdc72d] mb-1">
+                          <div className={`flex items-center gap-1 text-[#fdc72d] mb-1 ${product.reviewsCount ? "" : "hidden"}`}>
                             {[...Array(5)].map((_, i) => (
                               <Star key={i} className="h-3 w-3 fill-current" />
                             ))}
                             <span className="text-xs font-bold text-foreground ml-1">
                               {product.rating}
                             </span>
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               ({product.reviewsCount})
                             </span>
                           </div>
@@ -633,11 +633,13 @@ export default function CategoryClient({ categorySlug }) {
                               <span className="text-base font-bold text-[#00685d] dark:text-[#6ed8c8]">
                                 ₹{product.price.toLocaleString("en-IN")}
                               </span>
-                              <span className="text-xs text-muted-foreground line-through">
-                                ₹{product.originalPrice.toLocaleString("en-IN")}
-                              </span>
+                              {product.originalPrice > product.price && (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  ₹{product.originalPrice.toLocaleString("en-IN")}
+                                </span>
+                              )}
                             </div>
-                            <span className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                            <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold">
                               {product.savings}
                             </span>
                           </div>
@@ -650,7 +652,7 @@ export default function CategoryClient({ categorySlug }) {
                             className={`px-3 h-8.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer ${
                               isJustAdded
                                 ? "bg-[#00685d] text-white"
-                                : "bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318]"
+                                : "bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318]"
                             }`}
                           >
                             {isJustAdded ? (
@@ -675,7 +677,7 @@ export default function CategoryClient({ categorySlug }) {
 
             {/* PAGINATION */}
             {filteredProducts.length > 0 && (
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#1a1b18] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#0d3833] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
                 <p className="text-xs text-muted-foreground">
                   {lang === "gu"
                     ? `દર્શાવવામાં આવેલ: ${(currentPage - 1) * itemsPerPage + 1} થી ${Math.min(currentPage * itemsPerPage, totalItems)} (કુલ ${totalItems} માંથી)`
@@ -707,7 +709,7 @@ export default function CategoryClient({ categorySlug }) {
         </section>
 
         {/* OTHER CATEGORIES QUICK NAV */}
-        <section className="w-full bg-[#f0f4f7] dark:bg-[#181a17] py-10 border-t border-border/60">
+        <section className="w-full bg-[#f0f4f7] dark:bg-[#0d3732] py-10 border-t border-border/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-lg sm:text-xl font-extrabold text-foreground">
@@ -729,7 +731,7 @@ export default function CategoryClient({ categorySlug }) {
                     <Link
                       key={cat.id}
                       href={`/myshop/${cat.id}`}
-                      className="group flex flex-col items-center p-3.5 sm:p-4 rounded-xl border bg-card dark:bg-[#1a1b18] hover:bg-[#00685d] hover:text-white border-border/80 text-foreground transition-all text-center cursor-pointer shadow-xs hover:shadow-md hover:scale-[1.02]"
+                      className="group flex flex-col items-center p-3.5 sm:p-4 rounded-xl border bg-card dark:bg-[#0d3833] hover:bg-[#00685d] hover:text-white border-border/80 text-foreground transition-all text-center cursor-pointer shadow-xs hover:shadow-md hover:scale-[1.02]"
                     >
                       <div className="w-12 h-12 rounded-full flex items-center justify-center transition-colors mb-2.5 bg-[#00685d]/10 text-[#00685d] dark:bg-[#00685d]/25 dark:text-[#6ed8c8] group-hover:bg-white/20 group-hover:text-[#fdc72d]">
                         <CatIcon className="h-5 w-5" />
@@ -737,7 +739,7 @@ export default function CategoryClient({ categorySlug }) {
                       <span className="text-xs sm:text-sm font-bold block truncate w-full">
                         {cat.name}
                       </span>
-                      <span className="text-[10px] block mt-0.5 text-muted-foreground group-hover:text-white/80">
+                      <span className="text-xs block mt-0.5 text-muted-foreground group-hover:text-white/80">
                         {cat.subtitle}
                       </span>
                     </Link>
@@ -767,7 +769,7 @@ export default function CategoryClient({ categorySlug }) {
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto shrink-0">
                 <Link
                   href={shopData.astrologerCta.phoneHref}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs sm:text-sm shadow hover:bg-[#eab318] transition-colors flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#fdc72d] text-[#0e3934] font-bold text-xs sm:text-sm shadow hover:bg-[#eab318] transition-colors flex items-center justify-center gap-2"
                 >
                   <Phone className="h-4 w-4" />
                   <span>{shopData.astrologerCta.phoneText}</span>
@@ -798,10 +800,10 @@ export default function CategoryClient({ categorySlug }) {
         }}
       >
         {activeModalProduct && (
-          <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl bg-card dark:bg-[#1a1b18] border-border/80 max-h-[90vh] flex flex-col">
+          <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl bg-card dark:bg-[#0d3833] border-border/80 max-h-[90vh] flex flex-col">
             <DialogHeader className="p-4 border-b border-border/60 bg-muted/30 flex-row items-center justify-between space-y-0 pr-12">
               <div className="flex items-center gap-2">
-                <Badge className="bg-[#00685d] text-white text-[10px]">
+                <Badge className="bg-[#00685d] text-white text-xs">
                   {activeModalProduct.badge}
                 </Badge>
                 <DialogTitle className="text-xs font-bold text-foreground truncate max-w-[240px]">
@@ -835,9 +837,11 @@ export default function CategoryClient({ categorySlug }) {
                     <span className="text-xl font-bold text-[#00685d] dark:text-[#6ed8c8]">
                       ₹{activeModalProduct.price.toLocaleString("en-IN")}
                     </span>
-                    <span className="text-xs text-muted-foreground line-through">
-                      ₹{activeModalProduct.originalPrice?.toLocaleString("en-IN")}
-                    </span>
+                    {activeModalProduct.originalPrice > activeModalProduct.price && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        ₹{activeModalProduct.originalPrice.toLocaleString("en-IN")}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed pt-1">
                     {activeModalProduct.details ||

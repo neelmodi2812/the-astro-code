@@ -585,7 +585,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   <Badge className="bg-[#00685d]/95 hover:bg-[#00685d] text-white font-bold text-xs px-2.5 py-1 shadow-sm">
                     {product.badge}
                   </Badge>
-                  <Badge variant="secondary" className="bg-card/90 backdrop-blur-md text-foreground font-semibold text-[11px] shadow-xs">
+                  <Badge variant="secondary" className="bg-card/90 backdrop-blur-md text-foreground font-semibold text-xs shadow-xs">
                     {product.origin}
                   </Badge>
                 </div>
@@ -622,14 +622,14 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                 </div>
 
                 {/* Desktop-only Subtle Hover Zoom Prompt (Never blocks tassel/details at bottom-right) */}
-                <div className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white text-xs font-semibold shadow-md pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 border border-white/10">
+                <div className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#06302b]/75 backdrop-blur-md text-white text-xs font-semibold shadow-md pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 border border-white/10">
                   <ZoomIn className="h-3.5 w-3.5 text-[#fdc72d]" />
                   <span>{currentLang === "gu" ? "મોટું જોવા ક્લિક કરો" : "Click to view full image"}</span>
                 </div>
 
                 {/* Mobile Unobtrusive Image Counter Badge (Clean, does not block mala) */}
                 {imagesList.length > 1 && (
-                  <div className="md:hidden absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold shadow-xs flex items-center gap-1 z-10 pointer-events-none">
+                  <div className="md:hidden absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-[#06302b]/60 backdrop-blur-md text-white text-xs font-bold shadow-xs flex items-center gap-1 z-10 pointer-events-none">
                     <Eye className="h-3 w-3 text-[#fdc72d]" />
                     <span>{toDigits(selectedImageIndex + 1)} / {toDigits(imagesList.length)}</span>
                   </div>
@@ -637,7 +637,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
                 {/* Mobile Dots Indicator */}
                 {imagesList.length > 1 && (
-                  <div className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm pointer-events-none z-10">
+                  <div className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#06302b]/40 backdrop-blur-sm pointer-events-none z-10">
                     {imagesList.map((_, i) => (
                       <span
                         key={i}
@@ -658,7 +658,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         e.stopPropagation()
                         setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))
                       }}
-                      className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20 opacity-0 group-hover:opacity-100 hover:scale-105"
+                      className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#06302b]/60 hover:bg-[#06302b]/85 text-white backdrop-blur-md items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20 opacity-0 group-hover:opacity-100 hover:scale-105"
                       aria-label="Previous Image"
                     >
                       <ChevronLeft className="h-5 w-5" />
@@ -669,7 +669,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         e.stopPropagation()
                         setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))
                       }}
-                      className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20 opacity-0 group-hover:opacity-100 hover:scale-105"
+                      className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#06302b]/60 hover:bg-[#06302b]/85 text-white backdrop-blur-md items-center justify-center transition-all z-10 cursor-pointer shadow-md active:scale-95 border border-white/20 opacity-0 group-hover:opacity-100 hover:scale-105"
                       aria-label="Next Image"
                     >
                       <ChevronRight className="h-5 w-5" />
@@ -785,11 +785,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                               />
 
                               {/* Elegant Frosted Dark Glassmorphic +N Overlay */}
-                              <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 backdrop-blur-[1.5px] transition-all flex flex-col items-center justify-center text-white p-1">
+                              <div className="absolute inset-0 bg-[#06302b]/60 group-hover:bg-[#06302b]/70 backdrop-blur-[1.5px] transition-all flex flex-col items-center justify-center text-white p-1">
                                 <span className="text-sm sm:text-base font-black tracking-tight text-white group-hover:text-[#fdc72d] transition-colors flex items-center gap-0.5">
                                   +{toDigits(remainingCount)}
                                 </span>
-                                <span className="text-[10px] sm:text-[11px] font-bold text-white/90 uppercase tracking-wider text-center leading-tight">
+                                <span className="text-xs sm:text-xs font-bold text-white/90 uppercase tracking-wider text-center leading-tight">
                                   {currentLang === "gu" ? "વધુ ફોટો" : "More"}
                                 </span>
                               </div>
@@ -808,7 +808,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   {/* Optional View All Photos button below if imagesList > 4 */}
                   {imagesList.length > 4 && (
                     <div className="mt-2 flex items-center justify-between px-1">
-                      <span className="text-[11px] text-muted-foreground font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {currentLang === "gu"
                           ? `કુલ ${toDigits(imagesList.length)} ચિત્રો ઉપલબ્ધ`
                           : `Total ${toDigits(imagesList.length)} photos available`}
@@ -837,25 +837,25 @@ export default function ProductDetailClient({ productId, initialBundle }) {
               <div className="p-3 rounded-2xl bg-muted/40 border border-border/60 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-[11px] font-bold text-foreground truncate">
+                  <span className="text-xs font-bold text-foreground truncate">
                     {currentLang === "gu" ? "૧૦૦% લેબ પ્રમાણિત" : "100% Lab Tested"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-[11px] font-bold text-foreground truncate">
+                  <span className="text-xs font-bold text-foreground truncate">
                     {currentLang === "gu" ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા" : "Vedic Consecrated"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Truck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-[11px] font-bold text-foreground truncate">
+                  <span className="text-xs font-bold text-foreground truncate">
                     {currentLang === "gu" ? "મફત શિપિંગ (ભારત)" : "Free Delivery"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <RotateCcw className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-[11px] font-bold text-foreground truncate">
+                  <span className="text-xs font-bold text-foreground truncate">
                     {currentLang === "gu" ? "૭ દિવસ સરળ રિટર્ન" : "7-Day Return"}
                   </span>
                 </div>
@@ -868,11 +868,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       SKU: {product.sku}
                     </span>
                     <span className="text-border">•</span>
-                    <span className="text-[11px] font-bold text-[#00685d] dark:text-[#fdc72d] uppercase">
+                    <span className="text-xs font-bold text-[#00685d] dark:text-[#fdc72d] uppercase">
                       {product.categoryName || product.category}
                     </span>
                   </div>
@@ -961,7 +961,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                       <Sparkles className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
                       <span>{currentLang === "gu" ? "ઉપલબ્ધ વિકલ્પો / સાઇઝ પસંદ કરો:" : "Select Available Variant / Size:"}</span>
                     </label>
-                    <span className="text-[11px] text-muted-foreground font-medium">
+                    <span className="text-xs text-muted-foreground font-medium">
                       {currentLang === "gu" ? "વિકલ્પ બદલતાં ફોટો આપમેળે બદલાશે" : "Photo changes with selected variant"}
                     </span>
                   </div>
@@ -983,9 +983,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                           {/* Top row: Tag Badge & Active Checkmark */}
                           <div className="flex items-center justify-between gap-1.5 mb-2 min-h-[22px]">
                             {v.tag ? (
-                              <Badge className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                              <Badge className={`text-xs font-bold px-2 py-0.5 rounded-md ${
                                 isSelected 
-                                  ? "bg-[#00685d] text-white dark:bg-[#fdc72d] dark:text-[#1b1c1a]" 
+                                  ? "bg-[#00685d] text-white dark:bg-[#fdc72d] dark:text-[#0e3934]" 
                                   : "bg-muted text-muted-foreground"
                               }`}>
                                 {v.tag}
@@ -993,7 +993,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                             ) : <span />}
 
                             {isSelected && (
-                              <span className="w-5 h-5 rounded-full bg-[#00685d] text-white dark:bg-[#fdc72d] dark:text-[#1b1c1a] flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
+                              <span className="w-5 h-5 rounded-full bg-[#00685d] text-white dark:bg-[#fdc72d] dark:text-[#0e3934] flex items-center justify-center text-xs font-bold shadow-xs shrink-0">
                                 <Check className="h-3 w-3 stroke-[3]" />
                               </span>
                             )}
@@ -1005,7 +1005,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                           </span>
 
                           {/* Clean Key Spec Summary */}
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-1 mb-2.5">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 mb-2.5">
                             <span>{v.beadDiameter || "7-8mm"}</span>
                             <span>•</span>
                             <span>{v.weight || "108+1 Beads"}</span>
@@ -1018,14 +1018,14 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                                 {formatPrice(v.price)}
                               </span>
                               {v.originalPrice && v.originalPrice > v.price && (
-                                <span className="text-[11px] text-muted-foreground line-through">
+                                <span className="text-xs text-muted-foreground line-through">
                                   {formatPrice(v.originalPrice)}
                                 </span>
                               )}
                             </div>
 
                             {v.stockCount && v.stockCount <= 3 && (
-                              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                              <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                                 {currentLang === "gu" ? `માત્ર ${toDigits(v.stockCount)} બાકી` : `${v.stockCount} left`}
                               </span>
                             )}
@@ -1079,7 +1079,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   <Button
                     size="lg"
                     onClick={() => handleAddToCart(true)}
-                    className="sm:col-span-12 lg:col-span-4 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#1b1c1a] font-bold text-sm shadow-md gap-2 whitespace-nowrap cursor-pointer transition-all active:scale-[0.99]"
+                    className="sm:col-span-12 lg:col-span-4 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#0e3934] font-bold text-sm shadow-md gap-2 whitespace-nowrap cursor-pointer transition-all active:scale-[0.99]"
                   >
                     <Zap className="h-4 w-4 fill-current shrink-0" />
                     <span className="whitespace-nowrap">{currentLang === "gu" ? "હમણાં ખરીદો" : "Buy Now"}</span>
@@ -1201,7 +1201,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                             : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        <span className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full text-[10px] sm:text-xs flex items-center justify-center font-bold ${
+                        <span className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full text-xs sm:text-xs flex items-center justify-center font-bold ${
                           isActive ? "bg-white/20 text-white" : "bg-muted-foreground/15 text-muted-foreground"
                         }`}>
                           {toDigits(idx + 1)}
@@ -1416,13 +1416,13 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                       />
 
                       {/* Click to Zoom Overlay Banner */}
-                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md text-white text-xs font-bold shadow-lg pointer-events-none group-hover:bg-[#00685d] transition-colors border border-white/10 whitespace-nowrap">
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#06302b]/80 backdrop-blur-md text-white text-xs font-bold shadow-lg pointer-events-none group-hover:bg-[#00685d] transition-colors border border-white/10 whitespace-nowrap">
                         <ZoomIn className="h-3.5 w-3.5 text-[#fdc72d]" />
                         <span>{currentLang === "gu" ? "ક્લિક કરી મોટું પ્રમાણપત્ર જુઓ" : "Click to Inspect Certificate"}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
                       <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         <span>{currentLang === "gu" ? "QR કોડ સ્કેન વેરિફાઇડ" : "Live QR Scan Verified"}</span>
@@ -1438,7 +1438,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         <span className="text-xs font-extrabold uppercase tracking-wider text-[#00685d] dark:text-[#fdc72d]">
                           {currentLang === "gu" ? "લેબોરેટરી વૈજ્ઞાનિક પરીક્ષણ પરિણામો" : "Laboratory Scientific Test Results"}
                         </span>
-                        <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                        <Badge className="bg-emerald-600 text-white text-xs font-bold">
                           {currentLang === "gu" ? "૧૦૦% ઉત્તીર્ણ" : "PASSED (100%)"}
                         </Badge>
                       </div>
@@ -1513,7 +1513,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                           <span className="font-bold text-foreground block">
                             {currentLang === "gu" ? "હોલોગ્રામ સીલ સુરક્ષા" : "Holographic Anti-Counterfeit Seal"}
                           </span>
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {currentLang === "gu" ? "દરેક સર્ટિફિકેટ પર 3D હોલોગ્રામ સ્ટીકર સામેલ." : "Every report features a tamper-proof 3D hologram."}
                           </span>
                         </div>
@@ -1525,7 +1525,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                           <span className="font-bold text-foreground block">
                             {currentLang === "gu" ? "૧૦૦% મની-બેક ગેરંટી" : "100% Lifetime Authenticity Guarantee"}
                           </span>
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {currentLang === "gu" ? "ભારતની કોઈપણ લેબમાં નકલી સાબિત થાય તો ૧૦ ગણા નાણાં પરત." : "10x money-back assurance if proven non-genuine by any certified lab."}
                           </span>
                         </div>
@@ -1675,7 +1675,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         <Star key={i} className={`h-4 w-4 ${i < Math.round(product.rating) ? "fill-current" : ""}`} />
                       ))}
                     </div>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {currentLang === "gu"
                         ? `${toDigits(product.reviewsCount)} સમીક્ષાઓ`
                         : `${product.reviewsCount} reviews`}
@@ -1697,7 +1697,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                             <Star key={i} className={`h-3.5 w-3.5 ${i < (rev.rating || 5) ? "fill-current" : ""}`} />
                           ))}
                         </div>
-                        {rev.date && <span className="text-[11px] text-muted-foreground">{rev.date}</span>}
+                        {rev.date && <span className="text-xs text-muted-foreground">{rev.date}</span>}
                       </div>
                       {rev.title && <h4 className="font-bold text-sm text-foreground leading-snug">{rev.title}</h4>}
                       <p className="text-xs text-muted-foreground leading-relaxed">&ldquo;{rev.comment}&rdquo;</p>
@@ -1753,7 +1753,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                           alt={rel.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <Badge className="absolute top-2.5 left-2.5 bg-[#00685d]/95 hover:bg-[#00685d] text-white font-bold text-[10px] shadow-sm">
+                        <Badge className="absolute top-2.5 left-2.5 bg-[#00685d]/95 hover:bg-[#00685d] text-white font-bold text-xs shadow-sm">
                           {rel.badge}
                         </Badge>
                       </Link>
@@ -1763,7 +1763,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         <div className="flex items-center gap-1.5 text-[#fdc72d] text-xs">
                           <Star className="h-3.5 w-3.5 fill-current" />
                           <span className="font-bold text-foreground text-xs">{rel.rating}</span>
-                          <span className="text-[11px] text-muted-foreground">({toDigits(rel.reviewsCount || 48)})</span>
+                          <span className="text-xs text-muted-foreground">({toDigits(rel.reviewsCount || 48)})</span>
                         </div>
                         <Link href={`/myshop/product/${rel.id}`}>
                           <h4 className="font-bold text-sm sm:text-base text-foreground line-clamp-1 group-hover:text-[#00685d] dark:group-hover:text-[#fdc72d] transition-colors">
@@ -1830,7 +1830,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
       {/* 5. Mobile Sticky Bottom Purchase Bar (Persistent quick checkout on mobile screens) */}
       <aside
         aria-label={currentLang === "gu" ? "મોબાઇલ ઝડપી ખરીદી પટ્ટી" : "Mobile Quick Purchase Bar"}
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.12)] px-3 sm:px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex items-center justify-between gap-2.5"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_24px_rgba(6,48,43,0.12)] px-3 sm:px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex items-center justify-between gap-2.5"
       >
         {/* Left: Thumbnail, Price & Selected Variant */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -1847,12 +1847,12 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                 {formatPrice(totalItemPrice)}
               </span>
               {originalPrice > currentPrice && (
-                <span className="text-[11px] text-muted-foreground line-through">
+                <span className="text-xs text-muted-foreground line-through">
                   {formatPrice(totalOriginalPrice)}
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-muted-foreground truncate font-medium">
+            <span className="text-xs text-muted-foreground truncate font-medium">
               {selectedVariant?.name || (currentLang === "gu" ? "મફત શિપિંગ સામેલ" : "Free Delivery Included")}
             </span>
           </div>
@@ -1873,7 +1873,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
           <Button
             size="sm"
             onClick={() => handleAddToCart(true)}
-            className="h-10 px-3.5 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#1b1c1a] font-bold text-xs shadow-xs gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
+            className="h-10 px-3.5 rounded-xl bg-[#fdc72d] hover:bg-[#d9a100] text-[#0e3934] font-bold text-xs shadow-xs gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
           >
             <Zap className="h-3.5 w-3.5 fill-current" />
             <span>{currentLang === "gu" ? "હમણાં ખરીદો" : "Buy Now"}</span>
@@ -1891,7 +1891,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
       {/* Fullscreen Image Lightbox Modal with Smooth Pan & Multi-level Zoom */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-[100] bg-[#06302b]/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
           onClick={() => {
             setIsLightboxOpen(false)
             handleResetZoom()
@@ -1999,7 +1999,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))
                   handleResetZoom()
                 }}
-                className="absolute left-2 sm:left-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
+                className="absolute left-2 sm:left-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#06302b]/70 hover:bg-[#06302b]/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
                 aria-label="Previous Image"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -2030,7 +2030,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))
                   handleResetZoom()
                 }}
-                className="absolute right-2 sm:right-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
+                className="absolute right-2 sm:right-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#06302b]/70 hover:bg-[#06302b]/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
                 aria-label="Next Image"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -2039,11 +2039,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
             {/* Helper Notice Pill */}
             {lightboxZoom > 1 ? (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white/80 text-[11px] font-medium border border-white/10 pointer-events-none flex items-center gap-1.5 shadow-md">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#06302b]/60 backdrop-blur-md text-white/80 text-xs font-medium border border-white/10 pointer-events-none flex items-center gap-1.5 shadow-md">
                 <span>{currentLang === "gu" ? "ખસેડવા માટે ડ્રેગ કરો • રીસેટ કરવા ડબલ ક્લિક કરો" : "Drag to pan • Double-click to reset"}</span>
               </div>
             ) : (
-              <div className="hidden sm:flex absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white/70 text-[11px] font-medium border border-white/10 pointer-events-none items-center gap-1.5 shadow-md">
+              <div className="hidden sm:flex absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#06302b]/60 backdrop-blur-md text-white/70 text-xs font-medium border border-white/10 pointer-events-none items-center gap-1.5 shadow-md">
                 <span>{currentLang === "gu" ? "ઝૂમ કરવા માટે ડબલ ક્લિક અથવા + બટન વાપરો" : "Double-click or click + to zoom into fine details"}</span>
               </div>
             )}
@@ -2086,7 +2086,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
       {/* Fullscreen Certificate Inspection Modal */}
       {isCertModalOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-[100] bg-[#06302b]/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
           onClick={() => setIsCertModalOpen(false)}
           role="dialog"
           aria-modal="true"
@@ -2106,7 +2106,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                     ? "અધિકૃત સરકારી માન્યતા પ્રાપ્ત લેબ પ્રમાણપત્ર & X-Ray રિપોર્ટ"
                     : "Official Govt. Accredited Lab Certificate & Digital X-Ray Report"}
                 </span>
-                <span className="text-white/60 text-[11px] truncate">
+                <span className="text-white/60 text-xs truncate">
                   Gemological Laboratory of Nepal (GLN) • Ref: RN-2023-0914 • Kathmandu
                 </span>
               </div>

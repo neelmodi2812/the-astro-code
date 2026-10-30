@@ -65,19 +65,19 @@ function WishlistClient() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : products.length === 0 ? (
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-10 border border-border/70 text-center space-y-3">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-10 border border-border/70 text-center space-y-3">
             <Heart className="h-10 w-10 mx-auto text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">
               {isEn ? "Your wishlist is empty." : "તમારી વિશલિસ્ટ ખાલી છે."}
             </p>
-            <Link href="/myshop" className="inline-flex h-9 items-center rounded-lg bg-[#fdc72d] px-4 text-xs font-bold text-[#1b1c1a] hover:bg-[#eab318]">
+            <Link href="/myshop" className="inline-flex h-9 items-center rounded-lg bg-[#fdc72d] px-4 text-xs font-bold text-[#0e3934] hover:bg-[#eab318]">
               {isEn ? "Browse the shop" : "શોપ જુઓ"}
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {products.map((product) => (
-              <div key={product.apiId} className="bg-card dark:bg-[#181914] rounded-2xl p-3 border border-border/70 shadow-sm flex items-center gap-3">
+              <div key={product.apiId} className="bg-card dark:bg-[#0d3631] rounded-2xl p-3 border border-border/70 shadow-sm flex items-center gap-3">
                 <Link href={`/myshop/product/${product.slug}`} className="shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={product.image} alt={product.name} className="h-20 w-20 rounded-xl object-cover bg-muted" />

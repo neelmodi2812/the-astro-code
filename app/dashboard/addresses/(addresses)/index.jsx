@@ -100,7 +100,7 @@ function AddressesClient() {
             </p>
           </div>
           {!form && (
-            <Button type="button" onClick={() => openForm(null)} className="h-9 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs gap-1.5">
+            <Button type="button" onClick={() => openForm(null)} className="h-9 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs gap-1.5">
               <Plus className="h-4 w-4" />
               <span>{isEn ? "Add address" : "સરનામું ઉમેરો"}</span>
             </Button>
@@ -108,7 +108,7 @@ function AddressesClient() {
         </div>
 
         {form && (
-          <form onSubmit={handleSave} className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-4">
+          <form onSubmit={handleSave} className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-foreground">{isEn ? "Full name" : "પૂરું નામ"}</label>
@@ -153,7 +153,7 @@ function AddressesClient() {
               <Button type="button" variant="outline" onClick={() => setForm(null)} className="h-9 text-xs font-bold">
                 {isEn ? "Cancel" : "રદ કરો"}
               </Button>
-              <Button type="submit" disabled={isSaving} className="h-9 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs">
+              <Button type="submit" disabled={isSaving} className="h-9 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs">
                 {isEn ? "Save address" : "સરનામું સાચવો"}
               </Button>
             </div>
@@ -165,19 +165,19 @@ function AddressesClient() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : addresses.length === 0 && !form ? (
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-10 border border-border/70 text-center">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-10 border border-border/70 text-center">
             <MapPin className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
             <p className="text-sm text-muted-foreground">{isEn ? "No saved addresses yet." : "હજી કોઈ સરનામું સાચવેલું નથી."}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {addresses.map((address) => (
-              <div key={address.id} className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-sm flex items-start justify-between gap-3">
+              <div key={address.id} className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-sm flex items-start justify-between gap-3">
                 <div className="min-w-0 text-xs space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-black uppercase text-[10px] text-[#00685d] dark:text-[#6ed8c8]">{address.label}</span>
+                    <span className="font-black uppercase text-xs text-[#00685d] dark:text-[#6ed8c8]">{address.label}</span>
                     {address.is_default && (
-                      <span className="px-2 py-0.5 rounded-full bg-[#fdc72d]/30 text-[10px] font-bold text-[#8a6800] dark:text-[#fdc72d]">
+                      <span className="px-2 py-0.5 rounded-full bg-[#fdc72d]/30 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d]">
                         {isEn ? "Default" : "ડિફોલ્ટ"}
                       </span>
                     )}

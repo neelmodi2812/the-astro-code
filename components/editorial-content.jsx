@@ -32,7 +32,7 @@ export function EditorialContent({
             className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
           >
             <Card
-              className="pt-0 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-300 border-border/70 flex flex-col justify-between h-full group-hover:border-[#fdc72d]/60 bg-card dark:bg-[#181916]"
+              className="pt-0 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-300 border-border/70 flex flex-col justify-between h-full group-hover:border-[#fdc72d]/60 bg-card dark:bg-[#0d3732]"
             >
               <div className="relative h-56 overflow-hidden">
                 <SafeImage
@@ -44,7 +44,7 @@ export function EditorialContent({
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3">
-                  <span className={`px-2.5 py-1 rounded-md text-xs font-black shadow-md border ${article.tagColor || "bg-[#fdc72d] text-[#1b1c1a] border-[#eab318]"}`}>
+                  <span className={`px-2.5 py-1 rounded-md text-xs font-black shadow-md border ${article.tagColor || "bg-[#fdc72d] text-[#0e3934] border-[#eab318]"}`}>
                     {article.tag}
                   </span>
                 </div>
@@ -81,7 +81,7 @@ export function EditorialContent({
       </div>
 
       {/* 2. 12 JYOTIRLINGA SPECIAL SHOWCASE */}
-      <Card className="p-6 sm:p-7 shadow-sm border-border/70 bg-card dark:bg-[#181916] rounded-xl">
+      <Card className="p-6 sm:p-7 shadow-sm border-border/70 bg-card dark:bg-[#0d3732] rounded-xl">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-6 bg-[#fdc72d] rounded-full inline-block" />
@@ -113,15 +113,15 @@ export function EditorialContent({
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <span className="absolute bottom-2 left-2 bg-[#fdc72d] text-[#1b1c1a] text-xs px-2.5 py-0.5 rounded-md font-black shadow-xs border border-[#eab318]">
+                <span className="absolute bottom-2 left-2 bg-[#fdc72d] text-[#0e3934] text-xs px-2.5 py-1 rounded-md font-bold shadow-xs border border-[#eab318] leading-none">
                   {item.title}
                 </span>
               </div>
 
-              <h4 className="text-sm font-semibold text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] line-clamp-2 leading-snug">
+              <h4 className="text-base font-bold text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] line-clamp-2 leading-snug">
                 {item.heading}
               </h4>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+              <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
                 {item.summary}
               </p>
             </Link>
@@ -130,10 +130,10 @@ export function EditorialContent({
       </Card>
 
       {/* 3. VEDIC ASTROLOGY & NUMEROLOGY DEEP INSIGHTS */}
-      <div className="rounded-xl p-6 sm:p-7 shadow-sm bg-card dark:bg-[#181916] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
+      <div className="rounded-xl p-6 sm:p-7 shadow-sm bg-card dark:bg-[#0d3732] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div>
-            <span className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider">
+            <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold uppercase tracking-wider">
               {astroInsightsSection.badge || "વૈદિક જ્યોતિષ ગાઈડ"}
             </span>
             <h3 className="text-xl sm:text-2xl text-foreground font-bold mt-0.5">
@@ -143,37 +143,37 @@ export function EditorialContent({
           <Sparkles className="h-6 w-6 text-[#d9a100]" />
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {astroInsights.map((insight) => (
             <Link
               key={insight.id}
               href={`/article/${insight.id || "feat-1"}`}
-              className="flex flex-col sm:flex-row gap-4 items-start group cursor-pointer p-2 rounded-lg hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start group cursor-pointer p-3 rounded-xl hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
             >
-              <div className="relative w-full sm:w-36 h-24 rounded-xl overflow-hidden shrink-0 border border-border/60">
+              <div className="relative w-full sm:w-44 h-36 sm:h-28 rounded-xl overflow-hidden shrink-0 border border-border/60">
                 <SafeImage
                   src={insight.image}
                   fallbackSrc="/images/sacred-vedic-hero.jpg"
                   alt={insight.title}
                   fill
-                  sizes="144px"
+                  sizes="176px"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="bg-[#fdc72d] text-[#1b1c1a] text-[11px] px-2.5 py-0.5 rounded-md font-black shadow-xs border border-[#eab318]">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
+                  <span className="bg-[#fdc72d] text-[#0e3934] text-xs px-2.5 py-1 rounded-md font-bold shadow-xs border border-[#eab318] leading-none">
                     {insight.tag}
                   </span>
                   <span className="text-muted-foreground text-xs">
                     {insight.timeAgo}
                   </span>
                 </div>
-                <h4 className="text-sm sm:text-base text-foreground font-bold group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors leading-snug">
+                <h4 className="text-base sm:text-lg text-foreground font-bold group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors leading-snug">
                   {insight.title}
                 </h4>
-                <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                <p className="text-sm text-muted-foreground line-clamp-2 mt-1.5 leading-relaxed">
                   {insight.summary}
                 </p>
               </div>

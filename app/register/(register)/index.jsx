@@ -248,7 +248,7 @@ export default function RegisterClient() {
               {/* ======================================================== */}
               {/* LEFT COLUMN: VEDIC ATMOSPHERE & SACRED PERKS (approx 42%) */}
               {/* ======================================================== */}
-              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#151613] text-white min-h-[520px]">
+              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#0c3530] text-white min-h-[520px]">
                 {/* Glowing Sri Yantra Cosmic Background Image */}
                 <div
                   className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 pointer-events-none"
@@ -256,8 +256,8 @@ export default function RegisterClient() {
                 />
 
                 {/* Ambient Dark Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#151613] via-[#151613]/75 to-[#151613]/40 pointer-events-none" />
-                <div className="absolute inset-0 bg-radial from-transparent to-[#151613]/80 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0c3530] via-[#0c3530]/75 to-[#0c3530]/40 pointer-events-none" />
+                <div className="absolute inset-0 bg-radial from-transparent to-[#0c3530]/80 pointer-events-none" />
 
                 {/* Top Content: Uncluttered Perks */}
                 <div className="relative z-10 space-y-6">
@@ -300,7 +300,7 @@ export default function RegisterClient() {
                             <h2 className="text-xs sm:text-sm font-bold text-white">
                               {perk.title[lang]}
                             </h2>
-                            <p className="text-[11px] sm:text-xs text-white/75 mt-0.5 leading-relaxed">
+                            <p className="text-xs sm:text-xs text-white/75 mt-0.5 leading-relaxed">
                               {perk.desc[lang]}
                             </p>
                           </div>
@@ -317,7 +317,7 @@ export default function RegisterClient() {
                       {lang === "gu" ? data.leftColumn.trustBadge.rating : data.leftColumn.trustBadge.ratingEn}
                     </span>
                     <span className="text-white/40">•</span>
-                    <span className="font-medium text-[11px] sm:text-xs">
+                    <span className="font-medium text-xs sm:text-xs">
                       {data.leftColumn.trustBadge.text[lang]}
                     </span>
                   </div>
@@ -337,7 +337,7 @@ export default function RegisterClient() {
                         <Sparkles className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
                         {data.rightColumn.divineGreeting[lang]}
                       </span>
-                      <span className="text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] bg-[#fdc72d]/15 px-2.5 py-0.5 rounded-full self-start sm:self-auto flex items-center gap-1">
+                      <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] bg-[#fdc72d]/15 px-2.5 py-0.5 rounded-full self-start sm:self-auto flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#fdc72d] animate-pulse" />
                         {data.rightColumn.muhuratBadge[lang]}
                       </span>
@@ -375,7 +375,7 @@ export default function RegisterClient() {
                           />
                         </div>
                         {errors.fullName && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.fullName}
                           </p>
@@ -414,7 +414,7 @@ export default function RegisterClient() {
                           </div>
                         </div>
                         {errors.mobileNumber && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.mobileNumber}
                           </p>
@@ -441,7 +441,7 @@ export default function RegisterClient() {
                           />
                         </div>
                         {errors.emailAddress && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.emailAddress}
                           </p>
@@ -455,7 +455,7 @@ export default function RegisterClient() {
                             {data.rightColumn.fields.dob.label[lang]}{" "}
                             <span className="text-destructive">*</span>
                           </label>
-                          <span className="text-[10px] text-muted-foreground font-medium">
+                          <span className="text-xs text-muted-foreground font-medium">
                             {data.rightColumn.fields.dob.hint[lang]}
                           </span>
                         </div>
@@ -472,7 +472,7 @@ export default function RegisterClient() {
                           />
                         </div>
                         {errors.dob && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.dob}
                           </p>
@@ -485,7 +485,7 @@ export default function RegisterClient() {
                           <label htmlFor="reg-birthtime" className="block text-xs font-bold text-foreground">
                             {data.rightColumn.fields.birthTime.label[lang]}
                           </label>
-                          <span className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                          <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold">
                             {data.rightColumn.fields.birthTime.hint[lang]}
                           </span>
                         </div>
@@ -520,7 +520,7 @@ export default function RegisterClient() {
                           />
                         </div>
                         {errors.birthPlace && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.birthPlace}
                           </p>
@@ -555,7 +555,7 @@ export default function RegisterClient() {
                           </button>
                         </div>
                         {errors.password && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.password}
                           </p>
@@ -590,7 +590,7 @@ export default function RegisterClient() {
                           </button>
                         </div>
                         {errors.confirmPassword && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                          <p className="text-xs text-destructive font-medium flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             {errors.confirmPassword}
                           </p>
@@ -606,14 +606,14 @@ export default function RegisterClient() {
                           id="reg-agree-terms"
                           checked={formData.agreeTerms}
                           onCheckedChange={(checked) => handleChange("agreeTerms", Boolean(checked))}
-                          className="mt-0.5 data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#1b1c1a] data-[state=checked]:border-[#fdc72d]"
+                          className="mt-0.5 data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
                         />
                         <label htmlFor="reg-agree-terms" className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none">
                           {data.rightColumn.consents.terms[lang]}
                         </label>
                       </div>
                       {errors.agreeTerms && (
-                        <p className="text-[11px] text-destructive font-medium pl-6">
+                        <p className="text-xs text-destructive font-medium pl-6">
                           {errors.agreeTerms}
                         </p>
                       )}
@@ -623,7 +623,7 @@ export default function RegisterClient() {
                           id="reg-updates"
                           checked={formData.receiveUpdates}
                           onCheckedChange={(checked) => handleChange("receiveUpdates", Boolean(checked))}
-                          className="mt-0.5 data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#1b1c1a] data-[state=checked]:border-[#fdc72d]"
+                          className="mt-0.5 data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
                         />
                         <label htmlFor="reg-updates" className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none">
                           {data.rightColumn.consents.updates[lang]}
@@ -636,9 +636,9 @@ export default function RegisterClient() {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-12 sm:h-13 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
+                        className="w-full h-12 sm:h-13 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
                       >
-                        <ShieldCheck className="h-5 w-5 text-[#1b1c1a]" />
+                        <ShieldCheck className="h-5 w-5 text-[#0e3934]" />
                         <span>{data.rightColumn.submitButton[lang]}</span>
                         <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </Button>
@@ -646,7 +646,7 @@ export default function RegisterClient() {
                   </form>
 
                   {/* Already have an account banner */}
-                  <div className="mt-6 pt-5 bg-muted/40 dark:bg-[#151613] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
+                  <div className="mt-6 pt-5 bg-muted/40 dark:bg-[#0c3530] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
                         <LogIn className="h-5 w-5" />
@@ -663,7 +663,7 @@ export default function RegisterClient() {
 
                     <Link
                       href="/login"
-                      className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                      className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>{data.rightColumn.alreadyHaveAccount.cta[lang]}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -707,7 +707,7 @@ export default function RegisterClient() {
           </div>
 
           {/* 4. Sacred Bottom Note / Benediction */}
-          <div className="mt-8 py-5 text-center bg-muted/40 dark:bg-[#161714] border border-border/70 rounded-xl space-y-1.5">
+          <div className="mt-8 py-5 text-center bg-muted/40 dark:bg-[#0c3631] border border-border/70 rounded-xl space-y-1.5">
             <p className="text-sm font-extrabold text-[#8a6800] dark:text-[#fdc72d] tracking-wider">
               {data.sacredNote.mantra}
             </p>

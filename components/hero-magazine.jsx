@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export function HeroMagazine({ stories, onStoryClick }) {
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-8">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stories.map((story) => (
           <Link
@@ -22,11 +22,11 @@ export function HeroMagazine({ stories, onStoryClick }) {
             />
 
             {/* Dark Gradient Overlay for optimal Gujarati contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#141414]/95 via-[#141414]/45 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c3430]/95 via-[#0c3430]/45 to-transparent" />
 
             {/* Card Content (Aligned to Bottom) */}
             <div className="relative h-full flex flex-col justify-end p-5 text-center">
-              <span className="inline-block mx-auto text-xs bg-[#fdc72d] text-[#1b1c1a] px-2.5 py-1 rounded-md font-black tracking-wider mb-2.5 shadow-xs border border-[#eab318]">
+              <span className="inline-block mx-auto text-xs bg-[#fdc72d] text-[#0e3934] px-2.5 py-1 rounded-md font-black tracking-wider mb-2.5 shadow-xs border border-[#eab318]">
                 {story.tag}
               </span>
 

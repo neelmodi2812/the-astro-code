@@ -44,7 +44,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
     tagline: isEn ? "UNLOCK HAPPINESS • VEDIC SPIRITUAL PORTAL" : "UNLOCK HAPPINESS • વૈદિક અધ્યાત્મ પોર્ટલ",
     logoUrl:
       config?.logoUrl ||
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBl8Ogqc3Lgxek9Poh6T6awNiHzAhMkqB-5xPT0DGQw2IkT_JcEk1jrF2XWfWhUcqqZUaq2yl1BcF9KyKGZG1FSAiWJCqFng25fFCfO60PSuH_WhIrXmepmxQpoTd8-3rYz6AP2u8k4zfujF7gqSn-OOWkejaV7jSUZYd-Vx2sZp3lWu2lhhmj59HfTP35AWQGI3JD_-LdFej4UXcxM7Nt4HhU6_7DSXUONbF2fKEY14WAQjMJ59pJkcLp2sxGLtwmBKA",
+      "/logo.svg",
     founder: {
       location: isEn
         ? "Bodakdev, S.G. Highway, Ahmedabad, Gujarat - 380054"
@@ -76,33 +76,36 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
   }
 
   return (
-    <footer className="w-full bg-[#f0eee8] dark:bg-[#141512] text-foreground pt-12 pb-8 border-t border-border/70 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-10">
+    <footer className="w-full bg-[#f0eee8] dark:bg-[#0c3430] text-foreground pt-12 pb-8 border-t border-border/70 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr] gap-x-10 gap-y-9 pb-9">
           
           {/* Column 1: Brand & About */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg overflow-hidden ring-1 ring-[#fdc72d] bg-[#121b1a] flex items-center justify-center p-0.5 shrink-0">
+              <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-[#fdc72d] bg-[#fffaf0] flex items-center justify-center p-0.5 shrink-0">
                 <Image
                   src={safeConfig.logoUrl}
                   alt={safeConfig.appName}
                   width={40}
                   height={40}
-                  className="w-full h-full object-cover rounded"
+                  unoptimized
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div>
-                <div className="text-base font-extrabold text-foreground leading-tight">
+                <div className="text-lg font-bold text-foreground leading-tight">
                   {safeConfig.appName}
                 </div>
-                <div className="text-[10px] font-black text-[#8a6800] dark:text-[#fdc72d]">
-                  {safeConfig.tagline}
-                </div>
+                {safeConfig.tagline.split(" • ").map((line) => (
+                  <div key={line} className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] leading-snug">
+                    {line}
+                  </div>
+                ))}
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-1">
+            <p className="text-sm text-foreground/75 leading-relaxed mt-1 max-w-sm">
               {footer.about ||
                 (isEn
                   ? "The Astro Code unites ancient Vedic wisdom with modern spiritual living, guiding seekers toward positivity, happiness, and peace."
@@ -111,7 +114,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
 
             {/* Social Icons Aligned Flush with Left Margin */}
             <div className="flex flex-col gap-2 mt-2">
-              <span className="text-xs font-bold text-foreground/85">
+              <span className="text-sm font-bold text-foreground/85">
                 {footer.followUs || (isEn ? "Follow Us:" : "અનુસરો:")}
               </span>
 
@@ -123,7 +126,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                       target="_blank"
                       rel="noreferrer"
                       aria-label="Facebook"
-                      className="p-2 rounded-lg bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
+                      className="p-2 rounded-lg bg-card dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -142,7 +145,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                       target="_blank"
                       rel="noreferrer"
                       aria-label="YouTube"
-                      className="p-2 rounded-lg bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
+                      className="p-2 rounded-lg bg-card dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -161,7 +164,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                       target="_blank"
                       rel="noreferrer"
                       aria-label="WhatsApp Support"
-                      className="p-2 rounded-lg bg-card dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#1b1c1a] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
+                      className="p-2 rounded-lg bg-card dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
                     >
                       <MessageCircle className="h-4 w-4" />
                     </a>
@@ -176,42 +179,42 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
 
           {/* Column 2: Dharmik & Darshan */}
           <div className="flex flex-col gap-2">
-            <div className="text-sm font-bold text-foreground mb-1 border-l-4 border-[#fdc72d] pl-2">
+            <div className="text-base font-bold text-foreground mb-2 border-l-4 border-[#fdc72d] pl-2">
               {footer.dharmikTitle || (isEn ? "Spiritual & Darshan" : "ધાર્મિક & દર્શન")}
             </div>
             <Link
-              href="/article/hero-1"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              href="/categories"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Shri Bahuchar Maa Rajwadu & History" : "શ્રી બહુચર માં નું રજવાડું & ઇતિહાસ"}
             </Link>
             <Link
-              href="/article/jyotirling-1"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              href="/categories"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "12 Holy Jyotirlinga Darshan Guide" : "૧૨ પવિત્ર જ્યોતિર્લિંગ દર્શન માર્ગદર્શિકા"}
             </Link>
             <Link
               href="/categories"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Shaktipeeth & Pilgrimage Glory" : "શક્તિપીઠ અને યાત્રાધામ માહાત્મ્ય"}
             </Link>
             <Link
               href="/categories"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Daily Stotras, Mantras & Aarti" : "નિત્ય સ્તોત્ર, મંત્ર અને આરતી સંગ્રહ"}
             </Link>
             <Link
-              href="/article/feat-2"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              href="/categories"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Inspirational Spiritual Stories & Preaching" : "પ્રેરણાદાયી ધાર્મિક કથાઓ & ઉપદેશ"}
             </Link>
             <Link
               href="/myshop"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5 font-medium"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1 font-medium"
             >
               {isEn ? "Puja Samagri & Gemstone Store (MyShop)" : "પૂજા સામગ્રી & રત્ન સ્ટોર (MyShop)"}
             </Link>
@@ -219,42 +222,42 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
 
           {/* Column 3: Jyotish & Services */}
           <div className="flex flex-col gap-2">
-            <div className="text-sm font-bold text-foreground mb-1 border-l-4 border-[#fdc72d] pl-2">
+            <div className="text-base font-bold text-foreground mb-2 border-l-4 border-[#fdc72d] pl-2">
               {footer.jyotishTitle || (isEn ? "Astrology & Services" : "જ્યોતિષ & સેવાઓ")}
             </div>
             <Link
               href="/dainik-panchang"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Daily Panchang & Choghadiya Schedule" : "દૈનિક પંચાંગ & ચોઘડિયું સમયપત્રક"}
             </Link>
             <Link
               href="/categories"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Kundali Analysis & Planetary Doshas" : "કુંડળી વિશ્લેષણ અને ગ્રહદોષ નિવારણ"}
             </Link>
             <Link
               href="/numerology"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Numerology & Destiny Number" : "અંકશાસ્ત્ર (ન્યુમરોલોજી) અને ભાગ્યાંક"}
             </Link>
             <Link
               href="/contact-us"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Personal Consultation (Book Slot)" : "વ્યક્તિગત પરામર્શ (Book Consultation)"}
             </Link>
             <Link
               href="/myshop"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Sacred Rudraksha, Yantra & Spiritual Shop" : "પવિત્ર રુદ્રાક્ષ, યંત્ર અને આધ્યાત્મિક શોપ"}
             </Link>
             <Link
               href="/about-us"
-              className="text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-0.5"
+              className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Dr. Vishal Modi Profile & Credentials" : "ડૉ. વિશાલ મોદી પરિચય"}
             </Link>
@@ -262,16 +265,16 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
 
           {/* Column 4: Contact & Newsletter */}
           <div className="flex flex-col gap-3">
-            <div className="text-sm font-bold text-foreground border-l-4 border-[#fdc72d] pl-2">
+            <div className="text-base font-bold text-foreground border-l-4 border-[#fdc72d] pl-2">
               {footer.contactTitle || (isEn ? "Contact & Newsletter" : "સંપર્ક & સમાચાર પત્ર")}
             </div>
 
-            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+            <div className="flex items-start gap-2.5 text-sm text-foreground/75">
               <MapPin className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0 mt-0.5" />
               <span>{safeConfig.founder.location}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2.5 text-sm text-foreground/75">
               <Phone className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
               <span>
                 <strong className="text-foreground mr-1">{footer.phoneLabel || (isEn ? "Phone:" : "ફોન:")}</strong>
@@ -279,7 +282,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2.5 text-sm text-foreground/75">
               <Mail className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
               <span>
                 <strong className="text-foreground mr-1">{footer.emailLabel || (isEn ? "Email:" : "ઇમેઇલ:")}</strong>
@@ -290,7 +293,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
             </div>
 
             <div className="flex flex-col gap-1.5 mt-2">
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-sm text-foreground/75">
                 {footer.emailNote || (isEn ? "Get Daily Rashifal and Auspicious Muhurat:" : "દૈનિક રાશિફળ અને શુભ મુહૂર્ત મેળવો:")}
               </span>
 
@@ -308,12 +311,12 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={footer.emailPlaceholder || (isEn ? "Enter your email address..." : "તમારું ઇમેઇલ દાખલ કરો...")}
-                    className="h-8 bg-card dark:bg-[#20211d] text-foreground text-xs rounded border-border"
+                    className="h-10 bg-card dark:bg-[#0f3c36] text-foreground text-sm rounded-lg border-border"
                     required
                   />
                   <Button
                     type="submit"
-                    className="h-8 px-3 bg-[#fdc72d] text-[#1b1c1a] font-black text-xs hover:bg-[#eab318] shrink-0 cursor-pointer"
+                    className="h-10 px-4 bg-[#fdc72d] text-[#0e3934] font-bold text-sm rounded-lg hover:bg-[#eab318] shrink-0 cursor-pointer"
                   >
                     {footer.emailButton || (isEn ? "Subscribe" : "જોડાવો")}
                   </Button>
@@ -325,8 +328,8 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
         </div>
 
         {/* Bottom Bar with Enhanced WCAG-Compliant Readability */}
-        <Separator className="bg-border/70 my-7" />
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm font-medium text-foreground/85 dark:text-foreground/80">
+        <Separator className="bg-border/70 mb-6" />
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm font-medium text-foreground/85 dark:text-foreground/80">
           <p className="leading-relaxed text-center md:text-left">
             {withCurrentYear(
               footer.copyright ||

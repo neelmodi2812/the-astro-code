@@ -121,9 +121,9 @@ export function DashboardSidebar() {
     <aside className="w-full flex flex-col gap-4">
       
       {/* 1. User Identity Snippet */}
-      <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs flex items-center gap-3">
+      <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs flex items-center gap-3">
         <div className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-[#fdc72d] to-[#d9a100] p-0.5 shadow-2xs flex items-center justify-center shrink-0">
-          <div className="w-full h-full rounded-full bg-card dark:bg-[#181914] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-base">
+          <div className="w-full h-full rounded-full bg-card dark:bg-[#0d3631] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-base">
             {data.userProfile.initials[lang] || data.userProfile.initials.gu}
           </div>
           <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00685d] text-white rounded-full flex items-center justify-center text-[8px] shadow">
@@ -134,15 +134,15 @@ export function DashboardSidebar() {
           <h3 className="font-bold text-xs sm:text-sm text-foreground truncate">
             {data.userProfile.name[lang] || data.userProfile.name.gu}
           </h3>
-          <span className="text-[10px] font-bold text-[#8a6800] dark:text-[#fdc72d] block truncate">
+          <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] block truncate">
             {data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}
           </span>
         </div>
       </div>
 
       {/* 2. Main Navigation Links (Desktop vertical & responsive on mobile) */}
-      <nav className="bg-card dark:bg-[#181914] rounded-2xl p-2 border border-border/70 shadow-2xs flex flex-col gap-1">
-        <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+      <nav className="bg-card dark:bg-[#0d3631] rounded-2xl p-2 border border-border/70 shadow-2xs flex flex-col gap-1">
+        <div className="px-3 py-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
           {isEn ? "Vedic Portal Navigation" : "ડેશબોર્ડ નેવિગેશન"}
         </div>
         {navItems.map((item) => {
@@ -154,7 +154,7 @@ export function DashboardSidebar() {
               href={item.href}
               className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 isActive
-                  ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
+                  ? "bg-[#fdc72d] text-[#0e3934] shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
@@ -165,10 +165,10 @@ export function DashboardSidebar() {
 
               {item.badge && (
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                     isActive
-                      ? "bg-[#1b1c1a] text-[#fdc72d]"
-                      : "bg-muted dark:bg-[#252622] text-foreground"
+                      ? "bg-[#00685d] text-white"
+                      : "bg-muted dark:bg-[#113f39] text-foreground"
                   }`}
                 >
                   {typeof item.badge === "object" ? item.badge[lang] || item.badge.gu : item.badge}
@@ -184,12 +184,12 @@ export function DashboardSidebar() {
       </nav>
 
       {/* 3. Daily Japa Meditation Progress Widget */}
-      <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col items-center text-center space-y-2.5">
+      <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col items-center text-center space-y-2.5">
         <div className="flex items-center justify-between w-full text-xs font-bold">
-          <span className="text-muted-foreground uppercase text-[10px]">
+          <span className="text-muted-foreground uppercase text-xs">
             {data.japaCounter.title[lang] || data.japaCounter.title.gu}
           </span>
-          <span className="text-[#8a6800] dark:text-[#fdc72d] text-[11px]">
+          <span className="text-[#8a6800] dark:text-[#fdc72d] text-xs">
             {data.japaCounter.mantra[lang] || data.japaCounter.mantra.gu}
           </span>
         </div>
@@ -197,7 +197,7 @@ export function DashboardSidebar() {
         <div className="relative w-20 h-20 flex items-center justify-center my-0.5">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
             <circle
-              className="text-muted/40 dark:text-[#252622]"
+              className="text-muted/40 dark:text-[#113f39]"
               cx="50"
               cy="50"
               fill="transparent"
@@ -231,7 +231,7 @@ export function DashboardSidebar() {
         <div className="flex items-center gap-1.5 w-full pt-1">
           <Button
             onClick={handleJapaIncrement}
-            className="flex-1 h-7 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-[11px] rounded-lg shadow-2xs gap-1 cursor-pointer"
+            className="flex-1 h-7 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1 cursor-pointer"
           >
             <Sparkles className="h-3 w-3" />
             <span>{data.japaCounter.btnLabel[lang] || data.japaCounter.btnLabel.gu}</span>
@@ -249,14 +249,14 @@ export function DashboardSidebar() {
       </div>
 
       {/* 4. Astrologer Helpline Support */}
-      <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 border border-border/70 shadow-2xs space-y-2">
+      <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs space-y-2">
         <div className="flex items-center gap-2">
           <Phone className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
           <span className="font-bold text-xs text-foreground">
             {data.helpline.title[lang] || data.helpline.title.gu}
           </span>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-snug">
+        <p className="text-xs text-muted-foreground leading-snug">
           {isEn ? "Direct WhatsApp support for all astrological questions:" : "કુંડળી સંબંધી સીધું માર્ગદર્શન:"}
         </p>
         <a

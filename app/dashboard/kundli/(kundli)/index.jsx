@@ -107,7 +107,7 @@ function KundliClient({ data, refresh }) {
                 <BookOpen className="h-6 w-6 text-[#8a6800] dark:text-[#fdc72d]" />
                 <span>{data.savedKundlis.title[lang] || data.savedKundlis.title.gu}</span>
               </h1>
-              <Badge className="bg-[#fdc72d] text-[#1b1c1a] font-bold text-xs">
+              <Badge className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs">
                 {kundlis.length} {isEn ? "Saved" : "સેવ થયેલ"}
               </Badge>
             </div>
@@ -118,7 +118,7 @@ function KundliClient({ data, refresh }) {
 
           <Button
             onClick={() => setAddOpen(true)}
-            className="h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
+            className="h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
           >
             <Plus className="h-4 w-4" />
             <span>{isEn ? "Add New Kundli" : "નવી કુંડળી ઉમેરો"}</span>
@@ -130,12 +130,12 @@ function KundliClient({ data, refresh }) {
           {kundlis.map((k) => (
             <div
               key={k.id}
-              className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-2xs hover:border-[#fdc72d]/70 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-2xs hover:border-[#fdc72d]/70 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       k.isSelf
                         ? "bg-[#00685d] text-white"
                         : "bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d]"
@@ -150,25 +150,25 @@ function KundliClient({ data, refresh }) {
                     {k.dob[lang] || k.dob.gu}
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-[#8a6800] dark:text-[#fdc72d] font-bold text-sm flex items-center justify-center border border-border/50">
+                <div className="w-10 h-10 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] font-bold text-sm flex items-center justify-center border border-border/50">
                   {(k.name[lang] || k.name.gu)?.charAt(0) || "•"}
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs bg-muted/40 dark:bg-[#20211d] p-3 rounded-xl border border-border/40">
-                <div className="flex justify-between text-muted-foreground text-[11px]">
+              <div className="space-y-2 text-xs bg-muted/40 dark:bg-[#0f3c36] p-3 rounded-xl border border-border/40">
+                <div className="flex justify-between text-muted-foreground text-xs">
                   <span>{isEn ? "Birthplace:" : "જન્મસ્થળ:"}</span>
                   <strong className="text-foreground">{k.city ? k.city[lang] || k.city.gu : "અમદાવાદ"}</strong>
                 </div>
-                <div className="flex justify-between text-muted-foreground text-[11px]">
+                <div className="flex justify-between text-muted-foreground text-xs">
                   <span>{isEn ? "Rashi / Lagna:" : "રાશિ / લગ્ન:"}</span>
                   <strong className="text-foreground">{k.rashiLagna[lang] || k.rashiLagna.gu}</strong>
                 </div>
-                <div className="flex justify-between text-muted-foreground text-[11px]">
+                <div className="flex justify-between text-muted-foreground text-xs">
                   <span>{isEn ? "Nakshatra:" : "નક્ષત્ર:"}</span>
                   <span className="font-semibold text-foreground">{k.nakshatra[lang] || k.nakshatra.gu}</span>
                 </div>
-                <div className="flex justify-between text-muted-foreground text-[11px]">
+                <div className="flex justify-between text-muted-foreground text-xs">
                   <span>{isEn ? "Current Dasha:" : "વર્તમાન દશા:"}</span>
                   <strong className="text-[#8a6800] dark:text-[#fdc72d]">{k.dasha[lang] || k.dasha.gu}</strong>
                 </div>
@@ -187,7 +187,7 @@ function KundliClient({ data, refresh }) {
         </div>
 
         {/* Educational Note Strip */}
-        <div className="p-4 bg-muted/40 dark:bg-[#20211d] rounded-2xl border border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+        <div className="p-4 bg-muted/40 dark:bg-[#0f3c36] rounded-2xl border border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
             <span>
@@ -208,7 +208,7 @@ function KundliClient({ data, refresh }) {
 
       {/* Add Kundli Modal */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="sm:max-w-md bg-card dark:bg-[#181914] border-border">
+        <DialogContent className="sm:max-w-md bg-card dark:bg-[#0d3631] border-border">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
               <PlusCircle className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -295,7 +295,7 @@ function KundliClient({ data, refresh }) {
               <Button type="button" variant="outline" onClick={() => setAddOpen(false)} className="h-8 text-xs">
                 {isEn ? "Cancel" : "રદ કરો"}
               </Button>
-              <Button type="submit" disabled={isSaving} className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs">
+              <Button type="submit" disabled={isSaving} className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs">
                 {isEn ? "Save Kundli" : "કુંડળી સેવ કરો"}
               </Button>
             </DialogFooter>
@@ -305,7 +305,7 @@ function KundliClient({ data, refresh }) {
 
       {/* Chart Inspection Modal */}
       <Dialog open={inspectOpen} onOpenChange={setInspectOpen}>
-        <DialogContent className="sm:max-w-lg bg-card dark:bg-[#181914] border-border">
+        <DialogContent className="sm:max-w-lg bg-card dark:bg-[#0d3631] border-border">
           {selectedKundli && (
             <>
               <DialogHeader>
@@ -314,7 +314,7 @@ function KundliClient({ data, refresh }) {
                     <BookOpen className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
                     <span>{selectedKundli.name[lang] || selectedKundli.name.gu} — {selectedKundli.relation[lang] || selectedKundli.relation.gu}</span>
                   </span>
-                  <Badge className="bg-[#fdc72d] text-[#1b1c1a] text-[10px]">
+                  <Badge className="bg-[#fdc72d] text-[#0e3934] text-xs">
                     {selectedKundli.rashiLagna[lang] || selectedKundli.rashiLagna.gu}
                   </Badge>
                 </DialogTitle>
@@ -324,7 +324,7 @@ function KundliClient({ data, refresh }) {
               </DialogHeader>
 
               {/* Vedic Chart Square Geometry Mock */}
-              <div className="my-2 p-4 bg-muted/40 dark:bg-[#20211d] rounded-xl border border-border/50 text-center space-y-3">
+              <div className="my-2 p-4 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/50 text-center space-y-3">
                 <div className="w-56 h-56 mx-auto border-2 border-[#8a6800] dark:border-[#fdc72d] relative bg-background rounded-lg p-2 flex items-center justify-center">
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 text-[#8a6800] dark:text-[#fdc72d]">
                     <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -338,8 +338,8 @@ function KundliClient({ data, refresh }) {
                   </div>
                   <div className="relative z-10 text-xs font-bold space-y-1">
                     <div className="text-[#8a6800] dark:text-[#fdc72d] text-sm">૧. લગ્ન ભાવ</div>
-                    <div className="text-[11px] text-muted-foreground">{selectedKundli.nakshatra[lang] || selectedKundli.nakshatra.gu}</div>
-                    <div className="text-[10px] font-semibold text-foreground">દશા: {selectedKundli.dasha[lang] || selectedKundli.dasha.gu}</div>
+                    <div className="text-xs text-muted-foreground">{selectedKundli.nakshatra[lang] || selectedKundli.nakshatra.gu}</div>
+                    <div className="text-xs font-semibold text-foreground">દશા: {selectedKundli.dasha[lang] || selectedKundli.dasha.gu}</div>
                   </div>
                 </div>
 
@@ -369,7 +369,7 @@ function KundliClient({ data, refresh }) {
                 </Button>
                 <Button
                   onClick={() => setInspectOpen(false)}
-                  className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs"
+                  className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs"
                 >
                   {isEn ? "Close" : "બંધ કરો"}
                 </Button>

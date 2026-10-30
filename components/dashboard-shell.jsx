@@ -51,7 +51,7 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5] dark:bg-[#12130f] text-foreground font-sans selection:bg-[#fdc72d]/30">
+    <div className="min-h-screen flex flex-col bg-[#faf8f5] dark:bg-[#0b332e] text-foreground font-sans selection:bg-[#fdc72d]/30">
       
       {/* 1. Global Astro Header */}
       <AstroHeader
@@ -73,7 +73,7 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
       />
 
       {/* 2. Top Context Breadcrumb Strip */}
-      <div className="w-full bg-muted/40 dark:bg-[#1a1b16] py-2 px-4 sm:px-6 lg:px-8 border-b border-border/50">
+      <div className="w-full bg-muted/40 dark:bg-[#0d3833] py-2 px-4 sm:px-6 lg:px-8 border-b border-border/50">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs">
           <Breadcrumb>
             <BreadcrumbList className="text-xs">
@@ -111,7 +111,7 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
       </div>
 
       {/* 3. Mobile Horizontal Sticky Tab Bar (< lg) */}
-      <div className="lg:hidden w-full bg-card dark:bg-[#181914] border-b border-border/60 px-4 py-2 overflow-x-auto scrollbar-none">
+      <div className="lg:hidden w-full bg-card dark:bg-[#0d3631] border-b border-border/60 px-4 py-2 overflow-x-auto scrollbar-none">
         <div className="flex items-center gap-2 min-w-max">
           {mobileTabs.map((tab) => {
             const isActive = checkIsActive(tab)
@@ -122,8 +122,8 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
                 href={tab.href}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                   isActive
-                    ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs"
-                    : "bg-muted/40 dark:bg-[#20211d] text-muted-foreground hover:text-foreground"
+                    ? "bg-[#fdc72d] text-[#0e3934] shadow-xs"
+                    : "bg-muted/40 dark:bg-[#0f3c36] text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />

@@ -63,7 +63,7 @@ function PaymentForm({ amountLabel, lang, onPaid }) {
           </>
         )}
       </Button>
-      <p className="text-[11px] text-center text-muted-foreground">
+      <p className="text-xs text-center text-muted-foreground">
         {lang === "gu" ? "Stripe દ્વારા સુરક્ષિત ચુકવણી" : "Secure payment powered by Stripe"}
       </p>
     </form>

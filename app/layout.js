@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 const notoSansGujarati = Noto_Sans_Gujarati({
   variable: "--font-noto-sans-gujarati",
-  subsets: ["gujarati"],
+  subsets: ["gujarati", "latin"],
   display: "swap",
 });
 
@@ -137,7 +137,7 @@ export default function RootLayout({ children }) {
       <head>
         <GlobalJsonLd />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans antialiased selection:bg-[#fdc72d]/30 selection:text-[#1b1c1a]">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans antialiased selection:bg-[#fdc72d]/30 selection:text-[#0e3934]">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

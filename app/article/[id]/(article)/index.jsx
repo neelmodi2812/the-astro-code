@@ -230,6 +230,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
   // Determine current active navigation category based on article data
   const currentCategoryNavId = React.useMemo(() => {
+    // The live article carries its category slug, which is also the nav item id.
+    if (article?.categorySlug) return article.categorySlug
+
     const rawId = String(articleId || "").toLowerCase()
     const rawSlug = String(article?.slug || "").toLowerCase()
     const catGu = String(article?.category?.gu || "").toLowerCase()
@@ -300,7 +303,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
       </div>
 
       {/* 3. MAIN CONTENT CONTAINER */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         {/* Top Breadcrumb & Badges Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
           <Breadcrumb>
@@ -329,7 +332,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
           {/* Badges */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="bg-[#fdc72d] text-[#1b1c1a] text-xs font-bold px-2.5 py-1 rounded-md shadow-xs">
+            <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow-xs">
               {article.category[lang]}
             </span>
             {article.subBadges.map((badge, idx) => (
@@ -358,7 +361,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </p>
 
               {/* Author & Action Strip */}
-              <div className="bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+              <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
                 {/* Author Avatar & Name */}
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -368,7 +371,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                         alt={article.author.name[lang]}
                         className="object-cover"
                       />
-                      <AvatarFallback className="bg-[#fdc72d] text-[#1b1c1a] font-bold">
+                      <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold">
                         {article.author.name[lang]?.substring(0, 2) || "VM"}
                       </AvatarFallback>
                     </Avatar>
@@ -386,7 +389,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                       <span className="font-bold text-sm sm:text-base text-foreground leading-tight">
                         {article.author?.name?.[lang] || article.author?.name?.gu || article.author?.name || "ડૉ. વિશાલ મોદી"}
                       </span>
-                      <span className="text-[11px] text-[#008d7f] font-semibold flex items-center gap-0.5">
+                      <span className="text-xs text-[#008d7f] font-semibold flex items-center gap-0.5">
                         <CheckCircle className="h-3 w-3 inline text-[#008d7f]" />
                         {lang === "gu" ? "પ્રમાણિત" : "Verified"}
                       </span>
@@ -417,11 +420,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   {/* Share & Bookmark Options with shadcn DropdownMenu */}
                   <div className="relative">
                     <DropdownMenu open={shareMenuOpen} onOpenChange={setShareMenuOpen}>
-                      <div className="flex items-center gap-1 bg-white dark:bg-[#121310] border border-border/70 p-1 rounded-xl shadow-xs">
+                      <div className="flex items-center gap-1 bg-white dark:bg-[#0b332f] border border-border/70 p-1 rounded-xl shadow-xs">
                         {/* Main Share Button Trigger */}
                         <DropdownMenuTrigger asChild>
                           <button
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
                             aria-label={lang === "gu" ? "લેખ શેર કરો" : "Share Article"}
                           >
                             <Share2 className="h-3.5 w-3.5" />
@@ -463,9 +466,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                         </button>
                       </div>
 
-                      <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#1a1b18] shadow-xl">
+                      <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#0d3833] shadow-xl">
                         <DropdownMenuGroup>
-                          <DropdownMenuLabel className="px-2.5 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                          <DropdownMenuLabel className="px-2.5 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                             {lang === "gu" ? "સોશિયલ મીડિયા પર શેર કરો" : "Share on Social Media"}
                           </DropdownMenuLabel>
                         </DropdownMenuGroup>
@@ -542,14 +545,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               />
 
               {/* Dark Gradient Overlay for Contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#06302b]/85 via-[#06302b]/20 to-[#06302b]/30" />
 
               {/* Floating Action Buttons Overlaid on Top of Image */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
                 {/* Back Button */}
                 <button
                   onClick={() => router.back()}
-                  className="pointer-events-auto w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+                  className="pointer-events-auto w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
                   title={lang === "gu" ? "પાછા જાઓ" : "Go Back"}
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -559,14 +562,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 <div className="pointer-events-auto flex items-center gap-2">
                   <button
                     onClick={toggleBookmark}
-                    className="w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+                    className="w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
                     title={lang === "gu" ? "બુકમાર્ક કરો" : "Bookmark"}
                   >
                     <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-white" : ""}`} />
                   </button>
                   <button
                     onClick={handleShareTrigger}
-                    className="w-10 h-10 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+                    className="w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
                     title={lang === "gu" ? "શેર કરો" : "Share"}
                   >
                     <Share2 className="h-4 w-4" />
@@ -580,7 +583,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   <Sparkles className="h-4 w-4 text-[#fdc72d] shrink-0" />
                   <span className="line-clamp-2">{article.heroCaption[lang]}</span>
                 </figcaption>
-                <span className="bg-[#fdc72d] text-[#1b1c1a] text-xs font-bold px-2.5 py-1 rounded-md shadow shrink-0">
+                <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow shrink-0">
                   {article.heroBadge[lang]}
                 </span>
               </div>
@@ -595,7 +598,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             />
 
             {/* SOCIAL SHARE BAR (Above Content) */}
-            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/60 rounded-xl shadow-xs">
+            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl shadow-xs">
               <span className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2">
                 <Share2 className="h-4 w-4 text-[#d9a100]" />
                 {lang === "gu" ? "મિત્રો સાથે શેર કરો:" : "Share with friends:"}
@@ -612,7 +615,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 {/* Copy Link */}
                 <button
                   onClick={handleCopyLink}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#121310] border border-border/60 text-xs font-semibold text-foreground shadow-xs hover:bg-[#eae8e1] dark:hover:bg-white/10 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#0b332f] border border-border/60 text-xs font-semibold text-foreground shadow-xs hover:bg-[#eae8e1] dark:hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   {copiedLink ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
                   <span>{copiedLink ? (lang === "gu" ? "કૉપિ થઈ!" : "Copied!") : (lang === "gu" ? "લિંક કૉપિ" : "Copy Link")}</span>
@@ -664,10 +667,10 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               {/* HIGHLIGHT CALLOUT QUOTE */}
               {article.quote && article.quote.text && (
-                <div className="my-2 p-5 sm:p-6 bg-[#fff9e6] dark:bg-[#252216] border-l-4 border-[#d9a100] rounded-2xl shadow-xs flex items-start gap-4">
+                <div className="my-2 p-5 sm:p-6 bg-[#fff9e6] dark:bg-[#0f3b36] border-l-4 border-[#d9a100] rounded-2xl shadow-xs flex items-start gap-4">
                   <Quote className="h-8 w-8 text-[#008d7f] shrink-0 rotate-180" />
                   <div className="flex flex-col gap-1.5">
-                    <blockquote className="text-base sm:text-lg font-bold text-[#1b1c1a] dark:text-[#f8f7f4] italic leading-relaxed">
+                    <blockquote className="text-base sm:text-lg font-bold text-[#0e3934] dark:text-[#f8f7f4] italic leading-relaxed">
                       {article.quote.text[lang] || article.quote.text.gu || article.quote.text}
                     </blockquote>
                     {article.quote.cite && (
@@ -681,7 +684,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               {/* SPECIAL MUHURTA CARD (As seen in Reference Image 3) */}
               {article.muhurtaCard && article.muhurtaCard.title && (
-                <div className="bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
+                <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Sun className="h-5 w-5 text-[#d9a100]" />
@@ -698,7 +701,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
                   {article.muhurtaCard.morning && article.muhurtaCard.evening && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
-                      <div className="p-3 bg-white dark:bg-[#121310] rounded-xl border border-border/50">
+                      <div className="p-3 bg-white dark:bg-[#0b332f] rounded-xl border border-border/50">
                         <span className="text-xs text-muted-foreground block font-medium">
                           {article.muhurtaCard.morning.label?.[lang] || article.muhurtaCard.morning.label?.gu || article.muhurtaCard.morning.label}
                         </span>
@@ -706,7 +709,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                           {article.muhurtaCard.morning.time?.[lang] || article.muhurtaCard.morning.time?.gu || article.muhurtaCard.morning.time}
                         </span>
                       </div>
-                      <div className="p-3 bg-white dark:bg-[#121310] rounded-xl border border-border/50">
+                      <div className="p-3 bg-white dark:bg-[#0b332f] rounded-xl border border-border/50">
                         <span className="text-xs text-muted-foreground block font-medium">
                           {article.muhurtaCard.evening.label?.[lang] || article.muhurtaCard.evening.label?.gu || article.muhurtaCard.evening.label}
                         </span>
@@ -738,7 +741,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               {/* 5 SACRED RULES / RITUALS CHECKLIST CARD */}
               {article.rituals && article.rituals.title && (
-                <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
+                <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-[#d9a100]" />
@@ -758,7 +761,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                       {article.rituals.items.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3 bg-white dark:bg-[#121310] p-3.5 rounded-xl border border-border/40 shadow-2xs"
+                          className="flex items-start gap-3 bg-white dark:bg-[#0b332f] p-3.5 rounded-xl border border-border/40 shadow-2xs"
                         >
                           <CheckCircle className="h-4 w-4 text-[#008d7f] shrink-0 mt-0.5" />
                           <span className="text-xs sm:text-sm text-foreground/90 font-medium">
@@ -790,7 +793,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               {/* LIVE SANKALP PUJA CTA CARD (As seen in Reference Image 3) */}
               {article.sankalpPuja && article.sankalpPuja.title && (
-                <div className="bg-[#fff9e6] dark:bg-[#201d14] border-2 border-[#fdc72d]/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col items-center text-center gap-3 my-2">
+                <div className="bg-[#fff9e6] dark:bg-[#0e3934] border-2 border-[#fdc72d]/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col items-center text-center gap-3 my-2">
                   <h3 className="text-lg sm:text-xl font-bold text-foreground">
                     {article.sankalpPuja.title[lang] || article.sankalpPuja.title.gu || article.sankalpPuja.title}
                   </h3>
@@ -799,7 +802,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   </p>
                   <Button
                     onClick={() => showToast(lang === "gu" ? "પૂજા નોંધણી ફોર્મ ખોલવામાં આવી રહ્યું છે..." : "Opening Puja registration form...")}
-                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
+                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
                   >
                     {article.sankalpPuja.buttonText?.[lang] || article.sankalpPuja.buttonText?.gu || (lang === "gu" ? "સંકલ્પ નોંધાવો ●" : "Book Sankalp Puja ●")}
                   </Button>
@@ -807,7 +810,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               )}
 
               {/* INTERACTIVE REACTIONS BAR */}
-              <div className="mt-4 p-4 sm:p-5 bg-[#f7f6f2] dark:bg-[#1a1b18] border border-border/60 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="mt-4 p-4 sm:p-5 bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
                 <span className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Award className="h-4 w-4 text-[#d9a100]" />
                   {lang === "gu" ? "આ લેખ તમને કેવો લાગ્યો?" : "How did you find this article?"}
@@ -818,8 +821,8 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     onClick={() => handleReactionClick("divine")}
                     className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
                       userReaction === "divine"
-                        ? "bg-[#fdc72d] text-[#1b1c1a] border-[#fdc72d] font-bold"
-                        : "bg-white dark:bg-[#121310] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
+                        ? "bg-[#fdc72d] text-[#0e3934] border-[#fdc72d] font-bold"
+                        : "bg-white dark:bg-[#0b332f] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
                     }`}
                   >
                     <span>🙏 {lang === "gu" ? "દિવ્ય લાગ્યો" : "Divine"}</span>
@@ -830,8 +833,8 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     onClick={() => handleReactionClick("insightful")}
                     className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
                       userReaction === "insightful"
-                        ? "bg-[#fdc72d] text-[#1b1c1a] border-[#fdc72d] font-bold"
-                        : "bg-white dark:bg-[#121310] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
+                        ? "bg-[#fdc72d] text-[#0e3934] border-[#fdc72d] font-bold"
+                        : "bg-white dark:bg-[#0b332f] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
                     }`}
                   >
                     <span>📖 {lang === "gu" ? "જ્ઞાનવર્ધક" : "Insightful"}</span>
@@ -842,8 +845,8 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     onClick={() => handleReactionClick("wonderful")}
                     className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
                       userReaction === "wonderful"
-                        ? "bg-[#fdc72d] text-[#1b1c1a] border-[#fdc72d] font-bold"
-                        : "bg-white dark:bg-[#121310] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
+                        ? "bg-[#fdc72d] text-[#0e3934] border-[#fdc72d] font-bold"
+                        : "bg-white dark:bg-[#0b332f] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
                     }`}
                   >
                     <span>❤️ {lang === "gu" ? "અદ્ભુત" : "Wonderful"}</span>
@@ -853,7 +856,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </div>
 
               {/* Bottom Family Share Bar */}
-              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
+              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
                 <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:text-left">
                   {lang === "gu" ? "લેખ ગમ્યો હોય તો પરિવાર અને મિત્રો સાથે શેર કરો:" : "Enjoyed the article? Share with family & friends:"}
                 </span>
@@ -874,7 +877,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   </button>
                   <button
                     onClick={handleCopyLink}
-                    className="px-3 py-1.5 bg-white dark:bg-[#121310] border border-border/70 hover:bg-muted text-foreground rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                    className="px-3 py-1.5 bg-white dark:bg-[#0b332f] border border-border/70 hover:bg-muted text-foreground rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                   >
                     {copiedLink ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
                     <span>{copiedLink ? (lang === "gu" ? "કૉપિ થઈ!" : "Copied!") : (lang === "gu" ? "લિંક કૉપિ" : "Copy Link")}</span>
@@ -884,7 +887,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* AUTHOR COMPREHENSIVE BIO CARD */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
                   src={article.author.image}
@@ -961,7 +964,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                         sizes="(max-width: 640px) 100vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <span className="absolute top-2 left-2 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                      <span className="absolute top-2 left-2 bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2 py-0.5 rounded shadow-xs">
                         {story.tag}
                       </span>
                     </div>
@@ -969,7 +972,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                       <h3 className="font-bold text-sm text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2 leading-snug">
                         {story.title}
                       </h3>
-                      <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/50">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
                         <span>{story.date}</span>
                         <span className="text-[#008d7f] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
                           {lang === "gu" ? "વાંચો →" : "Read →"}
@@ -985,7 +988,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
           {/* RIGHT: 30% STICKY INFORMATIVE SIDEBAR (4 cols) */}
           <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-[128px]">
             {/* WIDGET 1: SOCIAL CONNECT COUNTERS */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-sm text-foreground flex items-center gap-1.5">
                   <Users className="h-4 w-4 text-[#d9a100]" />
@@ -998,41 +1001,41 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="grid grid-cols-3 gap-2">
                 <Link
                   href="#"
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#1877F2]/50 transition-colors text-center"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#0b332f] border border-border/50 hover:border-[#1877F2]/50 transition-colors text-center"
                 >
                   <span className="font-bold text-xs text-[#1877F2]">Facebook</span>
                   <span className="text-xs font-bold text-foreground mt-0.5">૨૮K</span>
-                  <span className="text-[10px] text-muted-foreground">{lang === "gu" ? "ફોલોઅર્સ" : "Fans"}</span>
+                  <span className="text-xs text-muted-foreground">{lang === "gu" ? "ફોલોઅર્સ" : "Fans"}</span>
                 </Link>
                 <Link
                   href="#"
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#FF0000]/50 transition-colors text-center"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#0b332f] border border-border/50 hover:border-[#FF0000]/50 transition-colors text-center"
                 >
                   <span className="font-bold text-xs text-[#FF0000]">YouTube</span>
                   <span className="text-xs font-bold text-foreground mt-0.5">૧૫K</span>
-                  <span className="text-[10px] text-muted-foreground">{lang === "gu" ? "સબસ્ક્રાઇબર" : "Subs"}</span>
+                  <span className="text-xs text-muted-foreground">{lang === "gu" ? "સબસ્ક્રાઇબર" : "Subs"}</span>
                 </Link>
                 <Link
                   href="https://wa.me/919825000000"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#121310] border border-border/50 hover:border-[#25D366]/50 transition-colors text-center"
+                  className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white dark:bg-[#0b332f] border border-border/50 hover:border-[#25D366]/50 transition-colors text-center"
                 >
                   <span className="font-bold text-xs text-[#25D366]">WhatsApp</span>
                   <span className="text-xs font-bold text-foreground mt-0.5">૪૨K</span>
-                  <span className="text-[10px] text-muted-foreground">{lang === "gu" ? "સભ્યો" : "Members"}</span>
+                  <span className="text-xs text-muted-foreground">{lang === "gu" ? "સભ્યો" : "Members"}</span>
                 </Link>
               </div>
             </div>
 
             {/* WIDGET 2: TODAY'S PANCHANG WIDGET */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-sm text-foreground">
                     {data.panchang.widgetTitle}
                   </h4>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {data.panchang.samvatTitle}
                   </span>
                 </div>
@@ -1047,7 +1050,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 {data.panchang.rows.map((row, idx) => (
                   <div
                     key={idx}
-                    className="flex justify-between py-1.5 px-2.5 rounded-lg bg-white dark:bg-[#121310] border border-border/40"
+                    className="flex justify-between py-1.5 px-2.5 rounded-lg bg-white dark:bg-[#0b332f] border border-border/40"
                   >
                     <span className="text-muted-foreground">{row.label}:</span>
                     <span className={`font-semibold ${row.isAlert ? "text-destructive" : row.isAuspicious ? "text-[#008d7f] dark:text-[#52c7bb]" : "text-foreground"}`}>
@@ -1067,18 +1070,18 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 3: 1-ON-1 ASTROLOGICAL CONSULTATION CTA CARD */}
-            <div className="relative bg-gradient-to-br from-[#1b1c1a] via-[#1f2a27] to-[#243532] text-white rounded-3xl p-5 sm:p-6 shadow-xl ring-1 ring-[#fdc72d]/20 overflow-hidden flex flex-col gap-4">
+            <div className="relative bg-gradient-to-br from-[#00685d] via-[#005a50] to-[#004d44] text-white rounded-3xl p-5 sm:p-6 shadow-xl ring-1 ring-[#fdc72d]/20 overflow-hidden flex flex-col gap-4">
               {/* Decorative golden glow + yantra ring */}
               <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-[#fdc72d]/20 blur-3xl" />
               <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 h-40 w-40 rounded-full bg-[#008d7f]/20 blur-3xl" />
               <Sparkles aria-hidden className="pointer-events-none absolute top-4 right-4 h-16 w-16 text-[#fdc72d]/10" />
 
               <div className="relative flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 bg-[#fdc72d] text-[#1b1c1a] text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-[#fdc72d] text-[#0e3934] text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-full">
                   <Sparkles className="h-3 w-3" />
                   {lang === "gu" ? "વન-ટુ-વન માર્ગદર્શન" : "1-on-1 Guidance"}
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300">
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-300">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   {lang === "gu" ? "ઉપલબ્ધ" : "Available"}
                 </span>
@@ -1110,7 +1113,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="relative flex flex-col gap-2.5">
                 <Button
                   onClick={() => router.push("/contact-us")}
-                  className="group w-full h-11 bg-gradient-to-r from-[#fdc72d] to-[#f0b400] hover:from-[#ffd24d] hover:to-[#fdc72d] text-[#1b1c1a] font-extrabold text-sm rounded-xl shadow-[0_6px_20px_-6px_rgba(253,199,45,0.6)] transition-all"
+                  className="group w-full h-11 bg-gradient-to-r from-[#fdc72d] to-[#f0b400] hover:from-[#ffd24d] hover:to-[#fdc72d] text-[#0e3934] font-extrabold text-sm rounded-xl shadow-[0_6px_20px_-6px_rgba(253,199,45,0.6)] transition-all"
                 >
                   <Award className="h-4 w-4 mr-1.5" />
                   {data.consultation.bookButton}
@@ -1125,14 +1128,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 </Button>
               </div>
 
-              <div className="relative flex items-center justify-center gap-1.5 text-[10px] text-white/55">
+              <div className="relative flex items-center justify-center gap-1.5 text-xs text-white/55">
                 <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]/80" />
                 {lang === "gu" ? "૧૦૦% ગોપનીય • પ્રમાણિત જ્યોતિષાચાર્ય" : "100% confidential • Verified astrologer"}
               </div>
             </div>
 
             {/* WIDGET 4: MYSHOP SPIRITUAL STORE MINI SHOWCASE */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Store className="h-4 w-4 text-[#008d7f]" />
@@ -1140,7 +1143,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     {lang === "gu" ? "MYSHOP આધ્યાત્મિક સ્ટોર" : "MYSHOP Spiritual Store"}
                   </h4>
                 </div>
-                <span className="text-[11px] text-[#008d7f] font-bold">
+                <span className="text-xs text-[#008d7f] font-bold">
                   {lang === "gu" ? "૧૦૦% શુદ્ધ" : "100% Pure"}
                 </span>
               </div>
@@ -1150,7 +1153,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 {data.products.slice(0, 3).map((prod) => (
                   <div
                     key={prod.id}
-                    className="flex items-center gap-3 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
+                    className="flex items-center gap-3 p-2 rounded-xl bg-white dark:bg-[#0b332f] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
                     onClick={() => router.push(`/myshop/product/${prod.id}`)}
                   >
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
@@ -1166,14 +1169,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                       <span className="font-bold text-xs text-foreground truncate group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
                         {prod.name}
                       </span>
-                      <span className="text-[10px] text-muted-foreground truncate">
+                      <span className="text-xs text-muted-foreground truncate">
                         {prod.subtitle}
                       </span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="font-bold text-xs text-[#008d7f] dark:text-[#52c7bb]">
                           {prod.price}
                         </span>
-                        <span className="text-[10px] text-muted-foreground/60 line-through">
+                        <span className="text-xs text-muted-foreground/60 line-through">
                           {prod.originalPrice}
                         </span>
                       </div>
@@ -1191,7 +1194,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 5: MOST POPULAR ARTICLES (વાંચકોની પસંદ 1-3) */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b18] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4 text-[#d9a100]" />
                 <h4 className="font-bold text-sm text-foreground">
@@ -1206,16 +1209,16 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <div
                       key={idx}
                       onClick={() => router.push(`/article/${targetSlug}`)}
-                      className="flex items-start gap-2.5 p-2 rounded-xl bg-white dark:bg-[#121310] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
+                      className="flex items-start gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0b332f] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
                     >
-                    <span className="w-5 h-5 rounded-full bg-[#fdc72d] text-[#1b1c1a] font-bold text-center leading-5 shrink-0 text-[11px]">
+                    <span className="w-5 h-5 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-center leading-5 shrink-0 text-xs">
                       {item.rank}
                     </span>
                     <div className="flex flex-col min-w-0">
                       <h5 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
                         {item.title}
                       </h5>
-                      <span className="text-[10px] text-muted-foreground mt-0.5">
+                      <span className="text-xs text-muted-foreground mt-0.5">
                         {item.reads}
                       </span>
                     </div>

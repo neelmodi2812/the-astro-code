@@ -143,7 +143,7 @@ export default function LoginClient() {
               {/* ======================================================== */}
               {/* LEFT COLUMN: ELEGANT UNCLUTTERED CARD WITH VEDIC BG IMAGE */}
               {/* ======================================================== */}
-              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#151613] text-white min-h-[460px]">
+              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#0c3530] text-white min-h-[460px]">
                 {/* Background Image: Glowing Sri Yantra Cosmos */}
                 <div
                   className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 pointer-events-none transition-transform duration-700"
@@ -151,8 +151,8 @@ export default function LoginClient() {
                 />
                 
                 {/* Elegant dark gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#151613] via-[#151613]/70 to-[#151613]/40 pointer-events-none" />
-                <div className="absolute inset-0 bg-radial from-transparent to-[#151613]/80 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0c3530] via-[#0c3530]/70 to-[#0c3530]/40 pointer-events-none" />
+                <div className="absolute inset-0 bg-radial from-transparent to-[#0c3530]/80 pointer-events-none" />
 
                 {/* Top Content Block: Clean, small, uncluttered information */}
                 <div className="relative z-10 space-y-5">
@@ -205,7 +205,7 @@ export default function LoginClient() {
                       {lang === "gu" ? data.leftColumn.trustBadge.rating : data.leftColumn.trustBadge.ratingEn}
                     </span>
                     <span className="text-white/40">•</span>
-                    <span className="font-medium text-[11px] sm:text-xs">
+                    <span className="font-medium text-xs sm:text-xs">
                       {data.leftColumn.trustBadge.text[lang]}
                     </span>
                   </div>
@@ -265,7 +265,7 @@ export default function LoginClient() {
                           </label>
                           <Link
                             href="/forgot-password"
-                            className="text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline cursor-pointer"
+                            className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline cursor-pointer"
                           >
                             {data.rightColumn.pwdForm.forgotPassword[lang]}
                           </Link>
@@ -298,7 +298,7 @@ export default function LoginClient() {
                           id="remember-session"
                           checked={rememberSession}
                           onCheckedChange={setRememberSession}
-                          className="data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#1b1c1a] data-[state=checked]:border-[#fdc72d]"
+                          className="data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
                         />
                         <label htmlFor="remember-session" className="text-foreground font-medium cursor-pointer">
                           {data.rightColumn.pwdForm.rememberSession[lang]}
@@ -309,9 +309,9 @@ export default function LoginClient() {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-3.5 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                        className="w-full py-3.5 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer"
                       >
-                        <KeyRound className="h-5 w-5 text-[#1b1c1a]" />
+                        <KeyRound className="h-5 w-5 text-[#0e3934]" />
                         <span>{data.rightColumn.pwdForm.submitButton[lang]}</span>
                         <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </Button>
@@ -319,7 +319,7 @@ export default function LoginClient() {
                 </div>
 
                 {/* New Registration Callout Banner at Bottom */}
-                <div className="mt-8 pt-5 bg-muted/40 dark:bg-[#151613] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
+                <div className="mt-8 pt-5 bg-muted/40 dark:bg-[#0c3530] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
                       <UserPlus className="h-5 w-5" />
@@ -336,7 +336,7 @@ export default function LoginClient() {
 
                   <Link
                     href="/register"
-                    className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <span>{data.rightColumn.registerCallout.cta[lang]}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -377,7 +377,7 @@ export default function LoginClient() {
           </div>
 
           {/* 4. Astrological Note Banner */}
-          <div className="mt-6 p-4 rounded-xl bg-muted/50 dark:bg-[#161714] border border-border/70 text-center flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs">
+          <div className="mt-6 p-4 rounded-xl bg-muted/50 dark:bg-[#0c3631] border border-border/70 text-center flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs">
             <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
             <span className="text-muted-foreground">
               {data.astrologicalBanner.text[lang]}

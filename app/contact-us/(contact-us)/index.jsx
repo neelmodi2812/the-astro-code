@@ -200,7 +200,7 @@ export default function ContactUsClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#10110e] text-[#1b1c1a] dark:text-[#f4f3ee] flex flex-col selection:bg-[#fdc72d]/30">
+    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0b322d] text-[#0e3934] dark:text-[#f4f3ee] flex flex-col selection:bg-[#fdc72d]/30">
       {/* 1. GLOBAL ASTRO HEADER */}
       <AstroHeader
         config={siteData.config}
@@ -222,7 +222,7 @@ export default function ContactUsClient() {
       />
 
       {/* 2. TOP VEDIC ACCENT STRIP & BREADCRUMB */}
-      <section className="w-full bg-[#f4f4f0] dark:bg-[#161714] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-3 transition-colors">
+      <section className="w-full bg-[#f4f4f0] dark:bg-[#0c3631] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-3 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <Breadcrumb>
             <BreadcrumbList className="text-xs font-medium">
@@ -253,7 +253,7 @@ export default function ContactUsClient() {
       </section>
 
       {/* 3. GRAND HEADER BANNER WITH SRI YANTRA GEOMETRIC AURA */}
-      <section className="w-full relative overflow-hidden bg-card dark:bg-[#151613] px-4 sm:px-6 pt-8 pb-10 border-b border-border/70 shadow-xs transition-colors">
+      <section className="w-full relative overflow-hidden bg-card dark:bg-[#0c3530] px-4 sm:px-6 pt-8 pb-10 border-b border-border/70 shadow-xs transition-colors">
         {/* Ambient Gradient Glows */}
         <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-gradient-to-br from-[#fdc72d]/20 to-[#00685d]/10 blur-3xl pointer-events-none" />
         <div className="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-gradient-to-tr from-[#00685d]/15 to-transparent blur-2xl pointer-events-none" />
@@ -267,7 +267,7 @@ export default function ContactUsClient() {
               <span className="w-2 h-2 rounded-full bg-[#fdc72d] animate-pulse" />
               <span>{pageData.headerBanner.badge}</span>
             </Badge>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#1b1c1a] dark:text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0e3934] dark:text-white tracking-tight leading-tight">
               {pageData.headerBanner.title}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-3 leading-relaxed max-w-2xl">
@@ -276,7 +276,7 @@ export default function ContactUsClient() {
           </div>
 
           {/* Sri Yantra Decorative Token Card */}
-          <div className="bg-[#faf9f5] dark:bg-[#20211d] p-4 sm:p-5 rounded-2xl shadow-xs flex items-center gap-4 border-l-4 border-[#fdc72d] border border-border/80 shrink-0">
+          <div className="bg-[#faf9f5] dark:bg-[#0f3c36] p-4 sm:p-5 rounded-2xl shadow-xs flex items-center gap-4 border-l-4 border-[#fdc72d] border border-border/80 shrink-0">
             <div className="w-14 h-14 rounded-full bg-[#00685d] flex items-center justify-center text-[#fdc72d] shadow-inner shrink-0">
               <svg
                 className="w-9 h-9 fill-none stroke-current"
@@ -296,7 +296,7 @@ export default function ContactUsClient() {
               </svg>
             </div>
             <div>
-              <span className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider block">
+              <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider block">
                 {pageData.headerBanner.yantraCard.brand}
               </span>
               <span className="text-sm sm:text-base text-foreground font-extrabold block leading-snug">
@@ -316,7 +316,7 @@ export default function ContactUsClient() {
           {pageData.quickCards.map((card) => (
             <Card
               key={card.id}
-              className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-300 border border-border/80 flex flex-col justify-between"
+              className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-300 border border-border/80 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -337,7 +337,7 @@ export default function ContactUsClient() {
                   </div>
                   <Badge
                     variant="outline"
-                    className="text-xs font-bold bg-muted dark:bg-[#252622] text-foreground border-border/60 px-2.5 py-0.5"
+                    className="text-xs font-bold bg-muted dark:bg-[#113f39] text-foreground border-border/60 px-2.5 py-0.5"
                   >
                     {card.badge}
                   </Badge>
@@ -362,7 +362,7 @@ export default function ContactUsClient() {
                       </Link>
                     ))}
                     {card.subText && (
-                      <span className="text-[11px] text-muted-foreground block font-medium">
+                      <span className="text-xs text-muted-foreground block font-medium">
                         {card.subText}
                       </span>
                     )}
@@ -395,10 +395,10 @@ export default function ContactUsClient() {
                 rel={card.ctaLink.startsWith("http") ? "noopener noreferrer" : undefined}
                 className={`mt-6 w-full py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-extrabold transition-all shadow-xs ${
                   card.variant === "gold"
-                    ? "bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a]"
+                    ? "bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934]"
                     : card.variant === "primary"
                     ? "bg-[#00685d] hover:bg-[#00524a] text-white"
-                    : "bg-[#efeeea] dark:bg-[#252622] text-foreground hover:bg-[#e2e0da] dark:hover:bg-[#2e302b]"
+                    : "bg-[#efeeea] dark:bg-[#113f39] text-foreground hover:bg-[#e2e0da] dark:hover:bg-[#13453e]"
                 }`}
               >
                 {card.icon === "call" ? (
@@ -416,15 +416,15 @@ export default function ContactUsClient() {
       </section>
 
       {/* 5. MAIN 2-COLUMN CONTENT LAYOUT (8 COLS LEFT / 4 COLS RIGHT SIDEBAR) */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pb-12 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
           {/* LEFT COLUMN: INTERACTIVE FORM, OFFICE GUIDE & FAQS (8 COLS) */}
           <div className="lg:col-span-8 flex flex-col gap-8">
             {/* Interactive Consultation Form Card */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  <span className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
+                  <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
                     {pageData.inquiryForm.tag}
                   </span>
                   <h2 className="text-xl sm:text-2xl font-extrabold text-foreground mt-1 tracking-tight">
@@ -461,7 +461,7 @@ export default function ContactUsClient() {
                           value={formData.fullName}
                           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                           placeholder={pageData.inquiryForm.fields.fullNamePlaceholder}
-                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#20211d] rounded-xl"
+                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl"
                         />
                       </div>
                     </div>
@@ -482,7 +482,7 @@ export default function ContactUsClient() {
                           value={formData.phoneNumber}
                           onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                           placeholder={pageData.inquiryForm.fields.phonePlaceholder}
-                          className="pl-12 text-xs bg-[#faf9f5] dark:bg-[#20211d] rounded-xl"
+                          className="pl-12 text-xs bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl"
                         />
                       </div>
                     </div>
@@ -501,7 +501,7 @@ export default function ContactUsClient() {
                           value={formData.emailAddress}
                           onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })}
                           placeholder={pageData.inquiryForm.fields.emailPlaceholder}
-                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#20211d] rounded-xl"
+                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl"
                         />
                       </div>
                     </div>
@@ -515,7 +515,7 @@ export default function ContactUsClient() {
                         value={formData.consultationCategory}
                         onValueChange={(val) => setFormData({ ...formData, consultationCategory: val })}
                       >
-                        <SelectTrigger id="contact-category" className="w-full text-xs rounded-xl border border-border/80 bg-[#faf9f5] dark:bg-[#20211d] p-2.5 h-10 text-foreground">
+                        <SelectTrigger id="contact-category" className="w-full text-xs rounded-xl border border-border/80 bg-[#faf9f5] dark:bg-[#0f3c36] p-2.5 h-10 text-foreground">
                           <SelectValue placeholder={pageData.inquiryForm.fields.subject} />
                         </SelectTrigger>
                         <SelectContent>
@@ -543,7 +543,7 @@ export default function ContactUsClient() {
                           value={formData.dob}
                           onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                           placeholder={pageData.inquiryForm.fields.dobPlaceholder}
-                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#20211d] rounded-xl"
+                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl"
                         />
                       </div>
                     </div>
@@ -561,7 +561,7 @@ export default function ContactUsClient() {
                           value={formData.birthPlace}
                           onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
                           placeholder={pageData.inquiryForm.fields.birthPlacePlaceholder}
-                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#20211d] rounded-xl"
+                          className="pl-9 text-xs bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl"
                         />
                       </div>
                     </div>
@@ -579,7 +579,7 @@ export default function ContactUsClient() {
                       value={formData.messageText}
                       onChange={(e) => setFormData({ ...formData, messageText: e.target.value })}
                       placeholder={pageData.inquiryForm.fields.messagePlaceholder}
-                      className="min-h-24 p-3 bg-[#faf9f5] dark:bg-[#20211d] rounded-xl text-xs text-foreground placeholder:text-muted-foreground border-border/80 focus-visible:border-[#fdc72d] focus-visible:ring-[#fdc72d]/20 transition-all"
+                      className="min-h-24 p-3 bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl text-xs text-foreground placeholder:text-muted-foreground border-border/80 focus-visible:border-[#fdc72d] focus-visible:ring-[#fdc72d]/20 transition-all"
                     />
                   </div>
 
@@ -618,17 +618,17 @@ export default function ContactUsClient() {
             </Card>
 
             {/* Physical Office Location & Visit Guide */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 mb-5">
                 <div>
-                  <span className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
+                  <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
                     {pageData.officeLocation.tag}
                   </span>
                   <h3 className="text-lg sm:text-xl font-extrabold text-foreground mt-0.5">
                     {pageData.officeLocation.title}
                   </h3>
                 </div>
-                <Badge variant="outline" className="text-xs font-semibold bg-muted dark:bg-[#252622] px-3 py-1">
+                <Badge variant="outline" className="text-xs font-semibold bg-muted dark:bg-[#113f39] px-3 py-1">
                   {pageData.officeLocation.officeCode}
                 </Badge>
               </div>
@@ -638,7 +638,7 @@ export default function ContactUsClient() {
                 className="w-full h-72 rounded-2xl overflow-hidden relative shadow-inner mb-6 flex flex-col justify-between p-4 bg-cover bg-center border border-border/60"
                 style={{ backgroundImage: `url('${pageData.officeLocation.mapImage}')` }}
               >
-                <div className="bg-white/95 dark:bg-[#161714]/95 backdrop-blur-xs p-3.5 rounded-xl shadow-md max-w-xs self-start border border-border/60">
+                <div className="bg-white/95 dark:bg-[#0c3631]/95 backdrop-blur-xs p-3.5 rounded-xl shadow-md max-w-xs self-start border border-border/60">
                   <div className="flex items-center gap-2 text-[#00685d] dark:text-[#6ed8c8] font-bold text-sm">
                     <MapPin className="h-4 w-4 text-red-500 shrink-0" />
                     <span>{pageData.officeLocation.officeName}</span>
@@ -652,7 +652,7 @@ export default function ContactUsClient() {
                   href={pageData.officeLocation.directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="self-end bg-white/95 dark:bg-[#161714]/95 hover:bg-white text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-colors border border-border/60"
+                  className="self-end bg-white/95 dark:bg-[#0c3631]/95 hover:bg-white text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-colors border border-border/60"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   <span>{pageData.officeLocation.directionsBtn}</span>
@@ -661,7 +661,7 @@ export default function ContactUsClient() {
 
               {/* Location Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[#faf9f5] dark:bg-[#20211d] p-4 rounded-xl flex items-start gap-3 border border-border/60">
+                <div className="bg-[#faf9f5] dark:bg-[#0f3c36] p-4 rounded-xl flex items-start gap-3 border border-border/60">
                   <div className="w-10 h-10 rounded-xl bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -672,13 +672,13 @@ export default function ContactUsClient() {
                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                       {pageData.officeLocation.fullAddress}
                     </p>
-                    <span className="text-[11px] text-muted-foreground font-semibold block mt-1">
+                    <span className="text-xs text-muted-foreground font-semibold block mt-1">
                       {pageData.officeLocation.landmark}
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-[#faf9f5] dark:bg-[#20211d] p-4 rounded-xl flex items-start gap-3 border border-border/60">
+                <div className="bg-[#faf9f5] dark:bg-[#0f3c36] p-4 rounded-xl flex items-start gap-3 border border-border/60">
                   <div className="w-10 h-10 rounded-xl bg-[#00685d]/15 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                     <Clock className="h-5 w-5" />
                   </div>
@@ -691,7 +691,7 @@ export default function ContactUsClient() {
                       <br />
                       {pageData.officeLocation.timingsLine2}
                     </p>
-                    <span className="text-[11px] text-[#00685d] dark:text-[#6ed8c8] font-bold block mt-1">
+                    <span className="text-xs text-[#00685d] dark:text-[#6ed8c8] font-bold block mt-1">
                       {pageData.officeLocation.notice}
                     </span>
                   </div>
@@ -700,10 +700,10 @@ export default function ContactUsClient() {
             </Card>
 
             {/* Frequently Asked Questions (Accordion) */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <span className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
+                  <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
                     {pageData.faqs.tag}
                   </span>
                   <h3 className="text-lg sm:text-xl font-extrabold text-foreground mt-0.5">
@@ -718,7 +718,7 @@ export default function ContactUsClient() {
                   <AccordionItem
                     key={faq.id}
                     value={faq.id}
-                    className="bg-[#faf9f5] dark:bg-[#20211d] rounded-xl px-4 border border-border/60 not-last:border-b-0"
+                    className="bg-[#faf9f5] dark:bg-[#0f3c36] rounded-xl px-4 border border-border/60 not-last:border-b-0"
                   >
                     <AccordionTrigger className="text-left text-sm font-bold text-foreground hover:no-underline py-3.5">
                       <span className="pr-4">{faq.question}</span>
@@ -735,7 +735,7 @@ export default function ContactUsClient() {
           {/* RIGHT COLUMN (STICKY SIDEBAR WIDGETS - 4 COLS) */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
             {/* WIDGET 1: LIVE PANCHANG & AUSPICIOUS TIMINGS */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
               <div className="flex items-center justify-between pb-3 border-b border-border/60">
                 <div className="flex items-center gap-2">
                   <Sun className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -745,17 +745,17 @@ export default function ContactUsClient() {
                 </div>
                 <Badge
                   variant="outline"
-                  className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border-[#fdc72d]/30 text-[10px] font-bold px-2 py-0.5"
+                  className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border-[#fdc72d]/30 text-xs font-bold px-2 py-0.5"
                 >
                   {pageData.sidebar.panchang.badge}
                 </Badge>
               </div>
 
-              <div className="bg-[#faf9f5] dark:bg-[#20211d] p-3 rounded-xl my-3 flex items-center justify-between border border-border/60">
+              <div className="bg-[#faf9f5] dark:bg-[#0f3c36] p-3 rounded-xl my-3 flex items-center justify-between border border-border/60">
                 <div className="flex items-center gap-2">
                   <Sun className="h-4 w-4 text-[#fdc72d]" />
                   <div>
-                    <span className="text-[10px] text-muted-foreground block font-medium">
+                    <span className="text-xs text-muted-foreground block font-medium">
                       {pageData.sidebar.panchang.weatherTitle}
                     </span>
                     <span className="text-xs font-bold text-foreground">
@@ -764,7 +764,7 @@ export default function ContactUsClient() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-muted-foreground block font-medium">
+                  <span className="text-xs text-muted-foreground block font-medium">
                     {pageData.sidebar.panchang.choghadiyaLabel}
                   </span>
                   <span className="text-xs font-extrabold text-[#00685d] dark:text-[#6ed8c8]">
@@ -774,16 +774,16 @@ export default function ContactUsClient() {
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-center mb-3">
-                <div className="bg-[#faf9f5] dark:bg-[#20211d] p-2.5 rounded-xl border border-border/50">
-                  <span className="text-[10px] text-muted-foreground block">
+                <div className="bg-[#faf9f5] dark:bg-[#0f3c36] p-2.5 rounded-xl border border-border/50">
+                  <span className="text-xs text-muted-foreground block">
                     {pageData.sidebar.panchang.sunriseLabel}
                   </span>
                   <span className="text-xs font-extrabold text-foreground">
                     {pageData.sidebar.panchang.sunriseVal}
                   </span>
                 </div>
-                <div className="bg-[#faf9f5] dark:bg-[#20211d] p-2.5 rounded-xl border border-border/50">
-                  <span className="text-[10px] text-muted-foreground block">
+                <div className="bg-[#faf9f5] dark:bg-[#0f3c36] p-2.5 rounded-xl border border-border/50">
+                  <span className="text-xs text-muted-foreground block">
                     {pageData.sidebar.panchang.sunsetLabel}
                   </span>
                   <span className="text-xs font-extrabold text-foreground">
@@ -792,13 +792,13 @@ export default function ContactUsClient() {
                 </div>
               </div>
 
-              <div className="pt-1 flex items-center justify-between text-[11px] text-muted-foreground font-semibold">
+              <div className="pt-1 flex items-center justify-between text-xs text-muted-foreground font-semibold">
                 <span>{pageData.sidebar.panchang.rahuKaal}</span>
                 <span className="text-[#00685d] dark:text-[#6ed8c8] font-bold">
                   {pageData.sidebar.panchang.horaStatus}
                 </span>
               </div>
-              <div className="w-full bg-[#efeeea] dark:bg-[#252622] rounded-full h-1.5 mt-2 overflow-hidden flex">
+              <div className="w-full bg-[#efeeea] dark:bg-[#113f39] rounded-full h-1.5 mt-2 overflow-hidden flex">
                 <div className="bg-[#00685d] h-full w-2/3" />
                 <div className="bg-[#fdc72d] h-full w-1/6" />
                 <div className="bg-red-500 h-full w-1/6" />
@@ -806,7 +806,7 @@ export default function ContactUsClient() {
             </Card>
 
             {/* WIDGET 2: DR. VISHAL MODI VERIFIED PROFILE CARD */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80 relative overflow-hidden">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80 relative overflow-hidden">
               <div className="flex items-center gap-3.5 mb-3">
                 <div className="relative w-16 h-16 shrink-0">
                   <Image
@@ -816,7 +816,7 @@ export default function ContactUsClient() {
                     height={64}
                     className="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-[#fdc72d]"
                   />
-                  <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#fdc72d] text-[#1b1c1a] flex items-center justify-center text-[10px] font-black shadow-2xs">
+                  <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#fdc72d] text-[#0e3934] flex items-center justify-center text-xs font-black shadow-2xs">
                     ★
                   </span>
                 </div>
@@ -827,10 +827,10 @@ export default function ContactUsClient() {
                     </h4>
                     <CheckCircle2 className="h-4 w-4 text-[#00685d] dark:text-[#6ed8c8]" />
                   </div>
-                  <span className="text-[11px] text-[#8a6800] dark:text-[#fdc72d] font-bold block">
+                  <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold block">
                     {pageData.sidebar.astrologer.title}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {pageData.sidebar.astrologer.experience}
                   </span>
                 </div>
@@ -844,7 +844,7 @@ export default function ContactUsClient() {
                 <Button
                   type="button"
                   onClick={() => setConsultModalOpen(true)}
-                  className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] text-xs font-bold py-2.5 rounded-xl transition-colors cursor-pointer"
+                  className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] text-xs font-bold py-2.5 rounded-xl transition-colors cursor-pointer"
                 >
                   <Calendar className="h-4 w-4 mr-1.5" />
                   <span>{pageData.sidebar.astrologer.bookBtn}</span>
@@ -853,7 +853,7 @@ export default function ContactUsClient() {
                   href="https://wa.me/919876543210?text=Hello%20Dr.%20Vishal%20Modi,%20I%20want%20to%20book%20a%20consultation"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-[#efeeea] dark:bg-[#252622] hover:bg-[#e2e0da] text-foreground text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 transition-colors border border-border/50"
+                  className="w-full bg-[#efeeea] dark:bg-[#113f39] hover:bg-[#e2e0da] text-foreground text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 transition-colors border border-border/50"
                 >
                   <MessageCircle className="h-4 w-4 text-[#00685d] dark:text-[#6ed8c8]" />
                   <span>{pageData.sidebar.astrologer.waInquiryBtn}</span>
@@ -862,10 +862,10 @@ export default function ContactUsClient() {
             </Card>
 
             {/* WIDGET 3: VERIFIED SPIRITUAL PRODUCTS */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
               <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/60">
                 <div>
-                  <span className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider block">
+                  <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider block">
                     {pageData.sidebar.store.tag}
                   </span>
                   <h4 className="text-sm font-bold text-foreground">
@@ -885,7 +885,7 @@ export default function ContactUsClient() {
                 {pageData.sidebar.store.products.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 bg-[#faf9f5] dark:bg-[#20211d] p-2 rounded-xl border border-border/50 hover:bg-muted transition-colors"
+                    className="flex items-center gap-3 bg-[#faf9f5] dark:bg-[#0f3c36] p-2 rounded-xl border border-border/50 hover:bg-muted transition-colors"
                   >
                     <div className="w-12 h-12 rounded-lg bg-card shrink-0 overflow-hidden border border-border/60">
                       <Image
@@ -900,7 +900,7 @@ export default function ContactUsClient() {
                       <h5 className="text-xs font-bold text-foreground truncate">
                         {item.name}
                       </h5>
-                      <span className="text-[10px] text-muted-foreground block">
+                      <span className="text-xs text-muted-foreground block">
                         {item.tag}
                       </span>
                     </div>
@@ -943,12 +943,12 @@ export default function ContactUsClient() {
                       value={sidebarPhone}
                       onChange={(e) => setSidebarPhone(e.target.value)}
                       placeholder={pageData.sidebar.newsletter.placeholder}
-                      className="w-full pl-11 pr-3 py-2 bg-white text-[#1b1c1a] rounded-xl text-xs outline-none border-none placeholder:text-gray-400"
+                      className="w-full pl-11 pr-3 py-2 bg-white text-[#0e3934] rounded-xl text-xs outline-none border-none placeholder:text-gray-400"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-extrabold text-xs py-2 rounded-xl transition-colors cursor-pointer"
+                    className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-xs py-2 rounded-xl transition-colors cursor-pointer"
                   >
                     <span>{pageData.sidebar.newsletter.btnText}</span>
                   </Button>
@@ -957,8 +957,8 @@ export default function ContactUsClient() {
             </div>
 
             {/* WIDGET 5: SOCIAL MEDIA & COMMUNITY CONNECT */}
-            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
-              <span className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block mb-1">
+            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
+              <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block mb-1">
                 {pageData.sidebar.social.tag}
               </span>
               <h4 className="text-sm font-bold text-foreground mb-3">
@@ -968,16 +968,16 @@ export default function ContactUsClient() {
                 {pageData.sidebar.social.channels.map((chan, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-2 p-2 rounded-xl bg-[#faf9f5] dark:bg-[#20211d] text-foreground border border-border/50 hover:bg-muted transition-colors cursor-pointer"
+                    className="flex items-center gap-2 p-2 rounded-xl bg-[#faf9f5] dark:bg-[#0f3c36] text-foreground border border-border/50 hover:bg-muted transition-colors cursor-pointer"
                   >
-                    <span className="w-7 h-7 rounded-lg bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center font-bold text-[11px]">
+                    <span className="w-7 h-7 rounded-lg bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center font-bold text-xs">
                       {chan.tag}
                     </span>
                     <div>
                       <span className="text-xs font-bold block leading-none">
                         {chan.name}
                       </span>
-                      <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                      <span className="text-xs text-muted-foreground mt-0.5 block">
                         {chan.stat}
                       </span>
                     </div>
@@ -990,7 +990,7 @@ export default function ContactUsClient() {
       </main>
 
       {/* 6. AUSPICIOUS VEDIC SHLOKA BAR */}
-      <section className="w-full bg-[#efeeea] dark:bg-[#161714] py-4 px-4 sm:px-6 text-center border-t border-b border-border/60 transition-colors">
+      <section className="w-full bg-[#efeeea] dark:bg-[#0c3631] py-4 px-4 sm:px-6 text-center border-t border-b border-border/60 transition-colors">
         <p className="text-sm sm:text-base text-[#8a6800] dark:text-[#fdc72d] font-black tracking-wide">
           {pageData.shlokaBar.shloka}
         </p>
@@ -1001,7 +1001,7 @@ export default function ContactUsClient() {
 
       {/* 7. QUICK CONSULTATION MODAL */}
       <Dialog open={consultModalOpen} onOpenChange={setConsultModalOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#1a1b17] border-border text-foreground">
+        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#0d3833] border-border text-foreground">
           <DialogHeader className="p-0 pb-2 flex-row items-center gap-3 space-y-0 pr-8">
             <div className="w-10 h-10 rounded-xl bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center font-bold shrink-0">
               <Calendar className="h-5 w-5" />
@@ -1089,7 +1089,7 @@ export default function ContactUsClient() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs mt-2"
+                className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs mt-2"
               >
                 {lang === "gu" ? "વિનંતી સબમિટ કરો" : "Confirm Booking Request"}
               </Button>

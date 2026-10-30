@@ -11,7 +11,7 @@ export default function manifest() {
     description: "The Astro Code - વૈદિક જ્યોતિષ, સાત્વિક અધ્યાત્મ, દૈનિક પંચાંગ, કુંડળી વિશ્લેષણ, રત્ન-રૂદ્રાક્ષ અને અંકશાસ્ત્રનું પ્રમાણિક પોર્ટલ.",
     start_url: "/",
     display: "standalone",
-    background_color: "#1b1c1a",
+    background_color: "#0e3934",
     theme_color: "#fdc72d",
     orientation: "portrait-primary",
     icons: [

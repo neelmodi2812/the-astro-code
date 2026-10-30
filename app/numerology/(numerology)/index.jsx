@@ -45,7 +45,7 @@ export default function NumerologyClient() {
     : []
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#10110e] text-[#1b1c1a] dark:text-[#f4f3ee] flex flex-col">
+    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0b322d] text-[#0e3934] dark:text-[#f4f3ee] flex flex-col">
       <AstroHeader
         config={siteData.config}
         topBar={siteData.topBar}
@@ -74,16 +74,16 @@ export default function NumerologyClient() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleSubmit} className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm flex flex-col sm:flex-row gap-3">
           <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required max={new Date().toISOString().slice(0, 10)} className="h-10 text-sm" />
-          <Button type="submit" disabled={isLoading} className="h-10 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] font-bold text-xs gap-1.5">
+          <Button type="submit" disabled={isLoading} className="h-10 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs gap-1.5">
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             <span>{isEn ? "Find my number" : "મારો મૂલાંક જાણો"}</span>
           </Button>
         </form>
 
         {result && (
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-6 border border-border/70 shadow-sm space-y-5">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-6 border border-border/70 shadow-sm space-y-5">
             <div className="text-center">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isEn ? "Your Moolank" : "તમારો મૂલાંક"}</p>
               <p className="text-6xl font-black text-[#8a6800] dark:text-[#fdc72d]">{result.moolank}</p>
@@ -91,8 +91,8 @@ export default function NumerologyClient() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {rows.map((row) => (
-                <div key={row.label} className="p-3 bg-muted/40 dark:bg-[#20211d] rounded-xl border border-border/40 text-center">
-                  <span className="text-[10px] text-muted-foreground block">{row.label}</span>
+                <div key={row.label} className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40 text-center">
+                  <span className="text-xs text-muted-foreground block">{row.label}</span>
                   <strong className="text-sm text-foreground">{row.value}</strong>
                 </div>
               ))}

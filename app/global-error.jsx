@@ -17,10 +17,10 @@ export default function GlobalError({ error, reset }) {
 
   return (
     <html lang="gu">
-      <body className="min-h-screen flex items-center justify-center bg-[#0d0f12] text-[#f5f6f8] font-sans antialiased p-4">
+      <body className="min-h-screen flex items-center justify-center bg-[#0a322d] text-[#f5f6f8] font-sans antialiased p-4">
         <main
           role="alert"
-          className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl border border-neutral-800 bg-[#16181d] shadow-2xl"
+          className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl border border-neutral-800 bg-[#0d3833] shadow-2xl"
         >
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 text-[#fdc72d] border border-amber-500/20">
             <svg

@@ -67,7 +67,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
   return (
     <section id="our-services" className="w-full py-12 sm:py-16">
       {/* 1. SECTION HEADER */}
-      <div className="text-center max-w-3xl mx-auto px-4">
+      <div className="text-center max-w-4xl mx-auto px-4">
         {/* Sacred Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-[#008376]/30 dark:border-[#008376]/50 shadow-2xs mb-3">
           <Sparkles className="h-4 w-4 text-[#008376] dark:text-[#38b2a3]" />
@@ -77,12 +77,12 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
         </div>
 
         {/* Heading */}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground tracking-tight leading-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-foreground tracking-tight leading-tight text-balance">
           {servicesSection.heading || (lang === "gu" ? "અમારી વિશિષ્ટ જ્યોતિષ અને આધ્યાત્મિક સેવાઓ" : "Our Premier Astrological & Spiritual Services")}
         </h2>
 
         {/* Subtitle */}
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+        <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto text-balance">
           {servicesSection.subheading || (lang === "gu"
             ? "ડૉ. વિશાલ મોદી (Ph.D. ગોલ્ડ મેડાલિસ્ટ) અને વરિષ્ઠ વિદ્વાનો દ્વારા ૧૦૦% શાસ્ત્રોક્ત, ગોપનીય અને સચોટ વ્યક્તિગત માર્ગદર્શન."
             : "100% scriptural, highly accurate, and confidential personalized guidance by Dr. Vishal Modi (Ph.D. Gold Medalist) and senior Vedic scholars.")}
@@ -90,13 +90,13 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
 
         {/* Trust Highlights Strip */}
         {trustBadges.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 mt-6">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mt-7">
             {trustBadges.map((badge) => {
               const BadgeIcon = ICON_MAP[badge.icon] || Award
               return (
                 <div
                   key={badge.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card dark:bg-[#1a1b17] border border-border/80 shadow-2xs text-xs font-semibold text-foreground/90"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card dark:bg-[#0d3833] border border-border/80 shadow-2xs text-xs font-semibold text-foreground/90"
                 >
                   <BadgeIcon className="h-3.5 w-3.5 text-[#008376] dark:text-[#fdc72d]" />
                   <span>{badge.label}</span>
@@ -130,7 +130,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
       </div>
 
       {/* 3. 6-CARD SERVICES GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 mt-8 px-2 sm:px-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 items-stretch">
         {filteredItems.map((service) => {
           const ServiceIcon = ICON_MAP[service.icon] || FileText
           const isEmerald = service.badgeColor === "emerald"
@@ -139,15 +139,15 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
           return (
             <article
               key={service.id}
-              className="group relative rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#181914] p-6 sm:p-7 hover:border-[#008376]/60 dark:hover:border-[#fdc72d]/60 hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
+              className="group relative rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#0d3631] p-6 sm:p-7 hover:border-[#008376]/60 dark:hover:border-[#fdc72d]/60 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col h-full overflow-hidden"
             >
               {/* Subtle top decorative gradient line */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00685d] via-[#008376] to-[#fdc72d] opacity-80 group-hover:opacity-100 transition-opacity" />
 
               {/* Card Top Section */}
-              <div>
+              <div className="flex-1 mb-6">
                 {/* Header Row: Icon + Badge */}
-                <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex flex-col items-start gap-3 mb-4">
                   <div
                     className={`h-12 w-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shadow-2xs ${
                       isEmerald
@@ -159,7 +159,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
                   </div>
 
                   <span
-                    className={`text-xs font-bold px-2.5 py-1 rounded-full border shadow-2xs ${
+                    className={`text-xs font-semibold px-3 py-1 rounded-full border shadow-2xs leading-snug ${
                       isEmerald
                         ? "bg-emerald-50 text-[#00685d] border-emerald-200 dark:bg-emerald-950/60 dark:text-[#38b2a3] dark:border-emerald-800"
                         : "bg-amber-50 text-[#966600] border-amber-200 dark:bg-amber-950/60 dark:text-[#fdc72d] dark:border-amber-800"
@@ -170,35 +170,35 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
                 </div>
 
                 {/* Service Title */}
-                <h3 className="text-lg sm:text-xl font-black text-foreground group-hover:text-[#008376] dark:group-hover:text-[#fdc72d] transition-colors leading-snug">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground group-hover:text-[#008376] dark:group-hover:text-[#fdc72d] transition-colors leading-snug">
                   {service.title}
                 </h3>
 
                 {/* Short Description */}
-                <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
                   {service.shortDesc}
                 </p>
 
                 {/* Key Highlights Checklist */}
-                <div className="mt-5 space-y-2 border-t border-border/60 pt-4">
+                <div className="mt-5 space-y-2.5 border-t border-border/60 pt-4">
                   {service.highlights.map((highlight, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs sm:text-xs text-foreground/85">
+                    <div key={idx} className="flex items-start gap-2.5 text-sm text-foreground/85">
                       <CheckCircle2 className="h-3.5 w-3.5 text-[#008376] dark:text-[#38b2a3] shrink-0 mt-0.5" />
-                      <span className="leading-tight">{highlight}</span>
+                      <span className="leading-snug">{highlight}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Card Bottom Section */}
-              <div className="mt-6 pt-4 border-t border-border/60 flex flex-col gap-3">
+              <div className="mt-auto pt-4 border-t border-border/60 flex flex-col gap-3">
                 {/* Action Buttons: WhatsApp Booking + View Details */}
                 <div className="grid grid-cols-2 gap-2">
                   <a
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#008376] hover:bg-[#00685d] text-white text-xs sm:text-xs font-bold transition-colors shadow-2xs text-center cursor-pointer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#008376] hover:bg-[#00685d] text-white text-sm font-bold transition-colors shadow-2xs text-center cursor-pointer"
                   >
                     <MessageCircle className="h-3.5 w-3.5 shrink-0" />
                     <span>{lang === "gu" ? "પરામર્શ બુક કરો" : "Book Service"}</span>
@@ -206,7 +206,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
 
                   <button
                     onClick={() => setSelectedService(service)}
-                    className="inline-flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg bg-background hover:bg-muted border border-border text-foreground text-xs sm:text-xs font-bold transition-colors text-center cursor-pointer"
+                    className="inline-flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg bg-background hover:bg-muted border border-border text-foreground text-sm font-bold transition-colors text-center cursor-pointer"
                   >
                     <Info className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span>{lang === "gu" ? "વિગતો જુઓ" : "Details"}</span>
@@ -247,7 +247,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-[#fdc72d] hover:bg-[#e5b225] text-[#1b1c1a] font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition-all cursor-pointer font-sans"
+                className="inline-flex items-center justify-center gap-2 bg-[#fdc72d] hover:bg-[#e5b225] text-[#0e3934] font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition-all cursor-pointer font-sans"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>{servicesSection.bottomCta.buttonText}</span>
@@ -267,7 +267,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
 
       {/* 5. SERVICE DETAILS DIALOG MODAL */}
       <Dialog open={!!selectedService} onOpenChange={(open) => !open && setSelectedService(null)}>
-        <DialogContent className="max-w-lg bg-card dark:bg-[#181914] border-2 border-[#008376]/30 dark:border-[#008376]/50">
+        <DialogContent className="max-w-lg bg-card dark:bg-[#0d3631] border-2 border-[#008376]/30 dark:border-[#008376]/50">
           {selectedService && (
             <>
               <DialogHeader>

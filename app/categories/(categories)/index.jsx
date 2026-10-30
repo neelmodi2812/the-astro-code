@@ -192,7 +192,7 @@ export default function CategoriesClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#10110e] text-[#1b1c1a] dark:text-[#f4f3ee] flex flex-col selection:bg-[#fdc72d]/30">
+    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0b322d] text-[#0e3934] dark:text-[#f4f3ee] flex flex-col selection:bg-[#fdc72d]/30">
       {/* 1. GLOBAL ASTRO HEADER */}
       <AstroHeader
         config={siteData.config}
@@ -213,7 +213,7 @@ export default function CategoriesClient() {
       />
 
       {/* 2. STREAMLINED HERO HEADER (Clean, Uncluttered, Elegant) */}
-      <section className="w-full bg-[#f4f4f0] dark:bg-[#161714] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-6 sm:py-8 transition-colors">
+      <section className="w-full bg-[#f4f4f0] dark:bg-[#0c3631] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-6 sm:py-8 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col gap-3">
           {/* Breadcrumb */}
           <Breadcrumb>
@@ -245,7 +245,7 @@ export default function CategoriesClient() {
                 <BookOpen className="h-3.5 w-3.5" />
                 <span>{pageData.header.portalBadge}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1b1c1a] dark:text-white tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0e3934] dark:text-white tracking-tight leading-tight">
                 {pageData.header.title}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed max-w-2xl">
@@ -254,7 +254,7 @@ export default function CategoriesClient() {
             </div>
 
             {/* Clean summary pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-card dark:bg-[#1f201c] border border-border/80 text-xs font-semibold text-foreground/90 shrink-0 self-start sm:self-end">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-card dark:bg-[#0f3b35] border border-border/80 text-xs font-semibold text-foreground/90 shrink-0 self-start sm:self-end">
               <Sparkles className="h-3.5 w-3.5 text-[#008376] dark:text-[#fdc72d]" />
               <span>{totalArticles > 0 ? `${totalArticles} ${pageData.header.statLabel}` : pageData.header.statLabel}</span>
             </div>
@@ -263,7 +263,7 @@ export default function CategoriesClient() {
       </section>
 
       {/* 3. SEARCH & INTUITIVE FILTER TABS (No clumsy arrows or duplicate badges) */}
-      <section className="w-full bg-card dark:bg-[#181916] py-4 px-4 sm:px-6 shadow-2xs border-b border-border/60 transition-colors sticky top-0 z-20 backdrop-blur-md bg-card/95 dark:bg-[#181916]/95">
+      <section className="w-full bg-card dark:bg-[#0d3732] py-4 px-4 sm:px-6 shadow-2xs border-b border-border/60 transition-colors sticky top-0 z-20 backdrop-blur-md bg-card/95 dark:bg-[#0d3732]/95">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -274,7 +274,7 @@ export default function CategoriesClient() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={pageData.search.placeholder}
-              className="w-full pl-9 pr-9 h-10 bg-[#faf9f5] dark:bg-[#20211d] text-foreground text-xs sm:text-sm rounded-xl border-border/80 focus:border-[#008376] focus:ring-[#008376]/20 truncate"
+              className="w-full pl-9 pr-9 h-10 bg-[#faf9f5] dark:bg-[#0f3c36] text-foreground text-xs sm:text-sm rounded-xl border-border/80 focus:border-[#008376] focus:ring-[#008376]/20 truncate"
             />
             {searchQuery ? (
               <button
@@ -300,7 +300,7 @@ export default function CategoriesClient() {
                   className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-bold transition-all shrink-0 cursor-pointer border ${
                     isActive
                       ? "bg-[#008376] text-white border-[#00685d] shadow-2xs"
-                      : "bg-[#efeeea] dark:bg-[#22231f] text-foreground/80 border-border/40 hover:bg-[#008376]/10 hover:text-[#008376] dark:hover:text-[#38b2a3]"
+                      : "bg-[#efeeea] dark:bg-[#103d37] text-foreground/80 border-border/40 hover:bg-[#008376]/10 hover:text-[#008376] dark:hover:text-[#38b2a3]"
                   }`}
                 >
                   {pill.label}
@@ -312,7 +312,7 @@ export default function CategoriesClient() {
       </section>
 
       {/* 4. MAIN DUAL-COLUMN CONTENT LAYOUT */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
           {/* LEFT / MAIN COLUMN: 8 CATEGORIES GRID DIRECTLY AT TOP (8 COLS) */}
           <div className="lg:col-span-8 flex flex-col gap-6">
@@ -339,7 +339,7 @@ export default function CategoriesClient() {
                 ))}
               </div>
             ) : filteredCategories.length === 0 ? (
-              <div className="p-8 sm:p-12 text-center rounded-2xl bg-card dark:bg-[#1a1b17] border border-border/80 my-4">
+              <div className="p-8 sm:p-12 text-center rounded-2xl bg-card dark:bg-[#0d3833] border border-border/80 my-4">
                 <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-60" />
                 <h3 className="text-base font-bold text-foreground">
                   {pageData.search.noResultsTitle}
@@ -365,7 +365,7 @@ export default function CategoriesClient() {
                 {filteredCategories.map((cat) => (
                   <Card
                     key={cat.id}
-                    className="overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#181914] hover:-translate-y-1"
+                    className="overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#0d3631] hover:-translate-y-1"
                   >
                     {/* Image Header with Aspect Ratio */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-muted">
@@ -378,16 +378,16 @@ export default function CategoriesClient() {
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#06302b]/85 via-[#06302b]/25 to-transparent" />
                       
                       {/* Top Badge */}
-                      <div className="absolute top-3 left-3 bg-[#008376] text-white px-2.5 py-0.5 rounded-md text-[11px] font-bold shadow-xs">
+                      <div className="absolute top-3 left-3 bg-[#008376] text-white px-2.5 py-0.5 rounded-md text-xs font-bold shadow-xs">
                         {cat.badge}
                       </div>
 
                       {/* Bottom Title Overlay */}
                       <div className="absolute bottom-3 left-3 right-3 text-white">
-                        <span className="text-[10px] text-emerald-200 dark:text-[#fdc72d] font-bold uppercase tracking-wider block mb-0.5">
+                        <span className="text-xs text-emerald-200 dark:text-[#fdc72d] font-bold uppercase tracking-wider block mb-0.5">
                           {cat.subCategory}
                         </span>
                         <h3 className="text-base sm:text-lg font-black leading-snug drop-shadow-xs group-hover:text-[#fdc72d] transition-colors">
@@ -422,7 +422,7 @@ export default function CategoriesClient() {
                       <div className="pt-3 flex items-center justify-between text-xs font-bold border-t border-border/60">
                         <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
                           <BookOpen className="h-3.5 w-3.5" />
-                          <span className="text-[11px]">{cat.badge}</span>
+                          <span className="text-xs">{cat.badge}</span>
                         </span>
 
                         <Link
@@ -443,7 +443,7 @@ export default function CategoriesClient() {
           {/* RIGHT / SIDEBAR COLUMN (4 COLS) - Streamlined to 3 High-Value Cards */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
             {/* SIDEBAR CARD 1: LIVE PANCHANG & AUSPICIOUS TIMINGS */}
-            <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80">
+            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80">
               <div className="flex items-center justify-between pb-3 border-b border-border/60">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-[#008376] dark:text-[#fdc72d]" />
@@ -455,7 +455,7 @@ export default function CategoriesClient() {
 
               <div className="flex flex-col gap-2.5 pt-3 text-xs">
                 {siteData.panchang.samvatTitle && (
-                  <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-muted/60 dark:bg-[#20211d] font-bold text-foreground">
+                  <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-muted/60 dark:bg-[#0f3c36] font-bold text-foreground">
                     <Sun className="h-3.5 w-3.5 text-[#008376] dark:text-[#38b2a3] shrink-0" />
                     <span>{siteData.panchang.samvatTitle}</span>
                   </div>
@@ -468,7 +468,7 @@ export default function CategoriesClient() {
                         ? "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 font-semibold border border-red-200/70 dark:border-red-900/60"
                         : row.isAuspicious
                           ? "bg-emerald-50 dark:bg-emerald-950/50 text-[#00685d] dark:text-[#38b2a3] font-bold border border-emerald-200/70 dark:border-emerald-800/60"
-                          : "bg-muted/60 dark:bg-[#20211d]"
+                          : "bg-muted/60 dark:bg-[#0f3c36]"
                     }`}
                   >
                     <span className={row.isAlert || row.isAuspicious ? "" : "text-muted-foreground font-medium"}>{row.label}</span>
@@ -486,7 +486,7 @@ export default function CategoriesClient() {
             </div>
 
             {/* SIDEBAR CARD 2: DR. VISHAL MODI - VEDIC ASTROLOGICAL GUIDANCE */}
-            <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
+            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
               <div className="relative w-20 h-20 rounded-full mx-auto p-1 bg-gradient-to-tr from-[#008376] to-[#fdc72d] shadow-sm mb-3 overflow-hidden">
                 <Image
                   src={founder?.image || pageData.sidebar.consultation.avatar}
@@ -499,7 +499,7 @@ export default function CategoriesClient() {
 
               <Badge
                 variant="outline"
-                className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border-[#fdc72d]/40 text-[10px] font-black px-2.5 py-0.5 mb-2"
+                className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border-[#fdc72d]/40 text-xs font-black px-2.5 py-0.5 mb-2"
               >
                 <Award className="h-3 w-3 mr-1" />
                 {founder?.title || pageData.sidebar.consultation.goldMedalBadge}
@@ -549,7 +549,7 @@ export default function CategoriesClient() {
                   <h4 className="text-sm font-black leading-tight text-white">
                     {pageData.sidebar.newsletter.title}
                   </h4>
-                  <span className="text-[11px] text-emerald-200 font-medium block mt-0.5">
+                  <span className="text-xs text-emerald-200 font-medium block mt-0.5">
                     {pageData.sidebar.newsletter.schedule}
                   </span>
                 </div>
@@ -572,11 +572,11 @@ export default function CategoriesClient() {
                     onChange={(e) => setWhatsappPhone(e.target.value)}
                     placeholder={pageData.sidebar.newsletter.placeholder}
                     required
-                    className="w-full bg-white text-[#1b1c1a] text-xs h-9 rounded-lg border-none placeholder:text-gray-500 shadow-2xs"
+                    className="w-full bg-white text-[#0e3934] text-xs h-9 rounded-lg border-none placeholder:text-gray-500 shadow-2xs"
                   />
                   <Button
                     type="submit"
-                    className="w-full py-2 bg-[#fdc72d] text-[#1b1c1a] hover:bg-[#eab318] font-black text-xs rounded-lg transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] font-black text-xs rounded-lg transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Send className="h-3.5 w-3.5" />
                     <span>{pageData.sidebar.newsletter.buttonText}</span>
@@ -589,7 +589,7 @@ export default function CategoriesClient() {
       </main>
 
       {/* 5. MINIMALIST SCRIPTURAL BLESSING BANNER */}
-      <section className="w-full bg-[#efeeea] dark:bg-[#161714] py-8 px-4 sm:px-6 border-t border-border/60 transition-colors">
+      <section className="w-full bg-[#efeeea] dark:bg-[#0c3631] py-8 px-4 sm:px-6 border-t border-border/60 transition-colors">
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-[#008376]/10 dark:bg-[#008376]/20 text-[#008376] dark:text-[#38b2a3] flex items-center justify-center mb-0.5">
             <Heart className="h-5 w-5" />
@@ -605,7 +605,7 @@ export default function CategoriesClient() {
 
       {/* 6. CONSULTATION BOOKING MODAL */}
       <Dialog open={consultModalOpen} onOpenChange={setConsultModalOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#181914] border border-border text-foreground">
+        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#0d3631] border border-border text-foreground">
           <DialogHeader className="p-0 pb-2 flex-row items-center gap-3 space-y-0 pr-8">
             <div className="w-10 h-10 rounded-xl bg-[#008376]/10 text-[#008376] dark:text-[#38b2a3] flex items-center justify-center font-bold shrink-0">
               <Calendar className="h-5 w-5" />

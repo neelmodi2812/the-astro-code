@@ -52,11 +52,11 @@ function OrdersClient({ data }) {
 
           {/* Filter Tabs & Shop Action */}
           <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
-            <div className="inline-flex p-1 bg-muted/60 dark:bg-[#20211d] rounded-xl border border-border/50 text-xs font-bold">
+            <div className="inline-flex p-1 bg-muted/60 dark:bg-[#0f3c36] rounded-xl border border-border/50 text-xs font-bold">
               <button
                 onClick={() => setFilter("all")}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  filter === "all" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  filter === "all" ? "bg-[#fdc72d] text-[#0e3934] shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {isEn ? `All (${counts.all})` : `તમામ (${counts.all})`}
@@ -64,7 +64,7 @@ function OrdersClient({ data }) {
               <button
                 onClick={() => setFilter("active")}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  filter === "active" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  filter === "active" ? "bg-[#fdc72d] text-[#0e3934] shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {isEn ? `In-Transit (${counts.active})` : `રવાના (${counts.active})`}
@@ -72,7 +72,7 @@ function OrdersClient({ data }) {
               <button
                 onClick={() => setFilter("delivered")}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  filter === "delivered" ? "bg-[#fdc72d] text-[#1b1c1a] shadow-xs" : "text-muted-foreground hover:text-foreground"
+                  filter === "delivered" ? "bg-[#fdc72d] text-[#0e3934] shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {isEn ? `Delivered (${counts.delivered})` : `ડિલિવર થયેલ (${counts.delivered})`}
@@ -82,7 +82,7 @@ function OrdersClient({ data }) {
             <Button
               onClick={() => router.push("/myshop")}
               size="sm"
-              className="h-8 px-3 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] shadow-2xs cursor-pointer"
+              className="h-8 px-3 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] shadow-2xs cursor-pointer"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
               <span>{isEn ? "Vedic Shop" : "વૈદિક શોપ"}</span>
@@ -92,7 +92,7 @@ function OrdersClient({ data }) {
 
         {/* ACTIVE IN-TRANSIT ORDER VISUALIZER */}
         {!data.activeOrder.isPlaceholder && (filter === "all" || filter === "active") && (
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-5">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-muted-foreground">
@@ -103,13 +103,13 @@ function OrdersClient({ data }) {
                   {data.activeOrder.date[lang] || data.activeOrder.date.gu}
                 </span>
               </div>
-              <Badge className="bg-[#fdc72d] text-[#1b1c1a] text-xs font-bold self-start sm:self-auto">
+              <Badge className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold self-start sm:self-auto">
                 {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
               </Badge>
             </div>
 
             {/* Product Info */}
-            <div className="bg-muted/40 dark:bg-[#20211d] rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4 border border-border/50">
+            <div className="bg-muted/40 dark:bg-[#0f3c36] rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4 border border-border/50">
               <Link href="/myshop/product/nepali-5-mukhi-mala" className="shrink-0 group/order-img">
                 <img
                   src={data.activeOrder.imageUrl}
@@ -118,7 +118,7 @@ function OrdersClient({ data }) {
                 />
               </Link>
               <div className="flex-1 text-center sm:text-left min-w-0">
-                <span className="text-[10px] font-bold text-[#8a6800] dark:text-[#fdc72d] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] uppercase tracking-wider block">
                   {isEn ? "Lab Certified Sacred Item" : "લેબ સર્ટિફાઇડ પૂજા સામગ્રી"}
                 </span>
                 <Link href="/myshop/product/nepali-5-mukhi-mala">
@@ -134,7 +134,7 @@ function OrdersClient({ data }) {
                 <div className="text-xl font-black text-foreground">
                   {isEn ? data.activeOrder.priceEn : data.activeOrder.price}
                 </div>
-                <span className="text-[11px] text-[#00685d] dark:text-[#6ed8c8] font-bold block">
+                <span className="text-xs text-[#00685d] dark:text-[#6ed8c8] font-bold block">
                   {isEn ? "Prepaid (Paid)" : "પ્રીપેડ ઓર્ડર (પેઇડ)"}
                 </span>
               </div>
@@ -143,7 +143,7 @@ function OrdersClient({ data }) {
             {/* 4-Step Visual Timeline */}
             <div className="pt-2 px-3">
               <div className="grid grid-cols-4 relative">
-                <div className="absolute top-4 left-6 right-6 h-1 bg-muted dark:bg-[#252622] -z-0">
+                <div className="absolute top-4 left-6 right-6 h-1 bg-muted dark:bg-[#113f39] -z-0">
                   <div className="h-full bg-[#fdc72d] w-2/3 transition-all" />
                 </div>
 
@@ -154,7 +154,7 @@ function OrdersClient({ data }) {
                         st.status === "completed"
                           ? "bg-[#00685d] text-white"
                           : st.status === "active"
-                          ? "bg-[#fdc72d] text-[#1b1c1a] ring-4 ring-[#fdc72d]/30"
+                          ? "bg-[#fdc72d] text-[#0e3934] ring-4 ring-[#fdc72d]/30"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
@@ -169,7 +169,7 @@ function OrdersClient({ data }) {
                     <span className="text-xs font-bold text-foreground">
                       {st.title[lang] || st.title.gu}
                     </span>
-                    <span className="text-[10px] text-muted-foreground font-medium">
+                    <span className="text-xs text-muted-foreground font-medium">
                       {st.courier ? st.courier : st.date}
                     </span>
                   </div>
@@ -203,7 +203,7 @@ function OrdersClient({ data }) {
                     toast.info(isEn ? "BlueDart Tracking: BD89421 in transit from Ahmedabad hub." : "બ્લુડાર્ટ ટ્રેકિંગ: BD89421 અમદાવાદ હબથી રવાના થયેલ છે.")
                   }}
                   size="sm"
-                  className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#1b1c1a] text-xs font-bold cursor-pointer gap-1.5 shadow-2xs"
+                  className="h-8 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] text-xs font-bold cursor-pointer gap-1.5 shadow-2xs"
                 >
                   <Truck className="h-3.5 w-3.5" />
                   <span>{isEn ? "Live Tracking (BD89421)" : "લાઈવ ટ્રેકિંગ"}</span>
@@ -214,7 +214,7 @@ function OrdersClient({ data }) {
         )}
 
         {/* ALL ORDERS LIST TABLE / CARDS */}
-        <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-foreground">
             {isEn ? "Order History & Invoices" : "ઓર્ડર ઇતિહાસ & જૂના ઓર્ડર્સ"}
           </h2>
@@ -223,7 +223,7 @@ function OrdersClient({ data }) {
             {filteredOrders.map((ord) => (
               <div
                 key={ord.id}
-                className="p-4 bg-muted/30 dark:bg-[#20211d] rounded-xl border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#fdc72d]/50 transition-all"
+                className="p-4 bg-muted/30 dark:bg-[#0f3c36] rounded-xl border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#fdc72d]/50 transition-all"
               >
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2.5">
@@ -231,9 +231,9 @@ function OrdersClient({ data }) {
                     <span className="text-muted-foreground text-xs">•</span>
                     <span className="text-xs text-muted-foreground">{ord.date[lang] || ord.date.gu}</span>
                     <Badge
-                      className={`text-[10px] font-bold ${
+                      className={`text-xs font-bold ${
                         ord.status === "in-transit"
-                          ? "bg-[#fdc72d] text-[#1b1c1a]"
+                          ? "bg-[#fdc72d] text-[#0e3934]"
                           : "bg-[#00685d] text-white"
                       }`}
                     >
@@ -259,7 +259,7 @@ function OrdersClient({ data }) {
                       }}
                       variant="outline"
                       size="sm"
-                      className="h-7 text-[11px] font-bold border-border hover:bg-muted/60 cursor-pointer gap-1"
+                      className="h-7 text-xs font-bold border-border hover:bg-muted/60 cursor-pointer gap-1"
                     >
                       <FileText className="h-3 w-3" />
                       <span>{isEn ? "Invoice" : "ઇન્વોઇસ"}</span>
@@ -268,7 +268,7 @@ function OrdersClient({ data }) {
                       onClick={() => router.push("/myshop")}
                       variant="ghost"
                       size="sm"
-                      className="h-7 text-[11px] font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/20 cursor-pointer"
+                      className="h-7 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/20 cursor-pointer"
                     >
                       {isEn ? "Re-Order" : "ફરી મંગાવો"}
                     </Button>
