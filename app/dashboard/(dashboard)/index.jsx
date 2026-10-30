@@ -13,7 +13,7 @@ import {
   Calendar,
   BookOpen,
   Truck,
-  ShieldCheck,
+  ShoppingBag,
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
@@ -74,13 +74,45 @@ function DashboardClient({ data }) {
                 <span>{data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}</span>
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-              <span>{data.userProfile.birthDetails.rashi[lang] || data.userProfile.birthDetails.rashi.gu}</span>
-              <span className="text-border">•</span>
-              <span>{data.userProfile.birthDetails.nakshatra[lang] || data.userProfile.birthDetails.nakshatra.gu}</span>
-              <span className="text-border">•</span>
-              <span>{data.userProfile.birthDetails.city[lang] || data.userProfile.birthDetails.city.gu}</span>
-            </p>
+            {(() => {
+              const birthRashi = data.userProfile.birthDetails?.rashi?.[lang] || data.userProfile.birthDetails?.rashi?.gu || ""
+              const birthNakshatra = data.userProfile.birthDetails?.nakshatra?.[lang] || data.userProfile.birthDetails?.nakshatra?.gu || ""
+              const birthCity = data.userProfile.birthDetails?.city?.[lang] || data.userProfile.birthDetails?.city?.gu || ""
+              const isInvalid = (val) => !val || val === "-" || val === "—" || val === "–" || val === "•"
+              const validDetails = [
+                !isInvalid(birthRashi) && birthRashi,
+                !isInvalid(birthNakshatra) && birthNakshatra,
+                !isInvalid(birthCity) && birthCity,
+              ].filter(Boolean)
+
+              if (validDetails.length > 0) {
+                return (
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                    {validDetails.map((detail, idx) => (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <span className="text-border">•</span>}
+                        <span>{detail}</span>
+                      </React.Fragment>
+                    ))}
+                  </p>
+                )
+              }
+
+              return (
+                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                  <span>
+                    {isEn ? "Personalized Vedic Profile" : "વ્યક્તિકૃત વૈદિક પ્રોફાઇલ"}
+                  </span>
+                  <span className="text-border">•</span>
+                  <Link
+                    href="/dashboard/settings"
+                    className="text-xs font-semibold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
+                  >
+                    {isEn ? "Add birth details in Settings →" : "સેટિંગ્સમાં જન્મ વિગતો ઉમેરો →"}
+                  </Link>
+                </p>
+              )
+            })()}
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -189,205 +221,320 @@ function DashboardClient({ data }) {
           </div>
 
           {/* WIDGET 2: Upcoming Consultation Quick Card */}
-          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <Video className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
-                  <span className="font-bold text-xs text-foreground">
-                    {isEn ? "Upcoming Live Session" : "આગામી વિડિયો પરામર્શ"}
-                  </span>
-                </div>
-                <Badge className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/30 text-xs font-bold">
-                  {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
-                </Badge>
-              </div>
-
-              <div className="mt-3 space-y-1.5">
-                <div className="font-bold text-sm text-foreground">
-                  {data.upcomingConsultation.astrologer[lang] || data.upcomingConsultation.astrologer.gu}
-                </div>
-                <p className="text-xs text-muted-foreground font-medium">
-                  {data.upcomingConsultation.title[lang] || data.upcomingConsultation.title.gu}
-                </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-                  <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span>
-                    {data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu} • {data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
-              <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Google Meet HD</span>
-              </span>
-              <Button
-                onClick={() => window.open(data.upcomingConsultation.meetUrl, "_blank")}
-                size="sm"
-                className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1.5 cursor-pointer"
-              >
-                <Video className="h-3 w-3" />
-                <span>{isEn ? "Join Call" : "કૉલમાં જોડાઓ"}</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* WIDGET 3: Active Order Status */}
-          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
-                  <span className="font-bold text-xs text-foreground">
-                    {isEn ? "Active Puja Order" : "સક્રિય પૂજા ઓર્ડર"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground font-mono">{data.activeOrder.orderNumber}</span>
-                  <Badge className="bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border border-[#00685d]/20 text-xs font-bold">
-                    {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
+          {data.upcomingConsultation.isPlaceholder ? (
+            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Video className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span className="font-bold text-xs text-foreground">
+                      {isEn ? "Astrology Consultation" : "જ્યોતિષ પરામર્શ"}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60">
+                    {isEn ? "No active session" : "કોઈ સત્ર નથી"}
                   </Badge>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-3 mt-3 min-w-0">
-                <img
-                  src={data.activeOrder.imageUrl}
-                  alt="Product"
-                  className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border/50"
-                />
-                <div className="min-w-0">
-                  <h4 className="font-bold text-xs text-foreground truncate">
-                    {data.activeOrder.productName[lang] || data.activeOrder.productName.gu}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                    {data.activeOrder.currentStage[lang] || data.activeOrder.currentStage.gu}
+                <div className="mt-3 space-y-1.5">
+                  <div className="font-bold text-sm text-foreground">
+                    {isEn ? "Speak with Expert Astrologers" : "અનુભવી જ્યોતિષાચાર્યો સાથે ચર્ચા કરો"}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {isEn
+                      ? "Get personal guidance for career, marriage, health, and Kundli remedies via live 1-on-1 video call."
+                      : "કારકિર્દી, વિવાહ, આરોગ્ય અને કુંડળી દોષ નિવારણ માટે વ્યક્તિગત માર્ગદર્શન મેળવો."}
                   </p>
                 </div>
               </div>
 
-              {/* Clean 4-step progress bar */}
-              <div className="grid grid-cols-4 gap-1.5 mt-3 pt-2">
-                {data.activeOrder.steps.map((st, sIdx) => {
-                  const isDone = st.status === "completed"
-                  const isActive = st.status === "active"
-                  return (
-                    <div key={sIdx} className="space-y-1 text-center">
-                      <div
-                        className={`h-1.5 rounded-full transition-all ${
-                          isDone
-                            ? "bg-[#00685d] dark:bg-[#6ed8c8]"
-                            : isActive
-                            ? "bg-[#fdc72d]"
-                            : "bg-muted"
-                        }`}
-                      />
-                      <span className={`text-xs block truncate font-medium ${
-                        isActive ? "text-foreground font-bold" : "text-muted-foreground"
-                      }`}>
-                        {st.title[lang] || st.title.gu}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
-              <span className="text-xs font-bold text-foreground">
-                {isEn ? data.activeOrder.priceEn : data.activeOrder.price}
-              </span>
-              <Link
-                href="/dashboard/orders"
-                className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
-              >
-                {isEn ? "Track Shipment →" : "ટ્રેક કરો →"}
-              </Link>
-            </div>
-          </div>
-
-          {/* WIDGET 4: Saved Kundlis Quick Summary */}
-          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
-                  <span className="font-bold text-xs text-foreground">
-                    {isEn ? "Saved Family Charts" : "પરિવારની સાચવેલી કુંડળીઓ"}
-                  </span>
-                </div>
-                <Link
-                  href="/dashboard/kundli"
-                  className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
+                <span className="text-[11px] text-muted-foreground">
+                  {isEn ? "Live Video / Audio" : "લાઈવ વિડિયો / ઓડિયો"}
+                </span>
+                <Button
+                  onClick={() => router.push("/dashboard/consultations")}
+                  size="sm"
+                  className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1.5 cursor-pointer"
                 >
-                  {isEn ? "Vault →" : "વોલ્ટ →"}
-                </Link>
+                  <Calendar className="h-3 w-3" />
+                  <span>{isEn ? "Book Session" : "સત્ર બુક કરો"}</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Video className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span className="font-bold text-xs text-foreground">
+                      {isEn ? "Upcoming Live Session" : "આગામી વિડિયો પરામર્શ"}
+                    </span>
+                  </div>
+                  <Badge className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/30 text-[10px] font-bold">
+                    {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
+                  </Badge>
+                </div>
+
+                <div className="mt-3 space-y-1.5">
+                  <div className="font-bold text-sm text-foreground">
+                    {data.upcomingConsultation.astrologer[lang] || data.upcomingConsultation.astrologer.gu}
+                  </div>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    {data.upcomingConsultation.title[lang] || data.upcomingConsultation.title.gu}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span>
+                      {data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu} • {data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2 mt-3">
-                {data.savedKundlis.list.map((k) => {
-                  const personName = k.name[lang] || k.name.gu
-                  const personInitial = personName ? personName.charAt(0) : "•"
-                  return (
-                    <Link
-                      key={k.id}
-                      href="/dashboard/kundli"
-                      className="p-2 px-2.5 bg-muted/40 dark:bg-[#0f3c36] rounded-lg border border-border/40 hover:border-[#fdc72d]/60 transition-all flex items-center justify-between gap-2 group"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-6 h-6 rounded-full bg-card dark:bg-[#0d3631] text-[#8a6800] dark:text-[#fdc72d] font-bold text-xs flex items-center justify-center shrink-0 border border-border/50">
-                          {personInitial}
-                        </div>
-                        <span className="font-semibold text-xs text-foreground truncate group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
-                          {personName}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          ({k.relation[lang] || k.relation.gu})
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
+                <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>Google Meet HD</span>
+                </span>
+                <Button
+                  onClick={() => window.open(data.upcomingConsultation.meetUrl, "_blank")}
+                  size="sm"
+                  className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1.5 cursor-pointer"
+                >
+                  <Video className="h-3 w-3" />
+                  <span>{isEn ? "Join Call" : "કૉલમાં જોડાઓ"}</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* WIDGET 3: Active Order Status */}
+          {data.activeOrder.isPlaceholder ? (
+            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span className="font-bold text-xs text-foreground">
+                      {isEn ? "Active Puja Order" : "સક્રિય પૂજા ઓર્ડર"}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60">
+                    {isEn ? "0 Active" : "૦ સક્રિય"}
+                  </Badge>
+                </div>
+
+                <div className="mt-3 space-y-1.5">
+                  <div className="font-bold text-sm text-foreground">
+                    {isEn ? "No active orders in transit" : "હાલ કોઈ સક્રિય ઓર્ડર નથી"}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {isEn
+                      ? "Discover authentic lab-certified Rudrakshas, consecrated gemstones, and sacred Yantras."
+                      : "૧૦૦% શુદ્ધ લેબ પ્રમાણિત રુદ્રાક્ષ, સિદ્ધ રત્નો અને પવિત્ર યંત્રો મેળવો."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
+                <span className="text-[11px] text-muted-foreground">
+                  {isEn ? "Free insured delivery" : "સુરક્ષિત મફત ડિલિવરી"}
+                </span>
+                <Button
+                  onClick={() => router.push("/myshop")}
+                  size="sm"
+                  className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1.5 cursor-pointer"
+                >
+                  <ShoppingBag className="h-3 w-3" />
+                  <span>{isEn ? "Explore Shop" : "શોપ જુઓ"}</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span className="font-bold text-xs text-foreground">
+                      {isEn ? "Active Puja Order" : "સક્રિય પૂજા ઓર્ડર"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-muted-foreground font-mono">{data.activeOrder.orderNumber}</span>
+                    <Badge className="bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border border-[#00685d]/20 text-[10px] font-bold">
+                      {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 mt-3 min-w-0">
+                  <img
+                    src={data.activeOrder.imageUrl}
+                    alt="Product"
+                    className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border/50"
+                  />
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-xs text-foreground truncate">
+                      {data.activeOrder.productName[lang] || data.activeOrder.productName.gu}
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                      {data.activeOrder.currentStage[lang] || data.activeOrder.currentStage.gu}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Clean 4-step progress bar */}
+                <div className="grid grid-cols-4 gap-1.5 mt-3 pt-2">
+                  {data.activeOrder.steps.map((st, sIdx) => {
+                    const isDone = st.status === "completed"
+                    const isActive = st.status === "active"
+                    return (
+                      <div key={sIdx} className="space-y-1 text-center">
+                        <div
+                          className={`h-1.5 rounded-full transition-all ${
+                            isDone
+                              ? "bg-[#00685d] dark:bg-[#6ed8c8]"
+                              : isActive
+                              ? "bg-[#fdc72d]"
+                              : "bg-muted"
+                          }`}
+                        />
+                        <span className={`text-[9px] block truncate font-medium ${
+                          isActive ? "text-foreground font-bold" : "text-muted-foreground"
+                        }`}>
+                          {st.title[lang] || st.title.gu}
                         </span>
                       </div>
-                      <span className="text-xs font-medium text-muted-foreground shrink-0">
-                        {k.rashiLagna[lang] || k.rashiLagna.gu}
-                      </span>
-                    </Link>
-                  )
-                })}
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/40">
+                <span className="text-xs font-bold text-foreground">
+                  {isEn ? data.activeOrder.priceEn : data.activeOrder.price}
+                </span>
+                <Link
+                  href="/dashboard/orders"
+                  className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
+                >
+                  {isEn ? "Track Shipment →" : "ટ્રેક કરો →"}
+                </Link>
               </div>
             </div>
+          )}
 
-            <div className="pt-3 border-t border-border/40 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                {data.savedKundlis.list.length} {isEn ? "Charts in Vault" : "કુંડળીઓ સંગ્રહિત"}
-              </span>
-              <Button
-                onClick={() => setAddKundliOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/10 px-2 cursor-pointer"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                <span>{isEn ? "Add Chart" : "કુંડળી ઉમેરો"}</span>
-              </Button>
+          {/* WIDGET 4: Saved Kundlis Quick Summary */}
+          {!data.savedKundlis.list || data.savedKundlis.list.length === 0 ? (
+            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span className="font-bold text-xs text-foreground">
+                      {isEn ? "Saved Family Charts" : "પરિવારની સાચવેલી કુંડળીઓ"}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60">
+                    {isEn ? "0 Saved" : "૦ સંગ્રહિત"}
+                  </Badge>
+                </div>
+
+                <div className="mt-3 space-y-1.5">
+                  <div className="font-bold text-sm text-foreground">
+                    {isEn ? "No saved Kundlis yet" : "હજુ કોઈ કુંડળી સંગ્રહિત નથી"}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {isEn
+                      ? "Save birth charts for yourself and family to quickly analyze planetary transits and dashas."
+                      : "તમારી અને પરિવારના સભ્યોની જન્મકુંડળી સાચવો અને ગ્રહ ગોચર તથા દશાફળ જુઓ."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-border/40 flex items-center justify-between">
+                <span className="text-[11px] text-muted-foreground">
+                  {isEn ? "Unlimited Vault Storage" : "સંપૂર્ણ સુરક્ષિત વોલ્ટ"}
+                </span>
+                <Button
+                  onClick={() => setAddKundliOpen(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/10 px-3 cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  <span>{isEn ? "Add Chart" : "કુંડળી ઉમેરો"}</span>
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                    <span className="font-bold text-xs text-foreground">
+                      {isEn ? "Saved Family Charts" : "પરિવારની સાચવેલી કુંડળીઓ"}
+                    </span>
+                  </div>
+                  <Link
+                    href="/dashboard/kundli"
+                    className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
+                  >
+                    {isEn ? "Vault →" : "વોલ્ટ →"}
+                  </Link>
+                </div>
 
-        </div>
+                <div className="space-y-2 mt-3">
+                  {data.savedKundlis.list.map((k) => {
+                    const personName = k.name[lang] || k.name.gu
+                    const personInitial = personName ? personName.charAt(0) : "•"
+                    return (
+                      <Link
+                        key={k.id}
+                        href="/dashboard/kundli"
+                        className="p-2 px-2.5 bg-muted/40 dark:bg-[#20211d] rounded-lg border border-border/40 hover:border-[#fdc72d]/60 transition-all flex items-center justify-between gap-2 group"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-6 h-6 rounded-full bg-card dark:bg-[#181914] text-[#8a6800] dark:text-[#fdc72d] font-bold text-[11px] flex items-center justify-center shrink-0 border border-border/50">
+                            {personInitial}
+                          </div>
+                          <span className="font-semibold text-xs text-foreground truncate group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors">
+                            {personName}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            ({k.relation[lang] || k.relation.gu})
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-medium text-muted-foreground shrink-0">
+                          {k.rashiLagna[lang] || k.rashiLagna.gu}
+                        </span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
 
-        {/* Bottom Trust Guarantee */}
-        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#6ed8c8]" />
-            <span className="text-muted-foreground">
-              {data.trustSecurity.title[lang] || data.trustSecurity.title.gu} — {data.trustSecurity.desc[lang] || data.trustSecurity.desc.gu}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 font-bold text-xs text-[#8a6800] dark:text-[#fdc72d]">
-            <span>ISO 9001:2015</span>
-            <span>•</span>
-            <span>Surya Siddhanta Ephemeris</span>
-          </div>
+              <div className="pt-3 border-t border-border/40 flex items-center justify-between">
+                <span className="text-[11px] text-muted-foreground">
+                  {data.savedKundlis.list.length} {isEn ? "Charts in Vault" : "કુંડળીઓ સંગ્રહિત"}
+                </span>
+                <Button
+                  onClick={() => setAddKundliOpen(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d]/10 px-2 cursor-pointer"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  <span>{isEn ? "Add Chart" : "કુંડળી ઉમેરો"}</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
         </div>
 
       </div>

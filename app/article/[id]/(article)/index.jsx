@@ -75,14 +75,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   // Link copied state
   const [copiedLink, setCopiedLink] = React.useState(false)
 
-  // Reaction counts & selected reaction
-  const [reactions, setReactions] = React.useState({
-    divine: article.reactions.divine,
-    insightful: article.reactions.insightful,
-    wonderful: article.reactions.wonderful
-  })
-  const [userReaction, setUserReaction] = React.useState(null)
-
   // Scroll reading progress indicator
   const [readingProgress, setReadingProgress] = React.useState(0)
 
@@ -110,16 +102,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
-  // Update article if ID changes
-  React.useEffect(() => {
-    setReactions({
-      divine: article.reactions.divine,
-      insightful: article.reactions.insightful,
-      wonderful: article.reactions.wonderful
-    })
-    setUserReaction(null)
-  }, [article])
 
   // Bookmark toggle
   const toggleBookmark = () => {
@@ -194,24 +176,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
       const text = encodeURIComponent(article.title[lang])
       window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank")
     }
-  }
-
-  // Reaction click
-  const handleReactionClick = (key) => {
-    if (userReaction === key) return // already reacted
-    setReactions((prev) => ({
-      ...prev,
-      [key]: prev[key] + 1
-    }))
-    setUserReaction(key)
-    showToast(lang === "gu" ? "પ્રતિભાવ આપવા બદલ આભાર! 🙏" : "Thank you for your reaction! 🙏")
-  }
-
-  // Gujarati numerals formatter helper
-  const formatNumber = (num) => {
-    if (lang !== "gu") return typeof num === "number" ? num.toLocaleString() : num
-    const guDigits = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
-    return String(num).replace(/[0-9]/g, (d) => guDigits[d])
   }
 
   // The article's own related articles when the API provides them, else home hero stories (minus this one)
@@ -536,7 +500,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             {/* HERO VISUAL WITH OVERLAY BUTTONS (As seen in Reference Image 2) */}
             <figure className="relative rounded-2xl overflow-hidden shadow-lg border border-border/40 group h-[280px] sm:h-[380px] md:h-[440px]">
               <Image
-                src={article.heroImage}
+                src={article.heroImage || "https://dummyjson.com/image/200x100"}
                 alt={article.heroImageAlt || article.title[lang]}
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
@@ -809,52 +773,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 </div>
               )}
 
-              {/* INTERACTIVE REACTIONS BAR */}
-              <div className="mt-4 p-4 sm:p-5 bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Award className="h-4 w-4 text-[#d9a100]" />
-                  {lang === "gu" ? "આ લેખ તમને કેવો લાગ્યો?" : "How did you find this article?"}
-                </span>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    onClick={() => handleReactionClick("divine")}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
-                      userReaction === "divine"
-                        ? "bg-[#fdc72d] text-[#0e3934] border-[#fdc72d] font-bold"
-                        : "bg-white dark:bg-[#0b332f] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
-                    }`}
-                  >
-                    <span>🙏 {lang === "gu" ? "દિવ્ય લાગ્યો" : "Divine"}</span>
-                    <span className="font-bold">({formatNumber(reactions.divine)})</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleReactionClick("insightful")}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
-                      userReaction === "insightful"
-                        ? "bg-[#fdc72d] text-[#0e3934] border-[#fdc72d] font-bold"
-                        : "bg-white dark:bg-[#0b332f] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
-                    }`}
-                  >
-                    <span>📖 {lang === "gu" ? "જ્ઞાનવર્ધક" : "Insightful"}</span>
-                    <span className="font-bold">({formatNumber(reactions.insightful)})</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleReactionClick("wonderful")}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ${
-                      userReaction === "wonderful"
-                        ? "bg-[#fdc72d] text-[#0e3934] border-[#fdc72d] font-bold"
-                        : "bg-white dark:bg-[#0b332f] border-border/60 hover:bg-[#eae8e1] dark:hover:bg-white/10 text-foreground"
-                    }`}
-                  >
-                    <span>❤️ {lang === "gu" ? "અદ્ભુત" : "Wonderful"}</span>
-                    <span className="font-bold">({formatNumber(reactions.wonderful)})</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Bottom Family Share Bar */}
               <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
                 <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:text-left">
@@ -890,7 +808,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
-                  src={article.author.image}
+                  src={article.author.image || "https://dummyjson.com/image/200x100"}
                   alt={article.author.name[lang]}
                   fill
                   sizes="96px"
@@ -958,7 +876,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   >
                     <div className="relative h-40 overflow-hidden bg-muted">
                       <Image
-                        src={story.image}
+                        src={story.image || "https://dummyjson.com/image/200x100"}
                         alt={story.title}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
@@ -1158,7 +1076,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   >
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
                       <Image
-                        src={prod.image}
+                        src={prod.image || "https://dummyjson.com/image/200x100"}
                         alt={prod.name}
                         fill
                         sizes="48px"
@@ -1204,7 +1122,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               <div className="flex flex-col gap-2">
                 {data.popular.map((item, idx) => {
-                  const targetSlug = idx === 0 ? "hero-1" : idx === 1 ? "jyotirling-1" : "hero-2"
+                  const targetSlug = item.id || item.slug || "hero-1-bahuchar-maa-pragatya"
                   return (
                     <div
                       key={idx}

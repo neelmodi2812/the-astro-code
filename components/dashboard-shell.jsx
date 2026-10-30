@@ -16,7 +16,7 @@ import {
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useDashboardContext } from "@/components/dashboard-gate"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import {
@@ -32,7 +32,7 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
   const router = useRouter()
   const pathname = usePathname()
   const { lang, setLang } = useLanguage()
-  const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
+  const siteData = useHomeData(lang)
   const data = useDashboardContext()
 
   const mobileTabs = [
@@ -59,7 +59,6 @@ export function DashboardShell({ children, pageTitle, breadcrumbKey = "dashboard
         config={siteData.config}
         topBar={siteData.topBar}
         activeCategory="login"
-        cartCount={1}
         onSelectCategory={(id) => {
           if (id === "home") router.push("/")
           else if (id === "about-us") router.push("/about-us")

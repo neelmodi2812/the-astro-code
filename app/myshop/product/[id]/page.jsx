@@ -81,7 +81,7 @@ export default async function ProductPage({ params }) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
   const canonicalUrl = `${siteUrl}/myshop/product/${id}`
-  const primaryImage = product.images?.[0] || product.image || `${siteUrl}/the_astro_code_golden_yantra_logo.png`
+  const primaryImage = product.images?.[0] || product.image || `${siteUrl}/logo.png`
 
   // Google Rich Results - Product Schema
   const productSchema = {

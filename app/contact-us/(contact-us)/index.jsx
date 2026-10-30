@@ -63,7 +63,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { CONTACT_DATA } from "@/lib/data/contact-data"
 import { useLanguage } from "@/components/language-provider"
 import { astrologyService, contactService } from "@/lib/api"
@@ -73,11 +73,7 @@ export default function ContactUsClient() {
   const { lang, setLang } = useLanguage()
 
   // Dynamic Astro Data for Header & Footer
-  const [siteData, setSiteData] = React.useState(() => getAstroData(lang))
-
-  React.useEffect(() => {
-    setSiteData(getAstroData(lang))
-  }, [lang])
+  const siteData = useHomeData(lang)
 
   // Localized Contact Data
   const pageData = CONTACT_DATA[lang] || CONTACT_DATA.gu
@@ -212,10 +208,10 @@ export default function ContactUsClient() {
           else if (id === "about-us" || id === "about") router.push("/about-us")
           else if (id === "dainik-panchang" || id === "panchang") router.push("/dainik-panchang")
           else if (id === "categories") router.push("/categories")
-          else if (id === "bahuchar-maa-rajwadu") router.push("/article/hero-1")
-          else if (id === "jyotirling") router.push("/article/jyotirling-1")
-          else if (id === "dharmik") router.push("/article/feat-2")
-          else if (id === "jyotishshastra") router.push("/article/feat-1")
+          
+          
+          
+          
         }}
         lang={lang}
         onToggleLang={(newLang) => setLang(newLang)}

@@ -55,7 +55,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
-import { getWhatsAppUrl } from "@/lib/data/astro-data"
+import { getWhatsAppUrl } from "@/lib/config/contact"
 import { astrologyService, contactService } from "@/lib/api"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useCategorySections } from "@/lib/api/hooks/use-nav-menu"
@@ -86,7 +86,7 @@ export default function CategoriesClient() {
             description: category.description || first.subtitle || "",
             subCategory: first.tag || "",
             badge: `${category.articles_count ?? articles.length} ${lang === "gu" ? "લેખો" : "Articles"}`,
-            image: articles.find((a) => a.image)?.image || null,
+            image: articles.find((a) => a.image)?.image || "https://dummyjson.com/image/200x100",
             imageAlt: first.image_alt || category.name,
             link: `/article/${first.slug || first.id}`,
             articles: articles.slice(0, 3),
@@ -203,10 +203,10 @@ export default function CategoriesClient() {
           if (id === "home") router.push("/")
           else if (id === "about-us" || id === "about") router.push("/about-us")
           else if (id === "dainik-panchang" || id === "panchang") router.push("/dainik-panchang")
-          else if (id === "bahuchar-maa-rajwadu") router.push("/article/hero-1")
-          else if (id === "jyotirling") router.push("/article/jyotirling-1")
-          else if (id === "dharmik") router.push("/article/feat-2")
-          else if (id === "jyotishshastra") router.push("/article/feat-1")
+          
+          
+          
+          
         }}
         lang={lang}
         onToggleLang={(newLang) => setLang(newLang)}
@@ -368,7 +368,7 @@ export default function CategoriesClient() {
                     className="overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#0d3631] hover:-translate-y-1"
                   >
                     {/* Image Header with Aspect Ratio */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    <div className="relative aspect-[2/1] overflow-hidden bg-muted">
                       {cat.image && (
                         <Image
                           src={cat.image}

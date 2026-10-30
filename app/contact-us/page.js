@@ -13,7 +13,7 @@ export default async function ContactUsPage() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "The Astro Code - Vedic Astrology Center",
-    "image": `${siteUrl}/the_astro_code_golden_yantra_logo.png`,
+    "image": `${siteUrl}/logo.png`,
     "telephone": "+91-9825000000",
     "email": "contact@theastrocode.com",
     "url": `${siteUrl}/contact-us`,

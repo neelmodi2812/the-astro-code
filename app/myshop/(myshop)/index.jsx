@@ -36,6 +36,8 @@ import {
   SlidersHorizontal,
   Home,
   HelpCircle,
+  Minus,
+  Plus,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -44,6 +46,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -185,6 +188,7 @@ export default function ShopClient() {
         })
       }
       localStorage.setItem("astro_cart_items", JSON.stringify(items))
+      try { window.dispatchEvent(new Event("astro_cart_updated")) } catch {}
     } catch {
       // ignore
     }
@@ -298,6 +302,9 @@ export default function ShopClient() {
     sortBy
   ])
 
+  const GU_DIGITS = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+  const toDigits = (val) => (lang === "gu" ? String(val).replace(/\d/g, (d) => GU_DIGITS[Number(d)]) : String(val))
+
   // Pagination calculation
   const totalItems = filteredProducts.length
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1
@@ -311,10 +318,14 @@ export default function ShopClient() {
     if (!activeModalProduct) return
     const text = encodeURIComponent(
       lang === "gu"
-        ? `જય શ્રી કૃષ્ણ ડૉ. વિશાલ મોદી,\nહું MyShop પરથી "${activeModalProduct.name}" (જથ્થો: ${modalQty}) મંગાવવા માંગુ છું.\nકિંમત: ₹${activeModalProduct.price * modalQty}\nનામ: ${orderName || "ગ્રાહક"}\nફોન: ${orderPhone || "N/A"}\nસરનામું: ${orderAddress || "N/A"}`
-        : `Namaste Dr. Vishal Modi,\nI would like to order "${activeModalProduct.name}" (Quantity: ${modalQty}) from MyShop.\nPrice: ₹${activeModalProduct.price * modalQty}\nName: ${orderName || "Customer"}\nPhone: ${orderPhone || "N/A"}\nAddress: ${orderAddress || "N/A"}`
+        ? `જય શ્રી કૃષ્ણ The Astro Code,\nહું MyShop પરથી "${activeModalProduct.name}" (જથ્થો: ${modalQty}) મંગાવવા માંગુ છું.\nકિંમત: ₹${activeModalProduct.price * modalQty}\nનામ: ${orderName || "ગ્રાહક"}\nફોન: ${orderPhone || "N/A"}\nસરનામું: ${orderAddress || "N/A"}`
+        : `Namaste The Astro Code,\nI would like to order "${activeModalProduct.name}" (Quantity: ${modalQty}) from MyShop.\nPrice: ₹${activeModalProduct.price * modalQty}\nName: ${orderName || "Customer"}\nPhone: ${orderPhone || "N/A"}\nAddress: ${orderAddress || "N/A"}`
     )
-    window.open(`https://wa.me/919825000000?text=${text}`, "_blank")
+    const baseWhatsapp = founder?.whatsappUrl || "https://wa.me/917940008108"
+    const finalUrl = baseWhatsapp.includes("?")
+      ? `${baseWhatsapp}&text=${text}`
+      : `${baseWhatsapp}?text=${text}`
+    window.open(finalUrl, "_blank")
     setOrderSuccess(true)
     setTimeout(() => {
       setOrderSuccess(false)
@@ -781,7 +792,7 @@ export default function ShopClient() {
                       className="md:col-span-5 relative min-h-[260px] md:min-h-[320px] bg-muted overflow-hidden block group"
                     >
                       <Image
-                        src={shopData.featuredProduct.image}
+                        src={shopData.featuredProduct.image || "https://dummyjson.com/image/200x100"}
                         alt={shopData.featuredProduct.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 42vw"
@@ -921,7 +932,29 @@ export default function ShopClient() {
               </div>
 
               {/* PRODUCTS CATALOG GRID */}
-              {paginatedProducts.length === 0 ? (
+              {shopData.loading && paginatedProducts.length === 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="rounded-xl overflow-hidden border border-border/80 shadow-xs bg-card dark:bg-[#0d3833] p-0 flex flex-col justify-between"
+                    >
+                      <Skeleton className="h-52 w-full rounded-none" />
+                      <div className="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-3.5 w-1/3 rounded" />
+                          <Skeleton className="h-5 w-4/5 rounded" />
+                          <Skeleton className="h-3 w-1/2 rounded" />
+                        </div>
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+                          <Skeleton className="h-6 w-20 rounded" />
+                          <Skeleton className="h-8 w-24 rounded-lg" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : paginatedProducts.length === 0 ? (
                 <div className="bg-card dark:bg-[#0d3833] rounded-xl p-10 text-center border border-border/80 space-y-3">
                   <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                     <Search className="h-6 w-6" />
@@ -960,7 +993,7 @@ export default function ShopClient() {
                         <div className="relative h-52 bg-muted overflow-hidden">
                           <Link href={`/myshop/product/${product.id}`} className="relative block w-full h-full">
                             <Image
-                              src={product.image}
+                              src={product.image || "https://dummyjson.com/image/200x100"}
                               alt={product.name}
                               fill
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -1099,10 +1132,10 @@ export default function ShopClient() {
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#0d3833] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
                   <p className="text-xs text-muted-foreground">
                     {lang === "gu"
-                      ? `દર્શાવવામાં આવેલ: ${(currentPage - 1) * itemsPerPage + 1} થી ${Math.min(
+                      ? `દર્શાવવામાં આવેલ: ${toDigits((currentPage - 1) * itemsPerPage + 1)} થી ${toDigits(Math.min(
                           currentPage * itemsPerPage,
                           totalItems
-                        )} (કુલ ${totalItems} માંથી)`
+                        ))} (કુલ ${toDigits(totalItems)} માંથી)`
                       : `Showing: ${(currentPage - 1) * itemsPerPage + 1} to ${Math.min(
                           currentPage * itemsPerPage,
                           totalItems
@@ -1123,8 +1156,9 @@ export default function ShopClient() {
                             ? "bg-[#00685d] text-white shadow-2xs"
                             : "bg-muted text-foreground hover:bg-muted/80"
                         }`}
+                        aria-label={`${lang === "gu" ? "પૃષ્ઠ" : "Page"} ${toDigits(page)}`}
                       >
-                        {page}
+                        {toDigits(page)}
                       </button>
                     ))}
                   </div>
@@ -1160,10 +1194,10 @@ export default function ShopClient() {
                 return (
                   <div
                     key={idx}
-                    className="bg-card dark:bg-[#0f3c36] p-5 rounded-xl border border-border/70 shadow-xs flex flex-col items-start space-y-2.5 relative hover:border-[#00685d]/40 transition-colors"
+                    className="bg-card dark:bg-[#0f3c36] p-5 rounded-xl border border-border/70 shadow-xs flex flex-col items-start gap-3 h-full relative hover:border-[#00685d]/40 transition-colors"
                   >
                     <span
-                      className={`w-9 h-9 rounded-full ${stepColors[idx % 4]} text-base font-extrabold flex items-center justify-center shadow-xs`}
+                      className={`size-10 rounded-full shrink-0 aspect-square ${stepColors[idx % 4]} text-base font-bold flex items-center justify-center leading-none tabular-nums select-none shadow-xs`}
                     >
                       {st.num}
                     </span>
@@ -1248,7 +1282,7 @@ export default function ShopClient() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="w-full sm:w-44 h-44 rounded-xl overflow-hidden bg-muted shrink-0 border border-border/60 relative">
                   <Image
-                    src={activeModalProduct.image}
+                    src={activeModalProduct.image || "https://dummyjson.com/image/200x100"}
                     alt={activeModalProduct.name}
                     fill
                     sizes="176px"
@@ -1286,22 +1320,31 @@ export default function ShopClient() {
                 <span className="text-xs font-bold text-foreground">
                   {lang === "gu" ? "જથ્થો (Quantity):" : "Quantity:"}
                 </span>
-                <div className="flex items-center gap-2">
-                  <button
+                <div className="inline-flex items-center rounded-xl border border-border bg-card dark:bg-[#1a1b18] p-0.5 shadow-2xs">
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setModalQty((q) => Math.max(1, q - 1))}
-                    className="w-7 h-7 rounded-md bg-card border text-foreground font-bold flex items-center justify-center hover:bg-muted"
+                    disabled={modalQty <= 1}
+                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-40 cursor-pointer"
+                    aria-label={lang === "gu" ? "જથ્થો ઘટાડો" : "Decrease quantity"}
                   >
-                    -
-                  </button>
-                  <span className="w-8 text-center text-xs font-bold">{modalQty}</span>
-                  <button
+                    <Minus className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="w-9 text-center text-xs font-black text-foreground select-none">
+                    {lang === "gu" ? String(modalQty).replace(/\d/g, (d) => ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"][Number(d)]) : modalQty}
+                  </span>
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setModalQty((q) => q + 1)}
-                    className="w-7 h-7 rounded-md bg-card border text-foreground font-bold flex items-center justify-center hover:bg-muted"
+                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all cursor-pointer"
+                    aria-label={lang === "gu" ? "જથ્થો વધારો" : "Increase quantity"}
                   >
-                    +
-                  </button>
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </div>
 

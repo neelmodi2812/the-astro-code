@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog"
-import { getWhatsAppUrl } from "@/lib/data/astro-data"
+import { getWhatsAppUrl } from "@/lib/config/contact"
 
 // Icon mapping helper
 const ICON_MAP = {

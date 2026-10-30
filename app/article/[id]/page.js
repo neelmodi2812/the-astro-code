@@ -41,7 +41,7 @@ export async function generateMetadata({ params }) {
     "The Astro Code - વૈદિક જ્યોતિષ, સાત્વિક અધ્યાત્મ અને પૌરાણિક સંશોધન લેખ."
   const title = rawTitle
   const canonicalUrl = `/article/${articleId}`
-  const imageUrl = article.heroImage || "/the_astro_code_golden_yantra_logo.png"
+  const imageUrl = article.heroImage || "/logo.png"
   const imageAlt = article.heroImageAlt || rawTitle
 
   return {
@@ -98,7 +98,7 @@ async function ArticleDetailContentWrapper({ params }) {
     },
     "headline": article.title?.gu || article.title?.en,
     "description": article.subtitle?.gu || article.subtitle?.en,
-    "image": [article.heroImage || `${siteUrl}/the_astro_code_golden_yantra_logo.png`],
+    "image": [article.heroImage || `${siteUrl}/logo.png`],
     "datePublished": article.publishedAt || "2025-04-12T06:00:00+05:30",
     "dateModified": article.publishedAt || "2025-04-12T06:00:00+05:30",
     "inLanguage": "gu",
@@ -114,7 +114,7 @@ async function ArticleDetailContentWrapper({ params }) {
       "url": siteUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": `${siteUrl}/the_astro_code_golden_yantra_logo.png`,
+        "url": `${siteUrl}/logo.png`,
       },
     },
   }

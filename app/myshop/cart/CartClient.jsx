@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   ShieldCheck,
   Lock,
-  Sparkles,
   Trash2,
   Plus,
   Minus,
@@ -19,11 +18,11 @@ import {
   ArrowRight,
   Tag,
   CheckCircle2,
+  Check,
   X,
   MessageCircle,
   Phone,
   HelpCircle,
-  RotateCcw,
   Award,
   Truck,
   CreditCard,
@@ -111,6 +110,23 @@ export default function CartClient() {
     paymentMethod: "cod"
   })
 
+  // Dynamic Stepper Tracking:
+  // Step 1: Cart Review (when checkout modal is not open)
+  // Step 2: Shipping & Devotee Details (when checkout modal is on step 1)
+  // Step 3: Payment & Confirmation (when checkout modal is on step >= 2)
+  const currentStep = isCheckoutOpen ? (checkoutStep === 1 ? 2 : 3) : 1
+
+  const handleOpenStep = React.useCallback((stepNum) => {
+    if (stepNum === 1) {
+      setIsCheckoutOpen(false)
+      setActiveStep(1)
+    } else if (cartItems.length > 0) {
+      setIsCheckoutOpen(true)
+      setCheckoutStep(stepNum === 2 ? 1 : 2)
+      setActiveStep(stepNum)
+    }
+  }, [cartItems.length])
+
   // Load from localStorage on mount
   React.useEffect(() => {
     try {
@@ -139,6 +155,7 @@ export default function CartClient() {
     setCartItems(newItems)
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems))
+      try { window.dispatchEvent(new Event("astro_cart_updated")) } catch {}
     } catch {
       // ignore storage error
     }
@@ -503,114 +520,81 @@ export default function CartClient() {
 
             {/* 3-Step Indicator Bar */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-              {/* Step 1: Active (Cart Review) */}
-              <div
-                onClick={() => setActiveStep(1)}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
-                  activeStep === 1
-                    ? "bg-[#00685d] text-white shadow-md dark:bg-[#005048]"
-                    : "bg-muted/50 hover:bg-muted text-muted-foreground"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
-                    activeStep === 1
-                      ? "bg-[#fdc72d] text-[#0e3934]"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {toDigits(1)}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-bold leading-tight truncate">
-                    {cartData.stepper[0].title}
-                  </span>
-                  <span
-                    className={`text-xs truncate ${
-                      activeStep === 1
-                        ? "text-[#8bf5e4]"
-                        : "text-muted-foreground/80"
+              {cartData.stepper.map((stepItem, idx) => {
+                const stepNum = idx + 1
+                const isActive = currentStep === stepNum
+                const isCompleted = currentStep > stepNum
+                const IconComponent =
+                  stepItem.icon === "ShoppingCart"
+                    ? ShoppingCart
+                    : stepItem.icon === "ShieldCheck"
+                    ? ShieldCheck
+                    : Lock
+
+                return (
+                  <button
+                    key={stepItem.step || stepNum}
+                    type="button"
+                    onClick={() => handleOpenStep(stepNum)}
+                    className={`flex items-center gap-3 p-3.5 rounded-xl transition-all text-left w-full border ${
+                      isActive
+                        ? "bg-[#00685d] text-white shadow-md border-[#00685d] dark:bg-[#005048] dark:border-[#005048]"
+                        : isCompleted
+                        ? "bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 border-emerald-200/80 dark:border-emerald-800/40 hover:bg-emerald-100/50 cursor-pointer"
+                        : "bg-muted/40 hover:bg-muted text-muted-foreground border-border/60 cursor-pointer"
                     }`}
                   >
-                    {currentLang === "gu"
-                      ? `કાર્ટ સમીક્ષા • ${toDigits(totalItemCount)} વસ્તુઓ`
-                      : `Cart Review • ${totalItemCount} Items`}
-                  </span>
-                </div>
-                <ShoppingCart
-                  className={`ml-auto h-5 w-5 shrink-0 ${
-                    activeStep === 1 ? "text-[#fdc72d]" : "text-muted-foreground"
-                  }`}
-                />
-              </div>
-
-              {/* Step 2: Shipping & Sankalp */}
-              <div
-                onClick={() => {
-                  if (cartItems.length > 0) {
-                    setIsCheckoutOpen(true)
-                    setActiveStep(2)
-                  }
-                }}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
-                  activeStep === 2
-                    ? "bg-[#00685d] text-white shadow-md dark:bg-[#005048]"
-                    : "bg-muted/50 hover:bg-muted text-muted-foreground"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
-                    activeStep === 2
-                      ? "bg-[#fdc72d] text-[#0e3934]"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {toDigits(2)}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-semibold leading-tight text-foreground truncate">
-                    {cartData.stepper[1].title}
-                  </span>
-                  <span className="text-xs text-muted-foreground truncate">
-                    {cartData.stepper[1].subtitle}
-                  </span>
-                </div>
-                <ShieldCheck className="ml-auto h-5 w-5 text-muted-foreground shrink-0" />
-              </div>
-
-              {/* Step 3: Secure Payment */}
-              <div
-                onClick={() => {
-                  if (cartItems.length > 0) {
-                    setIsCheckoutOpen(true)
-                    setActiveStep(3)
-                  }
-                }}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
-                  activeStep === 3
-                    ? "bg-[#00685d] text-white shadow-md dark:bg-[#005048]"
-                    : "bg-muted/50 hover:bg-muted text-muted-foreground"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
-                    activeStep === 3
-                      ? "bg-[#fdc72d] text-[#0e3934]"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {toDigits(3)}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-semibold leading-tight text-foreground truncate">
-                    {cartData.stepper[2].title}
-                  </span>
-                  <span className="text-xs text-muted-foreground truncate">
-                    {cartData.stepper[2].subtitle}
-                  </span>
-                </div>
-                <Lock className="ml-auto h-5 w-5 text-muted-foreground shrink-0" />
-              </div>
+                    <div
+                      className={`size-8 rounded-full shrink-0 aspect-square text-sm font-bold flex items-center justify-center leading-none tabular-nums select-none transition-colors ${
+                        isActive
+                          ? "bg-[#fdc72d] text-[#0e3934] shadow-xs"
+                          : isCompleted
+                          ? "bg-[#00685d] text-white shadow-xs"
+                          : "bg-muted text-foreground border border-border/60"
+                      }`}
+                    >
+                      {isCompleted ? <Check className="h-4 w-4" /> : toDigits(stepNum)}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span
+                        className={`text-sm leading-tight truncate ${
+                          isActive
+                            ? "font-bold text-white"
+                            : isCompleted
+                            ? "font-semibold text-emerald-900 dark:text-emerald-100"
+                            : "font-semibold text-foreground"
+                        }`}
+                      >
+                        {stepItem.title}
+                      </span>
+                      <span
+                        className={`text-xs truncate ${
+                          isActive
+                            ? "text-[#8bf5e4]"
+                            : isCompleted
+                            ? "text-emerald-700 dark:text-emerald-300"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {stepNum === 1
+                          ? (currentLang === "gu"
+                              ? `કાર્ટ સમીક્ષા • ${toDigits(totalItemCount)} વસ્તુઓ`
+                              : `Cart Review • ${totalItemCount} Items`)
+                          : stepItem.subtitle}
+                      </span>
+                    </div>
+                    <IconComponent
+                      className={`ml-auto h-5 w-5 shrink-0 ${
+                        isActive
+                          ? "text-[#fdc72d]"
+                          : isCompleted
+                          ? "text-[#00685d] dark:text-[#38b2a3]"
+                          : "text-muted-foreground/60"
+                      }`}
+                    />
+                  </button>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -652,7 +636,7 @@ export default function CartClient() {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <span className="p-2.5 rounded-xl bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/10 dark:text-[#fdc72d]">
-                        <Sparkles className="h-5 w-5" />
+                        <ShoppingBag className="h-5 w-5" />
                       </span>
                       <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                         {cartData.cartHeader.title}
@@ -701,7 +685,8 @@ export default function CartClient() {
                           className="w-full sm:w-36 h-36 rounded-xl bg-muted overflow-hidden shrink-0 relative border border-border/40 block group/thumb cursor-pointer"
                         >
                           <img
-                            src={item.image}
+                            src={item.image || "https://dummyjson.com/image/200x100"}
+                            onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                             alt={itemName}
                             className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500"
                           />
@@ -851,29 +836,30 @@ export default function CartClient() {
                       {savedItems.map((sItem) => (
                         <div
                           key={sItem.id}
-                          className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 p-3 rounded-xl bg-muted/40 border border-border/50"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/50 hover:border-border transition-colors"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
                             <img
-                              src={sItem.image}
+                              src={sItem.image || "https://dummyjson.com/image/200x100"}
+                              onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                               alt={getText(sItem.name)}
-                              className="w-12 h-12 rounded-lg object-cover"
+                              className="w-14 h-14 rounded-xl object-cover shrink-0 border border-border/40"
                             />
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-sm font-bold text-foreground truncate">
+                            <div className="flex flex-col min-w-0 flex-1 pr-2">
+                              <span className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">
                                 {getText(sItem.name)}
                               </span>
-                              <span className="text-xs font-semibold text-[#00685d] dark:text-[#fdc72d]">
+                              <span className="text-xs font-bold text-[#00685d] dark:text-[#fdc72d] mt-1">
                                 {formatPrice(sItem.price)}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0 ml-auto">
+                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                             <Button
                               size="sm"
                               onClick={() => handleMoveToCart(sItem)}
-                              className="bg-[#00685d] hover:bg-[#005048] text-white text-xs rounded-lg"
+                              className="bg-[#00685d] hover:bg-[#005048] text-white text-xs font-semibold rounded-lg h-8 px-3"
                             >
                               {cartData.savedForLaterSection.moveToCart}
                             </Button>
@@ -881,7 +867,7 @@ export default function CartClient() {
                               size="sm"
                               variant="ghost"
                               onClick={() => handleRemoveSaved(sItem.id)}
-                              className="text-xs text-muted-foreground hover:text-red-500"
+                              className="text-xs text-muted-foreground hover:text-red-500 h-8 px-2.5"
                             >
                               {cartData.savedForLaterSection.remove}
                             </Button>
@@ -990,8 +976,8 @@ export default function CartClient() {
                       </span>
                     </div>
                     {totalSavings > 0 && (
-                      <p className="text-xs text-[#00685d] dark:text-[#fdc72d] font-semibold flex items-center gap-1">
-                        <Sparkles className="h-3.5 w-3.5" />
+                      <p className="text-xs text-[#00685d] dark:text-[#38b2a3] font-semibold flex items-center gap-1.5">
+                        <BadgePercent className="h-4 w-4 shrink-0 text-[#00685d] dark:text-[#38b2a3]" />
                         <span>{cartData.orderSummary.savingsCallout(totalSavings)}</span>
                       </p>
                     )}
@@ -1060,67 +1046,7 @@ export default function CartClient() {
           )}
         </section>
 
-        {/* Bottom Guarantee & 4 Vedic Trust Pillars */}
-        <section className="w-full bg-card border-t border-border mt-8 py-12 md:py-16 px-4 sm:px-6 lg:px-8">
-          <div className="w-full max-w-7xl mx-auto flex flex-col gap-8">
-            <div className="text-center flex flex-col items-center gap-2">
-              <span className="px-3.5 py-1 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold text-xs tracking-wide">
-                {cartData.trustPillars.badge}
-              </span>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                {cartData.trustPillars.title}
-              </h2>
-            </div>
 
-            {/* 4 Pillars Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              {cartData.trustPillars.pillars.map((pillar, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col items-center text-center p-5 sm:p-6 rounded-2xl bg-muted/40 border border-border/60 hover:border-[#00685d]/40 transition-colors gap-3"
-                >
-                  <div className="w-12 h-12 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                    {pillar.icon === "ShieldCheck" ? (
-                      <ShieldCheck className="h-6 w-6" />
-                    ) : pillar.icon === "Sparkles" ? (
-                      <Sparkles className="h-6 w-6" />
-                    ) : pillar.icon === "RotateCcw" ? (
-                      <RotateCcw className="h-6 w-6" />
-                    ) : (
-                      <Lock className="h-6 w-6" />
-                    )}
-                  </div>
-                  <h3 className="text-sm sm:text-base font-bold text-foreground">
-                    {pillar.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {pillar.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Quick Assistance WhatsApp Strip */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-muted/60 border border-border flex flex-wrap items-center justify-between gap-4 mt-2">
-              <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
-                <span className="text-xs sm:text-sm text-foreground">
-                  {cartData.trustPillars.supportStrip.text}{" "}
-                  <strong>{cartData.trustPillars.supportStrip.timing}</strong>
-                </span>
-              </div>
-              <a
-                href={supportWhatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 rounded-xl bg-[#00685d] text-white hover:bg-[#005048] font-bold text-xs flex items-center gap-2 transition-colors shadow-xs"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>{founder?.phone ? `${currentLang === "gu" ? "WhatsApp પર સહાય મેળવો" : "Get help on WhatsApp"}: ${founder.phone}` : cartData.trustPillars.supportStrip.buttonText}</span>
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Global Footer */}
@@ -1161,7 +1087,12 @@ export default function CartClient() {
       </Dialog>
 
       {/* Full Checkout & Sankalp Modal */}
-      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+      <Dialog open={isCheckoutOpen} onOpenChange={(open) => {
+        setIsCheckoutOpen(open)
+        if (!open) {
+          setActiveStep(1)
+        }
+      }}>
         <DialogContent className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-2xl p-6">
           {checkoutStep === 1 ? (
             /* Checkout Details Form */

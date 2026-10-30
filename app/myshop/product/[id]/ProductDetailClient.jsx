@@ -39,6 +39,7 @@ import {
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { Card } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -58,7 +59,7 @@ import {
 } from "@/components/ui/accordion"
 import { toast } from "@/components/ui/sonner"
 import { useLanguage } from "@/components/language-provider"
-import { getAstroData } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useProduct } from "@/lib/api/hooks/use-product"
 
 const CART_STORAGE_KEY = "astro_cart_items"
@@ -68,8 +69,8 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const { lang, setLang } = useLanguage()
   const currentLang = lang || "gu"
 
-  const astroData = React.useMemo(() => getAstroData(currentLang), [currentLang])
-  const { product, related: relatedProducts } = useProduct(productId, currentLang, initialBundle)
+  const astroData = useHomeData(currentLang)
+  const { product, related: relatedProducts, loading } = useProduct(productId, currentLang, initialBundle)
 
   const imagesList = React.useMemo(() => {
     return product?.images && product.images.length > 0 ? product.images : (product ? [product.image] : [])
@@ -121,7 +122,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const [qty, setQty] = React.useState(1)
   const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(currentLang)
   const isWishlisted = isInWishlist(product.id)
-  const [cartCount, setCartCount] = React.useState(3)
+  const [cartCount, setCartCount] = React.useState(0)
   const [copiedMantra, setCopiedMantra] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("details")
   const [isCertModalOpen, setIsCertModalOpen] = React.useState(false)
@@ -433,6 +434,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
       setCartCount(items.reduce((acc, i) => acc + (i.qty || 1), 0))
+      try { window.dispatchEvent(new Event("astro_cart_updated")) } catch {}
 
       if (directCheckout) {
         router.push("/myshop/cart")
@@ -699,9 +701,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                             key={idx}
                             type="button"
                             onClick={() => setSelectedImageIndex(idx)}
-                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card cursor-pointer group ${
+                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all bg-card cursor-pointer group ${
                               isSelected
-                                ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-background shadow-md scale-[1.03]"
+                                ? "border-[#008376] dark:border-[#fdc72d] shadow-sm"
                                 : "border-border/70 hover:border-foreground/40 opacity-70 hover:opacity-100 hover:scale-[1.01]"
                             }`}
                             aria-label={`View photo ${idx + 1} of ${imagesList.length}`}
@@ -709,11 +711,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                             <img
                               src={img}
                               alt={`${product.name} view ${idx + 1}`}
-                              className="w-full h-full object-cover rounded-lg"
+                              className="w-full h-full object-cover"
                             />
-                            {isSelected && (
-                              <span className="absolute bottom-1 inset-x-2 h-1 rounded-full bg-[#00685d] dark:bg-[#fdc72d]" />
-                            )}
+                            
                           </button>
                         )
                       })}
@@ -729,9 +729,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                               key={idx}
                               type="button"
                               onClick={() => setSelectedImageIndex(idx)}
-                              className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card cursor-pointer group ${
+                              className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all bg-card cursor-pointer group ${
                                 isSelected
-                                  ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-background shadow-md scale-[1.03]"
+                                  ? "border-[#008376] dark:border-[#fdc72d] shadow-sm"
                                   : "border-border/70 hover:border-foreground/40 opacity-70 hover:opacity-100 hover:scale-[1.01]"
                               }`}
                               aria-label={`View photo ${idx + 1} of ${imagesList.length}`}
@@ -739,11 +739,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                               <img
                                 src={img}
                                 alt={`${product.name} view ${idx + 1}`}
-                                className="w-full h-full object-cover rounded-lg"
+                                className="w-full h-full object-cover"
                               />
-                              {isSelected && (
-                                <span className="absolute bottom-1 inset-x-2 h-1 rounded-full bg-[#00685d] dark:bg-[#fdc72d]" />
-                              )}
+
                             </button>
                           )
                         })}
@@ -767,9 +765,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                                 handleResetZoom()
                                 setIsLightboxOpen(true)
                               }}
-                              className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all p-0.5 bg-card cursor-pointer group ${
+                              className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all bg-card cursor-pointer group ${
                                 isSlotActive
-                                  ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-background shadow-md scale-[1.03]"
+                                  ? "border-[#008376] dark:border-[#fdc72d] shadow-sm"
                                   : "border-border/70 hover:border-foreground/40 opacity-90 hover:opacity-100 hover:scale-[1.01]"
                               }`}
                               aria-label={
@@ -795,9 +793,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                               </div>
 
                               {/* Active indicator bar */}
-                              {isSlotActive && (
-                                <span className="absolute bottom-1 inset-x-2 h-1 rounded-full bg-[#00685d] dark:bg-[#fdc72d] z-10" />
-                              )}
+                              
                             </button>
                           )
                         })()}
@@ -833,33 +829,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                 </div>
               )}
 
-              {/* Refined Trust Highlights Strip Under Gallery */}
-              <div className="p-3 rounded-2xl bg-muted/40 border border-border/60 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-xs font-bold text-foreground truncate">
-                    {currentLang === "gu" ? "૧૦૦% લેબ પ્રમાણિત" : "100% Lab Tested"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-xs font-bold text-foreground truncate">
-                    {currentLang === "gu" ? "વૈદિક પ્રાણ-પ્રતિષ્ઠા" : "Vedic Consecrated"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-xs font-bold text-foreground truncate">
-                    {currentLang === "gu" ? "મફત શિપિંગ (ભારત)" : "Free Delivery"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RotateCcw className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                  <span className="text-xs font-bold text-foreground truncate">
-                    {currentLang === "gu" ? "૭ દિવસ સરળ રિટર્ન" : "7-Day Return"}
-                  </span>
-                </div>
-              </div>
+
             </div>
 
             {/* RIGHT COLUMN: Commerce Info, Variants & Actions (7 cols) */}
@@ -2064,9 +2034,9 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                     setSelectedImageIndex(idx)
                     handleResetZoom()
                   }}
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all p-0.5 shrink-0 cursor-pointer ${
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
                     isSelected
-                      ? "border-[#00685d] dark:border-[#fdc72d] ring-2 ring-[#00685d] dark:ring-[#fdc72d] ring-offset-2 ring-offset-black scale-105 shadow-md"
+                      ? "border-[#008376] dark:border-[#fdc72d] shadow-sm"
                       : "border-white/20 opacity-50 hover:opacity-100"
                   }`}
                   aria-label={`View image ${idx + 1}`}
@@ -2074,7 +2044,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   <img
                     src={img}
                     alt={`Thumbnail ${idx + 1}`}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-cover"
                   />
                 </button>
               )

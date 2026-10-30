@@ -34,7 +34,7 @@ import {
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { PRIVACY_POLICY_DATA } from "@/lib/data/privacy-policy-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -82,7 +82,7 @@ function renderPillIcon(iconName, className = "w-4 h-4") {
 export default function PrivacyPolicyClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
+  const siteData = useHomeData(lang)
   const data = PRIVACY_POLICY_DATA
 
   // Navigation & Active Section Tracking
@@ -223,7 +223,6 @@ export default function PrivacyPolicyClient() {
           config={siteData.config}
           topBar={siteData.topBar}
           activeCategory="privacy-policy"
-          cartCount={2}
           onSelectCategory={(id) => {
             if (id === "home") router.push("/")
             else if (id === "about-us") router.push("/about-us")

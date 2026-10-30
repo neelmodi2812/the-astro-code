@@ -19,7 +19,8 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { useLanguage } from "@/components/language-provider"
 import { toast } from "sonner"
 import { contactService } from "@/lib/api"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN, SITE_CONTACT } from "@/lib/data/astro-data"
+import { SITE_CONTACT } from "@/lib/config/contact"
+import { getSiteShell } from "@/lib/config/site"
 
 /** The copyright copy is bundled with a fixed year; show the current one in the page's digits. */
 function withCurrentYear(text, isEn) {
@@ -35,7 +36,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
   const isEn = activeLang === "en"
 
   // Base localized dataset
-  const localizedData = isEn ? ASTRO_DATA_EN : ASTRO_DATA_GU
+  const localizedData = getSiteShell(activeLang)
   const config = propConfig || localizedData.config
   const footer = propFooter || localizedData.footer
 

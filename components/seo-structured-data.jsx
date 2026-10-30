@@ -16,12 +16,12 @@ export function GlobalJsonLd() {
     "url": siteUrl,
     "logo": {
       "@type": "ImageObject",
-      "url": `${siteUrl}/the_astro_code_golden_yantra_logo.png`,
+      "url": `${siteUrl}/logo.png`,
       "width": 800,
       "height": 800,
       "caption": "The Astro Code Logo"
     },
-    "image": `${siteUrl}/the_astro_code_golden_yantra_logo.png`,
+    "image": `${siteUrl}/logo.png`,
     "description": "Vedic Astrology, Daily Panchang, Choghadiya, Consecrated Spiritual Artifacts, and Personalized Kundali Analysis Portal.",
     "founder": {
       "@type": "Person",

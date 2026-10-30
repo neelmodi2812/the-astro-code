@@ -23,7 +23,7 @@ import {
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
-import { ASTRO_DATA_GU, ASTRO_DATA_EN } from "@/lib/data/astro-data"
+import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { FORGOT_PASSWORD_DATA } from "@/lib/data/forgot-password-data"
 import { authService } from "@/lib/api"
 import { Button } from "@/components/ui/button"
@@ -42,7 +42,7 @@ import {
 export default function ForgotPasswordClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
-  const siteData = lang === "gu" ? ASTRO_DATA_GU : ASTRO_DATA_EN
+  const siteData = useHomeData(lang)
   const data = FORGOT_PASSWORD_DATA
   const isEn = lang === "en"
 
@@ -88,7 +88,6 @@ export default function ForgotPasswordClient() {
         config={siteData.config}
         topBar={siteData.topBar}
         activeCategory="login"
-        cartCount={2}
         onSelectCategory={(id) => {
           if (id === "home") router.push("/")
           else if (id === "about-us") router.push("/about-us")
@@ -349,48 +348,7 @@ export default function ForgotPasswordClient() {
 
           </div>
 
-          {/* 3. Bottom Trust & Canonical Guarantee Bar */}
-          <div className="w-full max-w-6xl mx-auto space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {data.trustCards.map((card, idx) => (
-                <div
-                  key={idx}
-                  className="bg-card dark:bg-[#0d3631] p-5 rounded-xl border border-border/70 shadow-2xs flex items-start gap-3.5"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                    {card.icon === "ShieldCheck" && <ShieldCheck className="h-5 w-5" />}
-                    {card.icon === "MessageCircle" && <MessageCircle className="h-5 w-5" />}
-                    {card.icon === "UserCheck" && <UserCheck className="h-5 w-5" />}
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-xs sm:text-sm font-bold text-foreground">
-                      {card.title[lang] || card.title.gu}
-                    </h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {card.desc[lang] || card.desc.gu}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            {/* Sacred Shloka Reassurance Banner */}
-            <div className="w-full bg-card dark:bg-[#0d3631] border border-border/70 rounded-xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left shadow-2xs">
-              <div className="flex items-center gap-2 text-[#8a6800] dark:text-[#fdc72d] text-xs font-bold">
-                <Sparkles className="h-4 w-4 shrink-0" />
-                <span>{data.bottomBanner.mantra}</span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                <span>{data.bottomBanner.emailLabel[lang] || data.bottomBanner.emailLabel.gu}{" "}</span>
-                <a
-                  href={`mailto:${data.bottomBanner.supportEmail}`}
-                  className="text-foreground font-bold hover:underline"
-                >
-                  {data.bottomBanner.supportEmail}
-                </a>
-              </div>
-            </div>
-          </div>
 
         </div>
       </main>

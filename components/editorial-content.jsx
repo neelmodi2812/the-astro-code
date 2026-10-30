@@ -28,7 +28,7 @@ export function EditorialContent({
         {featuredArticles.map((article) => (
           <Link
             key={article.id}
-            href={`/article/${article.id || "hero-1"}`}
+            href={`/article/${article.id || article.slug || "hero-1-bahuchar-maa-pragatya"}`}
             className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
           >
             <Card
@@ -90,7 +90,7 @@ export function EditorialContent({
             </h2>
           </div>
           <Link
-            href="#jyotirling"
+            href="/categories"
             className="text-xs sm:text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold hover:underline inline-flex items-center gap-0.5"
           >
             {jyotirlingasSection.viewAll || "બધા જુઓ"} <ChevronRight className="h-4 w-4" />
@@ -101,13 +101,13 @@ export function EditorialContent({
           {jyotirlingas.map((item) => (
             <Link
               key={item.id}
-              href={`/article/${item.id || "jyotirling-1"}`}
+              href={`/article/${item.id || item.slug || "somnath-mahadev-pratham-jyotirling"}`}
               className="flex flex-col group cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
             >
               <div className="relative h-44 rounded-xl overflow-hidden mb-3 border border-border/50">
                 <SafeImage
                   src={item.image}
-                  fallbackSrc={item.id === "jyotirling-1" ? "/images/somnath-mahadev-temple.jpg" : item.id === "jyotirling-2" ? "/images/mahakaleshwar-temple.jpg" : "/images/bahucharaji-temple.jpg"}
+                  fallbackSrc={String(item.id || item.slug || "").includes("somnath") ? "/images/somnath-mahadev-temple.jpg" : String(item.id || item.slug || "").includes("mahakal") ? "/images/mahakaleshwar-temple.jpg" : "/images/bahucharaji-temple.jpg"}
                   alt={item.imageAlt || item.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"

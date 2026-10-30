@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Sparkles, ArrowRight, MessageCircle } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
+import { SITE_CONTACT } from "@/lib/config/contact"
 
 export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultation }) {
   const { lang } = useLanguage()
@@ -24,7 +25,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
     const message = isEn
       ? "Hello Dr. Vishal Modi, I would like to book a personal astrology consultation."
       : "જય શ્રી કૃષ્ણ ડૉ. વિશાલ મોદી, મને વ્યક્તિગત જ્યોતિષ પરામર્શ માટે અપોઇન્ટમેન્ટ જોઈએ છે."
-    const base = founder?.whatsappUrl || "https://wa.me/919825000000"
+    const base = (founder?.whatsappUrl && !founder.whatsappUrl.includes("000000")) ? founder.whatsappUrl : SITE_CONTACT.whatsappUrl
     window.open(`${base}${base.includes("?") ? "&" : "?"}text=${encodeURIComponent(message)}`, "_blank")
   }
 

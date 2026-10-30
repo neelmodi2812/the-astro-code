@@ -9,6 +9,8 @@ import { withDashboardData } from "@/components/dashboard-gate"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { userService } from "@/lib/api"
 
 const EMPTY_FORM = { label: "home", full_name: "", phone: "", address_line: "", city: "", state: "", pincode: "", is_default: false }
@@ -136,17 +138,25 @@ function AddressesClient() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-foreground">{isEn ? "Type" : "પ્રકાર"}</label>
-                <select value={form.label} onChange={setField("label")} className="h-10 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm">
-                  <option value="home">{isEn ? "Home" : "ઘર"}</option>
-                  <option value="work">{isEn ? "Work" : "કામ"}</option>
-                  <option value="other">{isEn ? "Other" : "અન્ય"}</option>
-                </select>
+                <Select value={form.label} onValueChange={(val) => setForm((prev) => ({ ...prev, label: val }))}>
+                  <SelectTrigger className="h-10 w-full rounded-xl border-input bg-card dark:bg-[#1a1b18] px-3 text-xs sm:text-sm font-medium">
+                    <SelectValue placeholder={isEn ? "Select type" : "પ્રકાર પસંદ કરો"} />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border border-border shadow-lg">
+                    <SelectItem value="home">{isEn ? "Home (ઘર)" : "ઘર"}</SelectItem>
+                    <SelectItem value="work">{isEn ? "Work (કામ / ઓફિસ)" : "કામ / ઓફિસ"}</SelectItem>
+                    <SelectItem value="other">{isEn ? "Other (અન્ય)" : "અન્ય"}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-xs font-bold text-foreground">
-              <input type="checkbox" checked={!!form.is_default} onChange={(e) => setForm((prev) => ({ ...prev, is_default: e.target.checked }))} />
-              {isEn ? "Make this my default address" : "આને ડિફોલ્ટ સરનામું બનાવો"}
+            <label className="flex items-center gap-2.5 text-xs font-bold text-foreground cursor-pointer select-none">
+              <Checkbox
+                checked={!!form.is_default}
+                onCheckedChange={(checked) => setForm((prev) => ({ ...prev, is_default: !!checked }))}
+              />
+              <span>{isEn ? "Make this my default address" : "આને ડિફોલ્ટ સરનામું બનાવો"}</span>
             </label>
 
             <div className="flex justify-end gap-3">

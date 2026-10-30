@@ -71,7 +71,7 @@ export function CategoryBar({
   categories,
   activeFilter,
   onSelectFilter,
-  title = "Shri Bahuchar Maa Rajwadu & Featured Articles",
+  title,
   showBreadcrumb = false
 }) {
   const { lang } = useLanguage()
