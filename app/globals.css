@@ -332,3 +332,23 @@ html[lang="gu"] .text-base {
   font-size: 1.0625rem;
   line-height: 1.75;
 }
+
+/* Daily panchang: Gujarati glyphs have a small x-height, so this page runs one step larger. */
+html[lang="gu"] .panchang-readable .text-xs {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+html[lang="gu"] .panchang-readable .text-sm {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+html[lang="gu"] .panchang-readable .text-base {
+  font-size: 1.1875rem;
+  line-height: 1.7;
+}
+
+html[lang="gu"] .panchang-readable .text-muted-foreground {
+  color: color-mix(in srgb, var(--foreground) 78%, transparent);
+}
