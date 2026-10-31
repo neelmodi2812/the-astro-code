@@ -134,9 +134,9 @@ export function DashboardSidebar() {
     <aside className="w-full flex flex-col gap-4">
       
       {/* 1. User Identity Snippet */}
-      <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs flex items-center gap-3">
+      <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-4 border border-border/70 shadow-2xs flex items-center gap-3">
         <div className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-[#fdc72d] to-[#d9a100] p-0.5 shadow-2xs flex items-center justify-center shrink-0">
-          <div className="w-full h-full rounded-full bg-card dark:bg-[#0d3631] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-base">
+          <div className="w-full h-full rounded-full bg-card dark:bg-[#1c1d1a] flex items-center justify-center text-[#8a6800] dark:text-[#fdc72d] font-bold text-base">
             {data.userProfile.initials[lang] || data.userProfile.initials.gu}
           </div>
           <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00685d] text-white rounded-full flex items-center justify-center text-[8px] shadow">
@@ -154,7 +154,7 @@ export function DashboardSidebar() {
       </div>
 
       {/* 2. Main Navigation Links (Desktop vertical & responsive on mobile) */}
-      <nav className="bg-card dark:bg-[#0d3631] rounded-2xl p-2 border border-border/70 shadow-2xs flex flex-col gap-1">
+      <nav className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-2 border border-border/70 shadow-2xs flex flex-col gap-1">
         <div className="px-3 py-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
           {isEn ? "Vedic Portal Navigation" : "ડેશબોર્ડ નેવિગેશન"}
         </div>
@@ -197,7 +197,7 @@ export function DashboardSidebar() {
       </nav>
 
       {/* 3. Daily Japa Meditation Progress Widget */}
-      <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col items-center text-center space-y-2.5">
+      <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col items-center text-center space-y-2.5">
         <div className="flex items-center justify-between w-full text-xs font-bold">
           <span className="text-muted-foreground uppercase text-xs">
             {data.japaCounter.title[lang] || data.japaCounter.title.gu}
@@ -262,7 +262,7 @@ export function DashboardSidebar() {
       </div>
 
       {/* 4. Astrologer Helpline Support */}
-      <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 border border-border/70 shadow-2xs space-y-2">
+      <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-4 border border-border/70 shadow-2xs space-y-2">
         <div className="flex items-center gap-2">
           <Phone className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
           <span className="font-bold text-xs text-foreground">

@@ -104,6 +104,16 @@ export default function CategoriesClient() {
   // State management
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedFilter, setSelectedFilter] = React.useState("all")
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const cat = params.get("category")
+      if (cat) {
+        setSelectedFilter(cat)
+      }
+    }
+  }, [])
   const [whatsappPhone, setWhatsappPhone] = React.useState("")
   const [whatsappSuccess, setWhatsappSuccess] = React.useState(false)
   const [consultModalOpen, setConsultModalOpen] = React.useState(false)
@@ -192,7 +202,7 @@ export default function CategoriesClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0b322d] text-[#0e3934] dark:text-[#f4f3ee] flex flex-col selection:bg-[#fdc72d]/30">
+    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#141414] text-[#1b1c1a] dark:text-[#f4f3ee] flex flex-col selection:bg-[#fdc72d]/30">
       {/* 1. GLOBAL ASTRO HEADER */}
       <AstroHeader
         config={siteData.config}
@@ -213,7 +223,7 @@ export default function CategoriesClient() {
       />
 
       {/* 2. STREAMLINED HERO HEADER (Clean, Uncluttered, Elegant) */}
-      <section className="w-full bg-[#f4f4f0] dark:bg-[#0c3631] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-6 sm:py-8 transition-colors">
+      <section className="w-full bg-[#f4f4f0] dark:bg-[#181916] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-6 sm:py-8 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col gap-3">
           {/* Breadcrumb */}
           <Breadcrumb>
@@ -254,7 +264,7 @@ export default function CategoriesClient() {
             </div>
 
             {/* Clean summary pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-card dark:bg-[#0f3b35] border border-border/80 text-xs font-semibold text-foreground/90 shrink-0 self-start sm:self-end">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-card dark:bg-[#1f201c] border border-border/80 text-xs font-semibold text-foreground/90 shrink-0 self-start sm:self-end">
               <Sparkles className="h-3.5 w-3.5 text-[#008376] dark:text-[#fdc72d]" />
               <span>{totalArticles > 0 ? `${totalArticles} ${pageData.header.statLabel}` : pageData.header.statLabel}</span>
             </div>
@@ -263,7 +273,7 @@ export default function CategoriesClient() {
       </section>
 
       {/* 3. SEARCH & INTUITIVE FILTER TABS (No clumsy arrows or duplicate badges) */}
-      <section className="w-full bg-card dark:bg-[#0d3732] py-4 px-4 sm:px-6 shadow-2xs border-b border-border/60 transition-colors sticky top-0 z-20 backdrop-blur-md bg-card/95 dark:bg-[#0d3732]/95">
+      <section className="w-full bg-card/95 dark:bg-[#181916]/95 py-4 px-4 sm:px-6 shadow-2xs border-b border-border/60 transition-colors relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -274,7 +284,7 @@ export default function CategoriesClient() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={pageData.search.placeholder}
-              className="w-full pl-9 pr-9 h-10 bg-[#faf9f5] dark:bg-[#0f3c36] text-foreground text-xs sm:text-sm rounded-xl border-border/80 focus:border-[#008376] focus:ring-[#008376]/20 truncate"
+              className="w-full pl-9 pr-9 h-10 bg-[#faf9f5] dark:bg-[#20211d] text-foreground text-xs sm:text-sm rounded-xl border border-border/80 focus:border-[#fdc72d] focus:ring-[#fdc72d]/20 truncate"
             />
             {searchQuery ? (
               <button
@@ -289,7 +299,7 @@ export default function CategoriesClient() {
           </div>
 
           {/* Filter Chips (Clean, Responsive, Horizontal Wrapping / Scroll) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
             {filterPills.map((pill) => {
               const isActive = selectedFilter === pill.id
               return (
@@ -327,19 +337,19 @@ export default function CategoriesClient() {
                 </p>
               </div>
 
-              <span className="text-xs font-bold text-muted-foreground">
+              <span className="text-xs font-bold text-muted-foreground shrink-0">
                 {filteredCategories.length} {lang === "gu" ? "શ્રેણીઓ" : "Categories"}
               </span>
             </div>
 
             {sections === null ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6" aria-busy="true">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6" aria-busy="true">
                 {[0, 1, 2, 3].map((i) => (
                   <div key={i} className="h-72 rounded-2xl bg-muted/60 animate-pulse" />
                 ))}
               </div>
             ) : filteredCategories.length === 0 ? (
-              <div className="p-8 sm:p-12 text-center rounded-2xl bg-card dark:bg-[#0d3833] border border-border/80 my-4">
+              <div className="p-8 sm:p-12 text-center rounded-2xl bg-card dark:bg-[#1a1b17] border border-border/80 my-4">
                 <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-60" />
                 <h3 className="text-base font-bold text-foreground">
                   {pageData.search.noResultsTitle}
@@ -365,7 +375,7 @@ export default function CategoriesClient() {
                 {filteredCategories.map((cat) => (
                   <Card
                     key={cat.id}
-                    className="overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#0d3631] hover:-translate-y-1"
+                    className="p-0 gap-0 overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#1c1d1a] hover:-translate-y-1"
                   >
                     {/* Image Header with Aspect Ratio */}
                     <div className="relative aspect-[2/1] overflow-hidden bg-muted">
@@ -387,9 +397,11 @@ export default function CategoriesClient() {
 
                       {/* Bottom Title Overlay */}
                       <div className="absolute bottom-3 left-3 right-3 text-white">
-                        <span className="text-xs text-emerald-200 dark:text-[#fdc72d] font-bold uppercase tracking-wider block mb-0.5">
-                          {cat.subCategory}
-                        </span>
+                        {Boolean(cat.subCategory && cat.subCategory.trim().toLowerCase() !== cat.title.trim().toLowerCase()) && (
+                          <span className="text-xs text-emerald-200 dark:text-[#fdc72d] font-bold uppercase tracking-wider block mb-0.5">
+                            {cat.subCategory}
+                          </span>
+                        )}
                         <h3 className="text-base sm:text-lg font-black leading-snug drop-shadow-xs group-hover:text-[#fdc72d] transition-colors">
                           {cat.title}
                         </h3>
@@ -397,7 +409,7 @@ export default function CategoriesClient() {
                     </div>
 
                     {/* Card Content & Action */}
-                    <CardContent className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-4">
+                    <CardContent className="p-3.5 sm:p-5 flex flex-col justify-between flex-1 gap-3 sm:gap-4">
                       <div className="flex flex-col gap-3">
                         {cat.description && (
                           <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
@@ -443,7 +455,7 @@ export default function CategoriesClient() {
           {/* RIGHT / SIDEBAR COLUMN (4 COLS) - Streamlined to 3 High-Value Cards */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
             {/* SIDEBAR CARD 1: LIVE PANCHANG & AUSPICIOUS TIMINGS */}
-            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80">
+            <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80">
               <div className="flex items-center justify-between pb-3 border-b border-border/60">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-[#008376] dark:text-[#fdc72d]" />
@@ -455,7 +467,7 @@ export default function CategoriesClient() {
 
               <div className="flex flex-col gap-2.5 pt-3 text-xs">
                 {siteData.panchang.samvatTitle && (
-                  <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-muted/60 dark:bg-[#0f3c36] font-bold text-foreground">
+                  <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-muted/60 dark:bg-[#20211d] font-bold text-foreground">
                     <Sun className="h-3.5 w-3.5 text-[#008376] dark:text-[#38b2a3] shrink-0" />
                     <span>{siteData.panchang.samvatTitle}</span>
                   </div>
@@ -468,7 +480,7 @@ export default function CategoriesClient() {
                         ? "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 font-semibold border border-red-200/70 dark:border-red-900/60"
                         : row.isAuspicious
                           ? "bg-emerald-50 dark:bg-emerald-950/50 text-[#00685d] dark:text-[#38b2a3] font-bold border border-emerald-200/70 dark:border-emerald-800/60"
-                          : "bg-muted/60 dark:bg-[#0f3c36]"
+                          : "bg-muted/60 dark:bg-[#20211d]"
                     }`}
                   >
                     <span className={row.isAlert || row.isAuspicious ? "" : "text-muted-foreground font-medium"}>{row.label}</span>
@@ -486,7 +498,7 @@ export default function CategoriesClient() {
             </div>
 
             {/* SIDEBAR CARD 2: DR. VISHAL MODI - VEDIC ASTROLOGICAL GUIDANCE */}
-            <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
+            <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
               <div className="relative w-20 h-20 rounded-full mx-auto p-1 bg-gradient-to-tr from-[#008376] to-[#fdc72d] shadow-sm mb-3 overflow-hidden">
                 <Image
                   src={founder?.image || pageData.sidebar.consultation.avatar}
@@ -589,7 +601,7 @@ export default function CategoriesClient() {
       </main>
 
       {/* 5. MINIMALIST SCRIPTURAL BLESSING BANNER */}
-      <section className="w-full bg-[#efeeea] dark:bg-[#0c3631] py-8 px-4 sm:px-6 border-t border-border/60 transition-colors">
+      <section className="w-full bg-[#efeeea] dark:bg-[#181916] py-8 px-4 sm:px-6 border-t border-border/60 transition-colors">
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-[#008376]/10 dark:bg-[#008376]/20 text-[#008376] dark:text-[#38b2a3] flex items-center justify-center mb-0.5">
             <Heart className="h-5 w-5" />
@@ -605,7 +617,7 @@ export default function CategoriesClient() {
 
       {/* 6. CONSULTATION BOOKING MODAL */}
       <Dialog open={consultModalOpen} onOpenChange={setConsultModalOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#0d3631] border border-border text-foreground">
+        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#1c1d1a] border border-border text-foreground">
           <DialogHeader className="p-0 pb-2 flex-row items-center gap-3 space-y-0 pr-8">
             <div className="w-10 h-10 rounded-xl bg-[#008376]/10 text-[#008376] dark:text-[#38b2a3] flex items-center justify-center font-bold shrink-0">
               <Calendar className="h-5 w-5" />

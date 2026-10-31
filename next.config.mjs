@@ -19,6 +19,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'atest.flutterclone.com',
       },
+      {
+        protocol: 'http',
+        hostname: 'atest.flutterclone.com',
+      },
       apiImagePattern,
       {
         protocol: 'https',

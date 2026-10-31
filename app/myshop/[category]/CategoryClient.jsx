@@ -284,7 +284,7 @@ export default function CategoryClient({ categorySlug }) {
 
       <main className="flex-1 w-full bg-background">
         {/* BREADCRUMBS */}
-        <section className="w-full bg-[#f0f4f7] dark:bg-[#0d3732] py-2.5 border-b border-border/60">
+        <section className="w-full bg-[#f0f4f7] dark:bg-[#181916] py-2.5 border-b border-border/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <Breadcrumb className="self-start sm:self-auto">
               <BreadcrumbList className="text-xs font-medium">
@@ -426,14 +426,14 @@ export default function CategoryClient({ categorySlug }) {
         </section>
 
         {/* TRUST BADGES */}
-        <section className="w-full bg-card dark:bg-[#0d3833] shadow-xs border-b border-border/60 py-4">
+        <section className="w-full bg-card dark:bg-[#1a1b17] shadow-xs border-b border-border/60 py-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {shopData.trustBadges.map((badge) => {
               const IconComp = ICON_MAP[badge.icon] || ShieldCheck
               return (
                 <div
                   key={badge.id}
-                  className="flex items-center gap-2.5 p-3 rounded-xl bg-[#f0f4f7] dark:bg-[#103d37] border border-border/40 hover:border-[#00685d]/40 transition-colors"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-[#f0f4f7] dark:bg-[#1c1d1a] border border-border/40 hover:border-[#00685d]/40 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[#00685d]/10 dark:bg-[#00685d]/25 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                     <IconComp className="h-5 w-5" />
@@ -451,7 +451,7 @@ export default function CategoryClient({ categorySlug }) {
         {/* CATEGORY DESCRIPTION */}
         <section className="w-full bg-background py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-            <div className="bg-gradient-to-br from-[#f0f4f7] to-[#e4e9ed] dark:from-[#0f3c36] dark:to-[#0d3631] rounded-xl p-5 sm:p-6 border border-border/70 shadow-xs">
+            <div className="bg-gradient-to-br from-[#f0f4f7] to-[#e4e9ed] dark:from-[#20211d] dark:to-[#181916] rounded-xl p-5 sm:p-6 border border-border/70 shadow-xs">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#00685d]/10 dark:bg-[#00685d]/25 text-[#00685d] dark:text-[#6ed8c8] flex items-center justify-center shrink-0">
                   <CategoryIcon className="h-5 w-5" />
@@ -476,7 +476,7 @@ export default function CategoryClient({ categorySlug }) {
         <section id="category-catalog" className="w-full bg-background pb-14 scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-6">
             {/* Sort Controls */}
-            <div className="bg-card dark:bg-[#0d3833] rounded-xl p-3.5 sm:p-4 border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="bg-card dark:bg-[#1a1b17] rounded-xl p-3.5 sm:p-4 border border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-2 self-start sm:self-auto">
                 <span className="text-xs sm:text-sm font-bold text-foreground">
                   {shopData.catalogSection.totalProductsPrefix} {filteredProducts.length}{" "}
@@ -492,9 +492,11 @@ export default function CategoryClient({ categorySlug }) {
                 </span>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="h-9 min-w-[150px] bg-muted text-foreground text-xs font-medium border-border/80">
-                    <SelectValue placeholder={shopData.catalogSection.sortByLabel} />
+                    <SelectValue placeholder={shopData.catalogSection.sortByLabel}>
+                      {(val) => shopData.catalogSection.sortOptions.find((opt) => opt.value === val)?.label || shopData.catalogSection.sortByLabel}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent align="end">
+                  <SelectContent align="end" side="bottom" sideOffset={6} alignItemWithTrigger={false}>
                     <SelectGroup>
                       {shopData.catalogSection.sortOptions.map((opt) => (
                         <SelectItem key={opt.value} value={opt.value} className="text-xs font-medium">
@@ -509,7 +511,7 @@ export default function CategoryClient({ categorySlug }) {
 
             {/* Products Grid */}
             {paginatedProducts.length === 0 ? (
-              <div className="bg-card dark:bg-[#0d3833] rounded-xl p-10 text-center border border-border/80 space-y-3">
+              <div className="bg-card dark:bg-[#1a1b17] rounded-xl p-10 text-center border border-border/80 space-y-3">
                 <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                   <Search className="h-6 w-6" />
                 </div>
@@ -533,7 +535,7 @@ export default function CategoryClient({ categorySlug }) {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
                 {paginatedProducts.map((product) => {
                   const isWishlisted = isInWishlist(product.id)
                   const isJustAdded = addedAnimationId === product.id
@@ -542,10 +544,10 @@ export default function CategoryClient({ categorySlug }) {
                     <Card
                       key={product.id}
                       onClick={() => router.push(`/myshop/product/${product.id}`)}
-                      className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#0d3833] cursor-pointer"
+                      className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#1a1b17] cursor-pointer"
                     >
                       {/* Image Pane */}
-                      <div className="relative h-52 bg-muted overflow-hidden">
+                      <div className="relative h-40 sm:h-52 bg-muted overflow-hidden">
                         <Link href={`/myshop/product/${product.id}`} className="relative block w-full h-full">
                           <Image
                             src={product.image || "https://dummyjson.com/image/200x100"}
@@ -555,9 +557,11 @@ export default function CategoryClient({ categorySlug }) {
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         </Link>
-                        <Badge className="absolute top-2.5 left-2.5 bg-[#00685d] text-white text-xs font-bold shadow-xs pointer-events-none">
+                        {Boolean(product?.badge && String(product.badge).trim() !== "") && (
+                        <Badge className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-[#fdc72d] text-[#0e3934] text-[10px] sm:text-xs px-2 py-0.5 font-bold shadow-xs pointer-events-none">
                           {product.badge}
                         </Badge>
+                      )}
                         <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -567,10 +571,10 @@ export default function CategoryClient({ categorySlug }) {
                                   e.stopPropagation()
                                   router.push(`/myshop/product/${product.id}`)
                                 }}
-                                className="w-8 h-8 rounded-full bg-white/85 dark:bg-[#0e3934]/85 text-foreground hover:text-[#00685d] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 dark:bg-[#141414]/90 text-foreground hover:text-[#00685d] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
                                 aria-label={lang === "gu" ? "વિગત જુઓ" : "View Details"}
                               >
-                                <Eye className="h-4 w-4" />
+                                <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                               </button>
                             </TooltipTrigger>
                             <TooltipContent side="top">
@@ -585,14 +589,14 @@ export default function CategoryClient({ categorySlug }) {
                                   e.stopPropagation()
                                   handleToggleWishlist(product)
                                 }}
-                                className={`w-8 h-8 rounded-full bg-white/85 dark:bg-[#0e3934]/85 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
+                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 dark:bg-[#141414]/90 flex items-center justify-center transition-colors shadow-xs cursor-pointer ${
                                   isWishlisted
                                     ? "text-[#bb171f]"
                                     : "text-muted-foreground hover:text-[#bb171f]"
                                 }`}
                                 aria-label={lang === "gu" ? "વિશલિસ્ટ" : "Wishlist"}
                               >
-                                <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current" : ""}`} />
+                                <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isWishlisted ? "fill-current" : ""}`} />
                               </button>
                             </TooltipTrigger>
                             <TooltipContent side="top">
@@ -603,7 +607,7 @@ export default function CategoryClient({ categorySlug }) {
                       </div>
 
                       {/* Specs & Info */}
-                      <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between space-y-3">
+                      <div className="p-2.5 sm:p-4 flex flex-col flex-1 justify-between space-y-2 sm:space-y-3">
                         <div>
                           {/* Rating Stars */}
                           <div className={`flex items-center gap-1 text-[#fdc72d] mb-1 ${product.reviewsCount ? "" : "hidden"}`}>
@@ -619,11 +623,11 @@ export default function CategoryClient({ categorySlug }) {
                           </div>
                           {/* Title & Subtitle */}
                           <Link href={`/myshop/product/${product.id}`}>
-                            <h4 className="text-sm font-bold text-foreground line-clamp-1 hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
+                            <h4 className="text-xs sm:text-sm font-bold text-foreground line-clamp-1 hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
                               {product.name}
                             </h4>
                           </Link>
-                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1 mt-0.5">
                             {product.subtitle}
                           </p>
                         </div>
@@ -632,16 +636,16 @@ export default function CategoryClient({ categorySlug }) {
                         <div className="pt-2 border-t border-border/50 flex items-center justify-between">
                           <div>
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-base font-bold text-[#00685d] dark:text-[#6ed8c8]">
+                              <span className="text-sm sm:text-base font-bold text-[#00685d] dark:text-[#6ed8c8]">
                                 ₹{product.price.toLocaleString("en-IN")}
                               </span>
                               {product.originalPrice > product.price && (
-                                <span className="text-sm text-muted-foreground line-through">
+                                <span className="text-[11px] sm:text-sm text-muted-foreground line-through">
                                   ₹{product.originalPrice.toLocaleString("en-IN")}
                                 </span>
                               )}
                             </div>
-                            <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                            <span className="text-[10px] sm:text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold">
                               {product.savings}
                             </span>
                           </div>
@@ -651,7 +655,7 @@ export default function CategoryClient({ categorySlug }) {
                               e.stopPropagation()
                               handleAddToCart(product)
                             }}
-                            className={`px-3 h-8.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer ${
+                            className={`px-2 sm:px-3 h-7.5 sm:h-8.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer ${
                               isJustAdded
                                 ? "bg-[#00685d] text-white"
                                 : "bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318]"
@@ -679,7 +683,7 @@ export default function CategoryClient({ categorySlug }) {
 
             {/* PAGINATION */}
             {filteredProducts.length > 0 && (
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#0d3833] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-card dark:bg-[#1a1b17] p-3.5 sm:p-4 rounded-xl border border-border/80 shadow-xs">
                 <p className="text-xs text-muted-foreground">
                   {lang === "gu"
                     ? `દર્શાવવામાં આવેલ: ${toDigits((currentPage - 1) * itemsPerPage + 1)} થી ${toDigits(Math.min(currentPage * itemsPerPage, totalItems))} (કુલ ${toDigits(totalItems)} માંથી)`
@@ -712,7 +716,7 @@ export default function CategoryClient({ categorySlug }) {
         </section>
 
         {/* OTHER CATEGORIES QUICK NAV */}
-        <section className="w-full bg-[#f0f4f7] dark:bg-[#0d3732] py-10 border-t border-border/60">
+        <section className="w-full bg-[#f0f4f7] dark:bg-[#181916] py-8 sm:py-10 border-t border-border/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-lg sm:text-xl font-extrabold text-foreground">
@@ -734,7 +738,7 @@ export default function CategoryClient({ categorySlug }) {
                     <Link
                       key={cat.id}
                       href={`/myshop/${cat.id}`}
-                      className="group flex flex-col items-center p-3.5 sm:p-4 rounded-xl border bg-card dark:bg-[#0d3833] hover:bg-[#00685d] hover:text-white border-border/80 text-foreground transition-all text-center cursor-pointer shadow-xs hover:shadow-md hover:scale-[1.02]"
+                      className="group flex flex-col items-center p-3.5 sm:p-4 rounded-xl border bg-card dark:bg-[#1a1b17] hover:bg-[#00685d] hover:text-white border-border/80 text-foreground transition-all text-center cursor-pointer shadow-xs hover:shadow-md hover:scale-[1.02]"
                     >
                       <div className="w-12 h-12 rounded-full flex items-center justify-center transition-colors mb-2.5 bg-[#00685d]/10 text-[#00685d] dark:bg-[#00685d]/25 dark:text-[#6ed8c8] group-hover:bg-white/20 group-hover:text-[#fdc72d]">
                         <CatIcon className="h-5 w-5" />
@@ -803,12 +807,14 @@ export default function CategoryClient({ categorySlug }) {
         }}
       >
         {activeModalProduct && (
-          <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl bg-card dark:bg-[#0d3833] border-border/80 max-h-[90vh] flex flex-col">
+          <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl bg-card dark:bg-[#1a1b17] border-border/80 max-h-[90vh] flex flex-col">
             <DialogHeader className="p-4 border-b border-border/60 bg-muted/30 flex-row items-center justify-between space-y-0 pr-12">
               <div className="flex items-center gap-2">
-                <Badge className="bg-[#00685d] text-white text-xs">
-                  {activeModalProduct.badge}
-                </Badge>
+                {Boolean(activeModalProduct?.badge && String(activeModalProduct.badge).trim() !== "") && (
+                    <Badge className="bg-[#fdc72d] text-[#0e3934] text-xs">
+                      {activeModalProduct.badge}
+                    </Badge>
+                  )}
                 <DialogTitle className="text-xs font-bold text-foreground truncate max-w-[240px]">
                   {activeModalProduct.name}
                 </DialogTitle>

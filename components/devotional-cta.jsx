@@ -37,7 +37,7 @@ export function DevotionalCTA({ newsletter = {} }) {
   }
 
   return (
-    <section className="w-full bg-[#00685d] dark:bg-[#0b3b35] border-t-4 border-[#fdc72d] text-white py-12 mt-12 shadow-inner transition-colors">
+    <section className="w-full bg-[#1b1c1a] dark:bg-[#121310] border-t-4 border-[#fdc72d] text-white py-12 mt-12 shadow-inner transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left min-w-0">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#fdc72d] text-[#0e3934] flex items-center justify-center shrink-0 shadow-md">
@@ -70,7 +70,7 @@ export function DevotionalCTA({ newsletter = {} }) {
           ) : (
             <>
               <div className="relative w-full sm:w-80">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0e3934]/70 text-sm font-bold select-none leading-none">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0e3934]/70 dark:text-white/60 text-sm font-bold select-none leading-none">
                   {newsletter.phonePrefix || "+૯૧"}
                 </span>
                 <Input
@@ -78,7 +78,7 @@ export function DevotionalCTA({ newsletter = {} }) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder={newsletter.placeholder || "મોબાઇલ નંબર દાખલ કરો..."}
-                  className="w-full h-11 pl-14 pr-4 bg-white text-[#0e3934] text-base rounded-xl border-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
+                  className="w-full h-11 pl-14 pr-4 bg-white dark:bg-[#20221c] text-[#0e3934] dark:text-white text-base rounded-xl border-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
                   required
                 />
               </div>

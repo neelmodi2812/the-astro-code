@@ -32,7 +32,7 @@ export function EditorialContent({
             className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
           >
             <Card
-              className="pt-0 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-300 border-border/70 flex flex-col justify-between h-full group-hover:border-[#fdc72d]/60 bg-card dark:bg-[#0d3732]"
+              className="pt-0 overflow-hidden shadow-sm group-hover:shadow-lg transition-all duration-300 border-border/70 flex flex-col justify-between h-full group-hover:border-[#fdc72d]/60 bg-card dark:bg-[#1c1d1a]"
             >
               <div className="relative h-56 overflow-hidden">
                 <SafeImage
@@ -81,7 +81,7 @@ export function EditorialContent({
       </div>
 
       {/* 2. 12 JYOTIRLINGA SPECIAL SHOWCASE */}
-      <Card className="p-6 sm:p-7 shadow-sm border-border/70 bg-card dark:bg-[#0d3732] rounded-xl">
+      <Card className="p-6 sm:p-7 shadow-sm border-border/70 bg-card dark:bg-[#1c1d1a] rounded-xl">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-6 bg-[#fdc72d] rounded-full inline-block" />
@@ -130,7 +130,7 @@ export function EditorialContent({
       </Card>
 
       {/* 3. VEDIC ASTROLOGY & NUMEROLOGY DEEP INSIGHTS */}
-      <div className="rounded-xl p-6 sm:p-7 shadow-sm bg-card dark:bg-[#0d3732] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
+      <div className="rounded-xl p-6 sm:p-7 shadow-sm bg-card dark:bg-[#1c1d1a] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div>
             <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-bold uppercase tracking-wider">

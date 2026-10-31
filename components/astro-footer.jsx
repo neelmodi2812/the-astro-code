@@ -45,7 +45,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
     tagline: isEn ? "UNLOCK HAPPINESS • VEDIC SPIRITUAL PORTAL" : "UNLOCK HAPPINESS • વૈદિક અધ્યાત્મ પોર્ટલ",
     logoUrl:
       config?.logoUrl ||
-      "/logo.svg",
+      "/logo.png",
     founder: {
       location: isEn
         ? "Bodakdev, S.G. Highway, Ahmedabad, Gujarat - 380054"
@@ -77,33 +77,29 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
   }
 
   return (
-    <footer className="w-full bg-[#f0eee8] dark:bg-[#0c3430] text-foreground pt-12 pb-8 border-t border-border/70 transition-colors">
+    <footer className="w-full bg-[#f0eee8] dark:bg-[#141512] text-foreground pt-12 pb-8 border-t border-border/70 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr] gap-x-10 gap-y-9 pb-9">
           
           {/* Column 1: Brand & About */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-[#fdc72d] bg-[#fffaf0] flex items-center justify-center p-0.5 shrink-0">
+              <Link href="/" className="inline-block group" aria-label={safeConfig.appName}>
                 <Image
-                  src={safeConfig.logoUrl}
+                  src="/the-astro-code-banner.png"
                   alt={safeConfig.appName}
-                  width={40}
-                  height={40}
-                  unoptimized
-                  className="w-full h-full object-contain"
+                  width={220}
+                  height={46}
+                  className="block dark:hidden h-10 w-auto object-contain transition-transform group-hover:scale-102"
                 />
-              </div>
-              <div>
-                <div className="text-lg font-bold text-foreground leading-tight">
-                  {safeConfig.appName}
-                </div>
-                {safeConfig.tagline.split(" • ").map((line) => (
-                  <div key={line} className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] leading-snug">
-                    {line}
-                  </div>
-                ))}
-              </div>
+                <Image
+                  src="/the-astro-code-banner-dark.png"
+                  alt={safeConfig.appName}
+                  width={220}
+                  height={46}
+                  className="hidden dark:block h-10 w-auto object-contain transition-transform group-hover:scale-102"
+                />
+              </Link>
             </div>
 
             <p className="text-sm text-foreground/75 leading-relaxed mt-1 max-w-sm">
@@ -127,7 +123,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                       target="_blank"
                       rel="noreferrer"
                       aria-label="Facebook"
-                      className="p-2 rounded-lg bg-card dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
+                      className="p-2 rounded-lg bg-card dark:bg-[#1e201b] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -146,7 +142,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                       target="_blank"
                       rel="noreferrer"
                       aria-label="YouTube"
-                      className="p-2 rounded-lg bg-card dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
+                      className="p-2 rounded-lg bg-card dark:bg-[#1e201b] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -165,7 +161,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                       target="_blank"
                       rel="noreferrer"
                       aria-label="WhatsApp Support"
-                      className="p-2 rounded-lg bg-card dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
+                      className="p-2 rounded-lg bg-card dark:bg-[#1e201b] text-[#8a6800] dark:text-[#fdc72d] hover:bg-[#fdc72d] hover:text-[#0e3934] transition-colors cursor-pointer border border-border shadow-2xs inline-flex items-center justify-center"
                     >
                       <MessageCircle className="h-4 w-4" />
                     </a>
@@ -312,7 +308,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={footer.emailPlaceholder || (isEn ? "Enter your email address..." : "તમારું ઇમેઇલ દાખલ કરો...")}
-                    className="h-10 bg-card dark:bg-[#0f3c36] text-foreground text-sm rounded-lg border-border"
+                    className="h-10 bg-card dark:bg-[#1e201b] text-foreground text-sm rounded-lg border-border"
                     required
                   />
                   <Button

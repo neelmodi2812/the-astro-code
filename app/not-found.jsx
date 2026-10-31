@@ -248,7 +248,7 @@ export default function NotFound() {
 
           {/* 3. Main Hero Card Area */}
           <div className="max-w-6xl mx-auto mb-12">
-            <div className="relative bg-card dark:bg-[#0d3833] border border-border/80 rounded-2xl shadow-xl overflow-hidden p-6 sm:p-10 md:p-14">
+            <div className="relative bg-card dark:bg-[#1a1b17] border border-border/80 rounded-2xl shadow-xl overflow-hidden p-6 sm:p-10 md:p-14">
 
               {/* Sacred Geometry Aura Accents */}
               <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#fdc72d]/15 blur-3xl pointer-events-none" />
@@ -411,7 +411,7 @@ export default function NotFound() {
                   <Link
                     key={card.id}
                     href={card.href}
-                    className="group bg-card dark:bg-[#0d3833] border border-border/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden hover:-translate-y-1"
+                    className="group bg-card dark:bg-[#1a1b17] border border-border/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden hover:-translate-y-1"
                   >
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#fdc72d] to-[#00685d]" />
                     <div>

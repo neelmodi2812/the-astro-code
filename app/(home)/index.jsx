@@ -29,6 +29,21 @@ export default function HomeClient({ initialFeed = null }) {
 
   const [activeCategory, setActiveCategory] = React.useState("home")
   const [activeFilter, setActiveFilter] = React.useState(null)
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const cat = params.get("category")
+      if (cat) {
+        setActiveCategory(cat)
+        setActiveFilter(cat)
+        setTimeout(() => {
+          const target = document.getElementById("featured-articles-section")
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" })
+        }, 200)
+      }
+    }
+  }, [])
   const [cartItems, setCartItems] = React.useState([])
 
   // Language switch handler: Updates dataset & HTML lang attribute

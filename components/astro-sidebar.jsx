@@ -36,7 +36,7 @@ export function AstroSidebar({
     <aside className="flex flex-col gap-6">
       
       {/* 1. DAILY PANCHANG & CHOGHADIYA BOX (Top Authority Section with Non-Overlapping Celestial Wheel) */}
-      <div id="panchang-section" className="bg-card dark:bg-[#0d3732] rounded-xl p-6 shadow-sm border-t-4 border-[#fdc72d] border-r border-b border-l border-border/70">
+      <div id="panchang-section" className="bg-card dark:bg-[#1c1d1a] rounded-xl p-6 shadow-sm border-t-4 border-[#fdc72d] border-r border-b border-l border-border/70">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider flex items-center gap-1.5">
             <Sun className="h-3.5 w-3.5" />
@@ -61,7 +61,7 @@ export function AstroSidebar({
             <circle cx="80" cy="80" r="62" fill="none" stroke="#fdc72d" strokeWidth="2.5" strokeDasharray="8 5" />
             
             {/* Inner celestial solid disk */}
-            <circle cx="80" cy="80" r="48" className="fill-[#fcf9ee] dark:fill-[#103d37] stroke-[#fdc72d]/40" strokeWidth="1.5" />
+            <circle cx="80" cy="80" r="48" className="fill-[#fcf9ee] dark:fill-[#1e201b] stroke-[#fdc72d]/40" strokeWidth="1.5" />
             
             {/* Centered Choghadiya status (e.g. Auspicious Choghadiya / શુભ ચોઘડિયું) */}
             <text
@@ -102,7 +102,7 @@ export function AstroSidebar({
         </div>
 
         {/* Panchang Timings Table */}
-        <div className="space-y-2 text-xs my-4 bg-muted/40 dark:bg-[#0f3c36] p-3.5 rounded-xl border border-border/40">
+        <div className="space-y-2 text-xs my-4 bg-muted/40 dark:bg-[#181915] p-3.5 rounded-xl border border-border/40">
           {panchang.rows.map((row, idx) => (
             <div key={idx} className="flex justify-between items-center text-foreground">
               <span className="text-muted-foreground">{row.label}:</span>
@@ -176,7 +176,7 @@ export function AstroSidebar({
       </div>
 
       {/* 3. READERS' CHOICE / MOST POPULAR WIDGET */}
-      <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#0d3732] rounded-xl">
+      <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#1c1d1a] rounded-xl">
         <h4 className="text-sm font-bold text-foreground mb-3.5 flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-[#bb171f]" />
           {popularSection.title || (isEn ? "Readers' Choice - Most Popular" : "વાંચકોની પસંદ")}
@@ -210,7 +210,7 @@ export function AstroSidebar({
       </Card>
 
       {/* 4. STAY CONNECTED WIDGET */}
-      <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#0d3732] rounded-xl">
+      <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#1c1d1a] rounded-xl">
         <div className="flex items-center gap-3 mb-4">
           <h3 className="text-xs font-black tracking-wider uppercase text-foreground shrink-0 flex items-center gap-1.5">
             <Users className="h-3.5 w-3.5 text-[#fdc72d]" />
@@ -225,7 +225,7 @@ export function AstroSidebar({
             href={SITE_CONTACT.social.facebook}
             target="_blank"
             rel="noreferrer"
-            className="p-3 rounded-xl bg-muted/50 dark:bg-[#0f3c36] hover:bg-muted dark:hover:bg-[#113f39] hover:border-[#1877F2]/50 transition-all cursor-pointer border border-border/40 group block"
+            className="p-3 rounded-xl bg-muted/50 dark:bg-[#181915] hover:bg-muted dark:hover:bg-[#252822] hover:border-[#1877F2]/50 transition-all cursor-pointer border border-border/40 group block"
           >
             <div className="text-[#1877F2] mb-1.5 flex justify-center group-hover:scale-110 transition-transform">
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -241,7 +241,7 @@ export function AstroSidebar({
             href={SITE_CONTACT.social.youtube}
             target="_blank"
             rel="noreferrer"
-            className="p-3 rounded-xl bg-muted/50 dark:bg-[#0f3c36] hover:bg-muted dark:hover:bg-[#113f39] hover:border-[#FF0000]/50 transition-all cursor-pointer border border-border/40 group block"
+            className="p-3 rounded-xl bg-muted/50 dark:bg-[#181915] hover:bg-muted dark:hover:bg-[#252822] hover:border-[#FF0000]/50 transition-all cursor-pointer border border-border/40 group block"
           >
             <div className="text-[#FF0000] mb-1.5 flex justify-center group-hover:scale-110 transition-transform">
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -257,7 +257,7 @@ export function AstroSidebar({
             href={SITE_CONTACT.social.whatsappChannel}
             target="_blank"
             rel="noreferrer"
-            className="p-3 rounded-xl bg-muted/50 dark:bg-[#0f3c36] hover:bg-muted dark:hover:bg-[#113f39] hover:border-[#25D366]/50 transition-all cursor-pointer border border-border/40 group block"
+            className="p-3 rounded-xl bg-muted/50 dark:bg-[#181915] hover:bg-muted dark:hover:bg-[#252822] hover:border-[#25D366]/50 transition-all cursor-pointer border border-border/40 group block"
           >
             <div className="text-[#25D366] mb-1.5 flex justify-center group-hover:scale-110 transition-transform">
               <MessageCircle className="w-5 h-5" />

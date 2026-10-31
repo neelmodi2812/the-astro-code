@@ -96,7 +96,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
               return (
                 <div
                   key={badge.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card dark:bg-[#0d3833] border border-border/80 shadow-2xs text-xs font-semibold text-foreground/90"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card dark:bg-[#1c1d1a] border border-border/80 shadow-2xs text-xs font-semibold text-foreground/90"
                 >
                   <BadgeIcon className="h-3.5 w-3.5 text-[#008376] dark:text-[#fdc72d]" />
                   <span>{badge.label}</span>
@@ -139,7 +139,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
           return (
             <article
               key={service.id}
-              className="group relative rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#0d3631] p-6 sm:p-7 hover:border-[#008376]/60 dark:hover:border-[#fdc72d]/60 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col h-full overflow-hidden"
+              className="group relative rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#1c1d1a] p-6 sm:p-7 hover:border-[#008376]/60 dark:hover:border-[#fdc72d]/60 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col h-full overflow-hidden"
             >
               {/* Subtle top decorative gradient line */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00685d] via-[#008376] to-[#fdc72d] opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -267,7 +267,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
 
       {/* 5. SERVICE DETAILS DIALOG MODAL */}
       <Dialog open={!!selectedService} onOpenChange={(open) => !open && setSelectedService(null)}>
-        <DialogContent className="max-w-lg bg-card dark:bg-[#0d3631] border-2 border-[#008376]/30 dark:border-[#008376]/50">
+        <DialogContent className="max-w-lg bg-card dark:bg-[#1c1d1a] border-2 border-[#008376]/30 dark:border-[#008376]/50">
           {selectedService && (
             <>
               <DialogHeader>

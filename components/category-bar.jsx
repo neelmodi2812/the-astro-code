@@ -78,7 +78,7 @@ export function CategoryBar({
   const isEn = lang === "en"
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-2">
+    <section id="featured-articles-section" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-2 scroll-mt-28">
       <div className="flex flex-col gap-3 pb-3">
         {/* 1. Primary Heading with Golden Trishul & Lotus Divider Decoration */}
         <div className="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -113,7 +113,7 @@ export function CategoryBar({
               className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d] ${
                 activeFilter === null
                   ? "bg-[#fdc72d] text-[#0e3934] ring-1 ring-[#e5ad12] shadow-xs"
-                  : "bg-[#f3f1ea] dark:bg-[#0f3b35] hover:bg-[#eae6db] dark:hover:bg-[#11403a] text-neutral-800 dark:text-neutral-200"
+                  : "bg-[#f3f1ea] dark:bg-[#20221c] hover:bg-[#eae6db] dark:hover:bg-[#282a24] text-neutral-800 dark:text-neutral-200"
               }`}
             >
               {isEn ? "All" : "બધા"}
@@ -133,7 +133,7 @@ export function CategoryBar({
                   className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d] ${
                     isSelected
                       ? "bg-[#fdc72d] text-[#0e3934] ring-1 ring-[#e5ad12] shadow-xs"
-                      : "bg-[#f3f1ea] dark:bg-[#0f3b35] hover:bg-[#eae6db] dark:hover:bg-[#11403a] text-neutral-800 dark:text-neutral-200"
+                      : "bg-[#f3f1ea] dark:bg-[#20221c] hover:bg-[#eae6db] dark:hover:bg-[#282a24] text-neutral-800 dark:text-neutral-200"
                   }`}
                 >
                   {cat.label}

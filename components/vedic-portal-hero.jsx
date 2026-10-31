@@ -52,7 +52,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
   }
 
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#fbf8ee] via-[#f7f2e2] to-[#f2ecda] dark:from-[#0c3531] dark:via-[#0d3833] dark:to-[#0b332f] text-[#0e3934] dark:text-[#f4f2ec] border-b border-[#e2d5b8] dark:border-[#13443e] transition-colors duration-200">
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#fbf8ee] via-[#f7f2e2] to-[#f2ecda] dark:from-[#151714] dark:via-[#191b17] dark:to-[#121411] text-[#1b1c1a] dark:text-[#f4f2ec] border-b border-[#e2d5b8] dark:border-[#2f3128] transition-colors duration-200">
       
       {/* 1. SUBTLE SACRED AMBIENT GLOW */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
@@ -71,25 +71,26 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
       </div>
 
       {/* 2. MAIN BALANCED HERO CONTAINER */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-11 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           
           {/* ==============================================================
               LEFT COLUMN: CLEAN, ELEGANT HEADLINE & MAIN ACTIONS (7 COLS)
+              Mobile: order-2 (shown after image); Desktop: order-1
               ============================================================== */}
-          <div className="lg:col-span-7 flex flex-col space-y-5 text-left">
+          <div className="lg:col-span-7 flex flex-col space-y-5 text-left order-2 lg:order-1">
             
             {/* Sacred Invocation Eyebrow Pill */}
-            <div className="inline-flex items-center self-start gap-2 bg-white/90 dark:bg-[#0f3b36]/90 border border-[#fdc72d]/70 rounded-full px-3.5 py-1 shadow-2xs backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5 text-[#996f00] dark:text-[#fdc72d]" />
-              <span className="text-[#7c5a00] dark:text-[#ffdf96] text-xs sm:text-xs font-black tracking-wider uppercase">
+            <div className="inline-flex items-center self-start max-w-full gap-2 bg-white/90 dark:bg-[#1f221c]/90 border border-[#fdc72d]/70 rounded-full px-3 sm:px-3.5 py-1 shadow-2xs backdrop-blur-sm overflow-hidden">
+              <Sparkles className="h-3.5 w-3.5 text-[#996f00] dark:text-[#fdc72d] shrink-0" />
+              <span className="text-[#7c5a00] dark:text-[#ffdf96] text-[10.5px] sm:text-xs font-black tracking-wider uppercase truncate">
                 {t.eyebrow}
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#fdc72d] animate-ping" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#fdc72d] animate-ping shrink-0" />
             </div>
 
             {/* Majestic Balanced Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] font-extrabold text-[#0e3934] dark:text-white tracking-tight leading-[1.2]">
+            <h1 className="text-[26px] sm:text-4xl md:text-5xl lg:text-[46px] font-extrabold text-[#0e3934] dark:text-white tracking-tight leading-[1.25] sm:leading-[1.2]">
               {t.titlePrefix}
               <span className="text-[#8c6200] dark:text-[#fdc72d] underline decoration-[#fdc72d]/50 decoration-wavy decoration-2 underline-offset-4">
                 {t.titleHighlight1}
@@ -102,17 +103,17 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
             </h1>
 
             {/* Concise, Readable Description */}
-            <p className="text-sm sm:text-base md:text-lg text-[#4f4633] dark:text-neutral-300 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-base md:text-lg text-[#4f4633] dark:text-neutral-300 max-w-xl leading-relaxed">
               {t.description}
             </p>
 
             {/* The 2 Primary Clean Action Buttons (No Duplicate Tags Underneath) */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3.5 pt-1 w-full sm:w-auto">
               {/* Primary Consultation Action Button */}
               <button
                 type="button"
                 onClick={handleConsultation}
-                className="relative group overflow-hidden inline-flex items-center justify-center gap-2.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-black text-sm sm:text-base px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-[0_6px_20px_rgba(253,199,45,0.28)] active:scale-95 transition-all cursor-pointer border border-[#e5b220]"
+                className="w-full sm:w-auto relative group overflow-hidden inline-flex items-center justify-center gap-2.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-black text-sm sm:text-base px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-[0_6px_20px_rgba(253,199,45,0.28)] active:scale-95 transition-all cursor-pointer border border-[#e5b220]"
               >
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-[#0e3934]" />
                 <span>{t.consultCta}</span>
@@ -123,7 +124,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
               {/* Secondary Kundali Analysis Action Button */}
               <Link
                 href="/dashboard/kundli"
-                className="inline-flex items-center justify-center gap-2 bg-white dark:bg-[#0f3b36] hover:bg-[#fcfaf2] dark:hover:bg-[#113f39] border border-[#d2c5ad] dark:border-white/10 hover:border-[#fdc72d] text-[#0e3934] dark:text-white font-bold text-sm sm:text-base px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl shadow-2xs hover:shadow-xs active:scale-95 transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white dark:bg-[#1f221c] hover:bg-[#fcfaf2] dark:hover:bg-[#252822] border border-[#d2c5ad] dark:border-white/10 hover:border-[#fdc72d] text-[#0e3934] dark:text-white font-bold text-sm sm:text-base px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl shadow-2xs hover:shadow-xs active:scale-95 transition-all cursor-pointer text-center"
               >
                 <Sparkles className="h-4 w-4 text-[#8c6200] dark:text-[#fdc72d]" />
                 <span>{t.freeKundaliCta}</span>
@@ -134,16 +135,16 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
 
           {/* ==============================================================
               RIGHT COLUMN: TRI-OVAL HARMONIOUS ASTROLOGER COMPOSITION
-              (Matching reference 3-oval overlapping layout with golden ring)
+              Mobile: order-1 (shown first at top); Desktop: order-2
               ============================================================== */}
-          <div className="lg:col-span-5 relative flex flex-col items-center justify-center mt-6 lg:mt-0 w-full">
+          <div className="lg:col-span-5 relative flex flex-col items-center justify-center w-full order-1 lg:order-2">
             {/* Ambient subtle decorative golden aura glow */}
             <div className="absolute -top-6 right-0 w-52 h-52 bg-[#fdc72d]/15 dark:bg-[#fdc72d]/8 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-6 left-0 w-52 h-52 bg-[#008376]/12 dark:bg-[#008376]/8 rounded-full blur-3xl pointer-events-none" />
 
             {/* Founder portrait in the golden-ringed oval */}
             <div className="relative w-full max-w-[440px] flex items-center justify-center py-2 select-none">
-              <div className="relative w-[190px] sm:w-[230px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
+              <div className="relative w-[165px] sm:w-[220px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
                 <img
                   src={founderImage}
                   alt={founderName}
@@ -153,19 +154,19 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
             </div>
 
             {/* Founder spotlight card */}
-            <div className="w-full max-w-[450px] mt-2 rounded-2xl bg-white dark:bg-[#0e3833] border border-[#06302b]/5 dark:border-white/10 p-3 sm:p-3.5 shadow-[0_10px_28px_rgba(6,48,43,0.06)] dark:shadow-[0_10px_28px_rgba(6,48,43,0.3)] flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
+            <div className="w-full max-w-[420px] mt-2.5 rounded-2xl bg-white dark:bg-[#1a1c18] border border-border/80 dark:border-white/10 p-2.5 sm:p-3.5 shadow-sm dark:shadow-[0_10px_28px_rgba(0,0,0,0.4)] flex items-center justify-between gap-2.5 sm:gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
                   <span className="text-xs sm:text-[13px] font-black text-foreground truncate">
                     {founderName}
                   </span>
-                  <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-black px-1.5 py-0.2 rounded shrink-0">
+                  <span className="bg-[#fdc72d] text-[#0e3934] text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full shrink-0 tracking-wider">
                     {t.founderBadge}
                   </span>
                 </div>
                 {founder?.title && (
-                  <p className="text-xs sm:text-xs text-[#00685d] dark:text-[#38b2a3] font-bold truncate">
-                    {founder.title}
+                  <p className="text-[11px] sm:text-xs text-[#00685d] dark:text-[#38b2a3] font-bold truncate mt-0.5">
+                    {founder.title.replace(/•\s*(Gold Medalist|ગોલ્ડ મેડાલિસ્ટ)/gi, '').trim()}
                   </p>
                 )}
               </div>
@@ -174,7 +175,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
               <button
                 type="button"
                 onClick={handleConsultation}
-                className="shrink-0 inline-flex items-center gap-1.5 bg-[#00685d] hover:bg-[#005048] text-white font-black text-xs px-3.5 py-2 rounded-lg shadow-xs transition-all cursor-pointer active:scale-95"
+                className="shrink-0 inline-flex items-center gap-1.5 bg-[#00685d] hover:bg-[#005048] text-white font-black text-xs px-3 sm:px-3.5 py-2 rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
               >
                 <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" />
                 <span>{isEn ? "Consult" : "પરામર્શ"}</span>

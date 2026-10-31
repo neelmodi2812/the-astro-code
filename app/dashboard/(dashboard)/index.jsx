@@ -71,7 +71,7 @@ function DashboardClient({ data }) {
               </h1>
               <Badge className="bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/40 text-xs font-bold">
                 <Sparkles className="h-2.5 w-2.5 mr-1" />
-                <span>{data.userProfile.membershipBadge[lang] || data.userProfile.membershipBadge.gu}</span>
+                <span>{data.userProfile?.membershipBadge?.[lang] || data.userProfile?.membershipBadge?.gu || ""}</span>
               </Badge>
             </div>
             {(() => {
@@ -123,7 +123,7 @@ function DashboardClient({ data }) {
               className="h-9 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-muted cursor-pointer shadow-2xs"
             >
               <PlusCircle className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
-              <span>{data.headerActions.addKundli[lang] || data.headerActions.addKundli.gu}</span>
+              <span>{data.headerActions?.addKundli?.[lang] || data.headerActions?.addKundli?.gu || ""}</span>
             </Button>
 
             <Button
@@ -132,7 +132,7 @@ function DashboardClient({ data }) {
               className="h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] shadow-xs cursor-pointer"
             >
               <Video className="h-3.5 w-3.5" />
-              <span>{data.headerActions.joinRoom[lang] || data.headerActions.joinRoom.gu}</span>
+              <span>{data.headerActions?.joinRoom?.[lang] || data.headerActions?.joinRoom?.gu || ""}</span>
             </Button>
           </div>
         </div>
@@ -148,10 +148,10 @@ function DashboardClient({ data }) {
               <div className="flex items-start justify-between">
                 <div>
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                    {m.title[lang] || m.title.gu}
+                    {m.title?.[lang] || m.title?.gu || m.title || ''}
                   </span>
                   <div className="text-lg font-black text-foreground mt-1">
-                    {m.value[lang] || m.value.gu}
+                    {m.value?.[lang] || m.value?.gu || (typeof m.value === 'string' ? m.value : '')}
                   </div>
                 </div>
                 <div className="w-8 h-8 rounded-lg bg-muted/60 dark:bg-[#0f3c36] text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -163,9 +163,9 @@ function DashboardClient({ data }) {
               </div>
 
               <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
-                <span className="truncate text-xs">{m.subtitle[lang] || m.subtitle.gu}</span>
+                <span className="truncate text-xs">{m.subtitle?.[lang] || m.subtitle?.gu || (typeof m.subtitle === 'string' ? m.subtitle : '—')}</span>
                 <span className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] group-hover:underline">
-                  {m.cta[lang] || m.cta.gu}
+                  {m.cta?.[lang] || m.cta?.gu || (typeof m.cta === 'string' ? m.cta : '')}
                 </span>
               </div>
             </div>
@@ -181,10 +181,10 @@ function DashboardClient({ data }) {
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                 <div className="flex items-center gap-2">
                   <Badge className="bg-[#00685d] text-white text-xs font-bold">
-                    {data.dailyTransit.badge[lang] || data.dailyTransit.badge.gu}
+                    {data.dailyTransit?.badge?.[lang] || data.dailyTransit?.badge?.gu || ""}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {data.dailyTransit.date[lang] || data.dailyTransit.date.gu}
+                    {data.dailyTransit?.date?.[lang] || data.dailyTransit?.date?.gu || ""}
                   </span>
                 </div>
                 <Link
@@ -196,10 +196,10 @@ function DashboardClient({ data }) {
               </div>
 
               <h3 className="font-bold text-sm text-foreground mt-3">
-                {data.dailyTransit.heading[lang] || data.dailyTransit.heading.gu}
+                {data.dailyTransit?.heading?.[lang] || data.dailyTransit?.heading?.gu || ""}
               </h3>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                {data.dailyTransit.shortSummary[lang] || data.dailyTransit.shortSummary.gu}
+                {data.dailyTransit?.shortSummary?.[lang] || data.dailyTransit?.shortSummary?.gu || ""}
               </p>
             </div>
 
@@ -210,10 +210,10 @@ function DashboardClient({ data }) {
                   className={`text-center ${idx !== 0 ? "border-l border-border/40 pl-2" : ""}`}
                 >
                   <span className="text-xs text-muted-foreground block font-medium">
-                    {attr.label[lang] || attr.label.gu}
+                    {attr.label?.[lang] || attr.label?.gu || ""}
                   </span>
                   <span className="text-xs font-bold text-foreground block mt-0.5">
-                    {attr.value[lang] || attr.value.gu}
+                    {attr.value?.[lang] || attr.value?.gu || ""}
                   </span>
                 </div>
               ))}
@@ -273,21 +273,21 @@ function DashboardClient({ data }) {
                     </span>
                   </div>
                   <Badge className="bg-[#fdc72d]/15 text-[#8a6800] dark:text-[#fdc72d] border border-[#fdc72d]/30 text-[10px] font-bold">
-                    {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
+                    {data.upcomingConsultation?.countdown?.[lang] || data.upcomingConsultation?.countdown?.gu || ""}
                   </Badge>
                 </div>
 
                 <div className="mt-3 space-y-1.5">
                   <div className="font-bold text-sm text-foreground">
-                    {data.upcomingConsultation.astrologer[lang] || data.upcomingConsultation.astrologer.gu}
+                    {data.upcomingConsultation?.astrologer?.[lang] || data.upcomingConsultation?.astrologer?.gu || ""}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    {data.upcomingConsultation.title[lang] || data.upcomingConsultation.title.gu}
+                    {data.upcomingConsultation?.title?.[lang] || data.upcomingConsultation?.title?.gu || ""}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span>
-                      {data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu} • {data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}
+                      {data.upcomingConsultation?.dateValue?.[lang] || data.upcomingConsultation?.dateValue?.gu || ""} • {data.upcomingConsultation?.timeValue?.[lang] || data.upcomingConsultation?.timeValue?.gu || ""}
                     </span>
                   </div>
                 </div>
@@ -365,7 +365,7 @@ function DashboardClient({ data }) {
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] text-muted-foreground font-mono">{data.activeOrder.orderNumber}</span>
                     <Badge className="bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border border-[#00685d]/20 text-[10px] font-bold">
-                      {data.activeOrder.statusBadge[lang] || data.activeOrder.statusBadge.gu}
+                      {data.activeOrder?.statusBadge?.[lang] || data.activeOrder?.statusBadge?.gu || ""}
                     </Badge>
                   </div>
                 </div>
@@ -378,10 +378,10 @@ function DashboardClient({ data }) {
                   />
                   <div className="min-w-0">
                     <h4 className="font-bold text-xs text-foreground truncate">
-                      {data.activeOrder.productName[lang] || data.activeOrder.productName.gu}
+                      {data.activeOrder?.productName?.[lang] || data.activeOrder?.productName?.gu || ""}
                     </h4>
                     <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                      {data.activeOrder.currentStage[lang] || data.activeOrder.currentStage.gu}
+                      {data.activeOrder?.currentStage?.[lang] || data.activeOrder?.currentStage?.gu || ""}
                     </p>
                   </div>
                 </div>
@@ -405,7 +405,7 @@ function DashboardClient({ data }) {
                         <span className={`text-[9px] block truncate font-medium ${
                           isActive ? "text-foreground font-bold" : "text-muted-foreground"
                         }`}>
-                          {st.title[lang] || st.title.gu}
+                          {st.title?.[lang] || st.title?.gu || ""}
                         </span>
                       </div>
                     )
@@ -490,7 +490,7 @@ function DashboardClient({ data }) {
 
                 <div className="space-y-2 mt-3">
                   {data.savedKundlis.list.map((k) => {
-                    const personName = k.name[lang] || k.name.gu
+                    const personName = k.name?.[lang] || k.name?.gu || k.name || ""
                     const personInitial = personName ? personName.charAt(0) : "•"
                     return (
                       <Link
@@ -506,11 +506,11 @@ function DashboardClient({ data }) {
                             {personName}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
-                            ({k.relation[lang] || k.relation.gu})
+                            ({k.relation?.[lang] || k.relation?.gu || k.relation || ""})
                           </span>
                         </div>
                         <span className="text-[11px] font-medium text-muted-foreground shrink-0">
-                          {k.rashiLagna[lang] || k.rashiLagna.gu}
+                          {k.rashiLagna?.[lang] || k.rashiLagna?.gu || ""}
                         </span>
                       </Link>
                     )

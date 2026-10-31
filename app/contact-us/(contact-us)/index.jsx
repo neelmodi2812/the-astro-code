@@ -218,7 +218,7 @@ export default function ContactUsClient() {
       />
 
       {/* 2. TOP VEDIC ACCENT STRIP & BREADCRUMB */}
-      <section className="w-full bg-[#f4f4f0] dark:bg-[#0c3631] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-3 transition-colors">
+      <section className="w-full bg-[#f4f4f0] dark:bg-[#181916] border-b border-[#e6e3da] dark:border-white/10 px-4 sm:px-6 py-3 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <Breadcrumb>
             <BreadcrumbList className="text-xs font-medium">
@@ -249,7 +249,7 @@ export default function ContactUsClient() {
       </section>
 
       {/* 3. GRAND HEADER BANNER WITH SRI YANTRA GEOMETRIC AURA */}
-      <section className="w-full relative overflow-hidden bg-card dark:bg-[#0c3530] px-4 sm:px-6 pt-8 pb-10 border-b border-border/70 shadow-xs transition-colors">
+      <section className="w-full relative overflow-hidden bg-card dark:bg-[#151613] px-4 sm:px-6 pt-8 pb-10 border-b border-border/70 shadow-xs transition-colors">
         {/* Ambient Gradient Glows */}
         <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-gradient-to-br from-[#fdc72d]/20 to-[#00685d]/10 blur-3xl pointer-events-none" />
         <div className="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-gradient-to-tr from-[#00685d]/15 to-transparent blur-2xl pointer-events-none" />
@@ -312,7 +312,7 @@ export default function ContactUsClient() {
           {pageData.quickCards.map((card) => (
             <Card
               key={card.id}
-              className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-300 border border-border/80 flex flex-col justify-between"
+              className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-300 border border-border/80 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -417,7 +417,7 @@ export default function ContactUsClient() {
           {/* LEFT COLUMN: INTERACTIVE FORM, OFFICE GUIDE & FAQS (8 COLS) */}
           <div className="lg:col-span-8 flex flex-col gap-8">
             {/* Interactive Consultation Form Card */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
                   <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
@@ -614,7 +614,7 @@ export default function ContactUsClient() {
             </Card>
 
             {/* Physical Office Location & Visit Guide */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 mb-5">
                 <div>
                   <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
@@ -634,7 +634,7 @@ export default function ContactUsClient() {
                 className="w-full h-72 rounded-2xl overflow-hidden relative shadow-inner mb-6 flex flex-col justify-between p-4 bg-cover bg-center border border-border/60"
                 style={{ backgroundImage: `url('${pageData.officeLocation.mapImage}')` }}
               >
-                <div className="bg-white/95 dark:bg-[#0c3631]/95 backdrop-blur-xs p-3.5 rounded-xl shadow-md max-w-xs self-start border border-border/60">
+                <div className="bg-white/95 dark:bg-[#181916]/95 backdrop-blur-xs p-3.5 rounded-xl shadow-md max-w-xs self-start border border-border/60">
                   <div className="flex items-center gap-2 text-[#00685d] dark:text-[#6ed8c8] font-bold text-sm">
                     <MapPin className="h-4 w-4 text-red-500 shrink-0" />
                     <span>{pageData.officeLocation.officeName}</span>
@@ -648,7 +648,7 @@ export default function ContactUsClient() {
                   href={pageData.officeLocation.directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="self-end bg-white/95 dark:bg-[#0c3631]/95 hover:bg-white text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-colors border border-border/60"
+                  className="self-end bg-white/95 dark:bg-[#181916]/95 hover:bg-white text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-colors border border-border/60"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   <span>{pageData.officeLocation.directionsBtn}</span>
@@ -696,7 +696,7 @@ export default function ContactUsClient() {
             </Card>
 
             {/* Frequently Asked Questions (Accordion) */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-6 sm:p-8 shadow-xs border border-border/80">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block">
@@ -731,7 +731,7 @@ export default function ContactUsClient() {
           {/* RIGHT COLUMN (STICKY SIDEBAR WIDGETS - 4 COLS) */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
             {/* WIDGET 1: LIVE PANCHANG & AUSPICIOUS TIMINGS */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
               <div className="flex items-center justify-between pb-3 border-b border-border/60">
                 <div className="flex items-center gap-2">
                   <Sun className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d]" />
@@ -802,7 +802,7 @@ export default function ContactUsClient() {
             </Card>
 
             {/* WIDGET 2: DR. VISHAL MODI VERIFIED PROFILE CARD */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80 relative overflow-hidden">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80 relative overflow-hidden">
               <div className="flex items-center gap-3.5 mb-3">
                 <div className="relative w-16 h-16 shrink-0">
                   <Image
@@ -858,7 +858,7 @@ export default function ContactUsClient() {
             </Card>
 
             {/* WIDGET 3: VERIFIED SPIRITUAL PRODUCTS */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
               <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/60">
                 <div>
                   <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] font-black uppercase tracking-wider block">
@@ -953,7 +953,7 @@ export default function ContactUsClient() {
             </div>
 
             {/* WIDGET 5: SOCIAL MEDIA & COMMUNITY CONNECT */}
-            <Card className="bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
+            <Card className="bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-xs border border-border/80">
               <span className="text-xs text-[#8a6800] dark:text-[#fdc72d] uppercase font-black tracking-wider block mb-1">
                 {pageData.sidebar.social.tag}
               </span>
@@ -986,7 +986,7 @@ export default function ContactUsClient() {
       </main>
 
       {/* 6. AUSPICIOUS VEDIC SHLOKA BAR */}
-      <section className="w-full bg-[#efeeea] dark:bg-[#0c3631] py-4 px-4 sm:px-6 text-center border-t border-b border-border/60 transition-colors">
+      <section className="w-full bg-[#efeeea] dark:bg-[#181916] py-4 px-4 sm:px-6 text-center border-t border-b border-border/60 transition-colors">
         <p className="text-sm sm:text-base text-[#8a6800] dark:text-[#fdc72d] font-black tracking-wide">
           {pageData.shlokaBar.shloka}
         </p>
@@ -997,7 +997,7 @@ export default function ContactUsClient() {
 
       {/* 7. QUICK CONSULTATION MODAL */}
       <Dialog open={consultModalOpen} onOpenChange={setConsultModalOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#0d3833] border-border text-foreground">
+        <DialogContent className="max-w-md rounded-2xl p-6 shadow-xl bg-card dark:bg-[#1a1b17] border-border text-foreground">
           <DialogHeader className="p-0 pb-2 flex-row items-center gap-3 space-y-0 pr-8">
             <div className="w-10 h-10 rounded-xl bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center font-bold shrink-0">
               <Calendar className="h-5 w-5" />

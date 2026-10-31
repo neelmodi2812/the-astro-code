@@ -12,7 +12,7 @@ export default function DashboardLoading() {
     <DashboardShell breadcrumbKey="dashboard">
       <div className="space-y-6" role="status" aria-label="Loading Dashboard Data">
         {/* Welcome Banner Skeleton */}
-        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <Skeleton className="w-12 h-12 rounded-full shrink-0" />
             <div className="space-y-2">
@@ -31,7 +31,7 @@ export default function DashboardLoading() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-card dark:bg-[#0d3631] rounded-xl p-4 border border-border/70 shadow-2xs space-y-3"
+              className="bg-card dark:bg-[#1c1d1a] rounded-xl p-4 border border-border/70 shadow-2xs space-y-3"
             >
               <div className="flex items-center justify-between">
                 <Skeleton className="h-3 w-24 rounded-md" />
@@ -48,7 +48,7 @@ export default function DashboardLoading() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-2xs space-y-4"
+              className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-5 border border-border/70 shadow-2xs space-y-4"
             >
               <div className="flex items-center justify-between pb-2.5 border-b border-border/40">
                 <Skeleton className="h-4 w-36 rounded-md" />

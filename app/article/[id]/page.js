@@ -4,6 +4,15 @@ import { getArticleById, getAllArticleIds } from "@/lib/data/article-data"
 import { JsonLd } from "@/components/seo-structured-data"
 import { getArticleBundle, getArticleSlugs } from "@/lib/api/server/articles"
 
+const decodeSlug = (val) => {
+  if (!val) return "hero-1"
+  try {
+    return decodeURIComponent(String(val))
+  } catch {
+    return String(val)
+  }
+}
+
 /** Live article first (so admin-created articles work), bundled static article as fallback. */
 async function resolveArticle(id) {
   const live = await getArticleBundle(id)
@@ -24,7 +33,7 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }) {
   const resolvedParams = await params
-  const articleId = resolvedParams?.id || "hero-1"
+  const articleId = decodeSlug(resolvedParams?.id)
   const { article } = await resolveArticle(articleId)
 
   if (!article) {
@@ -85,7 +94,7 @@ export async function generateMetadata({ params }) {
  */
 async function ArticleDetailContentWrapper({ params }) {
   const resolvedParams = await params
-  const articleId = resolvedParams?.id || "hero-1"
+  const articleId = decodeSlug(resolvedParams?.id)
   const { live, article } = await resolveArticle(articleId)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
 

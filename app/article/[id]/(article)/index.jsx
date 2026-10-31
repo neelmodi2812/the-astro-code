@@ -60,7 +60,14 @@ import { useLanguage } from "@/components/language-provider"
 function ArticleDetailContent({ initialId, initialArticle }) {
   const params = useParams()
   const router = useRouter()
-  const articleId = params?.id || initialId || "hero-1"
+  const rawArticleId = params?.id || initialId || "hero-1"
+  const articleId = React.useMemo(() => {
+    try {
+      return decodeURIComponent(rawArticleId)
+    } catch {
+      return rawArticleId
+    }
+  }, [rawArticleId])
 
   const { lang, setLang } = useLanguage()
   const data = useHomeData(lang)
@@ -325,7 +332,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </p>
 
               {/* Author & Action Strip */}
-              <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+              <div className="bg-[#f7f6f2] dark:bg-[#1a1b17] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
                 {/* Author Avatar & Name */}
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -430,7 +437,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                         </button>
                       </div>
 
-                      <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#0d3833] shadow-xl">
+                      <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#1a1b17] shadow-xl">
                         <DropdownMenuGroup>
                           <DropdownMenuLabel className="px-2.5 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                             {lang === "gu" ? "સોશિયલ મીડિયા પર શેર કરો" : "Share on Social Media"}
@@ -562,7 +569,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             />
 
             {/* SOCIAL SHARE BAR (Above Content) */}
-            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl shadow-xs">
+            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#1a1b17] border border-border/60 rounded-xl shadow-xs">
               <span className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2">
                 <Share2 className="h-4 w-4 text-[#d9a100]" />
                 {lang === "gu" ? "મિત્રો સાથે શેર કરો:" : "Share with friends:"}
@@ -589,27 +596,42 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
             {/* ARTICLE BODY CONTENT */}
             <div className="flex flex-col gap-6 text-foreground font-sans text-base sm:text-lg leading-relaxed">
-              {/* Lead Paragraph with vertical accent and drop cap */}
-              {article.lead && article.lead[lang] ? (
+              {/* Lead Paragraph with vertical accent */}
+              {article.lead && (article.lead[lang] || article.lead.gu || article.lead.en) ? (
+                (() => {
+                  const leadText = article.lead[lang] || article.lead.gu || article.lead.en || ""
+                  return (
+                    <div className="relative pl-4 border-l-4 border-[#d9a100]">
+                      <p className="font-medium text-foreground text-base sm:text-lg leading-relaxed">
+                        {lang === "en" && /^[a-zA-Z]/.test(leadText) ? (
+                          <>
+                            <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
+                              {leadText.charAt(0)}
+                            </span>
+                            {leadText.slice(1)}
+                          </>
+                        ) : (
+                          leadText
+                        )}
+                      </p>
+                    </div>
+                  )
+                })()
+              ) : !article.lead ? (
                 <div className="relative pl-4 border-l-4 border-[#d9a100]">
-                  <p className="font-medium text-foreground leading-relaxed">
-                    <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
-                      {Array.from(article.lead[lang])[0]}
-                    </span>
-                    {Array.from(article.lead[lang]).slice(1).join("")}
+                  <p className="font-medium text-foreground text-base sm:text-lg leading-relaxed">
+                    {lang === "en" ? (
+                      <>
+                        <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
+                          T
+                        </span>
+                        {"he sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."}
+                      </>
+                    ) : (
+                      "ગુજરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."
+                    )}
                   </p>
                 </div>
-              ) : !article.lead ? (
-              <div className="relative pl-4 border-l-4 border-[#d9a100]">
-                <p className="font-medium text-foreground leading-relaxed">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
-                    {lang === "gu" ? "ગુ" : "T"}
-                  </span>
-                  {lang === "gu"
-                    ? "જરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."
-                    : "he sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."}
-                </p>
-              </div>
               ) : null}
 
               {/* Subsection 1 */}
@@ -618,12 +640,12 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {article.sections[0].heading[lang]}
+                      {article.sections[0].heading?.[lang] || article.sections[0].heading?.gu || article.sections[0].heading}
                     </h2>
                   </div>
                   {article.sections[0].paragraphs.map((para, pIdx) => (
                     <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para[lang]}
+                      {para?.[lang] || para?.gu || para}
                     </p>
                   ))}
                 </div>
@@ -648,7 +670,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               {/* SPECIAL MUHURTA CARD (As seen in Reference Image 3) */}
               {article.muhurtaCard && article.muhurtaCard.title && (
-                <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
+                <div className="bg-[#f7f6f2] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Sun className="h-5 w-5 text-[#d9a100]" />
@@ -705,7 +727,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               {/* 5 SACRED RULES / RITUALS CHECKLIST CARD */}
               {article.rituals && article.rituals.title && (
-                <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
+                <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-[#d9a100]" />
@@ -774,7 +796,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               )}
 
               {/* Bottom Family Share Bar */}
-              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
+              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
                 <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:text-left">
                   {lang === "gu" ? "લેખ ગમ્યો હોય તો પરિવાર અને મિત્રો સાથે શેર કરો:" : "Enjoyed the article? Share with family & friends:"}
                 </span>
@@ -805,7 +827,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* AUTHOR COMPREHENSIVE BIO CARD */}
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
+            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
                   src={article.author.image || "https://dummyjson.com/image/200x100"}
@@ -906,7 +928,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
           {/* RIGHT: 30% STICKY INFORMATIVE SIDEBAR (4 cols) */}
           <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-[128px]">
             {/* WIDGET 1: SOCIAL CONNECT COUNTERS */}
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-sm text-foreground flex items-center gap-1.5">
                   <Users className="h-4 w-4 text-[#d9a100]" />
@@ -947,7 +969,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 2: TODAY'S PANCHANG WIDGET */}
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-sm text-foreground">
@@ -1053,7 +1075,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 4: MYSHOP SPIRITUAL STORE MINI SHOWCASE */}
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Store className="h-4 w-4 text-[#008d7f]" />
@@ -1112,7 +1134,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 5: MOST POPULAR ARTICLES (વાંચકોની પસંદ 1-3) */}
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4 text-[#d9a100]" />
                 <h4 className="font-bold text-sm text-foreground">

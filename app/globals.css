@@ -49,67 +49,98 @@
   --color-teal: #008d7f;
   --color-teal-dark: #00685d;
   --color-vermilion: #bb171f;
-  --color-charcoal: #0c3430;
-  --color-charcoal-warm: #0e3934;
+  --color-charcoal: #141414;
+  --color-charcoal-warm: #1b1c1a;
 }
 
 :root {
   --font-noto-gujarati: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', 'Gujarati Sangam MN', 'Shruti', sans-serif;
   --background: #faf9f5;
-  --foreground: #0e3934;
+  --foreground: #1b1c1a;
   --card: #ffffff;
-  --card-foreground: #0e3934;
+  --card-foreground: #1b1c1a;
   --popover: #ffffff;
-  --popover-foreground: #0e3934;
+  --popover-foreground: #1b1c1a;
   --primary: #fdc72d;
-  --primary-foreground: #0e3934;
+  --primary-foreground: #1b1c1a;
   --secondary: #008d7f;
   --secondary-foreground: #ffffff;
   --muted: #f0eee8;
   --muted-foreground: #665f50;
   --accent: #fdf5d6;
-  --accent-foreground: #0e3934;
+  --accent-foreground: #1b1c1a;
   --destructive: #bb171f;
   --border: #e6e3da;
   --input: #dedad0;
   --ring: #fdc72d;
   --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1b1c1a;
+  --sidebar-primary: #008d7f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0eee8;
+  --sidebar-accent-foreground: #1b1c1a;
+  --sidebar-border: #e6e3da;
+  --sidebar-ring: #fdc72d;
 }
 
 .dark {
-  --background: #0c3430;
+  --background: #141414;
   --foreground: #f4f3ef;
-  --card: #0e3934;
+  --card: #1c1d1a;
   --card-foreground: #f4f3ef;
-  --popover: #0e3934;
+  --popover: #1c1d1a;
   --popover-foreground: #f4f3ef;
   --primary: #fdc72d;
-  --primary-foreground: #0e3934;
+  --primary-foreground: #1b1c1a;
   --secondary: #008d7f;
   --secondary-foreground: #ffffff;
-  --muted: #103e38;
+  --muted: #242521;
   --muted-foreground: #a6a195;
-  --accent: #12413b;
+  --accent: #2c2b22;
   --accent-foreground: #fdc72d;
   --destructive: #db3232;
   --border: rgba(255, 255, 255, 0.12);
   --input: rgba(255, 255, 255, 0.16);
   --ring: #fdc72d;
+  --sidebar: #181915;
+  --sidebar-foreground: #f4f3ef;
+  --sidebar-primary: #fdc72d;
+  --sidebar-primary-foreground: #1b1c1a;
+  --sidebar-accent: #242521;
+  --sidebar-accent-foreground: #fdc72d;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: #fdc72d;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   html {
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
+
+  @media (min-width: 1024px) {
+    html {
+      zoom: 1.08;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.6;
+    overflow-x: clip;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, sans-serif;
   }
 }
@@ -139,6 +170,7 @@ html[lang="en"] h6 {
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -148,6 +180,7 @@ html[lang="en"] h6 {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -165,16 +198,20 @@ html[lang="en"] h6 {
   from {
     transform: rotate(360deg);
   }
+
   to {
     transform: rotate(0deg);
   }
 }
 
 @keyframes celestialPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.92;
   }
+
   50% {
     transform: scale(1.08);
     opacity: 1;
@@ -185,6 +222,7 @@ html[lang="en"] h6 {
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -207,11 +245,14 @@ html[lang="en"] h6 {
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.65;
     transform: scale(1);
     filter: drop-shadow(0 0 20px rgba(253, 199, 45, 0.4));
   }
+
   50% {
     opacity: 1;
     transform: scale(1.04);
@@ -220,10 +261,13 @@ html[lang="en"] h6 {
 }
 
 @keyframes auraBreathe {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0.95);
     opacity: 0.35;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 0.65;
@@ -268,67 +312,4 @@ html[lang="en"] h6 {
 
 .pb-safe-generous {
   padding-bottom: max(1.75rem, env(safe-area-inset-bottom, 24px));
-}
-
-/* ------------------------------------------------------------------
-   Gujarati readability
-   Gujarati conjuncts and matras break apart under letter-spacing, get
-   clipped by tight line-heights, and turn clumsy at 800/900 weights.
-   These rules sit outside @layer so they beat the Tailwind utilities.
-------------------------------------------------------------------- */
-html[lang="gu"] body {
-  line-height: 1.75;
-  font-kerning: normal;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-html[lang="gu"] [class*="tracking-"] {
-  letter-spacing: 0 !important;
-}
-
-html[lang="gu"] .font-black,
-html[lang="gu"] .font-extrabold {
-  font-weight: 700;
-}
-
-html[lang="gu"] h1 {
-  line-height: 1.3;
-}
-
-html[lang="gu"] h2,
-html[lang="gu"] h3,
-html[lang="gu"] h4 {
-  line-height: 1.4;
-}
-
-html[lang="gu"] .leading-none {
-  line-height: 1.3;
-}
-
-html[lang="gu"] .leading-tight {
-  line-height: 1.5;
-}
-
-html[lang="gu"] .leading-snug {
-  line-height: 1.6;
-}
-
-html[lang="gu"] [class*="leading-["] {
-  line-height: 1.35;
-}
-
-html[lang="gu"] .text-xs {
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-html[lang="gu"] .text-sm {
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
-html[lang="gu"] .text-base {
-  font-size: 1.0625rem;
-  line-height: 1.75;
 }

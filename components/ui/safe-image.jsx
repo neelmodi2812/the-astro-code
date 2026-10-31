@@ -21,13 +21,26 @@ export function SafeImage({
   sizes,
   ...props
 }) {
-  const [currentSrc, setCurrentSrc] = React.useState(src || fallbackSrc)
+  const cleanSrc = React.useMemo(() => {
+    if (!src) return fallbackSrc
+    let s = String(src).trim()
+    if (s.startsWith("http://atest.flutterclone.com")) {
+      s = s.replace("http://", "https://")
+    } else if (s.startsWith("/storage/")) {
+      s = `https://atest.flutterclone.com${s}`
+    } else if (s.startsWith("storage/")) {
+      s = `https://atest.flutterclone.com/${s}`
+    }
+    return s
+  }, [src, fallbackSrc])
+
+  const [currentSrc, setCurrentSrc] = React.useState(cleanSrc)
   const [hasError, setHasError] = React.useState(false)
 
   React.useEffect(() => {
-    setCurrentSrc(src || fallbackSrc)
+    setCurrentSrc(cleanSrc)
     setHasError(false)
-  }, [src, fallbackSrc])
+  }, [cleanSrc])
 
   const handleError = () => {
     if (currentSrc !== fallbackSrc && fallbackSrc) {
@@ -40,7 +53,7 @@ export function SafeImage({
   if (hasError || !currentSrc) {
     return (
       <div
-        className={`bg-gradient-to-br from-[#103d37] via-[#0d3833] to-[#0b332f] flex flex-col items-center justify-center p-3 text-center border border-[#fdc72d]/20 ${
+        className={`bg-gradient-to-br from-[#181916] via-[#1c1d1a] to-[#141414] flex flex-col items-center justify-center p-3 text-center border border-[#fdc72d]/20 ${
           fill ? "absolute inset-0 w-full h-full" : "w-full h-full min-h-[120px]"
         } ${className}`}
       >

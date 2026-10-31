@@ -233,7 +233,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               <div
                 id="panchang-details"
-                className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl shadow-sm overflow-hidden"
+                className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl shadow-sm overflow-hidden"
               >
                 {/* Header Strip */}
                 <div className="bg-gradient-to-r from-[#00685d] to-[#008376] p-4 sm:p-5 text-white flex flex-wrap items-center justify-between gap-3">
@@ -265,7 +265,7 @@ export default function DainikPanchangClient() {
                     {panchang.coreAngas.limbs.map((limb, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 rounded-xl bg-muted/40 dark:bg-[#0c3530] border border-border/60 hover:border-[#00685d]/40 transition-colors flex flex-col justify-between"
+                        className="p-3.5 rounded-xl bg-muted/40 dark:bg-[#151613] border border-border/60 hover:border-[#00685d]/40 transition-colors flex flex-col justify-between"
                       >
                         <div>
                           <div className="flex items-center justify-between mb-1">
@@ -298,7 +298,7 @@ export default function DainikPanchangClient() {
                       {panchang.coreAngas.planets.map((pl, i) => (
                         <div
                           key={i}
-                          className="p-2.5 rounded-lg bg-muted/30 dark:bg-[#0c3430] border border-border/40 flex flex-col"
+                          className="p-2.5 rounded-lg bg-muted/30 dark:bg-[#141512] border border-border/40 flex flex-col"
                         >
                           <span className="text-xs text-muted-foreground font-semibold">
                             {pl.title[lang]}
@@ -320,7 +320,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               {/* SECTION 2: CELESTIAL SUN & MOON TIMINGS                */}
               {/* ====================================================== */}
-              <div className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-sm">
+              <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between pb-3 border-b border-border/60 mb-4">
                   <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                     <Sun className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
@@ -334,7 +334,7 @@ export default function DainikPanchangClient() {
                 {/* 4 Cards Grid: Sunrise, Sunset, Moonrise, Moonset */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {/* Sunrise */}
-                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#0c3530] border border-border/60 flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#151613] border border-border/60 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-[#b28200] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
                       <Sunrise className="h-4 w-4" />
                     </div>
@@ -349,7 +349,7 @@ export default function DainikPanchangClient() {
                   </div>
 
                   {/* Sunset */}
-                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#0c3530] border border-border/60 flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#151613] border border-border/60 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
                       <Sunset className="h-4 w-4" />
                     </div>
@@ -364,7 +364,7 @@ export default function DainikPanchangClient() {
                   </div>
 
                   {/* Moonrise */}
-                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#0c3530] border border-border/60 flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#151613] border border-border/60 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                       <Moon className="h-4 w-4" />
                     </div>
@@ -379,7 +379,7 @@ export default function DainikPanchangClient() {
                   </div>
 
                   {/* Moonset */}
-                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#0c3530] border border-border/60 flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-muted/40 dark:bg-[#151613] border border-border/60 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-muted text-foreground flex items-center justify-center shrink-0 border border-border/60">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                     </div>
@@ -395,7 +395,7 @@ export default function DainikPanchangClient() {
                 </div>
 
                 {/* Day / Night Duration Bar */}
-                <div className="mt-3.5 p-2.5 rounded-lg bg-muted/30 dark:bg-[#0c3530] border border-border/40 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+                <div className="mt-3.5 p-2.5 rounded-lg bg-muted/30 dark:bg-[#151613] border border-border/40 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
                   <span className="font-semibold text-foreground">
                     {formatDigits(panchang.celestialTimings.dayDuration[lang], lang)}
                   </span>
@@ -413,7 +413,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               <div
                 id="muhurat"
-                className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-sm"
+                className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-sm"
               >
                 <div className="pb-3 border-b border-border/60 mb-5">
                   <h3 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
@@ -474,7 +474,7 @@ export default function DainikPanchangClient() {
                           className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${
                             m.isAlert
                               ? "bg-red-50/60 dark:bg-red-950/25 border-red-200 dark:border-red-900/40"
-                              : "bg-muted/40 dark:bg-[#0c3530] border-border/60"
+                              : "bg-muted/40 dark:bg-[#151613] border-border/60"
                           }`}
                         >
                           <div>
@@ -511,7 +511,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               <div
                 id="choghadiya"
-                className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-sm"
+                className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-sm"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border/60 mb-4 gap-3">
                   <div>
@@ -530,7 +530,7 @@ export default function DainikPanchangClient() {
                     onValueChange={setChoghadiyaTab}
                     className="shrink-0"
                   >
-                    <TabsList className="bg-muted dark:bg-[#0c3430] rounded-lg p-1 border border-border/60 h-auto">
+                    <TabsList className="bg-muted dark:bg-[#141512] rounded-lg p-1 border border-border/60 h-auto">
                       <TabsTrigger
                         value="day"
                         className="px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer data-active:bg-[#00685d] data-active:text-white"
@@ -575,7 +575,7 @@ export default function DainikPanchangClient() {
                 <div className="overflow-x-auto">
                   <Table className="text-xs min-w-[500px]">
                     <TableHeader>
-                      <TableRow className="bg-muted/50 dark:bg-[#0c3430] text-muted-foreground font-bold text-xs border-b border-border/60">
+                      <TableRow className="bg-muted/50 dark:bg-[#141512] text-muted-foreground font-bold text-xs border-b border-border/60">
                         <TableHead className="py-2.5 px-3 font-bold">{lang === "gu" ? "ચોઘડિયું" : "Choghadiya"}</TableHead>
                         <TableHead className="py-2.5 px-3 font-bold">{lang === "gu" ? "સમયગાળો" : "Time Interval"}</TableHead>
                         <TableHead className="py-2.5 px-3 font-bold">{lang === "gu" ? "સ્થિતિ" : "Nature"}</TableHead>
@@ -649,7 +649,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               {/* SECTION 5: MONTHLY CALENDAR GRID (MAASIK DARSAN)        */}
               {/* ====================================================== */}
-              <div className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-sm overflow-hidden">
+              <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-sm overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border/60 mb-4 gap-2">
                   <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
@@ -672,7 +672,7 @@ export default function DainikPanchangClient() {
                 <div className="w-full overflow-x-auto">
                   <div className="min-w-[580px]">
                     {/* Day Headers (Sun - Sat) */}
-                    <div className="grid grid-cols-7 gap-1 bg-muted/40 dark:bg-[#0c3430] p-1.5 rounded-lg text-center text-xs font-bold text-muted-foreground mb-1.5">
+                    <div className="grid grid-cols-7 gap-1 bg-muted/40 dark:bg-[#141512] p-1.5 rounded-lg text-center text-xs font-bold text-muted-foreground mb-1.5">
                       {panchang.monthlyCalendar.daysOfWeek.map((d) => (
                         <div
                           key={d.id}
@@ -761,7 +761,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               {/* SECTION 6: TODAY'S SACRED FESTIVAL SPOTLIGHT           */}
               {/* ====================================================== */}
-              <div className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl shadow-sm overflow-hidden">
+              <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <Badge className="bg-[#00685d] text-white text-xs font-bold px-2.5 py-0.5 rounded">
@@ -826,7 +826,7 @@ export default function DainikPanchangClient() {
               {/* ====================================================== */}
               <div
                 id="rashifal"
-                className="border border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 sm:p-6 shadow-sm"
+                className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-sm"
               >
                 <div className="flex items-center justify-between pb-3 border-b border-border/60 mb-4">
                   <div>
@@ -846,7 +846,7 @@ export default function DainikPanchangClient() {
                     <div
                       key={rashi.id}
                       onClick={() => setSelectedRashi(rashi)}
-                      className="p-3 rounded-xl bg-muted/40 dark:bg-[#0c3530] hover:bg-muted/70 border border-border/60 hover:border-[#00685d]/40 transition-all cursor-pointer flex flex-col justify-between"
+                      className="p-3 rounded-xl bg-muted/40 dark:bg-[#151613] hover:bg-muted/70 border border-border/60 hover:border-[#00685d]/40 transition-all cursor-pointer flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1">
@@ -881,7 +881,7 @@ export default function DainikPanchangClient() {
 
               {/* Sidebar Widget 1: Quick Panchang Highlights Card */}
               {SHOW_BUNDLED_SAMPLE_SECTIONS && (
-              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm space-y-4">
+              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-border/50">
                   <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <Clock className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
@@ -921,7 +921,7 @@ export default function DainikPanchangClient() {
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-muted/40 dark:bg-[#0c3530] border border-border/50 flex items-center justify-between">
+                  <div className="p-2.5 rounded-lg bg-muted/40 dark:bg-[#151613] border border-border/50 flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-foreground block">
                         {lang === "gu" ? "અમૃત ચોઘડિયું" : "Amrit Choghadiya"}
@@ -996,7 +996,7 @@ export default function DainikPanchangClient() {
 
               {/* Sidebar Widget 3: Upcoming Hindu Festivals & Vrat List */}
               {SHOW_BUNDLED_SAMPLE_SECTIONS && (
-              <Card className="border-border/80 bg-card dark:bg-[#0d3833] rounded-2xl p-5 shadow-sm">
+              <Card className="border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center justify-between pb-3 mb-3 border-b border-border/50">
                   <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
@@ -1011,7 +1011,7 @@ export default function DainikPanchangClient() {
                       className="flex items-center justify-between p-2.5 rounded-xl hover:bg-muted/50 transition-colors border border-border/40"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="text-center bg-muted dark:bg-[#0c3530] p-1 rounded-md min-w-[36px] border border-border/50">
+                        <div className="text-center bg-muted dark:bg-[#151613] p-1 rounded-md min-w-[36px] border border-border/50">
                           <span className="block text-xs text-muted-foreground uppercase font-bold">
                             {fest.month[lang]}
                           </span>
@@ -1046,7 +1046,7 @@ export default function DainikPanchangClient() {
       {/* Rashi Detail Interactive Modal */}
       {selectedRashi && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#06302b]/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md bg-card dark:bg-[#0d3833] border border-border/80 rounded-2xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-md bg-card dark:bg-[#1a1b17] border border-border/80 rounded-2xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
             <button
               onClick={() => setSelectedRashi(null)}
               className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
@@ -1069,7 +1069,7 @@ export default function DainikPanchangClient() {
               </div>
             </div>
 
-            <div className="space-y-3 bg-muted/40 dark:bg-[#0c3430] p-4 rounded-xl text-xs mb-4">
+            <div className="space-y-3 bg-muted/40 dark:bg-[#141512] p-4 rounded-xl text-xs mb-4">
               <p className="text-foreground leading-relaxed">
                 {selectedRashi.forecast[lang]}
               </p>

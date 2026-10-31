@@ -153,80 +153,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
   const [isHoverZooming, setIsHoverZooming] = React.useState(false)
   const [mousePos, setMousePos] = React.useState({ x: 50, y: 50 })
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false)
-  const [lightboxZoom, setLightboxZoom] = React.useState(1)
-  const [lightboxPan, setLightboxPan] = React.useState({ x: 0, y: 0 })
-  const [isDraggingLightbox, setIsDraggingLightbox] = React.useState(false)
-  const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 })
-
-  const handleZoomIn = React.useCallback(() => {
-    setLightboxZoom((prev) => {
-      const next = prev >= 2.5 ? 2.5 : Math.round((prev + 0.5) * 10) / 10
-      return next
-    })
-  }, [])
-
-  const handleZoomOut = React.useCallback(() => {
-    setLightboxZoom((prev) => {
-      const next = prev <= 1 ? 1 : Math.round((prev - 0.5) * 10) / 10
-      if (next === 1) setLightboxPan({ x: 0, y: 0 })
-      return next
-    })
-  }, [])
-
-  const handleResetZoom = React.useCallback(() => {
-    setLightboxZoom(1)
-    setLightboxPan({ x: 0, y: 0 })
-    setIsDraggingLightbox(false)
-  }, [])
-
-  const handleLightboxMouseDown = (e) => {
-    if (lightboxZoom <= 1) return
-    e.preventDefault()
-    setIsDraggingLightbox(true)
-    setDragStart({ x: e.clientX - lightboxPan.x, y: e.clientY - lightboxPan.y })
-  }
-
-  const handleLightboxMouseMove = (e) => {
-    if (!isDraggingLightbox || lightboxZoom <= 1) return
-    e.preventDefault()
-    setLightboxPan({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    })
-  }
-
-  const handleLightboxMouseUp = () => {
-    setIsDraggingLightbox(false)
-  }
-
-  const handleLightboxTouchStart = (e) => {
-    if (lightboxZoom <= 1 || !e.touches || e.touches.length === 0) return
-    setIsDraggingLightbox(true)
-    setDragStart({
-      x: e.touches[0].clientX - lightboxPan.x,
-      y: e.touches[0].clientY - lightboxPan.y
-    })
-  }
-
-  const handleLightboxTouchMove = (e) => {
-    if (!isDraggingLightbox || lightboxZoom <= 1 || !e.touches || e.touches.length === 0) return
-    setLightboxPan({
-      x: e.touches[0].clientX - dragStart.x,
-      y: e.touches[0].clientY - dragStart.y
-    })
-  }
-
-  const handleLightboxTouchEnd = () => {
-    setIsDraggingLightbox(false)
-  }
-
-  const handleLightboxDoubleClick = () => {
-    if (lightboxZoom === 1) {
-      setLightboxZoom(2)
-    } else {
-      handleResetZoom()
-    }
-  }
+  const handleResetZoom = React.useCallback(() => {}, [])
 
   // Mouse move handler for smooth lens zoom
   const handleImageMouseMove = React.useCallback((e) => {
@@ -308,31 +235,22 @@ export default function ProductDetailClient({ productId, initialBundle }) {
     }
   }, [isLightboxOpen])
 
-  // Keyboard navigation for modal (Escape, ArrowLeft, ArrowRight, +/-, 0)
+  // Keyboard navigation for image modal (Escape to close, ArrowLeft / ArrowRight to switch images)
   React.useEffect(() => {
     if (!isLightboxOpen) return
     const imagesCount = imagesList.length
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setIsLightboxOpen(false)
-        handleResetZoom()
       } else if (e.key === "ArrowLeft") {
         setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesCount - 1))
-        handleResetZoom()
       } else if (e.key === "ArrowRight") {
         setSelectedImageIndex((prev) => (prev < imagesCount - 1 ? prev + 1 : 0))
-        handleResetZoom()
-      } else if (e.key === "+" || e.key === "=") {
-        handleZoomIn()
-      } else if (e.key === "-") {
-        handleZoomOut()
-      } else if (e.key === "0") {
-        handleResetZoom()
       }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isLightboxOpen, imagesList.length, handleResetZoom, handleZoomIn, handleZoomOut])
+  }, [isLightboxOpen, imagesList.length])
 
   // Keyboard navigation for Certificate Modal (Escape to close)
   React.useEffect(() => {
@@ -488,14 +406,14 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
       <main className="flex-1 w-full bg-background pb-24 md:pb-0">
         {/* Breadcrumb Bar */}
-        <section className="w-full bg-card/80 backdrop-blur-md border-b border-border shadow-xs py-4 px-4 sm:px-6 lg:px-8">
-          <div className="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        <section className="w-full bg-card/90 backdrop-blur-md border-b border-border shadow-2xs py-3 sm:py-4 px-3 sm:px-6 lg:px-8">
+          <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
             <Breadcrumb aria-label="Breadcrumb">
-              <BreadcrumbList className="text-xs sm:text-sm text-muted-foreground flex-wrap">
+              <BreadcrumbList className="text-xs sm:text-sm text-muted-foreground flex-wrap items-center gap-1.5 sm:gap-2">
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     asChild
-                    className="hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors flex items-center gap-1.5"
+                    className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors flex items-center gap-1"
                   >
                     <Link href="/">
                       <Home className="h-3.5 w-3.5" />
@@ -507,10 +425,10 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     asChild
-                    className="hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors"
+                    className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors"
                   >
                     <Link href="/myshop">
-                      {currentLang === "gu" ? "MyShop સ્ટોર" : "MyShop Store"}
+                      {currentLang === "gu" ? "MyShop" : "MyShop Store"}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -518,16 +436,16 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     asChild
-                    className="hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors capitalize"
+                    className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors capitalize font-semibold"
                   >
                     <Link href={`/myshop/${product.category}`}>
                       {product.categoryName || product.category}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-bold text-[#00685d] dark:text-[#fdc72d] max-w-[240px] truncate">
+                <BreadcrumbSeparator className="hidden md:inline-flex" />
+                <BreadcrumbItem className="hidden md:inline-flex">
+                  <BreadcrumbPage className="font-bold text-[#8a6800] dark:text-[#fdc72d] max-w-[200px] lg:max-w-[280px] truncate">
                     {product.name}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
@@ -536,7 +454,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
             <Link
               href={`/myshop/${product.category}`}
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#00685d] dark:hover:text-[#fdc72d] font-bold transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#8a6800] dark:hover:text-[#fdc72d] font-bold transition-colors self-start sm:self-auto"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>{currentLang === "gu" ? "શ્રેણીમાં પાછા જાઓ" : "Back to Category"}</span>
@@ -547,8 +465,8 @@ export default function ProductDetailClient({ productId, initialBundle }) {
         {/* Product Details Hero Section */}
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            {/* LEFT COLUMN: Image Gallery & Badges (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col gap-4 lg:sticky lg:top-[168px] self-start z-20">
+            {/* LEFT COLUMN: Image Gallery & Badges (6 cols on lg/xl) */}
+            <div className="lg:col-span-6 xl:col-span-6 flex flex-col gap-4 lg:sticky lg:top-[168px] self-start z-20">
               {/* Main Showcase Image with Interactive Mouse Zoom and Modal Trigger */}
               <div
                 className="w-full aspect-square rounded-2xl bg-card border-2 border-border/80 overflow-hidden relative shadow-md group cursor-zoom-in select-none"
@@ -582,15 +500,21 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   className="w-full h-full object-cover pointer-events-none will-change-transform"
                 />
 
-                {/* Overlaid Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10">
-                  <Badge className="bg-[#00685d]/95 hover:bg-[#00685d] text-white font-bold text-xs px-2.5 py-1 shadow-sm">
-                    {product.badge}
-                  </Badge>
-                  <Badge variant="secondary" className="bg-card/90 backdrop-blur-md text-foreground font-semibold text-xs shadow-xs">
-                    {product.origin}
-                  </Badge>
-                </div>
+                {/* Overlaid Badges - only render if badge or origin text exists */}
+                {Boolean((product?.badge && String(product.badge).trim() !== "") || (product?.origin && String(product.origin).trim() !== "")) && (
+                  <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10">
+                    {Boolean(product?.badge && String(product.badge).trim() !== "") && (
+                      <Badge className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs px-2.5 py-1 shadow-sm">
+                        {product.badge}
+                      </Badge>
+                    )}
+                    {Boolean(product?.origin && String(product.origin).trim() !== "") && (
+                      <Badge variant="secondary" className="bg-card/90 backdrop-blur-md text-foreground font-semibold text-xs shadow-xs">
+                        {product.origin}
+                      </Badge>
+                    )}
+                  </div>
+                )}
 
                 {/* Top-Right Action Controls: Fullscreen Expand & Wishlist */}
                 <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
@@ -832,8 +756,8 @@ export default function ProductDetailClient({ productId, initialBundle }) {
 
             </div>
 
-            {/* RIGHT COLUMN: Commerce Info, Variants & Actions (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col gap-6">
+            {/* RIGHT COLUMN: Commerce Info, Variants & Actions (6 cols on lg/xl) */}
+            <div className="lg:col-span-6 xl:col-span-6 flex flex-col gap-6">
               {/* Product Header */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -1056,20 +980,7 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   </Button>
                 </div>
 
-                {/* Express WhatsApp Inquiry Button */}
-                <a
-                  href={getWhatsAppInquiryUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full h-11 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#25D366]/30 transition-colors mt-1"
-                >
-                  <MessageCircle className="h-4 w-4 shrink-0" />
-                  <span>
-                    {currentLang === "gu"
-                      ? "WhatsApp દ્વારા ૧-ક્લિક ઓર્ડર અથવા પૂછપરછ"
-                      : "1-Click Order or Inquiry via WhatsApp"}
-                  </span>
-                </a>
+                
               </div>
 
               {/* Checkout Security & Trust Highlights */}
@@ -1723,9 +1634,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                           alt={rel.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <Badge className="absolute top-2.5 left-2.5 bg-[#00685d]/95 hover:bg-[#00685d] text-white font-bold text-xs shadow-sm">
-                          {rel.badge}
-                        </Badge>
+                        {Boolean(rel.badge && String(rel.badge).trim() !== "") && (
+                          <Badge className="absolute top-2.5 left-2.5 bg-[#fdc72d] text-[#0e3934] font-bold text-xs shadow-sm">
+                            {rel.badge}
+                          </Badge>
+                        )}
                       </Link>
 
                       {/* Content Details */}
@@ -1861,194 +1774,81 @@ export default function ProductDetailClient({ productId, initialBundle }) {
       {/* Fullscreen Image Lightbox Modal with Smooth Pan & Multi-level Zoom */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-[#06302b]/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200 select-none"
-          onClick={() => {
-            setIsLightboxOpen(false)
-            handleResetZoom()
-          }}
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 animate-in fade-in duration-200 select-none"
+          onClick={() => setIsLightboxOpen(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           role="dialog"
           aria-modal="true"
         >
-          {/* Modal Top Bar */}
+          {/* Modal Top Bar: Back to product (left) & Image Counter (right) */}
           <div
-            className="w-full max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4 z-20"
+            className="w-full max-w-7xl mx-auto flex items-center justify-between z-20 shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <Badge className="bg-[#00685d] text-white font-bold text-xs px-2.5 py-1 shrink-0">
-                {product.badge}
-              </Badge>
-              <span className="text-white/90 font-bold text-xs sm:text-base truncate max-w-[150px] sm:max-w-md">
-                {product.name}
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(false)}
+              className="flex items-center gap-2 text-white/90 hover:text-white text-sm sm:text-base font-semibold transition-colors cursor-pointer group py-1"
+              aria-label="Back to product"
+            >
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-0.5 transition-transform" />
+              <span>{currentLang === "gu" ? "પ્રોડક્ટ પર પાછા જાઓ" : "Back to product"}</span>
+            </button>
+
+            {imagesList.length > 0 && (
+              <span className="text-white/80 font-semibold text-sm sm:text-base tabular-nums tracking-wider">
+                {toDigits(selectedImageIndex + 1)}/{toDigits(imagesList.length)}
               </span>
-              <span className="text-white/50 text-xs hidden sm:inline shrink-0">
-                • {selectedImageIndex + 1} / {imagesList.length}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Zoom Controls Toolbar */}
-              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/10">
-                <button
-                  type="button"
-                  onClick={handleZoomOut}
-                  disabled={lightboxZoom <= 1}
-                  className="w-8 h-8 rounded-lg text-white hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                  title="Zoom Out (-)"
-                  aria-label="Zoom Out"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-
-                <span className="px-2 text-xs font-bold text-white/90 tabular-nums min-w-[42px] text-center">
-                  {Math.round(lightboxZoom * 100)}%
-                </span>
-
-                <button
-                  type="button"
-                  onClick={handleZoomIn}
-                  disabled={lightboxZoom >= 2.5}
-                  className="w-8 h-8 rounded-lg text-white hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                  title="Zoom In (+)"
-                  aria-label="Zoom In"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-
-                {lightboxZoom > 1 && (
-                  <button
-                    type="button"
-                    onClick={handleResetZoom}
-                    className="h-8 px-2.5 rounded-lg bg-[#fdc72d]/20 hover:bg-[#fdc72d]/30 text-[#fdc72d] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer border border-[#fdc72d]/30 ml-1"
-                    title="Reset Zoom (0)"
-                    aria-label="Reset Zoom"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{currentLang === "gu" ? "રીસેટ" : "Reset"}</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLightboxOpen(false)
-                  handleResetZoom()
-                }}
-                className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10 active:scale-95"
-                aria-label="Close image modal"
-                title="Close (Escape)"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            )}
           </div>
 
-          {/* Modal Center Showcase with Panning and Drag Support */}
+          {/* Modal Center Showcase: Direct image with clean left/right navigation */}
           <div
-            className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-2 sm:my-4 overflow-hidden touch-none"
+            className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-auto overflow-hidden py-2 sm:py-4"
             onClick={(e) => e.stopPropagation()}
-            onMouseDown={handleLightboxMouseDown}
-            onMouseMove={handleLightboxMouseMove}
-            onMouseUp={handleLightboxMouseUp}
-            onMouseLeave={handleLightboxMouseUp}
-            onTouchStart={handleLightboxTouchStart}
-            onTouchMove={handleLightboxTouchMove}
-            onTouchEnd={handleLightboxTouchEnd}
-            onDoubleClick={handleLightboxDoubleClick}
-            style={{
-              cursor: lightboxZoom > 1 ? (isDraggingLightbox ? "grabbing" : "grab") : "zoom-in"
-            }}
           >
-            {/* Previous Arrow Button */}
+            {/* Previous Arrow Button (Clean white square button matching reference) */}
             {imagesList.length > 1 && (
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))
-                  handleResetZoom()
-                }}
-                className="absolute left-2 sm:left-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#06302b]/70 hover:bg-[#06302b]/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
+                onClick={() => setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))}
+                className="absolute left-2 sm:left-4 z-20 w-8 h-9 sm:w-9 sm:h-10 rounded bg-white hover:bg-white/90 text-black flex items-center justify-center transition-all shadow-xl active:scale-95 cursor-pointer"
                 aria-label="Previous Image"
               >
-                <ChevronLeft className="h-6 w-6" />
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />
               </button>
             )}
 
-            {/* Main Image with Smooth Pan & Scale */}
-            <div
-              className="max-h-[72vh] max-w-full flex items-center justify-center will-change-transform"
-              style={{
-                transform: `translate3d(${lightboxPan.x}px, ${lightboxPan.y}px, 0px) scale(${lightboxZoom})`,
-                transition: isDraggingLightbox ? "none" : "transform 0.25s cubic-bezier(0.2, 0, 0, 1)"
-              }}
-            >
-              <img
-                src={imagesList[selectedImageIndex] || imagesList[0]}
-                alt={product.name}
-                draggable={false}
-                className="max-h-[72vh] max-w-full object-contain rounded-xl select-none shadow-2xl pointer-events-none"
-              />
-            </div>
+            {/* Main Image (Clean, No Zoom, Directly on Black Backdrop) */}
+            <img
+              src={imagesList[selectedImageIndex] || imagesList[0]}
+              alt={product.name}
+              draggable={false}
+              className="max-h-[76vh] sm:max-h-[82vh] max-w-full object-contain rounded-lg select-none shadow-2xl"
+            />
 
-            {/* Next Arrow Button */}
+            {/* Next Arrow Button (Clean white square button matching reference) */}
             {imagesList.length > 1 && (
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))
-                  handleResetZoom()
-                }}
-                className="absolute right-2 sm:right-4 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#06302b]/70 hover:bg-[#06302b]/90 text-white backdrop-blur-md flex items-center justify-center transition-all hover:scale-105 border border-white/15 cursor-pointer shadow-lg active:scale-95"
+                onClick={() => setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))}
+                className="absolute right-2 sm:right-4 z-20 w-8 h-9 sm:w-9 sm:h-10 rounded bg-white hover:bg-white/90 text-black flex items-center justify-center transition-all shadow-xl active:scale-95 cursor-pointer"
                 aria-label="Next Image"
               >
-                <ChevronRight className="h-6 w-6" />
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />
               </button>
-            )}
-
-            {/* Helper Notice Pill */}
-            {lightboxZoom > 1 ? (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#06302b]/60 backdrop-blur-md text-white/80 text-xs font-medium border border-white/10 pointer-events-none flex items-center gap-1.5 shadow-md">
-                <span>{currentLang === "gu" ? "ખસેડવા માટે ડ્રેગ કરો • રીસેટ કરવા ડબલ ક્લિક કરો" : "Drag to pan • Double-click to reset"}</span>
-              </div>
-            ) : (
-              <div className="hidden sm:flex absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#06302b]/60 backdrop-blur-md text-white/70 text-xs font-medium border border-white/10 pointer-events-none items-center gap-1.5 shadow-md">
-                <span>{currentLang === "gu" ? "ઝૂમ કરવા માટે ડબલ ક્લિક અથવા + બટન વાપરો" : "Double-click or click + to zoom into fine details"}</span>
-              </div>
             )}
           </div>
 
-          {/* Modal Bottom Thumbnails */}
+          {/* Modal Bottom: Product Title Centered */}
           <div
-            className="w-full max-w-md mx-auto flex items-center justify-center gap-2.5 z-20 py-1 overflow-x-auto"
+            className="w-full max-w-7xl mx-auto flex items-center justify-center z-20 shrink-0 pt-2 px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {imagesList.map((img, idx) => {
-              const isSelected = selectedImageIndex === idx
-              return (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setSelectedImageIndex(idx)
-                    handleResetZoom()
-                  }}
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
-                    isSelected
-                      ? "border-[#008376] dark:border-[#fdc72d] shadow-sm"
-                      : "border-white/20 opacity-50 hover:opacity-100"
-                  }`}
-                  aria-label={`View image ${idx + 1}`}
-                >
-                  <img
-                    src={img}
-                    alt={`Thumbnail ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              )
-            })}
+            <h3 className="text-white/90 font-semibold text-sm sm:text-base tracking-tight text-center truncate max-w-2xl">
+              {product.name}
+            </h3>
           </div>
         </div>
       )}

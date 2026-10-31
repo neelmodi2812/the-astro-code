@@ -22,7 +22,7 @@ export function HeroMagazine({ stories, onStoryClick }) {
             />
 
             {/* Dark Gradient Overlay for optimal Gujarati contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0c3430]/95 via-[#0c3430]/45 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
 
             {/* Card Content (Aligned to Bottom) */}
             <div className="relative h-full flex flex-col justify-end p-5 text-center">

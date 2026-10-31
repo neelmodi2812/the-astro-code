@@ -155,7 +155,7 @@ export default function LoginClient() {
               {/* ======================================================== */}
               {/* LEFT COLUMN: ELEGANT UNCLUTTERED CARD WITH VEDIC BG IMAGE */}
               {/* ======================================================== */}
-              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#0c3530] text-white min-h-[460px]">
+              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#151613] text-white min-h-[460px]">
                 {/* Background Image: Glowing Sri Yantra Cosmos */}
                 <div
                   className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 pointer-events-none transition-transform duration-700"
@@ -163,8 +163,8 @@ export default function LoginClient() {
                 />
                 
                 {/* Elegant dark gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0c3530] via-[#0c3530]/70 to-[#0c3530]/40 pointer-events-none" />
-                <div className="absolute inset-0 bg-radial from-transparent to-[#0c3530]/80 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#151613] via-[#151613]/70 to-[#151613]/40 pointer-events-none" />
+                <div className="absolute inset-0 bg-radial from-transparent to-[#151613]/80 pointer-events-none" />
 
                 {/* Top Content Block: Clean, small, uncluttered information */}
                 <div className="relative z-10 space-y-5">
@@ -365,7 +365,7 @@ export default function LoginClient() {
                 </div>
 
                 {/* New Registration Callout Banner at Bottom */}
-                <div className="mt-8 pt-5 bg-muted/40 dark:bg-[#0c3530] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
+                <div className="mt-8 pt-5 bg-muted/40 dark:bg-[#151613] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
                       <UserPlus className="h-5 w-5" />

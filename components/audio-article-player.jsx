@@ -206,7 +206,7 @@ export function AudioArticlePlayer({
   }, [articleText, lang])
 
   return (
-    <div className="w-full bg-[#f8f7f3] dark:bg-[#0d3833] border border-[#e6e3da] dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
+    <div className="w-full bg-[#f8f7f3] dark:bg-[#1c1d1a] border border-[#e6e3da] dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
       {/* Top Header Row */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -245,7 +245,7 @@ export function AudioArticlePlayer({
         </Tooltip>
 
         {/* Slider scrub track */}
-        <div className="flex-1 px-3 py-2 bg-white dark:bg-[#0b332f] h-11 sm:h-12 rounded-full border border-[#e2dfd5] dark:border-white/10 flex items-center">
+        <div className="flex-1 px-3 py-2 bg-white dark:bg-[#1e201b] h-11 sm:h-12 rounded-full border border-[#e2dfd5] dark:border-white/10 flex items-center">
           <Slider
             value={[Math.min(calculatedDuration, Math.max(0, Math.round(currentTime)))]}
             max={calculatedDuration}
@@ -266,7 +266,7 @@ export function AudioArticlePlayer({
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="h-10 sm:h-11 px-2.5 sm:px-3 rounded-full bg-white dark:bg-[#0b332f] border border-[#e2dfd5] dark:border-white/10 text-xs font-bold text-foreground hover:bg-[#eae8e1] dark:hover:bg-white/10 flex items-center gap-1.5 shrink-0 transition-colors shadow-xs cursor-pointer"
+                  className="h-10 sm:h-11 px-2.5 sm:px-3 rounded-full bg-white dark:bg-[#1e201b] border border-[#e2dfd5] dark:border-white/10 text-xs font-bold text-foreground hover:bg-[#eae8e1] dark:hover:bg-white/10 flex items-center gap-1.5 shrink-0 transition-colors shadow-xs cursor-pointer"
                   aria-label="Change playback speed"
                 >
                   <Gauge className="h-3.5 w-3.5 text-[#008d7f]" />
@@ -278,7 +278,7 @@ export function AudioArticlePlayer({
               <p>{lang === "gu" ? "સ્પીડ પસંદ કરો" : "Select speed"}</p>
             </TooltipContent>
           </Tooltip>
-          <DropdownMenuContent align="end" className="w-36 p-1.5 rounded-xl bg-card dark:bg-[#0d3833] shadow-lg">
+          <DropdownMenuContent align="end" className="w-36 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-lg">
             <DropdownMenuLabel className="text-xs font-bold text-muted-foreground px-2 py-1">
               {lang === "gu" ? "પ્લેબેક સ્પીડ" : "Playback Speed"}
             </DropdownMenuLabel>

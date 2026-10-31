@@ -822,61 +822,7 @@ export default function CartClient() {
                   </Button>
                 </div>
 
-                {/* Saved for Later Section (if any items saved) */}
-                {savedItems.length > 0 && (
-                  <div className="mt-4 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-4">
-                    <div className="flex items-center gap-2">
-                      <Bookmark className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
-                      <h3 className="text-base sm:text-lg font-bold text-foreground">
-                        {cartData.savedForLaterSection.title} ({toDigits(savedItems.length)})
-                      </h3>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      {savedItems.map((sItem) => (
-                        <div
-                          key={sItem.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/50 hover:border-border transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <img
-                              src={sItem.image || "https://dummyjson.com/image/200x100"}
-                              onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
-                              alt={getText(sItem.name)}
-                              className="w-14 h-14 rounded-xl object-cover shrink-0 border border-border/40"
-                            />
-                            <div className="flex flex-col min-w-0 flex-1 pr-2">
-                              <span className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">
-                                {getText(sItem.name)}
-                              </span>
-                              <span className="text-xs font-bold text-[#00685d] dark:text-[#fdc72d] mt-1">
-                                {formatPrice(sItem.price)}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                            <Button
-                              size="sm"
-                              onClick={() => handleMoveToCart(sItem)}
-                              className="bg-[#00685d] hover:bg-[#005048] text-white text-xs font-semibold rounded-lg h-8 px-3"
-                            >
-                              {cartData.savedForLaterSection.moveToCart}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleRemoveSaved(sItem.id)}
-                              className="text-xs text-muted-foreground hover:text-red-500 h-8 px-2.5"
-                            >
-                              {cartData.savedForLaterSection.remove}
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                
               </div>
 
               {/* RIGHT COLUMN: Sticky Order Summary & Order Summary (35% width) */}
@@ -1022,25 +968,7 @@ export default function CartClient() {
                   </div>
                 </div>
 
-                {/* Astrological Guidance Assistance Banner */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#fdc72d]/15 border border-[#fdc72d]/30 flex items-start gap-3">
-                  <HelpCircle className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0 mt-0.5" />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs sm:text-sm font-bold text-foreground">
-                      {cartData.astrologyHelp.title}
-                    </span>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {cartData.astrologyHelp.desc}
-                    </p>
-                    <a
-                      href={`tel:${cartData.astrologyHelp.phone}`}
-                      className="text-[#00685d] dark:text-[#fdc72d] font-bold text-xs pt-1 hover:underline inline-flex items-center gap-1"
-                    >
-                      <Phone className="h-3 w-3" />
-                      <span>{cartData.astrologyHelp.cta}</span>
-                    </a>
-                  </div>
-                </div>
+                
               </aside>
             </div>
           )}

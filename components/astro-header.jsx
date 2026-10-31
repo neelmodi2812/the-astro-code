@@ -59,10 +59,9 @@ import { useNavMenu } from "@/lib/api/hooks/use-nav-menu"
 // Valid application routes for the "More" navigation dropdown
 const MORE_SUBMENU = [
   { label: { gu: "તમામ વિષય સંગ્રહ", en: "All Categories Directory" }, href: "/categories" },
-  { label: { gu: "દૈનિક પંચાંગ અને ચોઘડિયા", en: "Daily Panchang & Choghadiya" }, href: "/dainik-panchang" },
-  { label: { gu: "MyShop વૈદિક સ્ટોર", en: "MyShop Spiritual Store" }, href: "/myshop" },
-  { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us & History" }, href: "/about-us" },
+  { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us" }, href: "/about-us" },
   { label: { gu: "સંપર્ક કરો અને મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
+  { label: { gu: "ગોપનીયતા નીતિ", en: "Privacy Policy" }, href: "/privacy-policy" },
 ]
 
 export function AstroHeader({
@@ -201,15 +200,15 @@ export function AstroHeader({
   }
 
   const getItemHref = (itemId) => {
-    const dynamicItem = navLinks.find((item) => item.id === itemId)
-    if (dynamicItem?.href) return dynamicItem.href
     if (itemId === "home") return "/"
     if (itemId === "panchang" || itemId === "dainik-panchang") return "/dainik-panchang"
     if (itemId === "shop" || itemId === "myshop" || itemId === "vedic-shop") return "/myshop"
     if (itemId === "cart") return "/myshop/cart"
     if (itemId === "about" || itemId === "about-us") return "/about-us"
     if (itemId === "contact" || itemId === "contact-us") return "/contact-us"
-    return "/categories"
+    const dynamicItem = navLinks.find((item) => item.id === itemId)
+    if (dynamicItem?.href && dynamicItem.href !== "/categories") return dynamicItem.href
+    return `/categories?category=${itemId}`
   }
 
   const activeNavId = React.useMemo(() => {
@@ -229,6 +228,12 @@ export function AstroHeader({
       return "more"
     }
     if (pathname === "/categories" || pathname?.startsWith("/categories")) {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search)
+        const cat = params.get("category")
+        if (cat) return cat
+      }
+      if (activeCategory && activeCategory !== "home") return activeCategory
       return "more"
     }
 
@@ -269,30 +274,28 @@ export function AstroHeader({
     <header className="sticky top-0 w-full z-50 shadow-[0_4px_20px_-2px_rgba(37,26,0,0.12)] transition-all">
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         {/* 1ST LAYER: UNIFIED BRAND, CELESTIAL TIMINGS & UTILITIES ROW */}
-        <div className="bg-card dark:bg-[#0c3631] py-2.5 sm:py-3 border-b border-[#fdc72d]/25 transition-colors">
+        <div className="bg-card dark:bg-[#161714] py-2.5 sm:py-3 border-b border-[#fdc72d]/25 transition-colors">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4">
             {/* Left: Brand Identity & Sacred Celestial Status */}
             <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-              <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(253,199,45,0.30)] ring-2 ring-[#fdc72d] bg-[#fffaf0] flex items-center justify-center p-0.5 shrink-0 transition-transform group-hover:scale-105">
-                  <Image
-                    src={config?.logoUrl || "/logo.svg"}
-                    alt={config?.appName || "The Astro Code"}
-                    width={44}
-                    height={44}
-                    unoptimized
-                  className="w-full h-full object-contain"
-                    priority
-                  />
-                </div>
-                <div className="shrink-0 whitespace-nowrap">
-                  <div className="text-lg sm:text-xl md:text-[22px] font-extrabold text-foreground tracking-tight leading-none group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors whitespace-nowrap">
-                    {config?.appName || "The Astro Code"}
-                  </div>
-                  <div className="text-xs sm:text-xs font-black tracking-widest text-[#8a6800] dark:text-[#fdc72d] mt-1 whitespace-nowrap leading-none">
-                    {config?.tagline || "UNLOCK HAPPINESS"}
-                  </div>
-                </div>
+              <Link href="/" className="flex items-center group shrink-0" aria-label={config?.appName || "The Astro Code"}>
+                <Image
+                  src="/the-astro-code-banner.png"
+                  alt={config?.appName || "The Astro Code"}
+                  width={220}
+                  height={44}
+                  priority
+                  className="block dark:hidden h-8 sm:h-9 md:h-10 lg:h-11 max-w-[145px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
+                />
+                <Image
+                  src="/the-astro-code-banner-dark.png"
+                  alt={config?.appName || "The Astro Code"}
+                  width={220}
+                  height={44}
+                  priority
+                  className="hidden dark:block h-8 sm:h-9 md:h-10 lg:h-11 max-w-[145px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
+                />
+                <span className="sr-only">{config?.appName || "The Astro Code"}</span>
               </Link>
 
               {/* Panchang / Samvat & Solar Status Capsule (visible on xl+) */}
@@ -331,13 +334,13 @@ export function AstroHeader({
                 <span>{topBar.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
               </Button>
 
-              {/* Shopping Cart Bag (Desktop Only: md+) */}
-              <div className="hidden md:flex">
+              {/* Shopping Cart Bag (Mobile & Desktop) */}
+              <div className="flex">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Link
                       href="/myshop/cart"
-                      className="relative h-10 w-10 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-all shrink-0"
+                      className="relative h-10 w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-all shrink-0"
                       aria-label={lang === "gu" ? "શોપિંગ કાર્ટ" : "Shopping Cart"}
                     >
                       <ShoppingBag className="h-4.5 w-4.5" />
@@ -362,7 +365,7 @@ export function AstroHeader({
                       <Link
                         href="/login"
                         aria-label={lang === "gu" ? "લૉગિન કરો" : "Sign In"}
-                        className="h-10 w-10 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
+                        className="h-10 w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
                       >
                         <User className="h-5 w-5 text-foreground" />
                       </Link>
@@ -377,7 +380,7 @@ export function AstroHeader({
                       <button
                         type="button"
                         aria-label={lang === "gu" ? "મારું એકાઉન્ટ" : "My Account"}
-                        className="h-10 px-2.5 sm:px-3 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-foreground border border-border flex items-center gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
+                        className="h-10 px-2.5 sm:px-3 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
                       >
                         <div className="h-7 w-7 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none shadow-xs">
                           {userInitial}
@@ -388,9 +391,9 @@ export function AstroHeader({
                         <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-xl bg-card dark:bg-[#0d3732] shadow-xl border border-border">
+                    <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-xl border border-border">
                       <DropdownMenuGroup>
-                        <div className="px-3 py-2.5 bg-muted/40 dark:bg-[#0f3c36] rounded-lg mb-1 border border-border/40">
+                        <div className="px-3 py-2.5 bg-muted/40 dark:bg-[#20211d] rounded-lg mb-1 border border-border/40">
                           <p className="text-xs font-extrabold text-foreground truncate">
                             Hi! {user?.name || (lang === "gu" ? "ભક્ત" : "Devotee")}
                           </p>
@@ -456,7 +459,7 @@ export function AstroHeader({
               <Separator orientation="vertical" className="h-5 hidden md:block bg-border/60 mx-0.5" />
 
               {/* Bilingual Switcher (Desktop Only: md+) */}
-              <div className="hidden md:inline-flex bg-muted/70 dark:bg-[#0f3a35] p-0.5 sm:p-1 rounded-xl border border-border/60 shadow-2xs items-center gap-0.5">
+              <div className="hidden md:inline-flex bg-muted/70 dark:bg-[#20211d] p-0.5 sm:p-1 rounded-xl border border-border/60 shadow-2xs items-center gap-0.5">
                 <button
                   type="button"
                   onClick={() => handleLangChange("gu")}
@@ -533,34 +536,15 @@ export function AstroHeader({
                           data-nav-id={item.id}
                           type="button"
                           className={`group px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
-                            ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
-                            : "text-[#0e3934] hover:bg-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
+                            ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
+                            : "text-[#1b1c1a] hover:bg-black/10 data-[state=open]:bg-black/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1b1c1a]"
                             }`}
                         >
                           <span>{item.label}</span>
                           <ChevronDown className="h-3.5 w-3.5 opacity-80 transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180 group-data-[popup-open]:rotate-180 group-data-[state=open]:rotate-180" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#0d3732] shadow-xl border border-border">
-                        {item.id !== "more" && (
-                          <>
-                            <DropdownMenuGroup>
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer text-xs font-bold py-2 px-2.5 flex items-center justify-between text-[#8a6800] dark:text-[#fdc72d] rounded-lg"
-                              >
-                                <Link
-                                  href={getItemHref(item.id)}
-                                  onClick={() => onSelectCategory && onSelectCategory(item.id)}
-                                  className="flex items-center justify-between w-full"
-                                >
-                                  <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
-                                </Link>
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator />
-                          </>
-                        )}
+                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-xl border border-border">
                         <DropdownMenuGroup>
                           {subItems.map((sub, idx) => (
                             <DropdownMenuItem
@@ -574,6 +558,26 @@ export function AstroHeader({
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuGroup>
+                        {item.id !== "more" && (
+                          <>
+                            <DropdownMenuSeparator className="my-1 bg-border/50" />
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer text-xs font-bold py-2 px-2.5 text-[#00685d] dark:text-[#fdc72d] hover:bg-[#00685d]/10 dark:hover:bg-[#fdc72d]/10 rounded-lg flex items-center justify-between"
+                              >
+                                <Link
+                                  href={getItemHref(item.id)}
+                                  onClick={() => onSelectCategory && onSelectCategory(item.id)}
+                                  className="flex items-center justify-between w-full"
+                                >
+                                  <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
+                                  <ChevronRight className="h-3.5 w-3.5" />
+                                </Link>
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )
@@ -587,9 +591,9 @@ export function AstroHeader({
                     href={getItemHref(item.id)}
                     onClick={() => onSelectCategory && onSelectCategory(item.id)}
                     className={`px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
-                            ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
-                            : "text-[#0e3934] hover:bg-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
-                            }`}
+                      ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
+                      : "text-[#1b1c1a] hover:bg-black/10 data-[state=open]:bg-black/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1b1c1a]"
+                      }`}
                   >
                     <span>{item.label}</span>
                     {item.id === "cart" && cartCount > 0 && (
@@ -622,29 +626,33 @@ export function AstroHeader({
         <SheetContent
           side="left"
           showCloseButton={true}
-          className="w-[84vw] max-w-xs sm:w-80 h-[100dvh] max-h-[100dvh] p-0 flex flex-col justify-between border-r border-border/80 bg-card dark:bg-[#0d3732] text-foreground shadow-2xl"
+          className="w-[84vw] max-w-xs sm:w-80 h-[100dvh] max-h-[100dvh] p-0 flex flex-col justify-between border-r border-border/80 bg-card dark:bg-[#1c1d1a] text-foreground shadow-2xl"
         >
           {/* 1. Drawer Header */}
-          <SheetHeader className="p-4 border-b border-border/70 bg-muted/30 dark:bg-[#0c3530]">
+          <SheetHeader className="p-4 border-b border-border/70 bg-muted/30 dark:bg-black">
             <div className="flex items-center gap-2.5 pr-8">
-              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs ring-2 ring-[#fdc72d] bg-[#fffaf0] shrink-0 p-0.5">
+              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="inline-block" aria-label={config?.appName || "The Astro Code"}>
                 <Image
-                  src={config.logoUrl || "/logo.png"}
-                  alt={config.appName}
-                  width={40}
-                  height={40}
-                  unoptimized
-                  className="w-full h-full object-contain"
+                  src="/the-astro-code-banner.png"
+                  alt={config.appName || "The Astro Code"}
+                  width={180}
+                  height={38}
+                  className="block dark:hidden h-8 sm:h-9 w-auto object-contain"
                 />
-              </div>
-              <div>
-                <SheetTitle className="text-base font-extrabold text-foreground tracking-tight">
-                  {config.appName}
-                </SheetTitle>
-                <SheetDescription className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d]">
-                  {config.tagline}
-                </SheetDescription>
-              </div>
+                <Image
+                  src="/the-astro-code-banner-dark.png"
+                  alt={config.appName || "The Astro Code"}
+                  width={180}
+                  height={38}
+                  className="hidden dark:block h-8 sm:h-9 w-auto object-contain"
+                />
+              </Link>
+              <SheetTitle className="sr-only">
+                {config.appName || "The Astro Code"}
+              </SheetTitle>
+              <SheetDescription className="sr-only">
+                {config.tagline || "Unlock Happiness"}
+              </SheetDescription>
             </div>
 
             {/* Shubh Muhurta info badge in drawer header */}
@@ -663,8 +671,8 @@ export function AstroHeader({
           {/* 2. Drawer Body (Language + Theme + Quick Actions + Navigation links) */}
           <div className="flex-1 overflow-y-auto p-4 pb-20 space-y-3.5 overscroll-contain scrollbar-thin">
             {/* Language Switcher & Theme Toggle in Drawer */}
-            <div className="flex items-center justify-between bg-muted/40 dark:bg-[#0f3c36] p-1.5 rounded-xl border border-border/60">
-              <div className="bg-white dark:bg-[#0d3833] p-1 rounded-xl border border-border/50 shadow-xs inline-flex items-center gap-1">
+            <div className="flex items-center justify-between bg-muted/40 dark:bg-[#20211d] p-1.5 rounded-xl border border-border/60">
+              <div className="bg-white dark:bg-[#1a1c18] p-1 rounded-xl border border-border/50 shadow-xs inline-flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => handleLangChange("gu")}
@@ -700,7 +708,7 @@ export function AstroHeader({
 
             {/* Mobile Quick Action Buttons: Dashboard & Store / Sign In */}
             {mounted && isAuthenticated ? (
-              <div className="flex flex-col gap-2 p-3 rounded-xl bg-muted/40 dark:bg-[#0f3c36] border border-border/50">
+              <div className="flex flex-col gap-2 p-3 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none">
                     {userInitial}
@@ -714,7 +722,7 @@ export function AstroHeader({
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted transition-colors gap-2"
                   >
                     <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
@@ -723,7 +731,7 @@ export function AstroHeader({
                   <Link
                     href="/dashboard/orders"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <ShoppingBag className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "મારા ઓર્ડર્સ" : "My Orders"}</span>
@@ -732,7 +740,7 @@ export function AstroHeader({
                   <Link
                     href="/dashboard/kundli"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <Sparkles className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "કુંડળી વોલ્ટ" : "Kundli Vault"}</span>
@@ -741,7 +749,7 @@ export function AstroHeader({
                   <Link
                     href="/dashboard/addresses"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "સરનામાં" : "Addresses"}</span>
@@ -750,7 +758,7 @@ export function AstroHeader({
                   <Link
                     href="/dashboard/settings"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <Settings className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "સેટિંગ્સ" : "Settings"}</span>
@@ -762,7 +770,7 @@ export function AstroHeader({
                       setMobileMenuOpen(false)
                       handleLogout()
                     }}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors gap-2 text-left cursor-pointer"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors gap-2 text-left cursor-pointer"
                   >
                     <LogOut className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{lang === "gu" ? "લૉગ આઉટ" : "Sign Out"}</span>
@@ -782,7 +790,7 @@ export function AstroHeader({
                 <Link
                   href="/myshop"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#0f3c36] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
+                  className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
                 >
                   <ShoppingBag className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
                   <span>{lang === "gu" ? "સ્ટોર" : "Store"}</span>
@@ -805,7 +813,7 @@ export function AstroHeader({
 
                 if (hasSub) {
                   return (
-                    <div key={item.id} className="rounded-xl overflow-hidden border border-border/50 bg-muted/20 dark:bg-[#0d3833]/60 transition-all">
+                    <div key={item.id} className="rounded-xl overflow-hidden border border-border/50 bg-muted/20 dark:bg-[#1a1c18]/60 transition-all">
                       <button
                         type="button"
                         onClick={() => toggleExpand(item.id)}
@@ -822,19 +830,7 @@ export function AstroHeader({
                       </button>
 
                       {isExpanded && (
-                        <div className="px-2 pb-2 pt-1 border-t border-border/40 bg-background/60 dark:bg-[#0c3530] space-y-1">
-                          {item.id !== "more" && (
-                            <Link
-                              href={getItemHref(item.id)}
-                              onClick={() => {
-                                if (onSelectCategory) onSelectCategory(item.id)
-                                setMobileMenuOpen(false)
-                              }}
-                              className="w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer"
-                            >
-                              <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
-                            </Link>
-                          )}
+                        <div className="px-2 pb-2 pt-1 border-t border-border/40 bg-background/60 dark:bg-black space-y-1">
                           {subItems.map((sub, idx) => (
                             <Link
                               key={idx}
@@ -845,6 +841,19 @@ export function AstroHeader({
                               <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
                             </Link>
                           ))}
+                          {item.id !== "more" && (
+                            <Link
+                              href={getItemHref(item.id)}
+                              onClick={() => {
+                                if (onSelectCategory) onSelectCategory(item.id)
+                                setMobileMenuOpen(false)
+                              }}
+                              className="w-full text-left py-2 px-2.5 rounded-lg text-xs font-bold text-[#00685d] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer border-t border-border/30 mt-1"
+                            >
+                              <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            </Link>
+                          )}
                         </div>
                       )}
                     </div>
@@ -862,7 +871,7 @@ export function AstroHeader({
                     }}
                     className={`w-full text-left py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer min-h-[42px] ${isActive
                       ? "bg-[#fdc72d] text-[#0e3934] shadow-xs"
-                      : "hover:bg-muted dark:hover:bg-[#103d37] text-foreground border border-border/30"
+                      : "hover:bg-muted dark:hover:bg-[#252822] text-foreground border border-border/30"
                       }`}
                   >
                     <span className="flex items-center gap-2">
@@ -880,7 +889,7 @@ export function AstroHeader({
           </div>
 
           {/* 3. Drawer Footer: Consultation & WhatsApp Action */}
-          <SheetFooter className="p-4 pb-8 sm:pb-6 pb-safe-generous border-t border-border/70 bg-muted/20 dark:bg-[#0c3530] space-y-2.5 shrink-0">
+          <SheetFooter className="p-4 pb-8 sm:pb-6 pb-safe-generous border-t border-border/70 bg-muted/20 dark:bg-black space-y-2.5 shrink-0">
             <button
               type="button"
               className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold h-10 rounded-lg text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
