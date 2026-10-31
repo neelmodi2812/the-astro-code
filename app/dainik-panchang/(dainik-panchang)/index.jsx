@@ -22,6 +22,8 @@ import {
   MapPin,
   X,
   Compass,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -68,12 +70,50 @@ import { formatDigits } from "@/lib/utils"
  */
 const SHOW_BUNDLED_SAMPLE_SECTIONS = false
 
+/** "6:44 AM - 8:08 AM" → [start, end] in minutes since midnight, or null when it can't be parsed. */
+function parseSlot(time) {
+  const m = /(\d{1,2}):(\d{2})\s*(AM|PM)?\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(String(time ?? ""))
+  if (!m) return null
+  const toMin = (h, min, ap) => (Number(h) % 12 + (ap?.toUpperCase() === "PM" ? 12 : 0)) * 60 + Number(min)
+  const hasMeridiem = Boolean(m[3] || m[6])
+  const to24 = (h, min, ap) => (hasMeridiem ? toMin(h, min, ap) : Number(h) * 60 + Number(min))
+  return [to24(m[1], m[2], m[3]), to24(m[4], m[5], m[6])]
+}
+
+/** Index of the slot running at `nowMin` (night slots run past midnight), or -1. */
+function activeSlotIndex(list, nowMin) {
+  let prevStart = -1
+  let offset = 0
+  const spans = list.map((row) => {
+    const s = parseSlot(row.time)
+    if (!s) return null
+    if (s[0] + offset < prevStart) offset += 1440
+    prevStart = s[0] + offset
+    return [s[0] + offset, (s[1] <= s[0] ? s[1] + 1440 : s[1]) + offset]
+  })
+  return spans.findIndex((s) => s && [nowMin, nowMin + 1440].some((t) => t >= s[0] && t < s[1]))
+}
+
+const pad = (n) => String(n).padStart(2, "0")
+const toIsoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+
+/** Move an ISO day by `days` (noon local time keeps DST shifts from skipping a day). */
+function shiftIsoDate(iso, days) {
+  const [y, m, d] = iso.split("-").map(Number)
+  return toIsoDate(new Date(y, m - 1, d + days, 12))
+}
+
 export default function DainikPanchangClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
   const siteData = useHomeData(lang)
 
-  const panchang = usePanchangData(lang)
+  // Day being viewed: null = today. todayIso is client-only so server and first client render match.
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [todayIso, setTodayIso] = useState(null)
+  const isToday = selectedDate == null || selectedDate === todayIso
+
+  const panchang = usePanchangData(lang, isToday ? null : selectedDate)
 
   // Interactive States
   const [selectedCityId, setSelectedCityId] = useState("ahmedabad")
@@ -81,6 +121,41 @@ export default function DainikPanchangClient() {
   const [selectedCellDate, setSelectedCellDate] = useState("૧૨") // default to 12 April (today)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [selectedRashi, setSelectedRashi] = useState(null)
+
+  // Current clock minute (client-only, so server and first client render match)
+  const [nowMin, setNowMin] = useState(null)
+  useEffect(() => {
+    const tick = () => {
+      const d = new Date()
+      setNowMin(d.getHours() * 60 + d.getMinutes())
+      setTodayIso(toIsoDate(d))
+    }
+    tick()
+    const id = setInterval(tick, 30000)
+    return () => clearInterval(id)
+  }, [])
+
+  const dayList = panchang.choghadiyaSection.dayList
+  const nightList = panchang.choghadiyaSection.nightList
+  // The running slot only exists for today; other days show the plain slot table
+  const dayActive = nowMin == null || !isToday ? -1 : activeSlotIndex(dayList, nowMin)
+  const nightActive = nowMin == null || !isToday ? -1 : activeSlotIndex(nightList, nowMin)
+  const activeSlot = dayActive >= 0 ? dayList[dayActive] : nightActive >= 0 ? nightList[nightActive] : null
+
+  // Show the tab holding the running slot until the visitor picks one themselves
+  const [tabTouched, setTabTouched] = useState(false)
+  const activeTab = tabTouched ? choghadiyaTab : dayActive < 0 && nightActive >= 0 ? "night" : "day"
+
+  // Day navigation
+  const viewedIso = selectedDate ?? todayIso
+  const goToDate = (iso) => {
+    if (!iso) return
+    setSelectedDate(iso === todayIso ? null : iso)
+    setTabTouched(false)
+  }
+  const shiftDay = (days) => {
+    if (viewedIso) goToDate(shiftIsoDate(viewedIso, days))
+  }
 
   // Selected city object
   const currentCity = panchang.cities.find((c) => c.id === selectedCityId) || panchang.cities[0]
@@ -126,7 +201,7 @@ export default function DainikPanchangClient() {
         cartCount={0}
       />
 
-      <main className="flex-1 w-full bg-background pt-3 pb-16">
+      <main className="panchang-readable flex-1 w-full bg-background pt-3 pb-16">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* 2. Top Breadcrumb */}
@@ -208,6 +283,7 @@ export default function DainikPanchangClient() {
                   <Button
                     onClick={() => {
                       setSelectedCellDate("૧૨")
+                      goToDate(todayIso)
                       showToast(lang === "gu" ? "આજના પંચાંગ પર પહોંચ્યા!" : "Jumped to Today's Panchang!")
                     }}
                     className="bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold h-9 px-3.5 shadow-sm cursor-pointer"
@@ -216,12 +292,67 @@ export default function DainikPanchangClient() {
                     <span>{panchang.banner.todayButtonText[lang]}</span>
                   </Button>
                 </div>
+
+                {/* Day navigation: previous day, date picker, next day */}
+                <div className="flex items-center gap-1.5 w-full" role="group" aria-label={lang === "gu" ? "તારીખ પસંદ કરો" : "Choose date"}>
+                  <Button
+                    type="button"
+                    onClick={() => shiftDay(-1)}
+                    disabled={!viewedIso}
+                    aria-label={lang === "gu" ? "ગઈકાલનું પંચાંગ" : "Previous day"}
+                    title={lang === "gu" ? "ગઈકાલ" : "Previous day"}
+                    className="bg-white/15 hover:bg-white/25 text-white h-9 w-9 p-0 shrink-0 cursor-pointer"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <input
+                    type="date"
+                    value={viewedIso ?? ""}
+                    onChange={(e) => goToDate(e.target.value)}
+                    aria-label={lang === "gu" ? "તારીખ" : "Date"}
+                    className="flex-1 min-w-0 h-9 rounded-lg bg-white text-gray-900 text-sm font-bold px-3 shadow-sm cursor-pointer"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => shiftDay(1)}
+                    disabled={!viewedIso}
+                    aria-label={lang === "gu" ? "આવતીકાલનું પંચાંગ" : "Next day"}
+                    title={lang === "gu" ? "આવતીકાલ" : "Next day"}
+                    className="bg-white/15 hover:bg-white/25 text-white h-9 w-9 p-0 shrink-0 cursor-pointer"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
 
+          {/* No panchang stored for the chosen day */}
+          {panchang.status === "unavailable" && (
+            <div
+              role="status"
+              className="mb-6 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800/50 p-4 text-sm font-bold text-[#8a6800] dark:text-[#fdc72d]"
+            >
+              <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+              <span>
+                {lang === "gu"
+                  ? "આ તારીખનું પંચાંગ હજુ ઉપલબ્ધ નથી. કૃપા કરીને બીજી તારીખ પસંદ કરો."
+                  : "Panchang for this date is not available yet. Please choose another date."}
+              </span>
+            </div>
+          )}
+
           {/* 4. Main 2-Column Grid (Main Content + Refined Sidebar) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div
+            className={`grid grid-cols-1 lg:grid-cols-12 gap-8 items-start transition-opacity ${
+              panchang.status === "unavailable"
+                ? "opacity-30 pointer-events-none select-none"
+                : panchang.status === "loading" && !isToday
+                ? "opacity-60"
+                : ""
+            }`}
+            aria-busy={panchang.status === "loading"}
+          >
 
             {/* ======================================================== */}
             {/* LEFT MAIN COLUMN (8 Cols ~ 67%)                          */}
@@ -245,7 +376,7 @@ export default function DainikPanchangClient() {
                       <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
                         {panchang.coreAngas.heading[lang]}
                       </h2>
-                      <p className="text-xs text-gray-200">
+                      <p className="text-xs text-white/90">
                         {panchang.coreAngas.dateLine[lang]}
                       </p>
                     </div>
@@ -279,11 +410,13 @@ export default function DainikPanchangClient() {
                           </h3>
                         </div>
 
-                        <div className="mt-3 pt-2 border-t border-border/40">
-                          <span className="text-xs font-medium text-muted-foreground block line-clamp-2">
-                            {formatDigits(limb.timing[lang], lang)}
-                          </span>
-                        </div>
+                        {limb.timing[lang] && (
+                          <div className="mt-3 pt-2 border-t border-border/40">
+                            <span className="text-xs font-medium text-muted-foreground block line-clamp-2">
+                              {formatDigits(limb.timing[lang], lang)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -526,8 +659,11 @@ export default function DainikPanchangClient() {
 
                   {/* Day / Night Tabs */}
                   <Tabs
-                    value={choghadiyaTab}
-                    onValueChange={setChoghadiyaTab}
+                    value={activeTab}
+                    onValueChange={(v) => {
+                      setTabTouched(true)
+                      setChoghadiyaTab(v)
+                    }}
                     className="shrink-0"
                   >
                     <TabsList className="bg-muted dark:bg-[#141512] rounded-lg p-1 border border-border/60 h-auto">
@@ -549,27 +685,35 @@ export default function DainikPanchangClient() {
                   </Tabs>
                 </div>
 
-                {/* Clean Active Choghadiya Info Pill */}
+                {/* Clean Active Choghadiya Info Pill (today only) */}
+                {isToday && (
                 <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#00685d] dark:bg-[#38b2a3]" />
                     <span className="text-xs sm:text-sm font-bold text-foreground">
                       {lang === "gu" ? "હાલનું ચોઘડિયું:" : "Current Choghadiya:"}{" "}
                       <span className="text-[#00685d] dark:text-[#38b2a3] font-bold">
-                        {panchang.choghadiyaSection.liveBanner.activeName[lang]}
+                        {activeSlot
+                          ? `${activeSlot.name[lang]} · ${activeSlot.nature[lang]}`
+                          : panchang.choghadiyaSection.liveBanner.activeName[lang]}
                       </span>
-                      {panchang.choghadiyaSection.liveBanner.timeRange[lang] && (
-                        <> ({formatDigits(panchang.choghadiyaSection.liveBanner.timeRange[lang], lang)})</>
+                      {activeSlot ? (
+                        <> ({formatDigits(activeSlot.time, lang)})</>
+                      ) : (
+                        panchang.choghadiyaSection.liveBanner.timeRange[lang] && (
+                          <> ({formatDigits(panchang.choghadiyaSection.liveBanner.timeRange[lang], lang)})</>
+                        )
                       )}
                     </span>
                   </div>
 
-                  {panchang.choghadiyaSection.liveBanner.verdict[lang] && (
+                  {(activeSlot?.work?.[lang] || panchang.choghadiyaSection.liveBanner.verdict[lang]) && (
                     <span className="text-xs font-bold text-[#00685d] dark:text-[#38b2a3]">
-                      {panchang.choghadiyaSection.liveBanner.verdict[lang]}
+                      {activeSlot ? activeSlot.work[lang] : panchang.choghadiyaSection.liveBanner.verdict[lang]}
                     </span>
                   )}
                 </div>
+                )}
 
                 {/* 8 Choghadiya Intervals Table */}
                 <div className="overflow-x-auto">
@@ -583,17 +727,14 @@ export default function DainikPanchangClient() {
                       </TableRow>
                     </TableHeader>
                     <TableBody className="divide-y divide-border/50">
-                      {(choghadiyaTab === "day"
-                        ? panchang.choghadiyaSection.dayList
-                        : panchang.choghadiyaSection.nightList
-                      ).map((row, idx) => {
-                        const isCurrent = choghadiyaTab === "day" && row.isActive
+                      {(activeTab === "day" ? dayList : nightList).map((row, idx) => {
+                        const isCurrent = idx === (activeTab === "day" ? dayActive : nightActive)
                         return (
                           <TableRow
                             key={idx}
                             className={`transition-colors ${
                               isCurrent
-                                ? "bg-emerald-50/70 dark:bg-emerald-950/20 font-bold"
+                                ? "bg-emerald-50 dark:bg-emerald-950/30 font-bold shadow-[inset_3px_0_0_#00685d]"
                                 : "hover:bg-muted/40"
                             }`}
                           >

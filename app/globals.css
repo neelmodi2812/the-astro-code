@@ -313,3 +313,66 @@ html[lang="en"] h6 {
 .pb-safe-generous {
   padding-bottom: max(1.75rem, env(safe-area-inset-bottom, 24px));
 }
+
+/* ------------------------------------------------------------------
+   Gujarati readability
+   Gujarati conjuncts and matras break apart under letter-spacing, get
+   clipped by tight line-heights, and turn clumsy at 800/900 weights.
+   These rules sit outside @layer so they beat the Tailwind utilities.
+------------------------------------------------------------------- */
+html[lang="gu"] body {
+  line-height: 1.75;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[lang="gu"] [class*="tracking-"] {
+  letter-spacing: 0 !important;
+}
+
+html[lang="gu"] .font-black,
+html[lang="gu"] .font-extrabold {
+  font-weight: 700;
+}
+
+html[lang="gu"] h1 {
+  line-height: 1.3;
+}
+
+html[lang="gu"] h2,
+html[lang="gu"] h3,
+html[lang="gu"] h4 {
+  line-height: 1.4;
+}
+
+html[lang="gu"] .leading-none {
+  line-height: 1.3;
+}
+
+html[lang="gu"] .leading-tight {
+  line-height: 1.5;
+}
+
+html[lang="gu"] .leading-snug {
+  line-height: 1.6;
+}
+
+html[lang="gu"] [class*="leading-["] {
+  line-height: 1.35;
+}
+
+html[lang="gu"] .text-xs {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+html[lang="gu"] .text-sm {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+html[lang="gu"] .text-base {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
