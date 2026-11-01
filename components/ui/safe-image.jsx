@@ -34,17 +34,21 @@ export function SafeImage({
     return s
   }, [src, fallbackSrc])
 
-  const [currentSrc, setCurrentSrc] = React.useState(cleanSrc)
+  const [prevCleanSrc, setPrevCleanSrc] = React.useState(cleanSrc)
+  const [overrideSrc, setOverrideSrc] = React.useState(null)
   const [hasError, setHasError] = React.useState(false)
 
-  React.useEffect(() => {
-    setCurrentSrc(cleanSrc)
+  if (cleanSrc !== prevCleanSrc) {
+    setPrevCleanSrc(cleanSrc)
+    setOverrideSrc(null)
     setHasError(false)
-  }, [cleanSrc])
+  }
+
+  const currentSrc = overrideSrc ?? cleanSrc
 
   const handleError = () => {
     if (currentSrc !== fallbackSrc && fallbackSrc) {
-      setCurrentSrc(fallbackSrc)
+      setOverrideSrc(fallbackSrc)
     } else {
       setHasError(true)
     }
@@ -82,3 +86,5 @@ export function SafeImage({
     />
   )
 }
+
+export default SafeImage

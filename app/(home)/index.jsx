@@ -27,16 +27,24 @@ export default function HomeClient({ initialFeed = null }) {
   const data = useHomeData(lang, initialFeed)
   const categorySections = useCategorySections(lang)
 
-  const [activeCategory, setActiveCategory] = React.useState("home")
-  const [activeFilter, setActiveFilter] = React.useState(null)
+  const [activeCategory, setActiveCategory] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("category") || "home"
+    }
+    return "home"
+  })
+  const [activeFilter, setActiveFilter] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("category") || null
+    }
+    return null
+  })
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search)
       const cat = params.get("category")
       if (cat) {
-        setActiveCategory(cat)
-        setActiveFilter(cat)
         setTimeout(() => {
           const target = document.getElementById("featured-articles-section")
           if (target) target.scrollIntoView({ behavior: "smooth", block: "start" })

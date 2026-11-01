@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Sparkles, ArrowRight, MessageCircle } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
@@ -81,10 +82,11 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
           <div className="lg:col-span-7 flex flex-col space-y-5 text-left order-2 lg:order-1">
             
             {/* Sacred Invocation Eyebrow Pill */}
-            <div className="inline-flex items-center self-start max-w-full gap-2 bg-white/90 dark:bg-[#1f221c]/90 border border-[#fdc72d]/70 rounded-full px-3 sm:px-3.5 py-1 shadow-2xs backdrop-blur-sm overflow-hidden">
+            <div className="inline-flex items-center self-start max-w-full gap-1.5 sm:gap-2 bg-white/90 dark:bg-[#1f221c]/90 border border-[#fdc72d]/70 rounded-full px-2.5 sm:px-3.5 py-1 shadow-2xs backdrop-blur-sm overflow-hidden">
               <Sparkles className="h-3.5 w-3.5 text-[#996f00] dark:text-[#fdc72d] shrink-0" />
-              <span className="text-[#7c5a00] dark:text-[#ffdf96] text-[10.5px] sm:text-xs font-black tracking-wider uppercase truncate">
-                {t.eyebrow}
+              <span className="text-[#7c5a00] dark:text-[#ffdf96] text-[10.5px] sm:text-xs font-black tracking-wider uppercase whitespace-nowrap">
+                {isEn ? "॥ SHREE GANESHAY NAMAH ॥" : "॥ શ્રી ગણેશાય નમઃ ॥"}
+                <span className="hidden sm:inline"> • {isEn ? "VEDIC ASTROLOGY PORTAL" : "શાસ્ત્રોક્ત વૈદિક જ્યોતિષ"}</span>
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#fdc72d] animate-ping shrink-0" />
             </div>
@@ -145,9 +147,12 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
             {/* Founder portrait in the golden-ringed oval */}
             <div className="relative w-full max-w-[440px] flex items-center justify-center py-2 select-none">
               <div className="relative w-[165px] sm:w-[220px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
-                <img
+                <Image
                   src={founderImage}
                   alt={founderName}
+                  fill
+                  sizes="(max-width: 640px) 165px, 220px"
+                  priority
                   className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
                 />
               </div>

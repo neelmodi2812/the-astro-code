@@ -3,7 +3,6 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { toast } from "sonner"
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,14 +13,11 @@ import {
   MapPin,
   Phone,
   MessageCircle,
-  Sparkles,
-  RotateCcw,
   Check
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { useDashboardContext } from "@/components/dashboard-gate"
-import { Button } from "@/components/ui/button"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
@@ -29,49 +25,18 @@ export function DashboardSidebar() {
   const data = useDashboardContext()
   const isEn = lang === "en"
 
-  // Japa Bead Counter State
-  const [japaCount, setJapaCount] = React.useState(data.japaCounter.initialCount)
-  const maxJapa = data.japaCounter.totalTarget
-  const circumference = 264
-  const japaOffset = circumference - (japaCount / maxJapa) * circumference
-
-  const handleJapaIncrement = () => {
-    if (japaCount >= maxJapa) {
-      setJapaCount(1)
-      toast.info(
-        isEn
-          ? "Started a new 108 Japa Mala cycle! Har Har Mahadev."
-          : "નવી ૧૦૮ જાપ માળા શરૂ થઈ! હર હર મહાદેવ."
-      )
-    } else {
-      const next = japaCount + 1
-      setJapaCount(next)
-      if (next === maxJapa) {
-        toast.success(
-          isEn
-            ? "Congratulations! You completed 108 Gayatri Mantra Japas."
-            : "અભિનંદન! તમારો ૧૦૮ ગાયત્રી મંત્ર જાપ સંકલ્પ પૂર્ણ થયો."
-        )
-      }
-    }
-  }
-
-  const handleJapaReset = () => {
-    setJapaCount(0)
-    toast.info(isEn ? "Japa counter reset." : "જાપ કાઉન્ટર રીસેટ કરવામાં આવ્યું.")
-  }
-
   // Dynamic counts & alert states from actual dashboard context
-  const digits = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
-  const toDigits = (n) => (isEn ? String(n) : String(n).replace(/\d/g, (d) => digits[Number(d)]))
-
   const kundliCount = data.savedKundlis?.list?.length || 0
   const activeOrdersCount = (data.ordersHistory || []).filter((o) => o.status === "in-transit").length
   const hasUpcomingConsultation = Boolean(
     data.upcomingConsultation && !data.upcomingConsultation.isPlaceholder
   )
 
-  const navItems = React.useMemo(() => [
+  const navItems = React.useMemo(() => {
+    const digits = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"]
+    const toDigits = (n) => (isEn ? String(n) : String(n).replace(/\d/g, (d) => digits[Number(d)]))
+
+    return [
     {
       id: "overview",
       label: { gu: "ડેશબોર્ડ (Overview)", en: "Dashboard Overview" },
@@ -121,7 +86,8 @@ export function DashboardSidebar() {
       href: "/dashboard/settings",
       icon: Settings,
     },
-  ], [kundliCount, activeOrdersCount, hasUpcomingConsultation, isEn])
+  ]
+  }, [kundliCount, activeOrdersCount, hasUpcomingConsultation, isEn])
 
   const checkIsActive = (item) => {
     if (item.exact) {
@@ -196,72 +162,7 @@ export function DashboardSidebar() {
         })}
       </nav>
 
-      {/* 3. Daily Japa Meditation Progress Widget */}
-      <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-4 border border-border/70 shadow-2xs flex flex-col items-center text-center space-y-2.5">
-        <div className="flex items-center justify-between w-full text-xs font-bold">
-          <span className="text-muted-foreground uppercase text-xs">
-            {data.japaCounter.title[lang] || data.japaCounter.title.gu}
-          </span>
-          <span className="text-[#8a6800] dark:text-[#fdc72d] text-xs">
-            {data.japaCounter.mantra[lang] || data.japaCounter.mantra.gu}
-          </span>
-        </div>
-
-        <div className="relative w-20 h-20 flex items-center justify-center my-0.5">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-            <circle
-              className="text-muted/40 dark:text-[#113f39]"
-              cx="50"
-              cy="50"
-              fill="transparent"
-              r="42"
-              stroke="currentColor"
-              strokeWidth="7"
-            />
-            <circle
-              className="text-[#fdc72d] transition-all duration-300"
-              cx="50"
-              cy="50"
-              fill="transparent"
-              r="42"
-              stroke="currentColor"
-              strokeWidth="7"
-              strokeDasharray={circumference}
-              strokeDashoffset={japaOffset}
-              strokeLinecap="round"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center select-none">
-            <span className="text-lg font-black text-foreground">
-              {isEn ? japaCount : japaCount.toLocaleString("gu-IN")}
-            </span>
-            <span className="text-[8px] text-muted-foreground font-bold">
-              / {isEn ? maxJapa : maxJapa.toLocaleString("gu-IN")}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 w-full pt-1">
-          <Button
-            onClick={handleJapaIncrement}
-            className="flex-1 h-7 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1 cursor-pointer"
-          >
-            <Sparkles className="h-3 w-3" />
-            <span>{data.japaCounter.btnLabel[lang] || data.japaCounter.btnLabel.gu}</span>
-          </Button>
-          <Button
-            onClick={handleJapaReset}
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 border-border text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-            title={data.japaCounter.resetLabel[lang] || data.japaCounter.resetLabel.gu}
-          >
-            <RotateCcw className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-
-      {/* 4. Astrologer Helpline Support */}
+      {/* 3. Astrologer Helpline Support */}
       <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-4 border border-border/70 shadow-2xs space-y-2">
         <div className="flex items-center gap-2">
           <Phone className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />

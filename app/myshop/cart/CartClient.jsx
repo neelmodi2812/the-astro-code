@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   Home,
@@ -21,8 +21,6 @@ import {
   Check,
   X,
   MessageCircle,
-  Phone,
-  HelpCircle,
   Award,
   Truck,
   CreditCard,
@@ -54,20 +52,17 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
+
 import { toast } from "@/components/ui/sonner"
 import { shopService } from "@/lib/api"
-import { StripePaymentForm } from "@/components/stripe-payment-form"
 import { loadLiveCatalog } from "@/lib/api/hooks/use-shop-data"
 import { useLanguage } from "@/components/language-provider"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
-import {
-  getCartData
-} from "@/lib/data/cart-data"
+import { getCartData } from "@/lib/data/cart-data"
 
 const CART_STORAGE_KEY = "astro_cart_items"
 const SAVED_STORAGE_KEY = "astro_saved_items"
+const COUPON_STORAGE_KEY = "astro_applied_coupon"
 
 export default function CartClient() {
   const router = useRouter()
@@ -79,75 +74,65 @@ export default function CartClient() {
   const cartData = React.useMemo(() => getCartData(currentLang), [currentLang])
   const supportWhatsappUrl = founder?.whatsappUrl || cartData.trustPillars.supportStrip.whatsappUrl
 
-  // Cart Items State - Initialized from localStorage if present, else DEFAULT_CART_ITEMS
-  const [cartItems, setCartItems] = React.useState([])
-  const [savedItems, setSavedItems] = React.useState([])
-  const [isClientLoaded, setIsClientLoaded] = React.useState(false)
+  // Cart Items State - Initialized lazily from localStorage
+  const [cartItems, setCartItems] = React.useState(() => {
+    if (typeof window === "undefined") return []
+    try {
+      const stored = localStorage.getItem(CART_STORAGE_KEY)
+      return stored ? JSON.parse(stored) || [] : []
+    } catch {
+      return []
+    }
+  })
+  const [savedItems, setSavedItems] = React.useState(() => {
+    if (typeof window === "undefined") return []
+    try {
+      const stored = localStorage.getItem(SAVED_STORAGE_KEY)
+      return stored ? JSON.parse(stored) || [] : []
+    } catch {
+      return []
+    }
+  })
+  const isClientLoaded = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   // Coupon Voucher State
   const [couponInput, setCouponInput] = React.useState("")
-  const [appliedCoupon, setAppliedCoupon] = React.useState(null)
-  const [isPlacingOrder, setIsPlacingOrder] = React.useState(false)
-  const [placedTotal, setPlacedTotal] = React.useState(0)
-
-  // Stepper state
-  const [activeStep, setActiveStep] = React.useState(1)
+  const [appliedCoupon, setAppliedCoupon] = React.useState(() => {
+    if (typeof window === "undefined") return null
+    try {
+      const stored = localStorage.getItem(COUPON_STORAGE_KEY)
+      return stored ? JSON.parse(stored) || null : null
+    } catch {
+      return null
+    }
+  })
 
   // Clear Cart confirmation dialog
   const [showClearConfirm, setShowClearConfirm] = React.useState(false)
 
-  // Checkout Modal State
-  const [isCheckoutOpen, setIsCheckoutOpen] = React.useState(false)
-  const [checkoutStep, setCheckoutStep] = React.useState(1) // 1: Form, 2: Success, 3: Stripe payment
-  const [paymentSession, setPaymentSession] = React.useState(null)
-  const [orderId, setOrderId] = React.useState("")
-  const [checkoutForm, setCheckoutForm] = React.useState({
-    fullName: "",
-    phone: "",
-    address: "",
-    city: "",
-    pincode: "",
-    paymentMethod: "cod"
-  })
-
-  // Dynamic Stepper Tracking:
-  // Step 1: Cart Review (when checkout modal is not open)
-  // Step 2: Shipping & Devotee Details (when checkout modal is on step 1)
-  // Step 3: Payment & Confirmation (when checkout modal is on step >= 2)
-  const currentStep = isCheckoutOpen ? (checkoutStep === 1 ? 2 : 3) : 1
-
-  const handleOpenStep = React.useCallback((stepNum) => {
-    if (stepNum === 1) {
-      setIsCheckoutOpen(false)
-      setActiveStep(1)
-    } else if (cartItems.length > 0) {
-      setIsCheckoutOpen(true)
-      setCheckoutStep(stepNum === 2 ? 1 : 2)
-      setActiveStep(stepNum)
-    }
-  }, [cartItems.length])
-
-  // Load from localStorage on mount
+  // Sync with storage events on mount
   React.useEffect(() => {
-    try {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY)
-      if (storedCart) {
-        const parsed = JSON.parse(storedCart)
-        if (Array.isArray(parsed)) {
-          setCartItems(parsed)
+    const handleStorageUpdate = () => {
+      try {
+        const stored = localStorage.getItem(CART_STORAGE_KEY)
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (Array.isArray(parsed)) setCartItems(parsed)
         }
-      }
-      const storedSaved = localStorage.getItem(SAVED_STORAGE_KEY)
-      if (storedSaved) {
-        const parsedSaved = JSON.parse(storedSaved)
-        if (Array.isArray(parsedSaved)) {
-          setSavedItems(parsedSaved)
-        }
-      }
-    } catch {
-      // fallback to defaults silently
+      } catch {}
     }
-    setIsClientLoaded(true)
+
+    window.addEventListener("astro_cart_updated", handleStorageUpdate)
+    window.addEventListener("storage", handleStorageUpdate)
+
+    return () => {
+      window.removeEventListener("astro_cart_updated", handleStorageUpdate)
+      window.removeEventListener("storage", handleStorageUpdate)
+    }
   }, [])
 
   // Sync cart items to localStorage
@@ -192,7 +177,7 @@ export default function CartClient() {
   const totalSavings = itemSavings + couponDiscount
   const totalItemCount = cartItems.reduce((acc, item) => acc + (item.qty || 1), 0)
 
-  // Refresh stored prices from the live catalog (the server charges catalog prices anyway)
+  // Refresh stored prices from the live catalog
   React.useEffect(() => {
     if (!isClientLoaded) return
     let cancelled = false
@@ -225,7 +210,7 @@ export default function CartClient() {
     }
   }, [isClientLoaded, currentLang])
 
-  // Re-validate the applied coupon whenever the subtotal changes (also enforces caps / minimum order)
+  // Re-validate applied coupon when subtotal changes
   const appliedCouponCode = appliedCoupon?.code
   React.useEffect(() => {
     if (!isClientLoaded || !appliedCouponCode || subtotal <= 0) return
@@ -246,8 +231,10 @@ export default function CartClient() {
         )
       })
       .catch((error) => {
-        // Only a definite rejection removes the coupon; network errors keep the estimate.
-        if (!cancelled && error.status === 422) setAppliedCoupon(null)
+        if (!cancelled && error.status === 422) {
+          setAppliedCoupon(null)
+          try { localStorage.removeItem(COUPON_STORAGE_KEY) } catch {}
+        }
       })
 
     return () => {
@@ -267,7 +254,7 @@ export default function CartClient() {
 
   const formatPrice = React.useCallback(
     (amount) => {
-      const formatted = amount.toLocaleString(currentLang === "gu" ? "gu-IN" : "en-IN")
+      const formatted = Number(amount || 0).toLocaleString(currentLang === "gu" ? "gu-IN" : "en-IN")
       return `₹${toDigits(formatted)}`
     },
     [currentLang, toDigits]
@@ -282,6 +269,15 @@ export default function CartClient() {
     },
     [currentLang]
   )
+
+  // Navigate to new page of details: /myshop/checkout
+  const handleProceedToCheckout = React.useCallback(() => {
+    if (cartItems.length === 0) {
+      toast.info(currentLang === "gu" ? "આપનો કાર્ટ ખાલી છે." : "Your cart is empty.")
+      return
+    }
+    router.push("/myshop/checkout")
+  }, [cartItems.length, currentLang, router])
 
   // Handlers for cart actions
   const handleIncreaseQty = (itemId) => {
@@ -329,26 +325,10 @@ export default function CartClient() {
     toast.success(cartData.itemCard.savedForLaterSuccess)
   }
 
-  const handleMoveToCart = (item) => {
-    const updatedSaved = savedItems.filter((i) => i.id !== item.id)
-    const updatedCart = [...cartItems.filter((i) => i.id !== item.id), { ...item, qty: 1 }]
-    updateSavedState(updatedSaved)
-    updateCartState(updatedCart)
-    toast.success(
-      currentLang === "gu"
-        ? `"${getText(item.name) || 'સામગ્રી'}" કાર્ટમાં પાછી ઉમેરાઈ.`
-        : `Item moved back to cart.`
-    )
-  }
-
-  const handleRemoveSaved = (itemId) => {
-    const updated = savedItems.filter((i) => i.id !== itemId)
-    updateSavedState(updated)
-  }
-
   const handleClearCart = () => {
     updateCartState([])
     setShowClearConfirm(false)
+    try { localStorage.removeItem(COUPON_STORAGE_KEY) } catch {}
     toast.info(
       currentLang === "gu"
         ? "આપનો કાર્ટ ખાલી કરવામાં આવ્યો છે."
@@ -369,6 +349,7 @@ export default function CartClient() {
         discountAmount: res.data.discount_amount,
       }
       setAppliedCoupon(found)
+      try { localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(found)) } catch {}
       toast.success(
         currentLang === "gu"
           ? `કૂપન કોડ '${found.code}' સફળતાપૂર્વક લાગુ થયો! (${toDigits(found.discountPercent)}% છૂટ)`
@@ -383,72 +364,12 @@ export default function CartClient() {
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null)
     setCouponInput("")
+    try { localStorage.removeItem(COUPON_STORAGE_KEY) } catch {}
     toast.info(
       currentLang === "gu"
         ? "કૂપન કોડ દૂર કરવામાં આવ્યો."
         : "Coupon code removed."
     )
-  }
-
-  const handleCheckoutSubmit = async (e) => {
-    e.preventDefault()
-    if (isPlacingOrder || cartItems.length === 0) return
-
-    const noteLines = [
-      checkoutForm.paymentMethod === "whatsapp" && "Customer prefers WhatsApp confirmation",
-    ].filter(Boolean)
-
-    setIsPlacingOrder(true)
-    try {
-      // Prices and the coupon discount are recalculated by the server from the catalog.
-      const res = await shopService.placeOrder({
-        customer_name: checkoutForm.fullName.trim(),
-        customer_phone: checkoutForm.phone.trim(),
-        shipping_address: checkoutForm.address.trim(),
-        city: checkoutForm.city.trim() || undefined,
-        pincode: checkoutForm.pincode.trim() || undefined,
-        payment_method: checkoutForm.paymentMethod === "online" ? "online" : "cod",
-        coupon_code: appliedCoupon?.code,
-        notes: noteLines.join("\n") || undefined,
-        items: cartItems.map((item) => ({
-          product_slug: item.productId,
-          product_name: getText(item.name),
-          product_image: item.image,
-          quantity: item.qty || 1,
-        })),
-      })
-
-      setPlacedTotal(Number(res.data.total_amount))
-      setOrderId(res.data.order_number)
-      updateCartState([])
-      setActiveStep(3)
-
-      let nextStep = 2
-      if (res.requires_payment) {
-        try {
-          const payment = await shopService.startPayment(res.data.order_number, checkoutForm.phone.trim())
-          setPaymentSession({
-            clientSecret: payment.data.client_secret,
-            publishableKey: payment.data.publishable_key,
-          })
-          nextStep = 3
-        } catch (paymentError) {
-          // The order exists; it simply stays unpaid until payment is retried or taken another way.
-          toast.error(paymentError.message)
-        }
-      }
-      setCheckoutStep(nextStep)
-      toast.success(
-        currentLang === "gu"
-          ? `ઓર્ડર નોંધાઈ ગયો છે! ઓર્ડર નંબર: ${res.data.order_number}`
-          : `Order placed successfully! Order ID: ${res.data.order_number}`
-      )
-    } catch (error) {
-      const firstFieldError = error.errors && Object.values(error.errors)[0]?.[0]
-      toast.error(firstFieldError || error.message)
-    } finally {
-      setIsPlacingOrder(false)
-    }
   }
 
   // Dynamic WhatsApp order link generator
@@ -518,12 +439,12 @@ export default function CartClient() {
               </BreadcrumbList>
             </Breadcrumb>
 
-            {/* 3-Step Indicator Bar */}
+            {/* 3-Step Interactive Indicator Stepper */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
               {cartData.stepper.map((stepItem, idx) => {
                 const stepNum = idx + 1
-                const isActive = currentStep === stepNum
-                const isCompleted = currentStep > stepNum
+                const isActive = stepNum === 1
+                const isCompleted = false
                 const IconComponent =
                   stepItem.icon === "ShoppingCart"
                     ? ShoppingCart
@@ -531,49 +452,44 @@ export default function CartClient() {
                     ? ShieldCheck
                     : Lock
 
+                const isDisabled = stepNum !== 1 && (stepNum === 3 || cartItems.length === 0)
+
                 return (
                   <button
                     key={stepItem.step || stepNum}
                     type="button"
-                    onClick={() => handleOpenStep(stepNum)}
+                    onClick={() => {
+                      if (stepNum === 2 && cartItems.length > 0) {
+                        router.push("/myshop/checkout")
+                      }
+                    }}
+                    disabled={isDisabled}
                     className={`flex items-center gap-3 p-3.5 rounded-xl transition-all text-left w-full border ${
                       isActive
                         ? "bg-[#00685d] text-white shadow-md border-[#00685d] dark:bg-[#005048] dark:border-[#005048]"
-                        : isCompleted
-                        ? "bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 border-emerald-200/80 dark:border-emerald-800/40 hover:bg-emerald-100/50 cursor-pointer"
                         : "bg-muted/40 hover:bg-muted text-muted-foreground border-border/60 cursor-pointer"
-                    }`}
+                    } ${isDisabled ? "opacity-60 cursor-not-allowed" : ""}`}
                   >
                     <div
                       className={`size-8 rounded-full shrink-0 aspect-square text-sm font-bold flex items-center justify-center leading-none tabular-nums select-none transition-colors ${
                         isActive
                           ? "bg-[#fdc72d] text-[#0e3934] shadow-xs"
-                          : isCompleted
-                          ? "bg-[#00685d] text-white shadow-xs"
                           : "bg-muted text-foreground border border-border/60"
                       }`}
                     >
-                      {isCompleted ? <Check className="h-4 w-4" /> : toDigits(stepNum)}
+                      {toDigits(stepNum)}
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span
                         className={`text-sm leading-tight truncate ${
-                          isActive
-                            ? "font-bold text-white"
-                            : isCompleted
-                            ? "font-semibold text-emerald-900 dark:text-emerald-100"
-                            : "font-semibold text-foreground"
+                          isActive ? "font-bold text-white" : "font-semibold text-foreground"
                         }`}
                       >
                         {stepItem.title}
                       </span>
                       <span
                         className={`text-xs truncate ${
-                          isActive
-                            ? "text-[#8bf5e4]"
-                            : isCompleted
-                            ? "text-emerald-700 dark:text-emerald-300"
-                            : "text-muted-foreground"
+                          isActive ? "text-[#8bf5e4]" : "text-muted-foreground"
                         }`}
                       >
                         {stepNum === 1
@@ -585,11 +501,7 @@ export default function CartClient() {
                     </div>
                     <IconComponent
                       className={`ml-auto h-5 w-5 shrink-0 ${
-                        isActive
-                          ? "text-[#fdc72d]"
-                          : isCompleted
-                          ? "text-[#00685d] dark:text-[#38b2a3]"
-                          : "text-muted-foreground/60"
+                        isActive ? "text-[#fdc72d]" : "text-muted-foreground/60"
                       }`}
                     />
                   </button>
@@ -599,7 +511,7 @@ export default function CartClient() {
           </div>
         </section>
 
-        {/* Main Cart Layout Grid (65% / 35%) */}
+        {/* Main Cart Content */}
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
           {cartItems.length === 0 ? (
             /* Empty Cart View */
@@ -629,7 +541,7 @@ export default function CartClient() {
           ) : (
             /* Full Cart Grid */
             <div className="flex flex-col lg:flex-row items-start gap-8">
-              {/* LEFT COLUMN: Cart Items & Customization (65% width) */}
+              {/* LEFT COLUMN: Cart Items (65% width) */}
               <div className="w-full lg:w-[65%] flex flex-col gap-6">
                 {/* Cart Table Header & Free Shipping Progress Milestone */}
                 <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-xs flex flex-col gap-5">
@@ -655,7 +567,7 @@ export default function CartClient() {
                     </div>
                   </div>
 
-                  {/* Free shipping notice (delivery is free on every order) */}
+                  {/* Free shipping notice */}
                   <div className="p-4 rounded-xl bg-muted/50 border border-border/60 flex items-center gap-2 text-xs sm:text-sm text-[#00685d] dark:text-[#fdc72d] font-bold">
                     <Truck className="h-4 w-4 text-[#fdc72d]" />
                     <span>{cartData.cartHeader.freeShippingActive}</span>
@@ -684,11 +596,12 @@ export default function CartClient() {
                           href={`/myshop/product/${item.productId || item.id}`}
                           className="w-full sm:w-36 h-36 rounded-xl bg-muted overflow-hidden shrink-0 relative border border-border/40 block group/thumb cursor-pointer"
                         >
-                          <img
+                          <Image
                             src={item.image || "https://dummyjson.com/image/200x100"}
-                            onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                             alt={itemName}
-                            className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500"
+                            fill
+                            sizes="(max-width: 640px) 100vw, 144px"
+                            className="object-cover group-hover/thumb:scale-105 transition-transform duration-500"
                           />
                           {itemBadge && (
                             <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#00685d]/95 text-white text-xs font-bold tracking-wide shadow-xs">
@@ -800,18 +713,7 @@ export default function CartClient() {
                 </div>
 
                 {/* Table Bottom Actions */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-xl font-bold gap-2 text-foreground hover:bg-muted"
-                  >
-                    <Link href="/myshop">
-                      <ArrowLeft className="h-4 w-4" />
-                      <span>{cartData.cartActions.continueShopping}</span>
-                    </Link>
-                  </Button>
-
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                   <Button
                     variant="ghost"
                     onClick={() => setShowClearConfirm(true)}
@@ -820,12 +722,20 @@ export default function CartClient() {
                     <Trash2 className="h-4 w-4 mr-1.5" />
                     <span>{cartData.cartActions.clearCart}</span>
                   </Button>
-                </div>
 
-                
+                  {/* Proceed to Secure Checkout Button */}
+                  <Button
+                    size="lg"
+                    onClick={handleProceedToCheckout}
+                    className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl shadow-md gap-2"
+                  >
+                    <span>{cartData.orderSummary.checkoutButton}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
-              {/* RIGHT COLUMN: Sticky Order Summary & Order Summary (35% width) */}
+              {/* RIGHT COLUMN: Sticky Order Summary (35% width) */}
               <aside className="w-full lg:w-[35%] flex flex-col gap-6 lg:sticky lg:top-[180px]">
                 {/* Order Summary Card */}
                 <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-md flex flex-col gap-4">
@@ -872,9 +782,7 @@ export default function CartClient() {
                         <Tag className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                           value={couponInput}
-                          onChange={(e) => {
-                            setCouponInput(e.target.value.toUpperCase())
-                                                  }}
+                          onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                           placeholder={cartData.orderSummary.couponPlaceholder}
                           className="h-10 pl-9 uppercase tracking-wider text-xs sm:text-sm font-bold rounded-xl"
                         />
@@ -894,7 +802,7 @@ export default function CartClient() {
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 className="h-3.5 w-3.5" />
                           <span>
-                            {cartData.orderSummary.couponAppliedPrefix} '{appliedCoupon.code}'{" "}
+                            {cartData.orderSummary.couponAppliedPrefix} &apos;{appliedCoupon.code}&apos;{" "}
                             {cartData.orderSummary.couponAppliedSuffix} ({toDigits(appliedCoupon.discountPercent)}%{" "}
                             {cartData.itemCard.discountSuffix})
                           </span>
@@ -929,14 +837,10 @@ export default function CartClient() {
                     )}
                   </div>
 
-                  {/* Primary CTA Checkout Button */}
+                  {/* Primary CTA Proceed to Secure Checkout Button */}
                   <Button
                     size="lg"
-                    onClick={() => {
-                      setIsCheckoutOpen(true)
-                      setCheckoutStep(1)
-                      setActiveStep(2)
-                    }}
+                    onClick={handleProceedToCheckout}
                     className="w-full h-12 sm:h-14 rounded-xl bg-[#00685d] hover:bg-[#005048] text-white font-bold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
                   >
                     <span>{cartData.orderSummary.checkoutButton}</span>
@@ -967,14 +871,10 @@ export default function CartClient() {
                     </span>
                   </div>
                 </div>
-
-                
               </aside>
             </div>
           )}
         </section>
-
-
       </main>
 
       {/* Global Footer */}
@@ -1011,252 +911,6 @@ export default function CartClient() {
               {cartData.cartActions.clearCart}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Full Checkout & Sankalp Modal */}
-      <Dialog open={isCheckoutOpen} onOpenChange={(open) => {
-        setIsCheckoutOpen(open)
-        if (!open) {
-          setActiveStep(1)
-        }
-      }}>
-        <DialogContent className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-2xl p-6">
-          {checkoutStep === 1 ? (
-            /* Checkout Details Form */
-            <form onSubmit={handleCheckoutSubmit} className="flex flex-col gap-4">
-              <DialogHeader>
-                <DialogTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
-                  <span>{cartData.checkoutModal.title}</span>
-                </DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground">
-                  {cartData.checkoutModal.subtitle}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                {/* Devotee Name */}
-                <div className="flex flex-col gap-1 sm:col-span-2">
-                  <Label className="text-xs font-semibold">
-                    {cartData.checkoutModal.nameLabel} *
-                  </Label>
-                  <Input
-                    required
-                    value={checkoutForm.fullName}
-                    onChange={(e) =>
-                      setCheckoutForm({ ...checkoutForm, fullName: e.target.value })
-                    }
-                    placeholder={cartData.checkoutModal.namePlaceholder}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-
-                {/* Mobile Phone */}
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
-                    {cartData.checkoutModal.phoneLabel} *
-                  </Label>
-                  <Input
-                    required
-                    type="tel"
-                    value={checkoutForm.phone}
-                    onChange={(e) =>
-                      setCheckoutForm({ ...checkoutForm, phone: e.target.value })
-                    }
-                    placeholder={cartData.checkoutModal.phonePlaceholder}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-
-                {/* Delivery Address */}
-                <div className="flex flex-col gap-1 sm:col-span-2">
-                  <Label className="text-xs font-semibold">
-                    {cartData.checkoutModal.addressLabel} *
-                  </Label>
-                  <Input
-                    required
-                    value={checkoutForm.address}
-                    onChange={(e) =>
-                      setCheckoutForm({ ...checkoutForm, address: e.target.value })
-                    }
-                    placeholder={cartData.checkoutModal.addressPlaceholder}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-
-                {/* City */}
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
-                    {cartData.checkoutModal.cityLabel} *
-                  </Label>
-                  <Input
-                    required
-                    value={checkoutForm.city}
-                    onChange={(e) =>
-                      setCheckoutForm({ ...checkoutForm, city: e.target.value })
-                    }
-                    placeholder={cartData.checkoutModal.cityPlaceholder}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-
-                {/* Pincode */}
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
-                    {cartData.checkoutModal.pincodeLabel} *
-                  </Label>
-                  <Input
-                    required
-                    value={checkoutForm.pincode}
-                    onChange={(e) =>
-                      setCheckoutForm({ ...checkoutForm, pincode: e.target.value })
-                    }
-                    placeholder={cartData.checkoutModal.pincodePlaceholder}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-              </div>
-
-              {/* Payment Method Radio Group */}
-              <div className="flex flex-col gap-2 pt-2">
-                <Label className="text-xs font-semibold">
-                  {cartData.checkoutModal.paymentMethodLabel}
-                </Label>
-                <RadioGroup
-                  value={checkoutForm.paymentMethod}
-                  onValueChange={(val) =>
-                    setCheckoutForm({ ...checkoutForm, paymentMethod: val })
-                  }
-                  className="flex flex-col gap-2"
-                >
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
-                    <RadioGroupItem value="cod" id="pay-cod" />
-                    <span className="text-xs font-medium text-foreground">
-                      {cartData.checkoutModal.paymentCod}
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
-                    <RadioGroupItem value="online" id="pay-online" />
-                    <span className="text-xs font-medium text-foreground">
-                      {cartData.checkoutModal.paymentOnline}
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
-                    <RadioGroupItem value="whatsapp" id="pay-wa" />
-                    <span className="text-xs font-medium text-foreground">
-                      {cartData.checkoutModal.paymentWhatsapp}
-                    </span>
-                  </label>
-                </RadioGroup>
-              </div>
-
-              {/* Modal Total Banner */}
-              <div className="p-3 rounded-xl bg-muted/70 flex items-center justify-between text-xs sm:text-sm font-bold">
-                <span>{cartData.checkoutModal.totalAmountPrefix}</span>
-                <span className="text-lg text-[#00685d] dark:text-[#fdc72d]">
-                  {formatPrice(finalTotal)}
-                </span>
-              </div>
-
-              <DialogFooter className="flex flex-row justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCheckoutOpen(false)}
-                  className="rounded-xl text-xs"
-                >
-                  {cartData.checkoutModal.closeBtn}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isPlacingOrder}
-                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl text-xs shadow-md"
-                >
-                  {cartData.checkoutModal.placeOrderBtn}
-                </Button>
-              </DialogFooter>
-            </form>
-          ) : checkoutStep === 3 && paymentSession ? (
-            /* Stripe payment step */
-            <div className="flex flex-col gap-3">
-              <DialogHeader className="space-y-1.5">
-                <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
-                  <span>{currentLang === "gu" ? "ઓનલાઇન ચુકવણી" : "Online Payment"}</span>
-                </DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground">
-                  {currentLang === "gu" ? `ઓર્ડર નંબર: ${orderId}` : `Order ${orderId}`}
-                </DialogDescription>
-              </DialogHeader>
-              <StripePaymentForm
-                clientSecret={paymentSession.clientSecret}
-                publishableKey={paymentSession.publishableKey}
-                amountLabel={formatPrice(placedTotal)}
-                lang={currentLang}
-                onPaid={() => {
-                  setPaymentSession(null)
-                  setCheckoutStep(2)
-                }}
-              />
-            </div>
-          ) : (
-            /* Order Placed Success View */
-            <div className="flex flex-col items-center text-center py-4 gap-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8" />
-              </div>
-              <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
-                {cartData.checkoutModal.orderSuccessTitle}
-              </DialogTitle>
-              <div className="px-4 py-1.5 rounded-full bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold text-xs tracking-wider">
-                {cartData.checkoutModal.orderIdPrefix}
-                {orderId}
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-                {cartData.checkoutModal.orderSuccessDesc}
-              </p>
-
-              <div className="w-full p-4 rounded-xl bg-muted/60 text-xs text-left flex flex-col gap-1.5 border border-border">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">યજમાન:</span>
-                  <span className="font-bold text-foreground">{checkoutForm.fullName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">સરનામું:</span>
-                  <span className="font-bold text-foreground">{checkoutForm.city} - {checkoutForm.pincode}</span>
-                </div>
-                <div className="flex justify-between border-t border-border/60 pt-1 mt-1">
-                  <span className="font-bold">ચુકવવાપાત્ર રકમ:</span>
-                  <span className="font-bold text-[#00685d] dark:text-[#fdc72d]">
-                    {formatPrice(placedTotal)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-2 w-full pt-2">
-                <Button
-                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl text-xs flex-1"
-                  onClick={() => {
-                    setIsCheckoutOpen(false)
-                    updateCartState([])
-                    router.push("/myshop")
-                  }}
-                >
-                  {cartData.cartActions.continueShopping}
-                </Button>
-                <a
-                  href={getWhatsAppOrderUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-[#25D366] text-white hover:bg-[#20ba5a] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  <span>WhatsApp રસીદ</span>
-                </a>
-              </div>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
     </div>

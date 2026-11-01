@@ -71,11 +71,7 @@ export default function RegisterClient() {
   const [showPassword, setShowPassword] = React.useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [maxDate, setMaxDate] = React.useState("")
-
-  React.useEffect(() => {
-    setMaxDate(new Date().toISOString().split("T")[0])
-  }, [])
+  const maxDate = React.useMemo(() => new Date().toISOString().split("T")[0], [])
 
   // Field change handler with validation clearance
   const handleChange = (field, value) => {

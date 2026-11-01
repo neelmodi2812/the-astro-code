@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 
 /**
  * Root Global Error Boundary (app/global-error.jsx)
@@ -61,12 +62,12 @@ export default function GlobalError({ error, reset }) {
             >
               પુનઃ પ્રયાસ કરો (Try Again)
             </button>
-            <a
+            <Link
               href="/"
               className="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-neutral-700 hover:bg-neutral-800 text-neutral-300 font-medium transition-colors inline-block"
             >
               મુખ્ય પૃષ્ઠ (Home)
-            </a>
+            </Link>
           </div>
         </main>
       </body>

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -371,9 +372,11 @@ function DashboardClient({ data }) {
                 </div>
 
                 <div className="flex items-center gap-3 mt-3 min-w-0">
-                  <img
+                  <Image
                     src={data.activeOrder.imageUrl}
                     alt="Product"
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border/50"
                   />
                   <div className="min-w-0">

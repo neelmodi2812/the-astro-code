@@ -50,7 +50,6 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
   const [activeTab, setActiveTab] = React.useState("all")
   const [selectedService, setSelectedService] = React.useState(null)
 
-  const items = servicesSection.items || []
   const trustBadges = servicesSection.trustBadges || []
   const filterTabs = servicesSection.filterTabs || [
     { id: "all", label: lang === "gu" ? "બધી સેવાઓ" : "All Services" },
@@ -60,9 +59,10 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
   ]
 
   const filteredItems = React.useMemo(() => {
-    if (activeTab === "all") return items
-    return items.filter((item) => item.category === activeTab)
-  }, [items, activeTab])
+    const itemsList = servicesSection.items || []
+    if (activeTab === "all") return itemsList
+    return itemsList.filter((item) => item.category === activeTab)
+  }, [servicesSection.items, activeTab])
 
   return (
     <section id="our-services" className="w-full py-12 sm:py-16">

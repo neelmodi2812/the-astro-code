@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Package, Truck, Check, FileText, Navigation, ShoppingBag } from "lucide-react"
@@ -112,10 +113,11 @@ function OrdersClient({ data }) {
             {/* Product Info */}
             <div className="bg-muted/40 dark:bg-[#0f3c36] rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4 border border-border/50">
               <Link href="/myshop/product/nepali-5-mukhi-mala" className="shrink-0 group/order-img">
-                <img
+                <Image
                   src={data.activeOrder.imageUrl || "https://dummyjson.com/image/200x100"}
-                  onError={(e) => { e.currentTarget.src = "https://dummyjson.com/image/200x100" }}
                   alt="Rudraksha"
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-lg object-cover shadow-2xs group-hover/order-img:scale-105 transition-transform duration-300 border border-border/50 cursor-pointer"
                 />
               </Link>

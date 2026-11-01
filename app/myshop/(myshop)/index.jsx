@@ -213,11 +213,16 @@ export default function ShopClient() {
       setAddedAnimationId(null)
     }, 1800)
 
-    toast.success(
+    toast(
       lang === "gu"
         ? `"${product.name}" કાર્ટમાં સફળતાપૂર્વક ઉમેરાયું!`
         : `"${product.name}" added to cart successfully!`,
       {
+        icon: (
+          <span className="flex items-center justify-center w-4 h-4 rounded-full bg-foreground text-background shrink-0">
+            <Check className="h-2.5 w-2.5 stroke-[3]" />
+          </span>
+        ),
         action: {
           label: lang === "gu" ? "કાર્ટ જુઓ →" : "View Cart →",
           onClick: () => router.push("/myshop/cart")
@@ -1031,140 +1036,143 @@ export default function ShopClient() {
               </div>
 
               {/* DOMINANT FEATURED PRODUCT SHOWCASE CARD (Nepali 5-Mukhi Rudraksha Mala) */}
-              {selectedCategory === "all" && !searchQuery && (
-                <Card className="p-0 py-0 gap-0 rounded-2xl border border-border/80 shadow-md overflow-hidden bg-card dark:bg-[#1a1b17]">
-                  <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
-                    {/* Featured Image Pane */}
-                    <Link
-                      href={`/myshop/product/${shopData.featuredProduct.id}`}
-                      className="md:col-span-5 relative min-h-[260px] md:min-h-[320px] bg-muted overflow-hidden block group"
-                    >
-                      <Image
-                        src={shopData.featuredProduct.image || "https://dummyjson.com/image/200x100"}
-                        alt={shopData.featuredProduct.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 42vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        priority
-                      />
-                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                        {shopData.featuredProduct.badge && (
-                          <Badge className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs shadow-xs hover:bg-[#fdc72d]">
-                            {shopData.featuredProduct.badge}
-                          </Badge>
-                        )}
-                        {shopData.featuredProduct.discount && (
-                          <Badge className="bg-[#bb171f] text-white font-bold text-xs shadow-xs hover:bg-[#bb171f]">
-                            {shopData.featuredProduct.discount}
-                          </Badge>
-                        )}
-                      </div>
-                      {shopData.featuredProduct.originBadge && (
-                      <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md px-3 py-1 rounded-full text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold flex items-center gap-1 shadow-sm">
-                        <ShieldCheck className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
-                        <span>{shopData.featuredProduct.originBadge}</span>
-                      </div>
-                      )}
-                    </Link>
-
-                    {/* Featured Details Pane */}
-                    <div className="md:col-span-7 p-4 sm:p-6 flex flex-col justify-between space-y-4">
-                      <div>
-                        {/* Rating row */}
-                        <div className={`flex items-center gap-1.5 mb-1.5 ${shopData.featuredProduct.reviewsCount ? "" : "hidden"}`}>
-                          <div className="flex items-center text-[#fdc72d]">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                            ))}
-                          </div>
-                          <span className="text-xs font-bold text-foreground">
-                            {shopData.featuredProduct.rating}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ({shopData.featuredProduct.reviewsCount})
-                          </span>
-                        </div>
-
-                        <Link href={`/myshop/product/${shopData.featuredProduct.id}`}>
-                          <h3 className="text-lg sm:text-xl font-bold text-foreground leading-snug hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
-                            {shopData.featuredProduct.name}
-                          </h3>
-                        </Link>
-                        {shopData.featuredProduct.subtitle && (
-                          <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-semibold mt-0.5">
-                            {shopData.featuredProduct.subtitle}
-                          </p>
-                        )}
-
-                        {/* Sacred USPs */}
-                        <div className="grid grid-cols-2 gap-2 mt-4 text-xs text-muted-foreground">
-                          {shopData.featuredProduct.usps.map((usp, idx) => {
-                            const IconC = ICON_MAP[usp.icon] || Droplets
-                            return (
-                              <div
-                                key={idx}
-                                className="flex items-center gap-1.5 bg-[#f0f4f7] dark:bg-[#1c1d1a] p-2 rounded-lg"
-                              >
-                                <IconC className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8] shrink-0" />
-                                <span className="truncate">{usp.text}</span>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Price & Action Buttons */}
-                      <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#f0f4f7] dark:bg-[#1c1d1a] p-3 sm:p-4 rounded-xl border border-border/50">
-                        <div>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-xl sm:text-2xl font-bold text-[#00685d] dark:text-[#6ed8c8]">
-                              ₹{shopData.featuredProduct.price.toLocaleString("en-IN")}
-                            </span>
-                            {shopData.featuredProduct.originalPrice > shopData.featuredProduct.price && (
-                              <span className="text-[11px] sm:text-sm text-muted-foreground line-through">
-                                ₹{shopData.featuredProduct.originalPrice.toLocaleString("en-IN")}
-                              </span>
-                            )}
-                          </div>
-                          {shopData.featuredProduct.savingsText && (
-                            <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold">
-                              {shopData.featuredProduct.savingsText}
-                            </p>
+              {selectedCategory === "all" && !searchQuery && Boolean(shopData?.featuredProduct?.id) && (() => {
+                const featured = shopData.featuredProduct
+                return (
+                  <Card className="p-0 py-0 gap-0 rounded-2xl border border-border/80 shadow-md overflow-hidden bg-card dark:bg-[#1a1b17]">
+                    <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
+                      {/* Featured Image Pane */}
+                      <Link
+                        href={`/myshop/product/${featured.id}`}
+                        className="md:col-span-5 relative min-h-[260px] md:min-h-[320px] bg-muted overflow-hidden block group"
+                      >
+                        <Image
+                          src={featured.image || "https://dummyjson.com/image/200x100"}
+                          alt={featured.name || ""}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 42vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          priority
+                        />
+                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                          {featured.badge && (
+                            <Badge className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs shadow-xs hover:bg-[#fdc72d]">
+                              {featured.badge}
+                            </Badge>
+                          )}
+                          {featured.discount && (
+                            <Badge className="bg-[#bb171f] text-white font-bold text-xs shadow-xs hover:bg-[#bb171f]">
+                              {featured.discount}
+                            </Badge>
                           )}
                         </div>
+                        {featured.originBadge && (
+                          <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md px-3 py-1 rounded-full text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold flex items-center gap-1 shadow-sm">
+                            <ShieldCheck className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
+                            <span>{featured.originBadge}</span>
+                          </div>
+                        )}
+                      </Link>
 
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                          <Button
-                            type="button"
-                            onClick={() => handleAddToCart(shopData.featuredProduct)}
-                            className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#fdc72d] text-[#0e3934] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            {addedAnimationId === shopData.featuredProduct.id ? (
-                              <>
-                                <Check className="h-4 w-4" />
-                                <span>{lang === "gu" ? "ઉમેરાયું!" : "Added!"}</span>
-                              </>
-                            ) : (
-                              <>
-                                <ShoppingCart className="h-4 w-4" />
-                                <span>{shopData.featuredProduct.addToCart}</span>
-                              </>
+                      {/* Featured Details Pane */}
+                      <div className="md:col-span-7 p-4 sm:p-6 flex flex-col justify-between space-y-4">
+                        <div>
+                          {/* Rating row */}
+                          <div className={`flex items-center gap-1.5 mb-1.5 ${featured.reviewsCount ? "" : "hidden"}`}>
+                            <div className="flex items-center text-[#fdc72d]">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                              ))}
+                            </div>
+                            <span className="text-xs font-bold text-foreground">
+                              {featured.rating || 5}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              ({featured.reviewsCount || 0})
+                            </span>
+                          </div>
+
+                          <Link href={`/myshop/product/${featured.id}`}>
+                            <h3 className="text-lg sm:text-xl font-bold text-foreground leading-snug hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
+                              {featured.name}
+                            </h3>
+                          </Link>
+                          {featured.subtitle && (
+                            <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-semibold mt-0.5">
+                              {featured.subtitle}
+                            </p>
+                          )}
+
+                          {/* Sacred USPs */}
+                          <div className="grid grid-cols-2 gap-2 mt-4 text-xs text-muted-foreground">
+                            {(featured.usps || []).map((usp, idx) => {
+                              const IconC = ICON_MAP[usp?.icon] || Droplets
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-1.5 bg-[#f0f4f7] dark:bg-[#1c1d1a] p-2 rounded-lg"
+                                >
+                                  <IconC className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8] shrink-0" />
+                                  <span className="truncate">{usp?.text || ""}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Price & Action Buttons */}
+                        <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#f0f4f7] dark:bg-[#1c1d1a] p-3 sm:p-4 rounded-xl border border-border/50">
+                          <div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xl sm:text-2xl font-bold text-[#00685d] dark:text-[#6ed8c8]">
+                                ₹{(featured.price || 0).toLocaleString("en-IN")}
+                              </span>
+                              {Number(featured.originalPrice) > Number(featured.price) && (
+                                <span className="text-[11px] sm:text-sm text-muted-foreground line-through">
+                                  ₹{(featured.originalPrice || 0).toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+                            {featured.savingsText && (
+                              <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold">
+                                {featured.savingsText}
+                              </p>
                             )}
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={() => router.push(`/myshop/product/${shopData.featuredProduct.id}`)}
-                            className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#00685d] text-white font-bold text-xs hover:bg-[#005048] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            <span>{lang === "gu" ? "વિગતવાર પૃષ્ઠ →" : "View Details →"}</span>
-                          </Button>
+                          </div>
+
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <Button
+                              type="button"
+                              onClick={() => handleAddToCart(featured)}
+                              className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#fdc72d] text-[#0e3934] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              {addedAnimationId === featured.id ? (
+                                <>
+                                  <Check className="h-4 w-4" />
+                                  <span>{lang === "gu" ? "ઉમેરાયું!" : "Added!"}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ShoppingCart className="h-4 w-4" />
+                                  <span>{featured.addToCart || (lang === "gu" ? "કાર્ટમાં ઉમેરો" : "Add to Cart")}</span>
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={() => router.push(`/myshop/product/${featured.id}`)}
+                              className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#00685d] text-white font-bold text-xs hover:bg-[#005048] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <span>{lang === "gu" ? "વિગતવાર પૃષ્ઠ →" : "View Details →"}</span>
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              )}
+                  </Card>
+                )
+              })()}
 
               {/* CATALOG GRID HEADER */}
               <div className="flex items-center justify-between pt-2">

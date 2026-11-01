@@ -3,7 +3,7 @@
 import * as React from "react"
 
 import { toast } from "sonner"
-import { Video, Calendar, Clock, MessageSquare, Plus, Check } from "lucide-react"
+import { Video, Calendar, Clock, MessageSquare, Plus, Check, FileText } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { withDashboardData } from "@/components/dashboard-gate"

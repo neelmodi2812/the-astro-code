@@ -58,6 +58,7 @@ import {
   AccordionContent
 } from "@/components/ui/accordion"
 import { toast } from "@/components/ui/sonner"
+import SafeImage from "@/components/ui/safe-image"
 import { useLanguage } from "@/components/language-provider"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useProduct } from "@/lib/api/hooks/use-product"
@@ -76,53 +77,25 @@ export default function ProductDetailClient({ productId, initialBundle }) {
     return product?.images && product.images.length > 0 ? product.images : (product ? [product.image] : [])
   }, [product])
 
-  // Fallback if product not found on client
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <AstroHeader
-          config={astroData.config}
-          topBar={astroData.topBar}
-          navLinks={astroData.navLinks}
-          activeCategory="myshop"
-          lang={currentLang}
-          onToggleLang={setLang}
-        />
-        <main className="flex-1 max-w-4xl mx-auto px-4 py-24 text-center flex flex-col items-center justify-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-muted-foreground mb-4">
-            <HelpCircle className="h-10 w-10" />
-          </div>
-          <h1 className="text-2xl font-bold mb-2">
-            {currentLang === "gu" ? "સામગ્રી મળી નથી" : "Product Not Found"}
-          </h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            {currentLang === "gu"
-              ? "આપ જે આધ્યાત્મિક સામગ્રી શોધી રહ્યા છો તે ઉપલબ્ધ નથી અથવા લિંક અમાન્ય છે."
-              : "The spiritual item you are looking for is unavailable or the link is invalid."}
-          </p>
-          <Button asChild className="bg-[#00685d] text-white rounded-xl">
-            <Link href="/myshop">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              <span>{currentLang === "gu" ? "વૈદિક શોપ પર પાછા જાઓ" : "Return to Vedic Store"}</span>
-            </Link>
-          </Button>
-        </main>
-        <AstroFooter
-          config={astroData.config}
-          footer={astroData.footer}
-          lang={currentLang}
-        />
-      </div>
-    )
-  }
-
   // Interactive States
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(0)
-  const [selectedVariant, setSelectedVariant] = React.useState(product.variants?.[0] || null)
+  const [selectedVariant, setSelectedVariant] = React.useState(product?.variants?.[0] || null)
   const [qty, setQty] = React.useState(1)
   const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(currentLang)
-  const isWishlisted = isInWishlist(product.id)
-  const [cartCount, setCartCount] = React.useState(0)
+  const isWishlisted = product ? isInWishlist(product.id) : false
+  const [cartCount, setCartCount] = React.useState(() => {
+    if (typeof window === "undefined") return 0
+    try {
+      const storedCart = localStorage.getItem(CART_STORAGE_KEY)
+      if (storedCart) {
+        const items = JSON.parse(storedCart)
+        if (Array.isArray(items)) {
+          return items.reduce((acc, i) => acc + (i.qty || 1), 0)
+        }
+      }
+    } catch {}
+    return 0
+  })
   const [copiedMantra, setCopiedMantra] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("details")
   const [isCertModalOpen, setIsCertModalOpen] = React.useState(false)
@@ -264,20 +237,27 @@ export default function ProductDetailClient({ productId, initialBundle }) {
     return () => window.removeEventListener("keydown", handleCertKeyDown)
   }, [isCertModalOpen])
 
-  // Load wishlist & cart count from localStorage
+  // Sync cart count from storage events
   React.useEffect(() => {
-    try {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY)
-      if (storedCart) {
-        const items = JSON.parse(storedCart)
-        if (Array.isArray(items)) {
-          setCartCount(items.reduce((acc, i) => acc + (i.qty || 1), 0))
+    const handleStorageUpdate = () => {
+      try {
+        const storedCart = localStorage.getItem(CART_STORAGE_KEY)
+        if (storedCart) {
+          const items = JSON.parse(storedCart)
+          if (Array.isArray(items)) {
+            setCartCount(items.reduce((acc, i) => acc + (i.qty || 1), 0))
+          }
         }
-      }
-    } catch {
-      // silent
+      } catch {}
     }
-  }, [product.id])
+
+    window.addEventListener("astro_cart_updated", handleStorageUpdate)
+    window.addEventListener("storage", handleStorageUpdate)
+    return () => {
+      window.removeEventListener("astro_cart_updated", handleStorageUpdate)
+      window.removeEventListener("storage", handleStorageUpdate)
+    }
+  }, [])
 
   // Gujarati digits conversion helper
   const toDigits = React.useCallback(
@@ -296,6 +276,46 @@ export default function ProductDetailClient({ productId, initialBundle }) {
     },
     [currentLang, toDigits]
   )
+
+  // Fallback if product not found on client
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <AstroHeader
+          config={astroData.config}
+          topBar={astroData.topBar}
+          navLinks={astroData.navLinks}
+          activeCategory="myshop"
+          lang={currentLang}
+          onToggleLang={setLang}
+        />
+        <main className="flex-1 max-w-4xl mx-auto px-4 py-24 text-center flex flex-col items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-muted-foreground mb-4">
+            <HelpCircle className="h-10 w-10" />
+          </div>
+          <h1 className="text-2xl font-bold mb-2">
+            {currentLang === "gu" ? "સામગ્રી મળી નથી" : "Product Not Found"}
+          </h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {currentLang === "gu"
+              ? "આપ જે આધ્યાત્મિક સામગ્રી શોધી રહ્યા છો તે ઉપલબ્ધ નથી અથવા લિંક અમાન્ય છે."
+              : "The spiritual item you are looking for is unavailable or the link is invalid."}
+          </p>
+          <Button asChild className="bg-[#00685d] text-white rounded-xl">
+            <Link href="/myshop">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              <span>{currentLang === "gu" ? "વૈદિક શોપ પર પાછા જાઓ" : "Return to Vedic Store"}</span>
+            </Link>
+          </Button>
+        </main>
+        <AstroFooter
+          config={astroData.config}
+          footer={astroData.footer}
+          lang={currentLang}
+        />
+      </div>
+    )
+  }
 
   // Price calculations based on selected variant
   const currentPrice = selectedVariant?.price || product.price
@@ -357,11 +377,16 @@ export default function ProductDetailClient({ productId, initialBundle }) {
       if (directCheckout) {
         router.push("/myshop/cart")
       } else {
-        toast.success(
+        toast(
           currentLang === "gu"
             ? `"${fullItemName}" કાર્ટમાં સફળતાપૂર્વક ઉમેરાયું!`
             : `"${fullItemName}" added to cart successfully!`,
           {
+            icon: (
+              <span className="flex items-center justify-center w-4 h-4 rounded-full bg-foreground text-background shrink-0">
+                <Check className="h-2.5 w-2.5 stroke-[3]" />
+              </span>
+            ),
             action: {
               label: currentLang === "gu" ? "કાર્ટ જુઓ →" : "View Cart →",
               onClick: () => router.push("/myshop/cart")
@@ -632,10 +657,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                             }`}
                             aria-label={`View photo ${idx + 1} of ${imagesList.length}`}
                           >
-                            <img
+                            <SafeImage
                               src={img}
                               alt={`${product.name} view ${idx + 1}`}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                             
                           </button>
@@ -660,10 +686,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                               }`}
                               aria-label={`View photo ${idx + 1} of ${imagesList.length}`}
                             >
-                              <img
+                              <SafeImage
                                 src={img}
                                 alt={`${product.name} view ${idx + 1}`}
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
                               />
 
                             </button>
@@ -700,10 +727,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                                   : `View remaining ${remainingCount} photos`
                               }
                             >
-                              <img
+                              <SafeImage
                                 src={bgImage}
                                 alt={`${product.name} more photos`}
-                                className="w-full h-full object-cover rounded-lg blur-[0.5px]"
+                                fill
+                                className="object-cover rounded-lg blur-[0.5px]"
                               />
 
                               {/* Elegant Frosted Dark Glassmorphic +N Overlay */}
@@ -1629,10 +1657,11 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         href={`/myshop/product/${rel.id}`}
                         className="block relative aspect-square w-full rounded-xl overflow-hidden bg-muted/50 mb-3.5 group-hover:opacity-95 transition-opacity"
                       >
-                        <img
+                        <SafeImage
                           src={rel.images?.[0] || rel.image}
                           alt={rel.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         {Boolean(rel.badge && String(rel.badge).trim() !== "") && (
                           <Badge className="absolute top-2.5 left-2.5 bg-[#fdc72d] text-[#0e3934] font-bold text-xs shadow-sm">
@@ -1717,11 +1746,12 @@ export default function ProductDetailClient({ productId, initialBundle }) {
       >
         {/* Left: Thumbnail, Price & Selected Variant */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="w-11 h-11 rounded-xl overflow-hidden border border-border/80 bg-muted shrink-0 shadow-2xs">
-            <img
+          <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-border/80 bg-muted shrink-0 shadow-2xs">
+            <SafeImage
               src={imagesList[selectedImageIndex] || imagesList[0]}
               alt={product.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
           <div className="flex flex-col min-w-0">

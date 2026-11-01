@@ -103,17 +103,12 @@ export default function CategoriesClient() {
 
   // State management
   const [searchQuery, setSearchQuery] = React.useState("")
-  const [selectedFilter, setSelectedFilter] = React.useState("all")
-
-  React.useEffect(() => {
+  const [selectedFilter, setSelectedFilter] = React.useState(() => {
     if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search)
-      const cat = params.get("category")
-      if (cat) {
-        setSelectedFilter(cat)
-      }
+      return new URLSearchParams(window.location.search).get("category") || "all"
     }
-  }, [])
+    return "all"
+  })
   const [whatsappPhone, setWhatsappPhone] = React.useState("")
   const [whatsappSuccess, setWhatsappSuccess] = React.useState(false)
   const [consultModalOpen, setConsultModalOpen] = React.useState(false)

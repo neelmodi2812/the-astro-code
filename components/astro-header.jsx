@@ -154,9 +154,11 @@ export function AstroHeader({
   }, [mobileMenuOpen])
 
   // Automatically close mobile menu on route navigation
-  React.useEffect(() => {
+  const [prevPathname, setPrevPathname] = React.useState(pathname)
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname)
     setMobileMenuOpen(false)
-  }, [pathname])
+  }
 
   const navScrollRef = React.useRef(null)
   const [canScrollLeft, setCanScrollLeft] = React.useState(false)
@@ -275,9 +277,9 @@ export function AstroHeader({
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         {/* 1ST LAYER: UNIFIED BRAND, CELESTIAL TIMINGS & UTILITIES ROW */}
         <div className="bg-card dark:bg-[#161714] py-2.5 sm:py-3 border-b border-[#fdc72d]/25 transition-colors">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
             {/* Left: Brand Identity & Sacred Celestial Status */}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
               <Link href="/" className="flex items-center group shrink-0" aria-label={config?.appName || "The Astro Code"}>
                 <Image
                   src="/the-astro-code-banner.png"
@@ -285,7 +287,7 @@ export function AstroHeader({
                   width={220}
                   height={44}
                   priority
-                  className="block dark:hidden h-8 sm:h-9 md:h-10 lg:h-11 max-w-[145px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
+                  className="block dark:hidden h-7.5 sm:h-9 md:h-10 lg:h-11 max-w-[130px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
                 />
                 <Image
                   src="/the-astro-code-banner-dark.png"
@@ -293,7 +295,7 @@ export function AstroHeader({
                   width={220}
                   height={44}
                   priority
-                  className="hidden dark:block h-8 sm:h-9 md:h-10 lg:h-11 max-w-[145px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
+                  className="hidden dark:block h-7.5 sm:h-9 md:h-10 lg:h-11 max-w-[130px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
                 />
                 <span className="sr-only">{config?.appName || "The Astro Code"}</span>
               </Link>
@@ -314,7 +316,7 @@ export function AstroHeader({
             </div>
 
             {/* Right: Book Consultation, Cart, Profile, Language & Theme */}
-            <div className="flex items-center gap-2 sm:gap-2.5 xl:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 xl:gap-3 shrink-0">
               {/* Book Consultation Button (Desktop Only: md+) */}
               <Button
                 size="sm"
@@ -340,10 +342,10 @@ export function AstroHeader({
                   <TooltipTrigger asChild>
                     <Link
                       href="/myshop/cart"
-                      className="relative h-10 w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-all shrink-0"
+                      className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-all shrink-0"
                       aria-label={lang === "gu" ? "શોપિંગ કાર્ટ" : "Shopping Cart"}
                     >
-                      <ShoppingBag className="h-4.5 w-4.5" />
+                      <ShoppingBag className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                       {cartCount > 0 && (
                         <span className="absolute -top-1 -right-1 size-4 bg-[#fdc72d] text-[#0e3934] text-[10px] font-black rounded-full flex items-center justify-center shrink-0 aspect-square leading-none">
                           {cartCount}
@@ -365,9 +367,9 @@ export function AstroHeader({
                       <Link
                         href="/login"
                         aria-label={lang === "gu" ? "લૉગિન કરો" : "Sign In"}
-                        className="h-10 w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
+                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
                       >
-                        <User className="h-5 w-5 text-foreground" />
+                        <User className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-foreground" />
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
@@ -380,15 +382,15 @@ export function AstroHeader({
                       <button
                         type="button"
                         aria-label={lang === "gu" ? "મારું એકાઉન્ટ" : "My Account"}
-                        className="h-10 px-2.5 sm:px-3 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
+                        className="h-9 sm:h-10 px-1 sm:px-3 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center gap-1.5 sm:gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
                       >
                         <div className="h-7 w-7 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none shadow-xs">
                           {userInitial}
                         </div>
-                        <span className="text-xs font-bold text-foreground max-w-[120px] truncate leading-tight">
+                        <span className="hidden sm:inline text-xs font-bold text-foreground max-w-[120px] truncate leading-tight">
                           Hi! {displayName}
                         </span>
-                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200" />
+                        <ChevronDown className="hidden sm:inline h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-xl border border-border">
@@ -491,10 +493,10 @@ export function AstroHeader({
 
               {/* Mobile Menu Hamburger Button (<md Only) */}
               <SheetTrigger
-                className="md:hidden h-10 w-10 flex items-center justify-center rounded-xl border-2 border-[#fdc72d]/70 text-foreground hover:bg-[#fdc72d]/10 dark:hover:bg-[#fdc72d]/15 transition-colors cursor-pointer shrink-0 ml-0.5"
+                className="md:hidden h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border-2 border-[#fdc72d]/70 text-foreground hover:bg-[#fdc72d]/10 dark:hover:bg-[#fdc72d]/15 transition-colors cursor-pointer shrink-0"
                 aria-label="Toggle Navigation Menu"
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {mobileMenuOpen ? <X className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> : <Menu className="h-4.5 w-4.5 sm:h-5 sm:w-5" />}
               </SheetTrigger>
             </div>
           </div>
