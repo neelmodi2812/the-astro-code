@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { AstroHeader } from "@/components/astro-header"
 
 import { VedicPortalHero } from "@/components/vedic-portal-hero"
@@ -27,31 +27,28 @@ export default function HomeClient({ initialFeed = null }) {
   const data = useHomeData(lang, initialFeed)
   const categorySections = useCategorySections(lang)
 
-  const [activeCategory, setActiveCategory] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).get("category") || "home"
-    }
-    return "home"
-  })
-  const [activeFilter, setActiveFilter] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).get("category") || null
-    }
-    return null
-  })
+  const searchParams = useSearchParams()
+  const currentCategoryParam = searchParams?.get("category") || null
+  const [prevCategoryParam, setPrevCategoryParam] = React.useState(currentCategoryParam)
+
+  const [activeCategory, setActiveCategory] = React.useState(currentCategoryParam || "home")
+  const [activeFilter, setActiveFilter] = React.useState(currentCategoryParam || null)
+
+  if (prevCategoryParam !== currentCategoryParam) {
+    setPrevCategoryParam(currentCategoryParam)
+    setActiveCategory(currentCategoryParam || "home")
+    setActiveFilter(currentCategoryParam || null)
+  }
 
   React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search)
-      const cat = params.get("category")
-      if (cat) {
-        setTimeout(() => {
-          const target = document.getElementById("featured-articles-section")
-          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" })
-        }, 200)
-      }
+    if (currentCategoryParam) {
+      const timer = setTimeout(() => {
+        const target = document.getElementById("featured-articles-section")
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 100)
+      return () => clearTimeout(timer)
     }
-  }, [])
+  }, [currentCategoryParam])
   const [cartItems, setCartItems] = React.useState([])
 
   // Language switch handler: Updates dataset & HTML lang attribute
@@ -61,6 +58,30 @@ export default function HomeClient({ initialFeed = null }) {
   }
 
   const handleSelectCategory = (catId) => {
+    if (catId === "home") {
+      setActiveCategory("home")
+      setActiveFilter(null)
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      }
+      return
+    }
+    // Standalone page routes navigate away via their Link; do not contaminate HomeClient state
+    const standaloneRoutes = [
+      "dainik-panchang",
+      "panchang",
+      "myshop",
+      "shop",
+      "cart",
+      "about",
+      "about-us",
+      "contact",
+      "contact-us",
+      "more",
+    ]
+    if (standaloneRoutes.includes(catId)) {
+      return
+    }
     setActiveCategory(catId)
     const matchingCat = data.categories.find((c) => c.id === catId)
     const label = matchingCat ? matchingCat.label : data.navLinks.find((n) => n.id === catId)?.label || catId
@@ -162,6 +183,8 @@ export default function HomeClient({ initialFeed = null }) {
                 astroInsightsSection={data.astroInsightsSection}
                 astroInsights={data.astroInsights}
                 onArticleClick={handleArticleClick}
+                isLoading={data.isLoading}
+                lang={lang}
               />
             </div>
 
@@ -194,6 +217,7 @@ export default function HomeClient({ initialFeed = null }) {
               products={data.products}
               onAddToCart={handleAddToCart}
               lang={lang}
+              isLoading={data.isLoading}
             />
           </div>
         </section>

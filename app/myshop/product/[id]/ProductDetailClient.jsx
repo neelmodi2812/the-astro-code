@@ -514,9 +514,12 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                   }
                 }}
               >
-                <img
+                <SafeImage
                   src={imagesList[selectedImageIndex] || imagesList[0]}
                   alt={product.name}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   style={{
                     transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
                     transform: isHoverZooming ? "scale(2.1)" : "scale(1)",
@@ -1318,9 +1321,12 @@ export default function ProductDetailClient({ productId, initialBundle }) {
                         if (e.key === "Enter" || e.key === " ") setIsCertModalOpen(true)
                       }}
                     >
-                      <img
+                      <SafeImage
                         src="/images/rudraksha-lab-certificate-sample.jpg"
                         alt={currentLang === "gu" ? "નેપાળી ૫-મુખી રુદ્રાક્ષ લેબ સર્ટિફિકેટ X-Ray રિપોર્ટ" : "Nepali 5-Mukhi Rudraksha Lab Certificate X-Ray Report"}
+                        width={800}
+                        height={600}
+                        sizes="(max-width: 1024px) 100vw, 40vw"
                         className="w-full h-auto object-contain rounded-xl transition-transform duration-300 group-hover:scale-[1.02]"
                       />
 
@@ -1851,11 +1857,12 @@ export default function ProductDetailClient({ productId, initialBundle }) {
             )}
 
             {/* Main Image (Clean, No Zoom, Directly on Black Backdrop) */}
-            <img
+            <SafeImage
               src={imagesList[selectedImageIndex] || imagesList[0]}
               alt={product.name}
-              draggable={false}
-              className="max-h-[76vh] sm:max-h-[82vh] max-w-full object-contain rounded-lg select-none shadow-2xl"
+              width={1200}
+              height={1200}
+              className="max-h-[76vh] sm:max-h-[82vh] max-w-full w-auto h-auto object-contain rounded-lg select-none shadow-2xl"
             />
 
             {/* Next Arrow Button (Clean white square button matching reference) */}
@@ -1934,10 +1941,12 @@ export default function ProductDetailClient({ productId, initialBundle }) {
             className="relative flex-1 w-full max-w-4xl mx-auto flex items-center justify-center my-3 sm:my-4 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <SafeImage
               src="/images/rudraksha-lab-certificate-sample.jpg"
               alt={currentLang === "gu" ? "નેપાળી ૫-મુખી રુદ્રાક્ષ લેબ સર્ટિફિકેટ X-Ray રિપોર્ટ" : "Nepali 5-Mukhi Rudraksha Lab Certificate X-Ray Report"}
-              className="max-h-[74vh] max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
+              width={1200}
+              height={900}
+              className="max-h-[74vh] max-w-full w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10"
             />
           </div>
 

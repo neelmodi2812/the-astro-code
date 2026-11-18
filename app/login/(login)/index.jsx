@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import {
   Lock,
@@ -17,6 +17,7 @@ import {
   UserPlus,
   KeyRound,
   AlertCircle,
+  Loader2,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -41,9 +42,14 @@ import {
 
 export default function LoginClient() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { lang, setLang } = useLanguage()
   const siteData = useHomeData(lang)
   const data = LOGIN_DATA
+
+  const redirectParam = searchParams.get("redirect") || searchParams.get("next")
+  const targetRedirect = redirectParam || "/dashboard"
+  const registerHref = redirectParam ? `/register?redirect=${encodeURIComponent(redirectParam)}` : "/register"
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [errors, setErrors] = React.useState({})
@@ -62,7 +68,7 @@ export default function LoginClient() {
     setAuthError("")
 
     const schema = getLoginSchema(lang)
-    const result = schema.safeParse({ email, password })
+    const result = schema.safeParse({ email: email.trim(), password })
 
     if (!result.success) {
       const fieldErrors = {}
@@ -73,18 +79,24 @@ export default function LoginClient() {
         }
       })
       setErrors(fieldErrors)
+      const firstErr = Object.values(fieldErrors)[0]
+      if (firstErr) {
+        setAuthError(firstErr)
+        toast.error(firstErr)
+      }
       return
     }
 
     setIsSubmitting(true)
     try {
-      await authService.login({ email: email.trim(), password })
+      const user = await authService.login({ email: email.trim(), password }, lang)
+      const userName = user?.name ? ` ${user.name}` : ""
       toast.success(
         lang === "gu"
-          ? "ઈમેલ ચકાસણી સફળ! તમારું સત્ર શરૂ થઈ ગયું છે."
-          : "Authentication successful! Your session is active."
+          ? `આપનું સ્વાગત છે${userName}! લૉગિન સફળ થયું છે.`
+          : `Welcome back${userName}! You have logged in successfully.`
       )
-      router.push("/myshop")
+      router.push(targetRedirect)
     } catch (error) {
       if (error?.errors) {
         const apiErrors = {}
@@ -94,11 +106,14 @@ export default function LoginClient() {
         setErrors(apiErrors)
       }
       const message =
-        error?.message ||
-        (lang === "gu"
-          ? "અમાન્ય ઈમેલ અથવા પાસવર્ડ."
-          : "Invalid email or password.")
+        lang === "gu" && (error?.status === 401 || error?.message?.toLowerCase().includes("invalid"))
+          ? "અમાન્ય ઈમેલ અથવા પાસવર્ડ. કૃપા કરીને ફરી ચકાસો."
+          : (error?.message ||
+             (lang === "gu"
+               ? "લૉગિન કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો."
+               : "Invalid email or password."))
       setAuthError(message)
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -273,6 +288,8 @@ export default function LoginClient() {
                             id="user-email"
                             type="email"
                             value={email}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.email)}
                             onChange={(e) => {
                               setEmail(e.target.value)
                               if (authError) setAuthError("")
@@ -311,6 +328,8 @@ export default function LoginClient() {
                             id="user-password"
                             type={showPassword ? "text" : "password"}
                             value={password}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.password)}
                             onChange={(e) => {
                               setPassword(e.target.value)
                               if (authError) setAuthError("")
@@ -343,6 +362,7 @@ export default function LoginClient() {
                         <Checkbox
                           id="remember-session"
                           checked={rememberSession}
+                          disabled={isSubmitting}
                           onCheckedChange={setRememberSession}
                           className="data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
                         />
@@ -355,11 +375,20 @@ export default function LoginClient() {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-3.5 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                        className="w-full py-3.5 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
                       >
-                        <KeyRound className="h-5 w-5 text-[#0e3934]" />
-                        <span>{data.rightColumn.pwdForm.submitButton[lang]}</span>
-                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="size-5 animate-spin" data-icon="inline-start" />
+                            <span>{lang === "gu" ? "લૉગિન થઈ રહ્યું છે..." : "Signing in..."}</span>
+                          </>
+                        ) : (
+                          <>
+                            <KeyRound className="size-5 text-[#0e3934]" data-icon="inline-start" />
+                            <span>{data.rightColumn.pwdForm.submitButton[lang]}</span>
+                            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" data-icon="inline-end" />
+                          </>
+                        )}
                       </Button>
                     </form>
                 </div>
@@ -381,11 +410,11 @@ export default function LoginClient() {
                   </div>
 
                   <Link
-                    href="/register"
+                    href={registerHref}
                     className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <span>{data.rightColumn.registerCallout.cta[lang]}</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="size-3.5" data-icon="inline-end" />
                   </Link>
                 </div>
               </div>
@@ -398,7 +427,7 @@ export default function LoginClient() {
       </main>
 
       {/* 5. Global Astro Footer */}
-      <AstroFooter lang={lang} />
+      <AstroFooter config={siteData.config} footer={siteData.footer} lang={lang} />
     </div>
   )
 }

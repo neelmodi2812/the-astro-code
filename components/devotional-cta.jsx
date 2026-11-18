@@ -47,9 +47,9 @@ export function DevotionalCTA({ newsletter = {} }) {
             <div className="text-sm uppercase tracking-wider text-[#fdc72d] font-bold">
               {newsletter.tag || "દૈનિક સુવિચાર & રાશિફળ"}
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold leading-snug text-white mt-1 text-balance">
+            <h2 className="text-xl sm:text-2xl font-bold leading-snug text-white mt-1 text-balance">
               {newsletter.title || "મેળવો દૈનિક રાશિફળ અને શુભ મુહૂર્ત તમારા WhatsApp પર"}
-            </h3>
+            </h2>
             <p className="text-sm sm:text-base text-white/85 mt-2 max-w-xl">
               {newsletter.subtitle || "દરરોજ સવારે ૭:૦૦ વાગ્યે પંચાંગ, આજનું ચોઘડિયું અને ભવિષ્યફળ વિનામૂલ્યે મેળવો."}
             </p>

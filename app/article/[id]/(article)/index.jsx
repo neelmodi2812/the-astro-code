@@ -249,8 +249,63 @@ function ArticleDetailContent({ initialId, initialArticle }) {
       return "ankashastra"
     }
 
-    return "bahuchar-maa-rajwadu"
+    return "bahuchar-maa-nu-rajwadu"
   }, [articleId, article])
+
+  // Assemble the complete article narrative for audio reading so the user hears the entire story:
+  const fullArticleSpeechText = React.useMemo(() => {
+    if (!article) return ""
+    const parts = []
+
+    // 1. Title
+    const titleText = article.title?.[lang] || article.title?.gu || article.title?.en || ""
+    if (titleText) parts.push(titleText)
+
+    // 2. Subtitle
+    const subtitleText = article.subtitle?.[lang] || article.subtitle?.gu || article.subtitle?.en || ""
+    if (subtitleText) parts.push(subtitleText)
+
+    // 3. Lead text (if available) or introductory audio text
+    const leadText = article.lead?.[lang] || article.lead?.gu || article.lead?.en || ""
+    if (leadText) {
+      parts.push(leadText)
+    } else if (article.audioText?.[lang] || article.audioText?.gu || article.audioText?.en) {
+      parts.push(article.audioText[lang] || article.audioText.gu || article.audioText.en)
+    }
+
+    // 4. All sections with headings and paragraphs
+    if (Array.isArray(article.sections)) {
+      for (const sec of article.sections) {
+        const rawHeading = sec?.heading?.[lang] || sec?.heading?.gu || sec?.heading?.en || (typeof sec?.heading === "string" ? sec.heading : "")
+        // Clean leading indexing digits like "૧. " or "1. " so speech synthesis doesn't say "one dot"
+        const heading = rawHeading ? rawHeading.replace(/^[0-9૦-૯]+[.)]\s*/, "") : ""
+        if (heading) parts.push(heading)
+        if (Array.isArray(sec?.paragraphs)) {
+          for (const para of sec.paragraphs) {
+            const pText = para?.[lang] || para?.gu || para?.en || (typeof para === "string" ? para : "")
+            if (pText) parts.push(pText)
+          }
+        }
+      }
+    }
+
+    // 5. Highlight Quote if present
+    const quoteText = article.quote?.text?.[lang] || article.quote?.text?.gu || article.quote?.text?.en || ""
+    if (quoteText) parts.push(quoteText)
+
+    // 6. Rituals / Sacred items if present
+    if (article.rituals?.items && Array.isArray(article.rituals.items)) {
+      const ritualTitle = article.rituals.title?.[lang] || article.rituals.title?.gu || article.rituals.title?.en || ""
+      if (ritualTitle) parts.push(ritualTitle)
+      for (const item of article.rituals.items) {
+        const itemText = item?.text?.[lang] || item?.text?.gu || item?.text?.en || (typeof item === "string" ? item : "")
+        if (itemText) parts.push(itemText)
+      }
+    }
+
+    const assembled = parts.filter(Boolean).join(". ")
+    return assembled.length > 30 ? assembled : (article.audioText?.[lang] || article.audioText?.gu || "")
+  }, [article, lang])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
@@ -264,12 +319,18 @@ function ArticleDetailContent({ initialId, initialArticle }) {
         onToggleLang={handleToggleLang}
       />
 
-      {/* 2. STICKY READING PROGRESS BAR (Positioned just under sticky header) */}
-      <div className="sticky top-[108px] sm:top-[124px] z-40 w-full overflow-hidden">
-        <Progress
-          value={readingProgress}
-          className="h-1 rounded-none gap-0 bg-border/40 [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:rounded-none [&_[data-slot=progress-track]]:bg-border/40 [&_[data-slot=progress-indicator]]:bg-[#d9a100]"
-          aria-label="Article reading progress"
+      {/* 2. READING PROGRESS BAR (Fixed at the very top of viewport - zero text overlap) */}
+      <div
+        className="fixed top-0 left-0 right-0 z-[60] h-1 pointer-events-none bg-transparent"
+        role="progressbar"
+        aria-valuenow={Math.round(readingProgress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Article reading progress"
+      >
+        <div
+          className="h-full bg-gradient-to-r from-[#d9a100] via-[#fdc72d] to-[#ffe58f] transition-all duration-150 ease-out shadow-[0_0_8px_rgba(253,199,45,0.5)]"
+          style={{ width: `${readingProgress}%` }}
         />
       </div>
 
@@ -339,7 +400,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
                         src={article.author.image}
-                        alt={article.author.name[lang]}
+                        alt=""
                         className="object-cover"
                       />
                       <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold">
@@ -560,12 +621,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </div>
             </figure>
 
-            {/* AUDIO LISTENING PLAYER COMPONENT (As seen in Reference Image 1) */}
+            {/* AUDIO LISTENING PLAYER COMPONENT */}
             <AudioArticlePlayer
-              articleText={article.audioText[lang]}
+              articleText={fullArticleSpeechText}
               lang={lang}
               title={lang === "gu" ? "આ લેખ સાંભળો" : "Listen to this Article"}
-              durationSeconds={432}
             />
 
             {/* SOCIAL SHARE BAR (Above Content) */}
@@ -831,7 +891,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
                   src={article.author.image || "https://dummyjson.com/image/200x100"}
-                  alt={article.author.name[lang]}
+                  alt=""
                   fill
                   sizes="96px"
                   className="object-cover"
@@ -899,7 +959,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <div className="relative h-40 overflow-hidden bg-muted">
                       <Image
                         src={story.image || "https://dummyjson.com/image/200x100"}
-                        alt={story.title}
+                        alt=""
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -972,9 +1032,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-sm text-foreground">
+                  <h3 className="font-bold text-sm text-foreground">
                     {data.panchang.widgetTitle}
-                  </h4>
+                  </h3>
                   <span className="text-xs text-muted-foreground">
                     {data.panchang.samvatTitle}
                   </span>
@@ -1052,7 +1112,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               <div className="relative flex flex-col gap-2.5">
                 <Button
-                  onClick={() => router.push("/contact-us")}
+                  onClick={() => router.push("/appointment")}
                   className="group w-full h-11 bg-gradient-to-r from-[#fdc72d] to-[#f0b400] hover:from-[#ffd24d] hover:to-[#fdc72d] text-[#0e3934] font-extrabold text-sm rounded-xl shadow-[0_6px_20px_-6px_rgba(253,199,45,0.6)] transition-all"
                 >
                   <Award className="h-4 w-4 mr-1.5" />
@@ -1079,9 +1139,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Store className="h-4 w-4 text-[#008d7f]" />
-                  <h4 className="font-bold text-sm text-foreground">
+                  <h3 className="font-bold text-sm text-foreground">
                     {lang === "gu" ? "MYSHOP આધ્યાત્મિક સ્ટોર" : "MYSHOP Spiritual Store"}
-                  </h4>
+                  </h3>
                 </div>
                 <span className="text-xs text-[#008d7f] font-bold">
                   {lang === "gu" ? "૧૦૦% શુદ્ધ" : "100% Pure"}
@@ -1099,7 +1159,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
                       <Image
                         src={prod.image || "https://dummyjson.com/image/200x100"}
-                        alt={prod.name}
+                        alt=""
                         fill
                         sizes="48px"
                         className="object-cover"
@@ -1137,9 +1197,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4 text-[#d9a100]" />
-                <h4 className="font-bold text-sm text-foreground">
+                <h3 className="font-bold text-sm text-foreground">
                   {lang === "gu" ? "વાંચકોની પસંદ (Most Popular)" : "Readers' Choice (Most Popular)"}
-                </h4>
+                </h3>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -1155,9 +1215,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                       {item.rank}
                     </span>
                     <div className="flex flex-col min-w-0">
-                      <h5 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
+                      <h4 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
                         {item.title}
-                      </h5>
+                      </h4>
                       <span className="text-xs text-muted-foreground mt-0.5">
                         {item.reads}
                       </span>

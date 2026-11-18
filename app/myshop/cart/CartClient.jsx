@@ -864,7 +864,7 @@ export default function CartClient() {
                       <Wallet className="h-5 w-5" title="UPI Supported" />
                       <CreditCard className="h-5 w-5" title="Credit / Debit Card" />
                       <Landmark className="h-5 w-5" title="NetBanking" />
-                      <Lock className="h-5 w-5" title="256-Bit SSL Encrypted" />
+                      <Lock className="h-5 w-5" title="100% Secure Payment" />
                     </div>
                     <span className="text-xs text-muted-foreground/80 text-center leading-tight">
                       {cartData.orderSummary.securityGuarantee}

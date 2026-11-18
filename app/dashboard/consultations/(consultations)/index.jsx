@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Video, Calendar, Clock, MessageSquare, Plus, Check, FileText } from "lucide-react"
 
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 function ConsultationsClient({ data }) {
+  const router = useRouter()
   const { lang } = useLanguage()
   const isEn = lang === "en"
 
@@ -27,27 +28,46 @@ function ConsultationsClient({ data }) {
 
   return (
     <DashboardShell breadcrumbKey="consultations">
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         
         {/* Heading Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
-              <Video className="h-6 w-6 text-[#8a6800] dark:text-[#fdc72d]" />
-              <span>{data.breadcrumb.consultations[lang] || data.breadcrumb.consultations.gu}</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              {isEn
-                ? "Manage your live video sessions with Dr. Vishal Modi and past astrological prescription notes."
-                : "ડૉ. વિશાલ મોદી સાથે લાઈવ વિડિયો પરામર્શ, પ્રશ્નોત્તરી અને ભૂતકાળના ઉપાયોનું સંચાલન."}
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center justify-between sm:block gap-3">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+                <Video className="h-5 w-5 sm:h-6 sm:w-6 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
+                <span>{data.breadcrumb.consultations[lang] || data.breadcrumb.consultations.gu}</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 hidden sm:block">
+                {isEn
+                  ? "Manage your live video sessions with Dr. Vishal Modi and past astrological prescription notes."
+                  : "ડૉ. વિશાલ મોદી સાથે લાઈવ વિડિયો પરામર્શ, પ્રશ્નોત્તરી અને ભૂતકાળના ઉપાયોનું સંચાલન."}
+              </p>
+            </div>
+
+            <Button
+              onClick={() => {
+                router.push("/appointment")
+              }}
+              size="sm"
+              className="h-8 sm:h-9 px-3 sm:px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer sm:hidden shrink-0"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>{isEn ? "Book" : "બુક કરો"}</span>
+            </Button>
           </div>
+
+          <p className="text-xs text-muted-foreground sm:hidden">
+            {isEn
+              ? "Live video sessions with Dr. Vishal Modi and astrological prescription notes."
+              : "ડૉ. વિશાલ મોદી સાથે લાઈવ વિડિયો પરામર્શ અને ઉપાયોનું સંચાલન."}
+          </p>
 
           <Button
             onClick={() => {
-              window.open("https://wa.me/917940008108?text=BookConsultation", "_blank")
+              router.push("/appointment")
             }}
-            className="h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
+            className="hidden sm:inline-flex h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer shrink-0"
           >
             <Plus className="h-4 w-4" />
             <span>{isEn ? "Book New Session" : "નવો પરામર્શ બુક કરો"}</span>
@@ -56,13 +76,13 @@ function ConsultationsClient({ data }) {
 
         {/* UPCOMING SESSION CARD */}
         {!data.upcomingConsultation.isPlaceholder ? (
-          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-3">
-              <div className="flex items-center gap-2.5">
+          <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-3.5 sm:p-6 border border-border/70 shadow-sm space-y-4 sm:space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge className="bg-destructive/15 text-destructive border-destructive/20 text-xs font-bold">
                   {data.upcomingConsultation.countdown[lang] || data.upcomingConsultation.countdown.gu}
                 </Badge>
-                <span className="text-xs font-bold text-foreground">
+                <span className="text-xs font-extrabold text-foreground">
                   {data.upcomingConsultation.astrologer[lang] || data.upcomingConsultation.astrologer.gu}
                 </span>
               </div>
@@ -71,33 +91,33 @@ function ConsultationsClient({ data }) {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
               <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40 flex items-center gap-3">
                 <Calendar className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                <div>
+                <div className="min-w-0">
                   <span className="text-[10px] text-muted-foreground block">{isEn ? "Date" : "તારીખ"}</span>
-                  <strong className="text-xs text-foreground">{data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu}</strong>
+                  <strong className="text-xs text-foreground block truncate">{data.upcomingConsultation.dateValue[lang] || data.upcomingConsultation.dateValue.gu}</strong>
                 </div>
               </div>
 
               <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40 flex items-center gap-3">
                 <Clock className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                <div>
+                <div className="min-w-0">
                   <span className="text-[10px] text-muted-foreground block">{isEn ? "Time" : "સમય"}</span>
-                  <strong className="text-xs text-foreground">{data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}</strong>
+                  <strong className="text-xs text-foreground block truncate">{data.upcomingConsultation.timeValue[lang] || data.upcomingConsultation.timeValue.gu}</strong>
                 </div>
               </div>
 
               <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl border border-border/40 flex items-center gap-3">
                 <Video className="h-5 w-5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                <div>
+                <div className="min-w-0">
                   <span className="text-[10px] text-muted-foreground block">{isEn ? "Platform" : "પ્લેટફોર્મ"}</span>
-                  <strong className="text-xs text-foreground">{data.upcomingConsultation.platformValue}</strong>
+                  <strong className="text-xs text-foreground block truncate">{data.upcomingConsultation.platformValue}</strong>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-muted/30 dark:bg-[#0f3c36] rounded-xl border border-border/40">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 bg-muted/30 dark:bg-[#0f3c36] rounded-xl border border-border/40">
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {isEn
                   ? "Meeting link activates 10 minutes prior to call. Make sure you are in a quiet room."
@@ -107,7 +127,7 @@ function ConsultationsClient({ data }) {
                 onClick={() => {
                   window.open(data.upcomingConsultation.meetUrl, "_blank")
                 }}
-                className="w-full sm:w-auto h-9 px-5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-2 cursor-pointer shrink-0"
+                className="w-full sm:w-auto h-9 px-5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-2 cursor-pointer shrink-0 justify-center"
               >
                 <Video className="h-4 w-4" />
                 <span>{isEn ? "Join Video Meeting" : "વિડિયો મીટિંગમાં જોડાઓ"}</span>
@@ -115,21 +135,21 @@ function ConsultationsClient({ data }) {
             </div>
           </div>
         ) : (
-          <div className="bg-card dark:bg-[#181914] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-xl bg-[#fdc72d]/10 dark:bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                <Calendar className="h-6 w-6" />
+          <div className="bg-card dark:bg-[#181914] rounded-2xl p-4 sm:p-6 border border-border/70 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3 sm:gap-3.5">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#fdc72d]/10 dark:bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <div className="space-y-0.5">
-                <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-sm sm:text-base font-bold text-foreground">
                     {isEn ? "No Upcoming Session Booked" : "હાલ કોઈ આગામી પરામર્શ બુક નથી"}
                   </h3>
-                  <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60">
+                  <Badge variant="outline" className="text-[10px] text-[#8a6800] dark:text-[#fdc72d] border-[#fdc72d]/40 bg-[#fdc72d]/10 font-bold">
                     {isEn ? "Slots Available" : "સ્લોટ ઉપલબ્ધ"}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {isEn
                     ? "Connect 1-on-1 with Dr. Vishal Modi via private Google Meet for horoscope reading & remedies."
                     : "તમારી જન્મકુંડળી વિશ્લેષણ અને શાસ્ત્રોક્ત માર્ગદર્શન માટે ડૉ. વિશાલ મોદી સાથે વિડિયો પરામર્શ બુક કરો."}
@@ -139,9 +159,9 @@ function ConsultationsClient({ data }) {
 
             <Button
               onClick={() => {
-                window.open("https://wa.me/917940008108?text=BookConsultation", "_blank")
+                router.push("/appointment")
               }}
-              className="h-9 px-5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer shrink-0 self-stretch sm:self-auto"
+              className="w-full sm:w-auto h-9 px-5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer shrink-0 justify-center"
             >
               <Video className="h-4 w-4" />
               <span>{isEn ? "Book a Consultation" : "પરામર્શ બુક કરો"}</span>
@@ -150,11 +170,11 @@ function ConsultationsClient({ data }) {
         )}
 
         {/* INTERACTIVE QUESTION NOTEBOOK */}
-        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 sm:p-6 border border-border/70 shadow-sm space-y-3.5 sm:space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                <MessageSquare className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
                 <span>{isEn ? "My Questions for the Astrologer" : "જ્યોતિષાચાર્ય માટે મારા મુખ્ય પ્રશ્નો"}</span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -179,15 +199,16 @@ function ConsultationsClient({ data }) {
             />
             <Button
               type="submit"
-              className="h-8 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-lg shadow-2xs gap-1.5"
+              className="w-full sm:w-auto h-9 px-4 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs rounded-xl shadow-2xs gap-1.5 justify-center cursor-pointer"
             >
               <Check className="h-3.5 w-3.5" />
               <span>{isEn ? "Save & Update Questions" : "પ્રશ્નો સેવ કરો"}</span>
             </Button>
           </form>
         </div>
+
         {/* PAST CONSULTATIONS HISTORY */}
-        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 sm:p-6 border border-border/70 shadow-sm space-y-4">
+        <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-4 sm:p-6 border border-border/70 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-foreground">
             {isEn ? "Past Consultation History & Remedies" : "ભૂતકાળના પરામર્શ & શાસ્ત્રોક્ત ઉપાયો"}
           </h2>
@@ -213,16 +234,16 @@ function ConsultationsClient({ data }) {
               {data.consultationsHistory.map((c) => (
                 <div
                   key={c.id}
-                  className="p-4 bg-muted/30 dark:bg-[#20211d] rounded-xl border border-border/40 space-y-2.5"
+                  className="p-3.5 sm:p-4 bg-muted/30 dark:bg-[#20211d] rounded-xl border border-border/40 space-y-2.5"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
                       <strong className="text-xs text-foreground">{c.astrologer[lang] || c.astrologer.gu}</strong>
                       <span className="text-xs text-muted-foreground">•</span>
                       <span className="text-xs text-muted-foreground">{c.date[lang] || c.date.gu}</span>
                     </div>
                     <Badge
-                      className={`text-[10px] font-bold self-start sm:self-auto ${
+                      className={`text-[10px] font-bold shrink-0 ${
                         c.status === "upcoming"
                           ? "bg-destructive/15 text-destructive"
                           : "bg-[#00685d] text-white"

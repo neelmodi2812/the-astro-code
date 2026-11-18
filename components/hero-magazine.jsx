@@ -30,9 +30,9 @@ export function HeroMagazine({ stories, onStoryClick }) {
                 {story.tag}
               </span>
 
-              <h2 className="text-base sm:text-lg text-white font-bold leading-snug drop-shadow-xs mb-3 group-hover:text-[#fdc72d] transition-colors">
+              <h3 className="text-base sm:text-lg text-white font-bold leading-snug drop-shadow-xs mb-3 group-hover:text-[#fdc72d] transition-colors">
                 {story.title}
-              </h2>
+              </h3>
 
               <div className="text-xs text-white/80 flex items-center justify-center gap-2">
                 <span className="text-[#fdc72d] font-semibold">{story.author}</span>

@@ -24,6 +24,7 @@ import {
   MapPin,
   Settings,
   LogOut,
+  Calendar,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -58,13 +59,27 @@ import { useNavMenu } from "@/lib/api/hooks/use-nav-menu"
 
 // Valid application routes for the "More" navigation dropdown
 const MORE_SUBMENU = [
+  { label: { gu: "પરામર્શ અપોઇન્ટમેન્ટ", en: "Book Consultation Appointment" }, href: "/appointment" },
   { label: { gu: "તમામ વિષય સંગ્રહ", en: "All Categories Directory" }, href: "/categories" },
   { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us" }, href: "/about-us" },
   { label: { gu: "સંપર્ક કરો અને મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
   { label: { gu: "ગોપનીયતા નીતિ", en: "Privacy Policy" }, href: "/privacy-policy" },
 ]
 
-export function AstroHeader({
+function AstroHeaderPathnameConsumer(props) {
+  const pathname = usePathname()
+  return <AstroHeaderInner {...props} pathname={pathname} />
+}
+
+export function AstroHeader(props) {
+  return (
+    <React.Suspense fallback={<AstroHeaderInner {...props} pathname="" />}>
+      <AstroHeaderPathnameConsumer {...props} />
+    </React.Suspense>
+  )
+}
+
+function AstroHeaderInner({
   config = {},
   topBar = {},
   navLinks: staticNavLinks = [],
@@ -73,8 +88,8 @@ export function AstroHeader({
   lang: propLang,
   onToggleLang,
   cartCount: propCartCount,
+  pathname = "",
 }) {
-  const pathname = usePathname()
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
   const { navLinks, submenus } = useNavMenu(lang, staticNavLinks)
@@ -154,11 +169,12 @@ export function AstroHeader({
   }, [mobileMenuOpen])
 
   // Automatically close mobile menu on route navigation
-  const [prevPathname, setPrevPathname] = React.useState(pathname)
-  if (prevPathname !== pathname) {
-    setPrevPathname(pathname)
-    setMobileMenuOpen(false)
-  }
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setMobileMenuOpen(false)
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [pathname])
 
   const navScrollRef = React.useRef(null)
   const [canScrollLeft, setCanScrollLeft] = React.useState(false)
@@ -214,22 +230,40 @@ export function AstroHeader({
   }
 
   const activeNavId = React.useMemo(() => {
-    if (pathname === "/") {
-      return activeCategory || "home"
+    const cleanPath = (pathname || "").replace(/\/+$/, "") || "/"
+    if (cleanPath === "/" || cleanPath === "/home") {
+      // Standalone page routes should never be highlighted on the Home page ("/")
+      const standaloneRoutes = [
+        "home",
+        "dainik-panchang",
+        "panchang",
+        "myshop",
+        "shop",
+        "cart",
+        "about",
+        "about-us",
+        "contact",
+        "contact-us",
+        "more",
+      ]
+      if (activeCategory && !standaloneRoutes.includes(activeCategory)) {
+        return activeCategory
+      }
+      return "home"
     }
-    if (pathname === "/myshop" || pathname?.startsWith("/myshop")) {
+    if (cleanPath === "/myshop" || cleanPath.startsWith("/myshop/")) {
       return "myshop"
     }
-    if (pathname === "/dainik-panchang" || pathname?.startsWith("/dainik-panchang")) {
+    if (cleanPath === "/dainik-panchang" || cleanPath.startsWith("/dainik-panchang/")) {
       return "dainik-panchang"
     }
-    if (pathname === "/about-us" || pathname?.startsWith("/about-us")) {
+    if (cleanPath === "/about-us" || cleanPath.startsWith("/about-us/")) {
       return "more"
     }
-    if (pathname === "/contact-us" || pathname?.startsWith("/contact-us")) {
+    if (cleanPath === "/contact-us" || cleanPath.startsWith("/contact-us/")) {
       return "more"
     }
-    if (pathname === "/categories" || pathname?.startsWith("/categories")) {
+    if (cleanPath === "/categories" || cleanPath.startsWith("/categories/")) {
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search)
         const cat = params.get("category")
@@ -240,37 +274,44 @@ export function AstroHeader({
     }
 
     // Article detail pages: determine active navigation category from API
-    if (pathname?.startsWith("/article/")) {
-      const owner = navLinks.find((item) => (submenus[item.id] || []).some((sub) => sub.href === pathname))
+    if (cleanPath.startsWith("/article/")) {
+      const owner = navLinks.find((item) => (submenus[item.id] || []).some((sub) => sub.href === cleanPath || sub.href === pathname))
       if (owner) return owner.id
       if (
-        pathname.includes("somnath") ||
-        pathname.includes("mahakaleshwar") ||
-        pathname.includes("dwarkadhish") ||
-        pathname.includes("jyotirling")
+        cleanPath.includes("somnath") ||
+        cleanPath.includes("mahakaleshwar") ||
+        cleanPath.includes("dwarkadhish") ||
+        cleanPath.includes("jyotirling")
       ) {
         return "jyotirling"
       }
       if (activeCategory && activeCategory !== "home") {
+        if (activeCategory === "bahuchar-maa-rajwadu") return "bahuchar-maa-nu-rajwadu"
         return activeCategory
       }
       return "dharmik"
     }
 
-    if (activeCategory) return activeCategory
-    return ""
+    if (activeCategory && activeCategory !== "home") return activeCategory
+    return "home"
   }, [pathname, activeCategory, navLinks, submenus])
 
   const checkIsActive = (item) => activeNavId === item.id
 
-  // The strip scrolls sideways, so bring the selected item into view instead of leaving it off-screen.
+  // Bring the selected item into view; on Home or when active is "home", always reset scroll position to 0
   React.useEffect(() => {
     const nav = navScrollRef.current
-    const el = nav?.querySelector(`[data-nav-id="${CSS.escape(activeNavId || "")}"]`)
-    if (!nav || !el) return
+    if (!nav) return
+    const cleanPath = (pathname || "").replace(/\/+$/, "") || "/"
+    if (cleanPath === "/" || cleanPath === "/home" || activeNavId === "home") {
+      nav.scrollTo({ left: 0, behavior: "smooth" })
+      return
+    }
+    const el = nav.querySelector(`[data-nav-id="${CSS.escape(activeNavId || "")}"]`)
+    if (!el) return
     const target = el.offsetLeft - (nav.clientWidth - el.offsetWidth) / 2
     nav.scrollTo({ left: Math.max(0, target), behavior: "smooth" })
-  }, [activeNavId, navLinks])
+  }, [pathname, activeNavId, navLinks])
 
   return (
     <header className="sticky top-0 w-full z-50 shadow-[0_4px_20px_-2px_rgba(37,26,0,0.12)] transition-all">
@@ -283,17 +324,19 @@ export function AstroHeader({
               <Link href="/" className="flex items-center group shrink-0" aria-label={config?.appName || "The Astro Code"}>
                 <Image
                   src="/the-astro-code-banner.png"
-                  alt={config?.appName || "The Astro Code"}
+                  alt=""
                   width={220}
                   height={44}
+                  sizes="(max-width: 640px) 130px, 220px"
                   priority
                   className="block dark:hidden h-7.5 sm:h-9 md:h-10 lg:h-11 max-w-[130px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
                 />
                 <Image
                   src="/the-astro-code-banner-dark.png"
-                  alt={config?.appName || "The Astro Code"}
+                  alt=""
                   width={220}
                   height={44}
+                  sizes="(max-width: 640px) 130px, 220px"
                   priority
                   className="hidden dark:block h-7.5 sm:h-9 md:h-10 lg:h-11 max-w-[130px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
                 />
@@ -321,18 +364,9 @@ export function AstroHeader({
               <Button
                 size="sm"
                 className="hidden md:inline-flex bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] font-extrabold shadow-sm hover:shadow transition-all cursor-pointer h-10 px-4 sm:px-5 rounded-xl shrink-0 whitespace-nowrap items-center justify-center border border-[#e5b220]"
-                onClick={() => {
-                  window.open(
-                    getWhatsAppUrl(
-                      lang === 'gu'
-                        ? 'જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો.'
-                        : 'Hello, I would like to book an astrology consultation.'
-                    ),
-                    "_blank"
-                  )
-                }}
+                onClick={() => router.push("/appointment")}
               >
-                <MessageSquare className="h-4 w-4 mr-1.5" />
+                <Calendar className="h-4 w-4 mr-1.5" />
                 <span>{topBar.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
               </Button>
 
@@ -538,8 +572,8 @@ export function AstroHeader({
                           data-nav-id={item.id}
                           type="button"
                           className={`group px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
-                            ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
-                            : "text-[#1b1c1a] hover:bg-black/10 data-[state=open]:bg-black/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1b1c1a]"
+                            ? "bg-[#00685d] text-white shadow-sm ring-1 ring-[#00685d]"
+                            : "text-[#0e3934] hover:bg-[#00685d]/12 data-[state=open]:bg-[#00685d] data-[state=open]:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                             }`}
                         >
                           <span>{item.label}</span>
@@ -571,6 +605,7 @@ export function AstroHeader({
                                 <Link
                                   href={getItemHref(item.id)}
                                   onClick={() => onSelectCategory && onSelectCategory(item.id)}
+                                  aria-label={`${lang === "gu" ? "બધા લેખો જુઓ:" : "View All Articles in"} ${item.label}`}
                                   className="flex items-center justify-between w-full"
                                 >
                                   <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
@@ -593,8 +628,8 @@ export function AstroHeader({
                     href={getItemHref(item.id)}
                     onClick={() => onSelectCategory && onSelectCategory(item.id)}
                     className={`px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
-                      ? "bg-[#1b1c1a] text-[#fdc72d] shadow-sm ring-1 ring-[#1b1c1a]"
-                      : "text-[#1b1c1a] hover:bg-black/10 data-[state=open]:bg-black/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1b1c1a]"
+                      ? "bg-[#00685d] text-white shadow-sm ring-1 ring-[#00685d]"
+                      : "text-[#0e3934] hover:bg-[#00685d]/12 data-[state=open]:bg-[#00685d] data-[state=open]:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                       }`}
                   >
                     <span>{item.label}</span>
@@ -636,14 +671,14 @@ export function AstroHeader({
               <Link href="/" onClick={() => setMobileMenuOpen(false)} className="inline-block" aria-label={config?.appName || "The Astro Code"}>
                 <Image
                   src="/the-astro-code-banner.png"
-                  alt={config.appName || "The Astro Code"}
+                  alt=""
                   width={180}
                   height={38}
                   className="block dark:hidden h-8 sm:h-9 w-auto object-contain"
                 />
                 <Image
                   src="/the-astro-code-banner-dark.png"
-                  alt={config.appName || "The Astro Code"}
+                  alt=""
                   width={180}
                   height={38}
                   className="hidden dark:block h-8 sm:h-9 w-auto object-contain"
@@ -850,6 +885,7 @@ export function AstroHeader({
                                 if (onSelectCategory) onSelectCategory(item.id)
                                 setMobileMenuOpen(false)
                               }}
+                              aria-label={`${lang === "gu" ? "બધા લેખો જુઓ:" : "View All Articles in"} ${item.label}`}
                               className="w-full text-left py-2 px-2.5 rounded-lg text-xs font-bold text-[#00685d] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer border-t border-border/30 mt-1"
                             >
                               <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
@@ -897,17 +933,10 @@ export function AstroHeader({
               className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold h-10 rounded-lg text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
               onClick={() => {
                 setMobileMenuOpen(false)
-                window.open(
-                  getWhatsAppUrl(
-                    lang === "gu"
-                      ? "જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો."
-                      : "Hello, I would like to book an astrology consultation."
-                  ),
-                  "_blank"
-                )
+                router.push("/appointment")
               }}
             >
-              <MessageSquare className="h-4 w-4" />
+              <Calendar className="h-4 w-4" />
               <span>{topBar?.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
             </button>
 

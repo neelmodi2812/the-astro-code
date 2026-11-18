@@ -285,14 +285,14 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
               </DialogHeader>
 
               {/* What is Included */}
-              <div className="space-y-3 py-3 border-y border-border/70 my-2">
-                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
+              <div className="flex flex-col gap-3 py-3 border-y border-border/70 my-2">
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
                   {lang === "gu" ? "આ સેવામાં શું સમાવિષ્ટ છે:" : "What is Included:"}
-                </h4>
-                <div className="space-y-2">
+                </h3>
+                <div className="flex flex-col gap-2">
                   {selectedService.highlights.map((h, i) => (
                     <div key={i} className="flex items-start gap-2 text-xs text-foreground/90">
-                      <Check className="h-3.5 w-3.5 text-[#008376] dark:text-[#38b2a3] shrink-0 mt-0.5 font-bold" />
+                      <Check className="size-3.5 text-[#008376] dark:text-[#38b2a3] shrink-0 mt-0.5 font-bold" />
                       <span>{h}</span>
                     </div>
                   ))}
@@ -317,16 +317,15 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <a
-                    href={getWhatsAppUrl(selectedService.whatsappText)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#008376] hover:bg-[#00685d] text-white text-xs font-bold transition-colors shadow-2xs"
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    href="/appointment"
+                    onClick={() => setSelectedService(null)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] text-xs font-bold transition-colors shadow-2xs"
                   >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    <span>{lang === "gu" ? "WhatsApp પર બુક કરો" : "Book on WhatsApp"}</span>
-                  </a>
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{lang === "gu" ? "અપોઇન્ટમેન્ટ બુક કરો" : "Book Appointment"}</span>
+                  </Link>
 
                   {selectedService.href && (
                     <Link

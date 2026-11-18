@@ -103,12 +103,17 @@ export default function CategoriesClient() {
 
   // State management
   const [searchQuery, setSearchQuery] = React.useState("")
-  const [selectedFilter, setSelectedFilter] = React.useState(() => {
+  const [selectedFilter, setSelectedFilter] = React.useState("all")
+
+  React.useEffect(() => {
     if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).get("category") || "all"
+      const cat = new URLSearchParams(window.location.search).get("category")
+      if (cat) {
+        const timer = setTimeout(() => setSelectedFilter(cat), 0)
+        return () => clearTimeout(timer)
+      }
     }
-    return "all"
-  })
+  }, [])
   const [whatsappPhone, setWhatsappPhone] = React.useState("")
   const [whatsappSuccess, setWhatsappSuccess] = React.useState(false)
   const [consultModalOpen, setConsultModalOpen] = React.useState(false)
@@ -497,7 +502,7 @@ export default function CategoriesClient() {
               <div className="relative w-20 h-20 rounded-full mx-auto p-1 bg-gradient-to-tr from-[#008376] to-[#fdc72d] shadow-sm mb-3 overflow-hidden">
                 <Image
                   src={founder?.image || pageData.sidebar.consultation.avatar}
-                  alt={founder?.name || pageData.sidebar.consultation.name}
+                  alt=""
                   width={80}
                   height={80}
                   className="w-full h-full object-cover rounded-full"
@@ -537,7 +542,7 @@ export default function CategoriesClient() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setConsultModalOpen(true)}
+                  onClick={() => router.push("/appointment")}
                   className="w-full py-2.5 text-xs font-bold rounded-xl border-border hover:bg-muted cursor-pointer"
                 >
                   <Calendar className="h-3.5 w-3.5 mr-1" />
@@ -553,9 +558,9 @@ export default function CategoriesClient() {
                   <MessageCircle className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black leading-tight text-white">
+                  <h3 className="text-sm font-black leading-tight text-white">
                     {pageData.sidebar.newsletter.title}
-                  </h4>
+                  </h3>
                   <span className="text-xs text-emerald-200 font-medium block mt-0.5">
                     {pageData.sidebar.newsletter.schedule}
                   </span>

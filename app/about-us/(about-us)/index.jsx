@@ -706,13 +706,14 @@ export default function AboutUsClient() {
 
                   {/* Right Yantra Image Emblem */}
                   <div className="md:col-span-4 flex items-center justify-center">
-                    <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full p-2.5 bg-gradient-to-tr from-[#fdc72d]/40 via-white/10 to-[#00685d]/40 flex items-center justify-center shadow-2xl">
+                    <div className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full p-3 bg-white/95 dark:bg-[#151613] flex items-center justify-center shadow-2xl ring-4 ring-[#fdc72d]/50">
                       <Image
-                        src={about.mission.yantraImage}
-                        alt={about.mission.yantraAlt}
-                        width={224}
-                        height={224}
-                        className="w-full h-full object-contain rounded-full drop-shadow-2xl"
+                        src={about.mission.yantraImage || "/the_astro_code_golden_yantra_logo.png"}
+                        alt={about.mission.yantraAlt || "The Astro Code Logo"}
+                        width={208}
+                        height={208}
+                        className="w-full h-full object-contain rounded-full drop-shadow-md"
+                        priority
                       />
                     </div>
                   </div>
@@ -841,7 +842,7 @@ export default function AboutUsClient() {
 
               <div className="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto shrink-0">
                 <Button
-                  onClick={() => setBookingModalOpen(true)}
+                  onClick={() => router.push("/appointment")}
                   className="bg-[#fdc72d] text-[#0e3934] font-black text-xs sm:text-sm px-7 py-3 rounded-xl hover:bg-[#eab318] shadow-sm flex items-center justify-center gap-2 cursor-pointer h-12"
                 >
                   <Calendar className="h-4 w-4" />
@@ -873,9 +874,9 @@ export default function AboutUsClient() {
                   <ShieldCheck className="h-6 w-6" />
                 </div>
                 <div>
-                  <h5 className="text-sm sm:text-base font-bold text-foreground">
+                  <h4 className="text-sm sm:text-base font-bold text-foreground">
                     {about.pledge.title[lang]}
-                  </h5>
+                  </h4>
                   <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 max-w-3xl">
                     {about.pledge.description[lang]}
                   </p>
@@ -980,7 +981,7 @@ export default function AboutUsClient() {
               <Button
                 onClick={() => {
                   setSelectedCert(null)
-                  setBookingModalOpen(true)
+                  router.push("/appointment")
                 }}
                 className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs h-9 hover:bg-[#eab318]"
               >

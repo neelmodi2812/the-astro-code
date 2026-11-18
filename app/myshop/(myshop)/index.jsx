@@ -1044,11 +1044,13 @@ export default function ShopClient() {
                       {/* Featured Image Pane */}
                       <Link
                         href={`/myshop/product/${featured.id}`}
+                        tabIndex={-1}
+                        aria-hidden="true"
                         className="md:col-span-5 relative min-h-[260px] md:min-h-[320px] bg-muted overflow-hidden block group"
                       >
                         <Image
                           src={featured.image || "https://dummyjson.com/image/200x100"}
-                          alt={featured.name || ""}
+                          alt=""
                           fill
                           sizes="(max-width: 768px) 100vw, 42vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1189,13 +1191,13 @@ export default function ShopClient() {
 
               {/* PRODUCTS CATALOG GRID */}
               {shopData.loading && paginatedProducts.length === 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div
                       key={i}
                       className="rounded-xl overflow-hidden border border-border/80 shadow-xs bg-card dark:bg-[#1a1b17] p-0 flex flex-col justify-between"
                     >
-                      <Skeleton className="h-40 sm:h-52 w-full rounded-none" />
+                      <Skeleton className="h-48 sm:h-52 w-full rounded-none" />
                       <div className="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
                         <div className="space-y-1.5">
                           <Skeleton className="h-3.5 w-1/3 rounded" />
@@ -1234,7 +1236,7 @@ export default function ShopClient() {
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {paginatedProducts.map((product) => {
                     const isWishlisted = isInWishlist(product.id)
                     const isJustAdded = addedAnimationId === product.id
@@ -1246,11 +1248,11 @@ export default function ShopClient() {
                         className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#1a1b17] cursor-pointer"
                       >
                         {/* Image Pane */}
-                        <div className="relative h-40 sm:h-52 bg-muted overflow-hidden">
-                          <Link href={`/myshop/product/${product.id}`} className="relative block w-full h-full">
+                        <div className="relative h-48 sm:h-52 bg-muted overflow-hidden">
+                          <Link href={`/myshop/product/${product.id}`} tabIndex={-1} aria-hidden="true" className="relative block w-full h-full">
                             <Image
                               src={product.image || "https://dummyjson.com/image/200x100"}
-                              alt={product.name}
+                              alt=""
                               fill
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                               className="object-cover group-hover:scale-105 transition-transform duration-500"

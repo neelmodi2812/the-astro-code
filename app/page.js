@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cacheLife } from "next/cache"
+import { cacheLife, cacheTag } from "next/cache"
 import HomeClient from "./(home)"
 import { contentService } from "@/lib/api/services/content"
 
@@ -12,6 +12,7 @@ export const metadata = {
 async function getCachedHomeFeed() {
   "use cache"
   cacheLife("minutes")
+  cacheTag("home", "home-feed")
   try {
     const res = await contentService.home.feed("gu", { token: null })
     return res?.data ?? null
@@ -37,4 +38,3 @@ export default async function HomePage() {
     <HomeClient initialFeed={initialFeed} />
   )
 }
-

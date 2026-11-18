@@ -16,8 +16,9 @@ import {
   UserCheck,
   Sparkles,
   LogIn,
-  HelpCircle,
-  Check
+  Check,
+  Loader2,
+  RefreshCw
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -50,11 +51,13 @@ export default function ForgotPasswordClient() {
   const [emailAddress, setEmailAddress] = React.useState("")
   const [emailSent, setEmailSent] = React.useState(false)
   const [isSendingEmail, setIsSendingEmail] = React.useState(false)
+  const [lastSentEmail, setLastSentEmail] = React.useState("")
 
   // Send Email Reset Link
   const handleSendEmailLink = async (e) => {
-    e.preventDefault()
-    if (!emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
+    if (e?.preventDefault) e.preventDefault()
+    const targetEmail = (emailAddress || lastSentEmail).trim()
+    if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
       toast.error(
         isEn
           ? "Please enter a valid email address."
@@ -65,15 +68,23 @@ export default function ForgotPasswordClient() {
 
     setIsSendingEmail(true)
     try {
-      await authService.forgotPassword(emailAddress, lang)
+      const res = await authService.forgotPassword(targetEmail, lang)
       setEmailSent(true)
-      toast.success(
-        isEn
-          ? `Password reset link sent to ${emailAddress}`
-          : `રીસેટ લિંક ${emailAddress} પર મોકલી દેવાઈ છે!`
-      )
+      setLastSentEmail(targetEmail)
+      const successMessage =
+        res?.message ||
+        (isEn
+          ? `Password reset link sent to ${targetEmail}`
+          : `રીસેટ લિંક ${targetEmail} પર મોકલી દેવાઈ છે!`)
+      toast.success(successMessage)
     } catch (error) {
-      toast.error(error.message)
+      const errorMsg =
+        error?.errors?.email?.[0] ||
+        error?.message ||
+        (isEn
+          ? "Failed to send reset link. Please check your email and try again."
+          : "રીસેટ લિંક મોકલવામાં ક્ષતિ આવી. કૃપા કરીને ફરી પ્રયાસ કરો.")
+      toast.error(errorMsg)
     } finally {
       setIsSendingEmail(false)
     }
@@ -104,8 +115,8 @@ export default function ForgotPasswordClient() {
       <main className="flex-1 w-full bg-background pt-4 pb-16">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
-          {/* Top Breadcrumbs & SSL Security Badge */}
-          <div className="py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/50">
+          {/* Top Breadcrumbs */}
+          <div className="py-2 flex items-center justify-between gap-4 border-b border-border/50">
             <Breadcrumb>
               <BreadcrumbList className="text-xs">
                 <BreadcrumbItem>
@@ -127,17 +138,6 @@ export default function ForgotPasswordClient() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card dark:bg-[#0f3a35] border border-border shadow-2xs text-xs font-semibold self-start sm:self-auto">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#fdc72d] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8a6800] dark:bg-[#fdc72d]"></span>
-              </span>
-              <ShieldCheck className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
-              <span className="text-foreground text-xs sm:text-xs">
-                {data.complianceBadge.text[lang] || data.complianceBadge.text.gu}
-              </span>
-            </div>
           </div>
 
           {/* Central 2-Column Authentication Card */}
@@ -236,7 +236,9 @@ export default function ForgotPasswordClient() {
                     <span>{data.rightColumn.sacredShloka[lang] || data.rightColumn.sacredShloka.gu}</span>
                   </div>
                   <Badge variant="outline" className="text-xs font-bold border-border text-muted-foreground">
-                    {data.rightColumn.stepIndicator.step1[lang] || data.rightColumn.stepIndicator.step1.gu}
+                    {emailSent
+                      ? (data.rightColumn.stepIndicator.step2[lang] || data.rightColumn.stepIndicator.step2.gu)
+                      : (data.rightColumn.stepIndicator.step1[lang] || data.rightColumn.stepIndicator.step1.gu)}
                   </Badge>
                 </div>
 
@@ -252,78 +254,102 @@ export default function ForgotPasswordClient() {
 
                 {/* Identification: registered email */}
                 <>
-                    {/* EMAIL LINK */}
-                    {(
-                      <div className="space-y-4">
-                        <form onSubmit={handleSendEmailLink} className="space-y-4">
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-foreground">
-                              {data.rightColumn.emailForm.label[lang] || data.rightColumn.emailForm.label.gu}{" "}
-                              <span className="text-destructive">*</span>
-                            </label>
-
-                            <div className="flex items-center bg-card dark:bg-[#0f3c36] rounded-lg border border-border focus-within:ring-2 focus-within:ring-[#fdc72d]/60 focus-within:border-[#fdc72d] transition-all">
-                              <Mail className="h-4 w-4 text-muted-foreground ml-3 shrink-0" />
-                              <Input
-                                type="email"
-                                required
-                                value={emailAddress}
-                                onChange={(e) => setEmailAddress(e.target.value)}
-                                placeholder={data.rightColumn.emailForm.placeholder}
-                                className="h-10 border-0 shadow-none focus-visible:ring-0 text-sm"
-                              />
-                            </div>
-
-                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                              <HelpCircle className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
-                              <span>{data.rightColumn.emailForm.note[lang] || data.rightColumn.emailForm.note.gu}</span>
-                            </p>
-                          </div>
-
-                          <Button
-                            type="submit"
-                            disabled={isSendingEmail || !emailAddress}
-                            className="w-full h-11 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs sm:text-sm rounded-lg shadow-sm gap-2 cursor-pointer transition-all active:scale-[0.99]"
-                          >
-                            <span>
-                              {isSendingEmail
-                                ? (data.rightColumn.emailForm.sendingBtn[lang] || data.rightColumn.emailForm.sendingBtn.gu)
-                                : (data.rightColumn.emailForm.submitBtn[lang] || data.rightColumn.emailForm.submitBtn.gu)}
-                            </span>
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </form>
-
-                        {/* Email Dispatched Feedback Card */}
-                        {emailSent && (
-                          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 space-y-2 animate-in fade-in-50 duration-200">
-                            <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
-                              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              <span>{data.rightColumn.emailFeedback.title[lang] || data.rightColumn.emailFeedback.title.gu}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              {data.rightColumn.emailFeedback.desc[lang] || data.rightColumn.emailFeedback.desc.gu}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Step Preview & Trust Micro-Note */}
-                    <div className="p-3 bg-muted/40 dark:bg-[#0f3c36] rounded-xl flex items-center justify-between gap-3 border border-border/50">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-full bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center font-bold text-xs">
-                          <Lock className="h-3 w-3" />
+                  {emailSent ? (
+                    <div className="flex flex-col gap-4 animate-in fade-in-50 duration-200">
+                      <div className="p-5 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 flex flex-col gap-3">
+                        <div className="flex items-center gap-2.5 font-bold text-sm text-emerald-800 dark:text-emerald-300">
+                          <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span>{data.rightColumn.emailFeedback.title[lang] || data.rightColumn.emailFeedback.title.gu}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          {data.rightColumn.processNote[lang] || data.rightColumn.processNote.gu}
-                        </span>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {data.rightColumn.emailFeedback.desc[lang] || data.rightColumn.emailFeedback.desc.gu}
+                        </p>
+
+                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-card dark:bg-[#0f3c36] border border-border/70 text-xs">
+                          <Mail className="size-4 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
+                          <span className="text-muted-foreground">{isEn ? "Sent to:" : "મોકલેલ સરનામું:"}</span>
+                          <strong className="text-foreground font-mono">{lastSentEmail}</strong>
+                        </div>
                       </div>
-                      <span className="text-[#8a6800] dark:text-[#fdc72d] font-bold text-xs shrink-0 flex items-center gap-0.5">
-                        <span>{isEn ? "Easy Flow" : "સરળ પ્રક્રિયા"}</span>
-                        <Check className="h-3 w-3" />
-                      </span>
+
+                      <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isSendingEmail}
+                          onClick={handleSendEmailLink}
+                          className="flex-1 h-10 border-border text-xs font-bold gap-1.5 cursor-pointer rounded-xl"
+                        >
+                          {isSendingEmail ? (
+                            <Loader2 className="size-3.5 animate-spin" data-icon="inline-start" />
+                          ) : (
+                            <RefreshCw className="size-3.5" data-icon="inline-start" />
+                          )}
+                          <span>{isEn ? "Resend Link" : "ફરીથી લિંક મોકલો"}</span>
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => {
+                            setEmailSent(false)
+                            setEmailAddress("")
+                          }}
+                          className="h-10 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer rounded-xl"
+                        >
+                          <span>{isEn ? "Use different email" : "બીજો ઈમેલ દાખલ કરો"}</span>
+                        </Button>
+                      </div>
                     </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <form onSubmit={handleSendEmailLink} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label htmlFor="recovery-email" className="block text-xs font-bold text-foreground">
+                            {data.rightColumn.emailForm.label[lang] || data.rightColumn.emailForm.label.gu}{" "}
+                            <span className="text-destructive">*</span>
+                          </label>
+
+                          <div className="flex items-center bg-card dark:bg-[#0f3c36] rounded-xl border border-border focus-within:ring-2 focus-within:ring-[#fdc72d]/60 focus-within:border-[#fdc72d] transition-all">
+                            <Mail className="size-4 text-muted-foreground ml-3 shrink-0" />
+                            <Input
+                              id="recovery-email"
+                              type="email"
+                              required
+                              disabled={isSendingEmail}
+                              value={emailAddress}
+                              onChange={(e) => setEmailAddress(e.target.value)}
+                              placeholder={data.rightColumn.emailForm.placeholder}
+                              className="h-10 border-0 shadow-none focus-visible:ring-0 text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        <Button
+                          type="submit"
+                          disabled={isSendingEmail || !emailAddress.trim()}
+                          className="w-full h-11 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs sm:text-sm rounded-xl shadow-sm gap-2 cursor-pointer transition-all active:scale-[0.99]"
+                        >
+                          {isSendingEmail ? (
+                            <>
+                              <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
+                              <span>
+                                {data.rightColumn.emailForm.sendingBtn[lang] || data.rightColumn.emailForm.sendingBtn.gu}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span>
+                                {data.rightColumn.emailForm.submitBtn[lang] || data.rightColumn.emailForm.submitBtn.gu}
+                              </span>
+                              <ArrowRight className="size-4" data-icon="inline-end" />
+                            </>
+                          )}
+                        </Button>
+                      </form>
+                    </div>
+                  )}
                 </>
 
               </div>
@@ -331,7 +357,7 @@ export default function ForgotPasswordClient() {
               {/* Back to Sign In Link Footer */}
               <div className="mt-8 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                  <Key className="h-4 w-4 text-[#8a6800] dark:text-[#fdc72d]" />
+                  <Key className="size-4 text-[#8a6800] dark:text-[#fdc72d]" />
                   <span>{data.rightColumn.backToLogin.rememberPrompt[lang] || data.rightColumn.backToLogin.rememberPrompt.gu}</span>
                 </div>
 
@@ -340,7 +366,7 @@ export default function ForgotPasswordClient() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/60 dark:bg-[#0f3c36] hover:bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] text-xs font-bold transition-all shadow-2xs border border-border/50"
                 >
                   <span>{data.rightColumn.backToLogin.btnText[lang] || data.rightColumn.backToLogin.btnText.gu}</span>
-                  <LogIn className="h-3.5 w-3.5" />
+                  <LogIn className="size-3.5" />
                 </Link>
               </div>
 
@@ -354,7 +380,7 @@ export default function ForgotPasswordClient() {
       </main>
 
       {/* 4. Global Astro Footer */}
-      <AstroFooter />
+      <AstroFooter config={siteData.config} footer={siteData.footer} lang={lang} />
 
     </div>
   )

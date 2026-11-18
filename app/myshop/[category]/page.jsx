@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { getCategoryMeta, getAllCategorySlugs } from "@/lib/data/shop-data"
+import { getCatalogSlugs } from "@/lib/api/server/catalog"
 import { JsonLd } from "@/components/seo-structured-data"
 import CategoryClient from "./CategoryClient"
 
@@ -14,7 +15,8 @@ import CategoryClient from "./CategoryClient"
 export const instant = false
 
 export async function generateStaticParams() {
-  return getAllCategorySlugs().map((slug) => ({ category: slug }))
+  const live = await getCatalogSlugs()
+  return [...new Set([...getAllCategorySlugs(), ...live.categories])].map((slug) => ({ category: slug }))
 }
 
 export async function generateMetadata({ params }) {
@@ -49,7 +51,8 @@ export async function generateMetadata({ params }) {
 
 export default async function CategoryPage({ params }) {
   const { category } = await params
-  const validSlugs = getAllCategorySlugs()
+  const live = await getCatalogSlugs()
+  const validSlugs = [...new Set([...getAllCategorySlugs(), ...live.categories])]
 
   if (!validSlugs.includes(category)) {
     notFound()

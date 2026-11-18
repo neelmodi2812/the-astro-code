@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import {
   User,
@@ -23,6 +23,7 @@ import {
   ArrowRight,
   AlertCircle,
   LogIn,
+  Loader2,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -30,7 +31,7 @@ import { AstroFooter } from "@/components/astro-footer"
 import { useLanguage } from "@/components/language-provider"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { REGISTER_DATA } from "@/lib/data/register-data"
-import { authService } from "@/lib/api"
+import { authService, userService, userStore } from "@/lib/api"
 import { getRegisterSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,9 +49,14 @@ import {
 
 export default function RegisterClient() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { lang, setLang } = useLanguage()
   const siteData = useHomeData(lang)
   const data = REGISTER_DATA
+
+  const redirectParam = searchParams.get("redirect") || searchParams.get("next")
+  const targetRedirect = redirectParam || "/dashboard"
+  const loginHref = redirectParam ? `/login?redirect=${encodeURIComponent(redirectParam)}` : "/login"
 
   // Form State
   const [formData, setFormData] = React.useState({
@@ -126,32 +132,76 @@ export default function RegisterClient() {
     }
 
     setIsSubmitting(true)
+    setFormError("")
     try {
-      await authService.register({
+      const regPayload = {
         name: formData.fullName.trim(),
         email: formData.emailAddress.trim(),
         password: formData.password,
-        phone: formData.mobileNumber || undefined,
+        phone: formData.mobileNumber ? formData.mobileNumber.trim() : undefined,
         date_of_birth: formData.dob || undefined,
+        birth_date: formData.dob || undefined,
         time_of_birth: formData.birthTime || undefined,
-        place_of_birth: formData.birthPlace || undefined,
-      })
+        place_of_birth: formData.birthPlace ? formData.birthPlace.trim() : undefined,
+      }
+
+      const registeredUser = await authService.register(regPayload, lang)
+
+      // Sync birth details to user profile if provided so Vedic calculations are persistent
+      if (formData.dob || formData.birthPlace || formData.birthTime) {
+        try {
+          const profileRes = await userService.updateProfile({
+            name: formData.fullName.trim(),
+            phone: formData.mobileNumber ? formData.mobileNumber.trim() : undefined,
+            date_of_birth: formData.dob || undefined,
+            birth_date: formData.dob || undefined,
+            time_of_birth: formData.birthTime || undefined,
+            place_of_birth: formData.birthPlace ? formData.birthPlace.trim() : undefined,
+          })
+          if (profileRes?.data) {
+            userStore.set(profileRes.data)
+          }
+        } catch {
+          // Registration already succeeded; profile sync is non-blocking
+        }
+      }
+
+      const userName = registeredUser?.name || formData.fullName.trim()
       toast.success(
         lang === "gu"
-          ? "વૈદિક એકાઉન્ટ સફળતાપૂર્વક બની ગયું છે! The Astro Code માં આપનું સ્વાગત છે."
-          : "Your Vedic account has been created successfully! Welcome to The Astro Code."
+          ? `શ્રી ${userName}, The Astro Code માં આપનું હાર્દિક સ્વાગત છે! વૈદિક એકાઉન્ટ સફળતાપૂર્વક બની ગયું છે.`
+          : `Welcome ${userName}! Your Vedic account has been created successfully.`
       )
-      router.push("/myshop")
+      router.push(targetRedirect)
     } catch (error) {
       if (error?.errors) {
         const serverErrors = {}
-        if (error.errors.email) serverErrors.emailAddress = Array.isArray(error.errors.email) ? error.errors.email[0] : error.errors.email
-        if (error.errors.phone) serverErrors.mobileNumber = Array.isArray(error.errors.phone) ? error.errors.phone[0] : error.errors.phone
-        if (error.errors.name) serverErrors.fullName = Array.isArray(error.errors.name) ? error.errors.name[0] : error.errors.name
-        if (error.errors.password) serverErrors.password = Array.isArray(error.errors.password) ? error.errors.password[0] : error.errors.password
+        if (error.errors.email) {
+          serverErrors.emailAddress = Array.isArray(error.errors.email) ? error.errors.email[0] : error.errors.email
+        }
+        if (error.errors.phone) {
+          serverErrors.mobileNumber = Array.isArray(error.errors.phone) ? error.errors.phone[0] : error.errors.phone
+        }
+        if (error.errors.name) {
+          serverErrors.fullName = Array.isArray(error.errors.name) ? error.errors.name[0] : error.errors.name
+        }
+        if (error.errors.password) {
+          serverErrors.password = Array.isArray(error.errors.password) ? error.errors.password[0] : error.errors.password
+        }
+        if (error.errors.date_of_birth || error.errors.birth_date) {
+          const dobErr = error.errors.date_of_birth || error.errors.birth_date
+          serverErrors.dob = Array.isArray(dobErr) ? dobErr[0] : dobErr
+        }
+        if (error.errors.place_of_birth) {
+          serverErrors.birthPlace = Array.isArray(error.errors.place_of_birth) ? error.errors.place_of_birth[0] : error.errors.place_of_birth
+        }
         setErrors((prev) => ({ ...prev, ...serverErrors }))
       }
-      const errMsg = error.message || (lang === "gu" ? "નોંધણી કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો." : "Registration failed. Please try again.")
+      const errMsg =
+        error?.message ||
+        (lang === "gu"
+          ? "નોંધણી કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો."
+          : "Registration failed. Please try again.")
       setFormError(errMsg)
       toast.error(errMsg)
     } finally {
@@ -195,7 +245,7 @@ export default function RegisterClient() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/login" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
+                  <BreadcrumbLink href={loginHref} className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
                     {data.breadcrumb.login[lang]}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -348,6 +398,8 @@ export default function RegisterClient() {
                             id="reg-fullname"
                             type="text"
                             value={formData.fullName}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.fullName)}
                             onChange={(e) => handleChange("fullName", e.target.value)}
                             placeholder={data.rightColumn.fields.fullName.placeholder[lang]}
                             className={`pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
@@ -386,6 +438,8 @@ export default function RegisterClient() {
                               inputMode="numeric"
                               maxLength={10}
                               value={formData.mobileNumber}
+                              disabled={isSubmitting}
+                              aria-invalid={Boolean(errors.mobileNumber)}
                               onChange={(e) => handleMobileChange(e.target.value)}
                               placeholder={data.rightColumn.fields.mobileNumber.placeholder[lang]}
                               className={`pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
@@ -414,6 +468,8 @@ export default function RegisterClient() {
                             id="reg-email"
                             type="email"
                             value={formData.emailAddress}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.emailAddress)}
                             onChange={(e) => handleChange("emailAddress", e.target.value)}
                             placeholder={data.rightColumn.fields.emailAddress.placeholder[lang]}
                             className={`pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
@@ -446,6 +502,8 @@ export default function RegisterClient() {
                             type="date"
                             max={maxDate || undefined}
                             value={formData.dob}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.dob)}
                             onChange={(e) => handleChange("dob", e.target.value)}
                             className={`h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
                               errors.dob ? "border-destructive ring-1 ring-destructive" : ""
@@ -475,6 +533,7 @@ export default function RegisterClient() {
                             id="reg-birthtime"
                             type="time"
                             value={formData.birthTime}
+                            disabled={isSubmitting}
                             onChange={(e) => handleChange("birthTime", e.target.value)}
                             className="h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d]"
                           />
@@ -493,6 +552,8 @@ export default function RegisterClient() {
                             id="reg-birthplace"
                             type="text"
                             value={formData.birthPlace}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.birthPlace)}
                             onChange={(e) => handleChange("birthPlace", e.target.value)}
                             placeholder={data.rightColumn.fields.birthPlace.placeholder[lang]}
                             className={`pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
@@ -520,6 +581,8 @@ export default function RegisterClient() {
                             id="reg-password"
                             type={showPassword ? "text" : "password"}
                             value={formData.password}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.password)}
                             onChange={(e) => handleChange("password", e.target.value)}
                             placeholder={data.rightColumn.fields.password.placeholder[lang]}
                             className={`pl-10 pr-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
@@ -555,6 +618,8 @@ export default function RegisterClient() {
                             id="reg-confirm-password"
                             type={showConfirmPassword ? "text" : "password"}
                             value={formData.confirmPassword}
+                            disabled={isSubmitting}
+                            aria-invalid={Boolean(errors.confirmPassword)}
                             onChange={(e) => handleChange("confirmPassword", e.target.value)}
                             placeholder={data.rightColumn.fields.confirmPassword.placeholder[lang]}
                             className={`pl-10 pr-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
@@ -586,6 +651,7 @@ export default function RegisterClient() {
                         <Checkbox
                           id="reg-agree-terms"
                           checked={formData.agreeTerms}
+                          disabled={isSubmitting}
                           onCheckedChange={(checked) => handleChange("agreeTerms", Boolean(checked))}
                           className="mt-0.5 data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
                         />
@@ -603,6 +669,7 @@ export default function RegisterClient() {
                         <Checkbox
                           id="reg-updates"
                           checked={formData.receiveUpdates}
+                          disabled={isSubmitting}
                           onCheckedChange={(checked) => handleChange("receiveUpdates", Boolean(checked))}
                           className="mt-0.5 data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
                         />
@@ -619,9 +686,18 @@ export default function RegisterClient() {
                         disabled={isSubmitting}
                         className="w-full h-12 sm:h-13 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
                       >
-                        <ShieldCheck className="h-5 w-5 text-[#0e3934]" />
-                        <span>{data.rightColumn.submitButton[lang]}</span>
-                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="size-5 animate-spin" data-icon="inline-start" />
+                            <span>{lang === "gu" ? "ખાતું બનાવી રહ્યું છે..." : "Creating Account..."}</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShieldCheck className="size-5 text-[#0e3934]" data-icon="inline-start" />
+                            <span>{data.rightColumn.submitButton[lang]}</span>
+                            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" data-icon="inline-end" />
+                          </>
+                        )}
                       </Button>
                     </div>
                   </form>
@@ -643,11 +719,11 @@ export default function RegisterClient() {
                     </div>
 
                     <Link
-                      href="/login"
+                      href={loginHref}
                       className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>{data.rightColumn.alreadyHaveAccount.cta[lang]}</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
+                      <ArrowRight className="size-3.5" data-icon="inline-end" />
                     </Link>
                   </div>
 
@@ -663,7 +739,7 @@ export default function RegisterClient() {
       </main>
 
       {/* 5. Global Footer */}
-      <AstroFooter lang={lang} />
+      <AstroFooter config={siteData.config} footer={siteData.footer} lang={lang} />
     </div>
   )
 }

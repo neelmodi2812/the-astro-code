@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 import {
   Calendar,
   MessageCircle,
@@ -30,6 +32,7 @@ export function AstroSidebar({
   onAddToCart,
   lang = "gu"
 }) {
+  const router = useRouter()
   const isEn = lang === "en"
 
   return (
@@ -47,9 +50,9 @@ export function AstroSidebar({
           </span>
         </div>
 
-        <h4 className="text-sm sm:text-base font-bold text-foreground mb-4">
+        <h3 className="text-sm sm:text-base font-bold text-foreground mb-4">
           {panchang.samvatTitle}
-        </h4>
+        </h3>
 
         {/* Decorative Celestial Astronomical Visual Wheel - Completely Non-Overlapping & Spaciously Centered */}
         <div className="flex items-center justify-center py-2">
@@ -127,11 +130,14 @@ export function AstroSidebar({
       {/* 2. DR. VISHAL MODI CONSULTATION WIDGET */}
       <div className="bg-gradient-to-br from-[#00685d] to-[#004d44] text-white rounded-xl p-6 shadow-md border border-[#fdc72d]/40">
         <div className="flex items-center gap-3.5 mb-3.5">
-          <Avatar className="size-14 border-2 border-[#fdc72d] shadow-sm shrink-0">
-            <AvatarImage
+          <Avatar className="size-14 border-2 border-[#fdc72d] shadow-sm shrink-0 overflow-hidden relative">
+            <Image
               src={(!founder?.image || founder.image.includes("unsplash.com")) ? "/images/author-dr-vishal-modi.jpg" : founder.image}
-              alt={founder.name}
-              className="object-cover"
+              alt=""
+              width={112}
+              height={112}
+              sizes="56px"
+              className="aspect-square size-full rounded-full object-cover"
             />
             <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold text-sm">
               VM
@@ -154,11 +160,9 @@ export function AstroSidebar({
         <div className="flex flex-col gap-2.5">
           <Button
             className="w-full bg-[#fdc72d] text-[#0e3934] font-black hover:bg-[#eab318] transition-colors shadow-xs cursor-pointer h-10 text-xs rounded-xl"
-            onClick={() => {
-              window.open(`https://wa.me/${SITE_CONTACT.whatsappNumber}?text=${encodeURIComponent(lang === 'gu' ? 'જય શ્રી કૃષ્ણ, મને કુંડળી વિશ્લેષણ માટે અપોઇન્ટમેન્ટ જોઈએ છે.' : 'Hello Dr. Vishal Modi, I would like to book a horoscope analysis.')}`, "_blank")
-            }}
+            onClick={() => router.push("/appointment")}
           >
-            <Calendar className="h-4 w-4 mr-1.5" />
+            <Calendar className="size-4 mr-1.5" data-icon="inline-start" />
             <span>{consultation.bookButton || (isEn ? "Book Kundali Analysis" : "કુંડળી વિશ્લેષણ બુક કરો")}</span>
           </Button>
 
@@ -169,7 +173,7 @@ export function AstroSidebar({
               window.open(founder.whatsappUrl || SITE_CONTACT.whatsappUrl, "_blank")
             }}
           >
-            <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
+            <MessageCircle className="size-3.5 mr-1.5" data-icon="inline-start" />
             <span>{consultation.whatsappButton || (isEn ? "Chat on WhatsApp" : "WhatsApp પર વાતચીત કરો")}</span>
           </Button>
         </div>
@@ -177,12 +181,12 @@ export function AstroSidebar({
 
       {/* 3. READERS' CHOICE / MOST POPULAR WIDGET */}
       <Card className="p-6 shadow-sm border-border/70 bg-card dark:bg-[#1c1d1a] rounded-xl">
-        <h4 className="text-sm font-bold text-foreground mb-3.5 flex items-center gap-1.5">
+        <h3 className="text-sm font-bold text-foreground mb-3.5 flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-[#bb171f]" />
           {popularSection.title || (isEn ? "Readers' Choice - Most Popular" : "વાંચકોની પસંદ")}
-        </h4>
+        </h3>
 
-        <ol className="space-y-3.5 text-xs">
+        <ol className="flex flex-col gap-3.5 text-xs">
           {popular.map((item, idx) => {
             const targetSlug = item.id || item.slug || "hero-1-bahuchar-maa-pragatya"
             return (

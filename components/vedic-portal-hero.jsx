@@ -3,12 +3,13 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Sparkles, ArrowRight, MessageCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Sparkles, ArrowRight, Calendar } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
-import { SITE_CONTACT } from "@/lib/config/contact"
 
 export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultation }) {
+  const router = useRouter()
   const { lang } = useLanguage()
   const isEn = lang === "en"
 
@@ -23,11 +24,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
       onBookConsultation()
       return
     }
-    const message = isEn
-      ? "Hello Dr. Vishal Modi, I would like to book a personal astrology consultation."
-      : "જય શ્રી કૃષ્ણ ડૉ. વિશાલ મોદી, મને વ્યક્તિગત જ્યોતિષ પરામર્શ માટે અપોઇન્ટમેન્ટ જોઈએ છે."
-    const base = (founder?.whatsappUrl && !founder.whatsappUrl.includes("000000")) ? founder.whatsappUrl : SITE_CONTACT.whatsappUrl
-    window.open(`${base}${base.includes("?") ? "&" : "?"}text=${encodeURIComponent(message)}`, "_blank")
+    router.push("/appointment")
   }
 
   // Concise, refined texts avoiding cognitive overload
@@ -117,7 +114,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
                 onClick={handleConsultation}
                 className="w-full sm:w-auto relative group overflow-hidden inline-flex items-center justify-center gap-2.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-black text-sm sm:text-base px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-[0_6px_20px_rgba(253,199,45,0.28)] active:scale-95 transition-all cursor-pointer border border-[#e5b220]"
               >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-[#0e3934]" />
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-[#0e3934]" />
                 <span>{t.consultCta}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 <span className="absolute top-0 -left-[100%] w-full h-full bg-white/35 skew-x-12 group-hover:left-[100%] transition-all duration-700 pointer-events-none" />
@@ -149,7 +146,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
               <div className="relative w-[165px] sm:w-[220px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
                 <Image
                   src={founderImage}
-                  alt={founderName}
+                  alt=""
                   fill
                   sizes="(max-width: 640px) 165px, 220px"
                   priority
@@ -176,13 +173,13 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
                 )}
               </div>
 
-              {/* Direct WhatsApp Consultation Action */}
+              {/* Direct Appointment Consultation Action */}
               <button
                 type="button"
                 onClick={handleConsultation}
                 className="shrink-0 inline-flex items-center gap-1.5 bg-[#00685d] hover:bg-[#005048] text-white font-black text-xs px-3 sm:px-3.5 py-2 rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
               >
-                <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" />
+                <Calendar className="h-3.5 w-3.5 text-[#fdc72d]" />
                 <span>{isEn ? "Consult" : "પરામર્શ"}</span>
               </button>
             </div>

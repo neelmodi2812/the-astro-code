@@ -10,21 +10,24 @@ import {
   CheckCircle2,
   ChevronRight,
   Star,
-  Check
+  Check,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 
 /** A "5.0 (0)" row is noise; only show ratings that have reviews behind them. */
-const hasReviews = (item) => /[1-9१-९૧-૯]/.test(String(item.reviewCount ?? ""))
+const hasReviews = (item) => /[1-9૧-૯]/.test(String(item.reviewCount ?? ""))
 
 export function SpiritualStoreShowcase({
   storeSection = {},
   products = [],
   onAddToCart,
-  lang = "gu"
+  lang = "gu",
+  isLoading = false,
 }) {
   const [addedMap, setAddedMap] = React.useState({})
+  const showSkeleton = isLoading || !products || products.length === 0
 
   const handleAdd = (product) => {
     setAddedMap((prev) => ({ ...prev, [product.id]: true }))
@@ -49,9 +52,9 @@ export function SpiritualStoreShowcase({
             </span>
           </div>
 
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mt-2 sm:mt-3 tracking-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mt-2 sm:mt-3 tracking-tight">
             {storeSection.heading || (lang === "gu" ? "પ્રમાણિત પૂજા સામગ્રી & રત્ન સંગ્રહ" : "Certified Puja Samagri & Sacred Gemstones")}
-          </h3>
+          </h2>
         </div>
 
         <div>
@@ -68,117 +71,166 @@ export function SpiritualStoreShowcase({
 
       {/* Grid: 1 product per row on mobile screen (stacked), 2 on tablet, 4 on desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mt-5 sm:mt-6">
-        {products.map((item) => {
-          const isAdded = addedMap[item.id]
-          return (
-            <article
-              key={item.id}
-              className="relative rounded-xl border border-border/70 overflow-hidden bg-card dark:bg-[#181916] hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between"
+        {showSkeleton ? (
+          // Shadcn Skeleton for 4 Showcase Products
+          Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="relative rounded-xl border border-border/70 overflow-hidden bg-card dark:bg-[#181916] flex flex-col justify-between"
             >
-              {/* Product Image */}
-              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-white dark:bg-[#151613] border-b border-border/50">
-                <Link href={`/myshop/product/${item.id}`} className="relative block w-full h-full">
-                  <SafeImage
-                    src={item.image}
-                    fallbackSrc="https://dummyjson.com/image/200x100"
-                    alt={item.imageAlt || item.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-contain p-2.5 sm:p-3 group-hover:scale-105 transition-transform duration-500"
-                  />
-                </Link>
-
-                {/* Top-Left Category Badge */}
-                {Boolean(item?.badge && String(item.badge).trim() !== "") && (
-                  <span className="absolute top-2.5 left-2.5 z-10 bg-[#008376] text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm pointer-events-none">
-                    {item.badge}
-                  </span>
-                )}
-
-                {/* Top-Right Discount Badge */}
-                {Boolean(item?.discount && String(item.discount).trim() !== "" && item.discount !== "0%" && item.discount !== "-0%") && (
-                  <span className="absolute top-2.5 right-2.5 z-10 bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow-sm border border-[#eab318] pointer-events-none">
-                    {item.discount}
-                  </span>
-                )}
+              {/* Product Image Skeleton */}
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-muted/30 dark:bg-muted/15 border-b border-border/50">
+                <Skeleton className="w-full h-full rounded-none" />
+                <div className="absolute top-2.5 left-2.5">
+                  <Skeleton className="h-5 w-16 rounded-md bg-[#008376]/40" />
+                </div>
+                <div className="absolute top-2.5 right-2.5">
+                  <Skeleton className="h-5 w-12 rounded-md bg-[#fdc72d]/40" />
+                </div>
               </div>
 
-              {/* Card Body */}
+              {/* Card Body Skeleton */}
               <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
-                <div>
-                  {/* Rating Stars */}
-                  {hasReviews(item) && (
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <div className="flex text-[#fdc72d]">
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                      </div>
-                      <span className="text-xs font-bold text-muted-foreground ml-1">
-                        {item.rating} {item.reviewCount}
-                      </span>
-                    </div>
-                  )}
+                <div className="space-y-2">
+                  {/* Rating Stars Skeleton */}
+                  <div className="flex items-center gap-1 mb-1">
+                    <Skeleton className="h-3.5 w-16 rounded" />
+                    <Skeleton className="h-3.5 w-8 rounded ml-1" />
+                  </div>
 
-                  {/* Title */}
-                  <Link href={`/myshop/product/${item.id}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#008376] rounded-sm block">
-                    <h4 className="font-bold text-sm sm:text-base text-foreground group-hover:text-[#008376] dark:group-hover:text-[#38b2a3] hover:underline transition-colors leading-snug line-clamp-2 min-h-[2.6em]">
-                      {item.name}
-                    </h4>
+                  {/* Title Skeleton */}
+                  <Skeleton className="h-5 w-4/5 rounded" />
+                  <Skeleton className="h-4 w-3/5 rounded" />
+
+                  {/* Subtitle / Description Skeleton */}
+                  <Skeleton className="h-3.5 w-1/2 rounded mt-1" />
+                </div>
+
+                {/* Price and Cart Action Skeleton */}
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50">
+                  <div className="space-y-1.5 min-w-0">
+                    <Skeleton className="h-5 w-20 rounded" />
+                    <Skeleton className="h-3.5 w-14 rounded" />
+                  </div>
+
+                  <Skeleton className="h-8.5 sm:h-9 w-20 sm:w-24 rounded-lg bg-[#fdc72d]/40" />
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          products.map((item) => {
+            const isAdded = addedMap[item.id]
+            return (
+              <article
+                key={item.id}
+                className="relative rounded-xl border border-border/70 overflow-hidden bg-card dark:bg-[#181916] hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between"
+              >
+                {/* Product Image */}
+                <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-white dark:bg-[#151613] border-b border-border/50">
+                  <Link href={`/myshop/product/${item.id}`} tabIndex={-1} aria-hidden="true" className="relative block w-full h-full">
+                    <SafeImage
+                      src={item.image}
+                      fallbackSrc="https://dummyjson.com/image/200x100"
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 25vw, 300px"
+                      className="object-contain p-2.5 sm:p-3 group-hover:scale-105 transition-transform duration-500"
+                    />
                   </Link>
 
-                  {/* Subtitle / Description */}
-                  {item.subtitle && (
-                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1 leading-normal">
-                      {item.subtitle}
-                    </p>
+                  {/* Top-Left Category Badge */}
+                  {Boolean(item?.badge && String(item.badge).trim() !== "") && (
+                    <span className="absolute top-2.5 left-2.5 z-10 bg-[#008376] text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm pointer-events-none">
+                      {item.badge}
+                    </span>
+                  )}
+
+                  {/* Top-Right Discount Badge */}
+                  {Boolean(item?.discount && String(item.discount).trim() !== "" && item.discount !== "0%" && item.discount !== "-0%") && (
+                    <span className="absolute top-2.5 right-2.5 z-10 bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow-sm border border-[#eab318] pointer-events-none">
+                      {item.discount}
+                    </span>
                   )}
                 </div>
 
-                {/* Price and Cart Action */}
-                <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50">
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-base sm:text-lg font-bold text-[#008376] dark:text-[#38b2a3] truncate">
-                      {item.price}
-                    </span>
-                    {item.originalPrice && (
-                      <span className="line-through text-xs sm:text-sm text-muted-foreground truncate">
-                        {item.originalPrice}
-                      </span>
+                {/* Card Body */}
+                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    {/* Rating Stars */}
+                    {hasReviews(item) && (
+                      <div className="flex items-center gap-1 mb-1.5">
+                        <div className="flex text-[#fdc72d]">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                        </div>
+                        <span className="text-xs font-bold text-muted-foreground ml-1">
+                          {item.rating} {item.reviewCount}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Title */}
+                    <Link href={`/myshop/product/${item.id}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#008376] rounded-sm block">
+                      <h3 className="font-bold text-sm sm:text-base text-foreground group-hover:text-[#008376] dark:group-hover:text-[#38b2a3] hover:underline transition-colors leading-snug line-clamp-2 min-h-[2.6em]">
+                        {item.name}
+                      </h3>
+                    </Link>
+
+                    {/* Subtitle / Description */}
+                    {item.subtitle && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1 leading-normal">
+                        {item.subtitle}
+                      </p>
                     )}
                   </div>
 
-                  <Button
-                    size="sm"
-                    className={`relative z-10 h-8.5 sm:h-9 px-3.5 sm:px-4 rounded-lg text-xs sm:text-sm font-bold transition-all shadow-2xs shrink-0 cursor-pointer ${
-                      isAdded
-                        ? "bg-emerald-600 text-white"
-                        : "bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934]"
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleAdd(item)
-                    }}
-                  >
-                    {isAdded ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 mr-1" />
-                        <span>{lang === "gu" ? "ઉમેરાયું" : "Added"}</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                        <span>{storeSection.addButtonText || (lang === "gu" ? "ઉમેરો" : "Add")}</span>
-                      </>
-                    )}
-                  </Button>
+                  {/* Price and Cart Action */}
+                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-base sm:text-lg font-bold text-[#008376] dark:text-[#38b2a3] truncate">
+                        {item.price}
+                      </span>
+                      {item.originalPrice && (
+                        <span className="line-through text-xs sm:text-sm text-muted-foreground truncate">
+                          {item.originalPrice}
+                        </span>
+                      )}
+                    </div>
+
+                    <Button
+                      size="sm"
+                      className={`relative z-10 h-8.5 sm:h-9 px-3.5 sm:px-4 rounded-lg text-xs sm:text-sm font-bold transition-all shadow-2xs shrink-0 cursor-pointer ${
+                        isAdded
+                          ? "bg-emerald-600 text-white"
+                          : "bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934]"
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleAdd(item)
+                      }}
+                    >
+                      {isAdded ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 mr-1" />
+                          <span>{lang === "gu" ? "ઉમેરાયું" : "Added"}</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="h-3.5 w-3.5 mr-1" />
+                          <span>{storeSection.addButtonText || (lang === "gu" ? "ઉમેરો" : "Add")}</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </article>
-          )
-        })}
+              </article>
+            )
+          })
+        )}
       </div>
     </section>
   )

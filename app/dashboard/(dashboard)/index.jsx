@@ -15,6 +15,7 @@ import {
   BookOpen,
   Truck,
   ShoppingBag,
+  MapPin,
 } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
@@ -80,22 +81,32 @@ function DashboardClient({ data }) {
               const birthNakshatra = data.userProfile.birthDetails?.nakshatra?.[lang] || data.userProfile.birthDetails?.nakshatra?.gu || ""
               const birthCity = data.userProfile.birthDetails?.city?.[lang] || data.userProfile.birthDetails?.city?.gu || ""
               const isInvalid = (val) => !val || val === "-" || val === "—" || val === "–" || val === "•"
-              const validDetails = [
-                !isInvalid(birthRashi) && birthRashi,
-                !isInvalid(birthNakshatra) && birthNakshatra,
-                !isInvalid(birthCity) && birthCity,
-              ].filter(Boolean)
+              const hasRashi = !isInvalid(birthRashi)
+              const hasNakshatra = !isInvalid(birthNakshatra)
+              const hasCity = !isInvalid(birthCity)
 
-              if (validDetails.length > 0) {
+              if (hasRashi || hasNakshatra || hasCity) {
                 return (
-                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-                    {validDetails.map((detail, idx) => (
-                      <React.Fragment key={idx}>
-                        {idx > 0 && <span className="text-border">•</span>}
-                        <span>{detail}</span>
-                      </React.Fragment>
-                    ))}
-                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground mt-1.5">
+                    {hasRashi && (
+                      <span className="inline-flex items-center gap-1 bg-muted/60 dark:bg-[#0f3c36] px-2 py-0.5 rounded-md text-[11px] font-semibold text-foreground border border-border/50">
+                        <span className="text-muted-foreground">{isEn ? "Rashi:" : "રાશિ:"}</span>
+                        <span className="text-[#8a6800] dark:text-[#fdc72d]">{birthRashi}</span>
+                      </span>
+                    )}
+                    {hasNakshatra && (
+                      <span className="inline-flex items-center gap-1 bg-muted/60 dark:bg-[#0f3c36] px-2 py-0.5 rounded-md text-[11px] font-semibold text-foreground border border-border/50">
+                        <span className="text-muted-foreground">{isEn ? "Nakshatra:" : "નક્ષત્ર:"}</span>
+                        <span className="text-[#8a6800] dark:text-[#fdc72d]">{birthNakshatra}</span>
+                      </span>
+                    )}
+                    {hasCity && (
+                      <span className="inline-flex items-center gap-1 bg-muted/60 dark:bg-[#0f3c36] px-2 py-0.5 rounded-md text-[11px] font-semibold text-foreground border border-border/50">
+                        <MapPin className="h-3 w-3 text-muted-foreground" />
+                        <span>{birthCity}</span>
+                      </span>
+                    )}
+                  </div>
                 )
               }
 
@@ -116,12 +127,12 @@ function DashboardClient({ data }) {
             })()}
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="grid grid-cols-1 sm:flex sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
             <Button
               onClick={() => setAddKundliOpen(true)}
               variant="outline"
               size="sm"
-              className="h-9 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-muted cursor-pointer shadow-2xs"
+              className="w-full sm:w-auto h-9 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-muted cursor-pointer shadow-2xs rounded-xl justify-center"
             >
               <PlusCircle className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
               <span>{data.headerActions?.addKundli?.[lang] || data.headerActions?.addKundli?.gu || ""}</span>
@@ -130,7 +141,7 @@ function DashboardClient({ data }) {
             <Button
               onClick={() => router.push("/dashboard/consultations")}
               size="sm"
-              className="h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] shadow-xs cursor-pointer"
+              className="w-full sm:w-auto h-9 px-4 text-xs font-bold gap-1.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] shadow-xs cursor-pointer rounded-xl justify-center"
             >
               <Video className="h-3.5 w-3.5" />
               <span>{data.headerActions?.joinRoom?.[lang] || data.headerActions?.joinRoom?.gu || ""}</span>
@@ -179,21 +190,23 @@ function DashboardClient({ data }) {
           {/* WIDGET 1: Daily Gochar Snapshot */}
           <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm space-y-3 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-[#00685d] text-white text-xs font-bold">
+              <div className="border-b border-border/40 pb-2.5 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <Badge className="bg-[#00685d] text-white text-[11px] sm:text-xs font-bold shrink-0">
                     {data.dailyTransit?.badge?.[lang] || data.dailyTransit?.badge?.gu || ""}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    {data.dailyTransit?.date?.[lang] || data.dailyTransit?.date?.gu || ""}
-                  </span>
+                  <Link
+                    href="/dainik-panchang"
+                    className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline shrink-0 flex items-center gap-0.5"
+                  >
+                    <span>{isEn ? "Panchang" : "પંચાંગ"}</span>
+                    <span>→</span>
+                  </Link>
                 </div>
-                <Link
-                  href="/dainik-panchang"
-                  className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline"
-                >
-                  {isEn ? "Panchang →" : "પંચાંગ →"}
-                </Link>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d] shrink-0" />
+                  <span>{data.dailyTransit?.date?.[lang] || data.dailyTransit?.date?.gu || ""}</span>
+                </div>
               </div>
 
               <h3 className="font-bold text-sm text-foreground mt-3">

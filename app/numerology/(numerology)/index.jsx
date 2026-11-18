@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { astrologyService } from "@/lib/api"
 
+const emptySubscribe = () => () => {}
+const getMaxDate = () => new Date().toISOString().slice(0, 10)
+
 export default function NumerologyClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
@@ -22,6 +25,7 @@ export default function NumerologyClient() {
   const [birthDate, setBirthDate] = React.useState("")
   const [result, setResult] = React.useState(null)
   const [isLoading, setIsLoading] = React.useState(false)
+  const maxDate = React.useSyncExternalStore(emptySubscribe, getMaxDate, () => "")
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -75,7 +79,7 @@ export default function NumerologyClient() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card dark:bg-[#0d3631] rounded-2xl p-5 border border-border/70 shadow-sm flex flex-col sm:flex-row gap-3">
-          <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required max={new Date().toISOString().slice(0, 10)} className="h-10 text-sm" />
+          <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required max={maxDate || undefined} className="h-10 text-sm" />
           <Button type="submit" disabled={isLoading} className="h-10 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-xs gap-1.5">
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             <span>{isEn ? "Find my number" : "મારો મૂલાંક જાણો"}</span>

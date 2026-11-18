@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   MessageCircle,
   Send,
-  Lock,
   ShieldCheck,
   ExternalLink,
   ChevronRight,
@@ -339,9 +338,9 @@ export default function ContactUsClient() {
                   </Badge>
                 </div>
 
-                <h3 className="text-lg font-bold text-foreground">
+                <h2 className="text-lg font-bold text-foreground">
                   {card.title}
-                </h3>
+                </h2>
                 <p className="text-xs text-muted-foreground mt-1 mb-4 leading-relaxed">
                   {card.desc}
                 </p>
@@ -596,7 +595,7 @@ export default function ContactUsClient() {
                   </div>
 
                   {/* Submit CTA */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                  <div className="pt-2">
                     <Button
                       type="submit"
                       className="w-full sm:w-auto bg-[#00685d] hover:bg-[#00524a] text-white text-xs font-extrabold py-3 px-8 rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
@@ -604,10 +603,6 @@ export default function ContactUsClient() {
                       <span>{pageData.inquiryForm.fields.submitBtn}</span>
                       <Send className="h-4 w-4" />
                     </Button>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                      <Lock className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8]" />
-                      <span>{pageData.inquiryForm.fields.sslSecurity}</span>
-                    </div>
                   </div>
                 </form>
               )}
@@ -807,7 +802,7 @@ export default function ContactUsClient() {
                 <div className="relative w-16 h-16 shrink-0">
                   <Image
                     src={pageData.sidebar.astrologer.avatar}
-                    alt={pageData.sidebar.astrologer.name}
+                    alt=""
                     width={64}
                     height={64}
                     className="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-[#fdc72d]"
@@ -839,7 +834,7 @@ export default function ContactUsClient() {
               <div className="space-y-2">
                 <Button
                   type="button"
-                  onClick={() => setConsultModalOpen(true)}
+                  onClick={() => router.push("/appointment")}
                   className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] text-xs font-bold py-2.5 rounded-xl transition-colors cursor-pointer"
                 >
                   <Calendar className="h-4 w-4 mr-1.5" />
@@ -886,7 +881,7 @@ export default function ContactUsClient() {
                     <div className="w-12 h-12 rounded-lg bg-card shrink-0 overflow-hidden border border-border/60">
                       <Image
                         src={item.image}
-                        alt={item.name}
+                        alt=""
                         width={48}
                         height={48}
                         className="w-full h-full object-cover"

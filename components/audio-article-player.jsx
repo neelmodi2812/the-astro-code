@@ -20,6 +20,88 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { formatDigits } from "@/lib/utils"
 
+/**
+ * Pre-processes article text for natural speech synthesis:
+ * 1. Strips HTML tags.
+ * 2. Localizes symbols (₹ -> રૂપિયા, % -> ટકા).
+ * 3. Expands number ranges (૧-૨ -> ૧ થી ૨).
+ * 4. REMOVES all commas, colons, semicolons, quotes, brackets, and noisy symbols
+ *    so TTS engines NEVER speak "comma", "quote", "colon", "dash", etc.
+ * 5. Normalizes whitespace and guarantees clean sentence cadence.
+ */
+function preprocessForSpeech(text, lang) {
+  if (!text) return ""
+  return text
+    // Strip HTML tags
+    .replace(/<[^>]*>/g, " ")
+    // Expand Rupee symbol
+    .replace(/₹\s*([0-9૦-૯]+)/g, lang === "gu" ? "$1 રૂપિયા" : "$1 rupees")
+    .replace(/([0-9૦-૯]+)\s*₹/g, lang === "gu" ? "$1 રૂપિયા" : "$1 rupees")
+    // Expand percentage symbol
+    .replace(/([0-9૦-૯]+)\s*%/g, lang === "gu" ? "$1 ટકા" : "$1 percent")
+    // Expand number range hyphen (e.g. ૧-૨ -> ૧ થી ૨)
+    .replace(/([0-9૦-૯]+)\s*[-–—]\s*([0-9૦-૯]+)/g, lang === "gu" ? "$1 થી $2" : "$1 to $2")
+    // Replace Gujarati danda (। or ॥) with period
+    .replace(/[।॥]/g, ".")
+    // REMOVE all commas entirely — guarantees TTS can NEVER say the word "comma"
+    .replace(/,/g, " ")
+    // REMOVE semicolons and colons
+    .replace(/[;:]/g, " ")
+    // REMOVE dashes and hyphens
+    .replace(/[—–\-]+/g, " ")
+    // REMOVE all quotation marks — prevents TTS from saying "quote" or "unquote"
+    .replace(/["'“”‘’«»„`]/g, "")
+    // REMOVE parentheses and brackets
+    .replace(/[()[\]{}]/g, " ")
+    // REMOVE noisy symbols and punctuation
+    .replace(/[•*#~|/\\@&+=^<>_]/g, " ")
+    // Clean up multiple periods (e.g. .. or ...) to a single period
+    .replace(/\.{2,}/g, ".")
+    // Collapse excess whitespace
+    .replace(/\s+/g, " ")
+    // Remove whitespace before period
+    .replace(/\s+\./g, ".")
+    .trim()
+}
+
+/**
+ * Gujarati (U+0A80–U+0AFF) → Devanagari (U+0900–U+097F) transliteration.
+ * 1-to-1 Unicode phonetic mapping (subtract 0x0180).
+ * Special handling: Maps Gujarati ળ (U+0AB3) to Devanagari ल (U+0932) so
+ * all Hindi TTS engines (Google हिन्दी, Microsoft Swara/Kalpana) pronounce it seamlessly.
+ */
+function gujaratiToDevanagari(text) {
+  if (!text) return ""
+  return text.replace(/[\u0A80-\u0AFF]/g, (char) => {
+    const code = char.charCodeAt(0)
+    if (code === 0x0AB3) {
+      // ળ -> ल (ensures universal Hindi TTS compatibility)
+      return String.fromCharCode(0x0932)
+    }
+    if (code >= 0x0A81 && code <= 0x0AF1) {
+      return String.fromCharCode(code - 0x0180)
+    }
+    return char
+  })
+}
+
+/**
+ * Cleans an individual chunk for utterance.
+ * Strips leading/trailing punctuation and ensures a single sentence-terminating period.
+ */
+function cleanChunk(chunk) {
+  if (!chunk) return ""
+  let clean = chunk
+    .replace(/^[\s.,;:!?\-—–]+/, "")
+    .replace(/[\s.,;:!?\-—–]+$/, "")
+    .trim()
+  if (!clean) return ""
+  if (!/[.!?]$/.test(clean)) {
+    clean += "."
+  }
+  return clean
+}
+
 export function AudioArticlePlayer({
   articleText = "",
   lang = "gu",
@@ -30,7 +112,6 @@ export function AudioArticlePlayer({
   const [currentTime, setCurrentTime] = React.useState(0)
   const [speedIndex, setSpeedIndex] = React.useState(0)
   const [notice, setNotice] = React.useState(null)
-  const [, setVoicesLoaded] = React.useState(false)
 
   const speeds = [1, 1.25, 1.5, 2]
   const currentSpeed = speeds[speedIndex]
@@ -47,7 +128,7 @@ export function AudioArticlePlayer({
     isPlayingRef.current = isPlaying
   }, [currentSpeed, isPlaying])
 
-  // Calculate dynamic duration from word count (~130 words per minute average reading rate)
+  // Word count and calculated duration (~130 words per minute average reading rate)
   const words = React.useMemo(() => {
     if (!articleText) return 0
     return articleText.trim().split(/\s+/).filter(Boolean).length
@@ -60,27 +141,50 @@ export function AudioArticlePlayer({
     return propDurationSeconds || 180
   }, [words, propDurationSeconds])
 
-  // Split text into readable sentences/clauses (< 180 chars) to prevent Chromium 15-second speech freeze
+  // Split article into clean, punctuation-safe sentence chunks (kept in native script)
   const textChunks = React.useMemo(() => {
     if (!articleText) return []
-    // Split by sentence terminators: Gujarati danda (।), full stop, ?, !, newline
-    const sentences = articleText
-      .split(/(?<=[।?!.\n])\s+/)
+
+    // 1. Sanitize text (strips all commas, colons, quotes, etc.)
+    const sanitized = preprocessForSpeech(articleText, lang)
+    if (!sanitized) return []
+
+    // 2. Split along sentence terminators (. ? !)
+    const sentences = sanitized
+      .split(/(?<=[.?!])\s+/)
       .map((s) => s.trim())
       .filter(Boolean)
 
+    // 3. Keep chunks manageable (< 160 characters)
     const chunks = []
     for (const sent of sentences) {
-      if (sent.length <= 180) {
-        chunks.push(sent)
+      if (sent.length <= 160) {
+        const c = cleanChunk(sent)
+        if (c) chunks.push(c)
       } else {
-        // Split long sentence by commas or clauses
-        const parts = sent.split(/(?<=[,;])\s+/).filter(Boolean)
-        chunks.push(...parts)
+        // Break long sentences at word boundaries
+        const words = sent.split(/\s+/)
+        let cur = ""
+        for (const w of words) {
+          if ((cur + " " + w).length <= 130) {
+            cur = cur ? `${cur} ${w}` : w
+          } else {
+            if (cur) {
+              const c = cleanChunk(cur)
+              if (c) chunks.push(c)
+            }
+            cur = w
+          }
+        }
+        if (cur) {
+          const c = cleanChunk(cur)
+          if (c) chunks.push(c)
+        }
       }
     }
-    return chunks.length > 0 ? chunks : [articleText]
-  }, [articleText])
+
+    return chunks.length > 0 ? chunks : [cleanChunk(sanitized)]
+  }, [articleText, lang])
 
   // Format MM:SS helper
   const formatTime = (secs) => {
@@ -91,46 +195,42 @@ export function AudioArticlePlayer({
     return `${mm}:${ss}`
   }
 
-  // Find best available voice for language
+  // Find the best voice and mode for speech synthesis
   const selectVoice = React.useCallback(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return null
     const voices = window.speechSynthesis.getVoices() || []
-    if (voices.length === 0) return null
 
     if (lang === "gu") {
-      // 1. Native Gujarati
+      // Priority 1: Native Gujarati voice (e.g. Edge Microsoft Dhwani/Niranjan, Android Google Gujarati)
       const guVoice = voices.find(
         (v) =>
           (v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("gu")) ||
           (v.name && (v.name.toLowerCase().includes("gujarati") || v.name.includes("ગુજરાતી")))
       )
-      if (guVoice) return guVoice
+      if (guVoice) {
+        return { voice: guVoice, lang: guVoice.lang || "gu-IN", isNativeGujarati: true }
+      }
 
-      // 2. Hindi fallback (closest Indic phonetics engine)
+      // Priority 2: Hindi Indic voice (Chrome Google हिन्दी, Edge Swara, Windows Kalpana, iOS Lekha)
       const hiVoice = voices.find(
         (v) =>
           (v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("hi")) ||
           (v.name && (v.name.toLowerCase().includes("hindi") || v.name.includes("हिन्दी")))
       )
-      if (hiVoice) return hiVoice
+      if (hiVoice) {
+        return { voice: hiVoice, lang: hiVoice.lang || "hi-IN", isNativeGujarati: false }
+      }
 
-      // 3. Indian English
-      const inVoice = voices.find(
-        (v) =>
-          (v.lang && v.lang.toLowerCase().replace("_", "-") === "en-in") ||
-          (v.name && v.name.toLowerCase().includes("india"))
-      )
-      if (inVoice) return inVoice
+      // Priority 3: Fallback with hi-IN language tag (invokes browser cloud Hindi TTS)
+      return { voice: null, lang: "hi-IN", isNativeGujarati: false }
     } else {
       // English voice
-      const enVoice = voices.find(
-        (v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("en")
-      )
-      if (enVoice) return enVoice
+      const enVoice =
+        voices.find((v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("en")) ||
+        voices.find((v) => v.default) ||
+        (voices.length > 0 ? voices[0] : null)
+      return { voice: enVoice, lang: enVoice?.lang || "en-US", isNativeGujarati: false }
     }
-
-    // 4. Default or first available voice
-    return voices.find((v) => v.default) || voices[0]
   }, [lang])
 
   // Speak a specific chunk index
@@ -138,25 +238,58 @@ export function AudioArticlePlayer({
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return
     if (!textChunks || textChunks.length === 0 || index >= textChunks.length) {
       setIsPlaying(false)
-      setCurrentTime(0)
+      isPlayingRef.current = false
+      setCurrentTime(calculatedDuration)
       currentChunkIndexRef.current = 0
       clearInterval(timerRef.current)
       return
     }
 
     currentChunkIndexRef.current = index
-    window.speechSynthesis.cancel()
 
-    const text = textChunks[index]
-    const utterance = new SpeechSynthesisUtterance(text)
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume()
+    }
+
+    const rawChunk = textChunks[index]
+    const chosen = selectVoice()
+
+    let textToSpeak = rawChunk
+    if (lang === "gu") {
+      // If we have a native Gujarati voice, speak the original Gujarati script.
+      // If using Hindi TTS or fallback, transliterate to Devanagari for perfect Hindi pronunciation.
+      if (!chosen?.isNativeGujarati) {
+        textToSpeak = gujaratiToDevanagari(rawChunk)
+      }
+    }
+
+    // Absolute guarantee: strip any remaining comma, colon, semicolon, quote or rogue symbol
+    textToSpeak = textToSpeak
+      .replace(/[,;:]/g, " ")
+      .replace(/["'“”‘’«»`]/g, "")
+      .replace(/[()[\]{}]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    // Ensure clean end of sentence with no trailing punctuation debris
+    textToSpeak = textToSpeak.replace(/[\s.,;:!?\-—–]+$/, "").trim()
+    if (!/[.!?]$/.test(textToSpeak)) {
+      textToSpeak += "."
+    }
+
+    if (!textToSpeak || textToSpeak === ".") {
+      if (isPlayingRef.current && index + 1 < textChunks.length) {
+        playChunkRef.current?.(index + 1)
+      }
+      return
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak)
     utterance.rate = speedRef.current
+    utterance.lang = chosen?.lang || (lang === "gu" ? "hi-IN" : "en-US")
 
-    const chosenVoice = selectVoice()
-    if (chosenVoice) {
-      utterance.voice = chosenVoice
-      utterance.lang = chosenVoice.lang || (lang === "gu" ? "gu-IN" : "en-US")
-    } else {
-      utterance.lang = lang === "gu" ? "gu-IN" : "en-US"
+    if (chosen?.voice) {
+      utterance.voice = chosen.voice
     }
 
     // Prevent garbage collection bug in Chromium
@@ -169,8 +302,10 @@ export function AudioArticlePlayer({
         if (nextIndex < textChunks.length) {
           playChunkRef.current?.(nextIndex)
         } else {
+          // Finished reading the entire article
           setIsPlaying(false)
-          setCurrentTime(0)
+          isPlayingRef.current = false
+          setCurrentTime(calculatedDuration)
           currentChunkIndexRef.current = 0
           clearInterval(timerRef.current)
         }
@@ -178,16 +313,19 @@ export function AudioArticlePlayer({
     }
 
     utterance.onerror = (e) => {
-      // Ignore user-initiated cancels / interruptions
+      // Ignore user-initiated cancellations or interruptions
       if (e?.error === "canceled" || e?.error === "interrupted") return
       console.warn("Speech synthesis notice:", e?.error)
-      // On non-fatal error, advance to next chunk
       if (isPlayingRef.current && index + 1 < textChunks.length) {
         setTimeout(() => {
           if (isPlayingRef.current) {
             playChunkRef.current?.(index + 1)
           }
-        }, 80)
+        }, 60)
+      } else if (isPlayingRef.current) {
+        setIsPlaying(false)
+        isPlayingRef.current = false
+        clearInterval(timerRef.current)
       }
     }
 
@@ -196,13 +334,13 @@ export function AudioArticlePlayer({
     } catch (err) {
       console.warn("Speech synthesis speak error:", err)
     }
-  }, [textChunks, selectVoice, lang])
+  }, [textChunks, selectVoice, lang, calculatedDuration])
 
   React.useEffect(() => {
     playChunkRef.current = playChunk
   }, [playChunk])
 
-  // Start smooth progress timer
+  // Smooth progress timer
   const startTimer = React.useCallback(() => {
     clearInterval(timerRef.current)
     const intervalMs = 250
@@ -211,13 +349,7 @@ export function AudioArticlePlayer({
         const increment = (intervalMs / 1000) * speedRef.current
         const next = prev + increment
         if (next >= calculatedDuration) {
-          clearInterval(timerRef.current)
-          setIsPlaying(false)
-          currentChunkIndexRef.current = 0
-          if (typeof window !== "undefined" && "speechSynthesis" in window) {
-            window.speechSynthesis.cancel()
-          }
-          return 0
+          return calculatedDuration
         }
         return next
       })
@@ -231,6 +363,7 @@ export function AudioArticlePlayer({
     if (isPlaying) {
       // Pause
       setIsPlaying(false)
+      isPlayingRef.current = false
       clearInterval(timerRef.current)
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel()
@@ -248,16 +381,25 @@ export function AudioArticlePlayer({
         setNotice(null)
       }
 
+      // If at or near the end, restart from beginning
+      const isNearEnd = currentTime >= calculatedDuration - 0.5
+      const startFrom = isNearEnd ? 0 : currentChunkIndexRef.current
+
+      if (isNearEnd) {
+        setCurrentTime(0)
+        currentChunkIndexRef.current = 0
+      }
+
       setIsPlaying(true)
+      isPlayingRef.current = true
       startTimer()
 
       if (hasSpeech && textChunks.length > 0) {
-        // Calculate appropriate starting chunk from currentTime
-        const startingChunk = Math.min(
-          textChunks.length - 1,
-          Math.max(0, Math.floor((currentTime / calculatedDuration) * textChunks.length))
-        )
-        playChunk(startingChunk)
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume()
+        }
+        window.speechSynthesis.cancel()
+        playChunk(startFrom)
       }
     }
   }
@@ -272,6 +414,9 @@ export function AudioArticlePlayer({
       )
       currentChunkIndexRef.current = targetChunk
       if (isPlaying) {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          window.speechSynthesis.cancel()
+        }
         playChunk(targetChunk)
       }
     }
@@ -283,28 +428,35 @@ export function AudioArticlePlayer({
     const newSpeed = speeds[idx]
     speedRef.current = newSpeed
 
-    // Restart timer with new speed calculation
     if (isPlaying) {
       startTimer()
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel()
         playChunk(currentChunkIndexRef.current)
       }
     }
   }
 
-  // Listen for voices loading & unmount cleanup
+  // Chromium keep-alive to prevent speech synthesis pausing after 15 seconds
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return
+    if (!isPlaying) return
+
+    const keepAlive = setInterval(() => {
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause()
+        window.speechSynthesis.resume()
+      }
+    }, 10_000)
+
+    return () => clearInterval(keepAlive)
+  }, [isPlaying])
+
+  // Eagerly query voices and cleanup speech synthesis on unmount
   React.useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      const handleVoices = () => {
-        const v = window.speechSynthesis.getVoices()
-        if (v && v.length > 0) {
-          setVoicesLoaded(true)
-        }
-      }
-      handleVoices()
-      window.speechSynthesis.addEventListener("voiceschanged", handleVoices)
+      window.speechSynthesis.getVoices()
       return () => {
-        window.speechSynthesis.removeEventListener("voiceschanged", handleVoices)
         window.speechSynthesis.cancel()
         clearInterval(timerRef.current)
       }
@@ -326,6 +478,10 @@ export function AudioArticlePlayer({
 
   React.useEffect(() => {
     currentChunkIndexRef.current = 0
+    isPlayingRef.current = false
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel()
+    }
     return () => {
       clearInterval(timerRef.current)
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -355,7 +511,7 @@ export function AudioArticlePlayer({
 
       {/* Controls & Waveform Track */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
-        {/* Circular Play/Pause button - clean without intrusive floating tooltip */}
+        {/* Circular Play/Pause button */}
         <button
           onClick={togglePlay}
           className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#008d7f] hover:bg-[#007b6e] active:scale-95 text-white flex items-center justify-center shrink-0 shadow-sm transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008d7f]/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#1c1d1a]"
@@ -393,28 +549,22 @@ export function AudioArticlePlayer({
               aria-label="Change playback speed"
               type="button"
             >
-              <Gauge className="h-3.5 w-3.5 text-[#008d7f]" />
+              <Gauge className="h-4 w-4 text-muted-foreground" />
               <span>{currentSpeed}x</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-36 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-lg border border-border/80">
-            <DropdownMenuLabel className="text-xs font-bold text-muted-foreground px-2 py-1">
-              {lang === "gu" ? "પ્લેબેક સ્પીડ" : "Playback Speed"}
+          <DropdownMenuContent align="end" className="w-36">
+            <DropdownMenuLabel className="text-xs">
+              {lang === "gu" ? "ઝડપ પસંદ કરો" : "Playback Speed"}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
-              value={String(currentSpeed)}
-              onValueChange={(val) => {
-                const spd = parseFloat(val)
-                const idx = speeds.indexOf(spd)
-                if (idx !== -1) {
-                  handleSpeedChange(idx)
-                }
-              }}
+              value={String(speedIndex)}
+              onValueChange={(val) => handleSpeedChange(Number(val))}
             >
-              {speeds.map((spd) => (
-                <DropdownMenuRadioItem key={spd} value={String(spd)} className="cursor-pointer text-xs py-1.5">
-                  {spd}x {spd === 1 && (lang === "gu" ? "(સામાન્ય)" : "(Normal)")}
+              {speeds.map((s, idx) => (
+                <DropdownMenuRadioItem key={s} value={String(idx)} className="text-xs cursor-pointer">
+                  {s}x {s === 1 && (lang === "gu" ? "(સામાન્ય)" : "(Normal)")}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
@@ -422,21 +572,10 @@ export function AudioArticlePlayer({
         </DropdownMenu>
       </div>
 
-      {/* Non-intrusive fallback notice if speech is totally unavailable in browser */}
       {notice && (
-        <div className="mt-3 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 flex items-start justify-between gap-2.5 animate-fadeIn">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-            <p className="leading-snug">{notice}</p>
-          </div>
-          <button
-            onClick={() => setNotice(null)}
-            className="text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 font-bold px-1.5 py-0.5 rounded-md hover:bg-amber-500/20 transition-colors text-xs shrink-0 cursor-pointer"
-            aria-label={lang === "gu" ? "સૂચના બંધ કરો" : "Dismiss notice"}
-            type="button"
-          >
-            ×
-          </button>
+        <div className="mt-3 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/60 flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{notice}</span>
         </div>
       )}
     </div>

@@ -23,13 +23,21 @@ import { SITE_CONTACT } from "@/lib/config/contact"
 import { getSiteShell } from "@/lib/config/site"
 
 /** The copyright copy is bundled with a fixed year; show the current one in the page's digits. */
-function withCurrentYear(text, isEn) {
-  const year = String(new Date().getFullYear())
+function withCurrentYear(text, isEn, dynamicYear) {
+  if (!dynamicYear) return text
+  const year = String(dynamicYear)
   const gu = year.replace(/\d/g, (d) => "૦૧૨૩૪૫૬૭૮૯"[d])
-  return text.replace(/2025|૨૦૨૫/, isEn ? year : gu)
+  return text.replace(/2025|૨૦૨૫|2026|૨૦૨૬/, isEn ? year : gu)
 }
 
+const emptySubscribe = () => () => {}
+
 export function AstroFooter({ config: propConfig, footer: propFooter, lang: propLang }) {
+  const currentYear = React.useSyncExternalStore(
+    emptySubscribe,
+    () => new Date().getFullYear(),
+    () => 2026
+  )
   // Seamless reactive language handling from props or React context
   const { lang: contextLang } = useLanguage()
   const activeLang = propLang || contextLang || "gu"
@@ -87,14 +95,14 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               <Link href="/" className="inline-block group" aria-label={safeConfig.appName}>
                 <Image
                   src="/the-astro-code-banner.png"
-                  alt={safeConfig.appName}
+                  alt=""
                   width={220}
                   height={46}
                   className="block dark:hidden h-10 w-auto object-contain transition-transform group-hover:scale-102"
                 />
                 <Image
                   src="/the-astro-code-banner-dark.png"
-                  alt={safeConfig.appName}
+                  alt=""
                   width={220}
                   height={46}
                   className="hidden dark:block h-10 w-auto object-contain transition-transform group-hover:scale-102"
@@ -180,31 +188,31 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               {footer.dharmikTitle || (isEn ? "Spiritual & Darshan" : "ધાર્મિક & દર્શન")}
             </div>
             <Link
-              href="/categories"
+              href="/categories?category=bahuchar-maa"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Shri Bahuchar Maa Rajwadu & History" : "શ્રી બહુચર માં નું રજવાડું & ઇતિહાસ"}
             </Link>
             <Link
-              href="/categories"
+              href="/categories?category=jyotirling"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "12 Holy Jyotirlinga Darshan Guide" : "૧૨ પવિત્ર જ્યોતિર્લિંગ દર્શન માર્ગદર્શિકા"}
             </Link>
             <Link
-              href="/categories"
+              href="/categories?category=dharmik"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Shaktipeeth & Pilgrimage Glory" : "શક્તિપીઠ અને યાત્રાધામ માહાત્મ્ય"}
             </Link>
             <Link
-              href="/categories"
+              href="/categories?category=navdurga"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Daily Stotras, Mantras & Aarti" : "નિત્ય સ્તોત્ર, મંત્ર અને આરતી સંગ્રહ"}
             </Link>
             <Link
-              href="/categories"
+              href="/categories?category=preranatmak"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Inspirational Spiritual Stories & Preaching" : "પ્રેરણાદાયી ધાર્મિક કથાઓ & ઉપદેશ"}
@@ -229,7 +237,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               {isEn ? "Daily Panchang & Choghadiya Schedule" : "દૈનિક પંચાંગ & ચોઘડિયું સમયપત્રક"}
             </Link>
             <Link
-              href="/categories"
+              href="/categories?category=jyotishshastra"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Kundali Analysis & Planetary Doshas" : "કુંડળી વિશ્લેષણ અને ગ્રહદોષ નિવારણ"}
@@ -241,19 +249,19 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
               {isEn ? "Numerology & Destiny Number" : "અંકશાસ્ત્ર (ન્યુમરોલોજી) અને ભાગ્યાંક"}
             </Link>
             <Link
-              href="/contact-us"
+              href="/appointment"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Personal Consultation (Book Slot)" : "વ્યક્તિગત પરામર્શ (Book Consultation)"}
             </Link>
             <Link
-              href="/myshop"
+              href="/categories?category=vastu"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
-              {isEn ? "Sacred Rudraksha, Yantra & Spiritual Shop" : "પવિત્ર રુદ્રાક્ષ, યંત્ર અને આધ્યાત્મિક શોપ"}
+              {isEn ? "Vastu Shastra Remedies & Consultation" : "વાસ્તુ શાસ્ત્ર માર્ગદર્શન & ઉપાય"}
             </Link>
             <Link
-              href="/about-us"
+              href="/about-us#dr-vishal-modi"
               className="text-sm text-foreground/75 hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors py-1"
             >
               {isEn ? "Dr. Vishal Modi Profile & Credentials" : "ડૉ. વિશાલ મોદી પરિચય"}
@@ -333,7 +341,8 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
                 (isEn
                   ? "© 2025 The Astro Code. All Rights Reserved. Spiritual guidance for devotees."
                   : "© ૨૦૨૫ The Astro Code. સર્વાધિકાર સુરક્ષિત. આધ્યાત્મિક સેવાઓ ભાવિક જનોના હિતાર્થે."),
-              isEn
+              isEn,
+              currentYear
             )}
           </p>
           <div className="flex items-center flex-wrap justify-center gap-4 sm:gap-6 font-semibold">
@@ -343,7 +352,7 @@ export function AstroFooter({ config: propConfig, footer: propFooter, lang: prop
             <Link href="/privacy-policy" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
               {footer.privacy || (isEn ? "Privacy Policy" : "ગોપનીયતા નીતિ")}
             </Link>
-            <Link href="/privacy-policy" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
+            <Link href="/privacy-policy#terms" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">
               {footer.terms || (isEn ? "Terms & Conditions" : "નિયમો અને શરતો")}
             </Link>
             <Link href="/contact-us" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors underline-offset-4 hover:underline">

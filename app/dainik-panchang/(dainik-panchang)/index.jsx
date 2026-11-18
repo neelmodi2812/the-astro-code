@@ -191,11 +191,6 @@ export default function DainikPanchangClient() {
         topBar={siteData.topBar}
         navLinks={siteData.navLinks}
         activeCategory="dainik-panchang"
-        onSelectCategory={(id) => {
-          if (id === "home") router.push("/")
-          else if (id === "about-us") router.push("/about-us")
-          else if (id === "dainik-panchang") router.push("/dainik-panchang")
-        }}
         lang={lang}
         onToggleLang={handleToggleLang}
         cartCount={0}
@@ -1084,7 +1079,7 @@ export default function DainikPanchangClient() {
                 <div className="flex items-center gap-3">
                   <Image
                     src={panchang.sidebar.scholarConsultation.avatar}
-                    alt={panchang.sidebar.scholarConsultation.name[lang]}
+                    alt=""
                     width={56}
                     height={56}
                     className="w-14 h-14 rounded-full object-cover border-2 border-[#fdc72d] shrink-0"
