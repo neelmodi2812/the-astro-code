@@ -56,22 +56,42 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useArticle } from "@/lib/api/hooks/use-article"
 import { useLanguage } from "@/components/language-provider"
+import { useAuth } from "@/lib/api/hooks/use-auth"
+import { subscriptionService } from "@/lib/api/services/subscription"
+import { ArticlePaywall } from "@/components/article-paywall"
 
 function ArticleDetailContent({ initialId, initialArticle }) {
   const params = useParams()
   const router = useRouter()
-  const rawArticleId = params?.id || initialId || "hero-1"
-  const articleId = React.useMemo(() => {
-    try {
-      return decodeURIComponent(rawArticleId)
-    } catch {
-      return rawArticleId
-    }
-  }, [rawArticleId])
+  const articleId = params?.id || initialId || "hero-1"
 
   const { lang, setLang } = useLanguage()
   const data = useHomeData(lang)
   const article = useArticle(articleId, initialArticle)
+
+  const { isAuthenticated } = useAuth()
+  const [hasActiveSub, setHasActiveSub] = React.useState(false)
+
+  React.useEffect(() => {
+    let cancelled = false
+    if (isAuthenticated) {
+      subscriptionService
+        .status()
+        .then((res) => {
+          if (!cancelled && res?.data?.has_active_subscription) {
+            setHasActiveSub(true)
+          }
+        })
+        .catch(() => {})
+    } else {
+      setHasActiveSub(false)
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [isAuthenticated])
+
+  const isLocked = article?.isLocked !== undefined ? (article.isLocked && !hasActiveSub) : !hasActiveSub
 
   // Share menu state
   const [shareMenuOpen, setShareMenuOpen] = React.useState(false)
@@ -249,63 +269,8 @@ function ArticleDetailContent({ initialId, initialArticle }) {
       return "ankashastra"
     }
 
-    return "bahuchar-maa-nu-rajwadu"
+    return "bahuchar-maa-rajwadu"
   }, [articleId, article])
-
-  // Assemble the complete article narrative for audio reading so the user hears the entire story:
-  const fullArticleSpeechText = React.useMemo(() => {
-    if (!article) return ""
-    const parts = []
-
-    // 1. Title
-    const titleText = article.title?.[lang] || article.title?.gu || article.title?.en || ""
-    if (titleText) parts.push(titleText)
-
-    // 2. Subtitle
-    const subtitleText = article.subtitle?.[lang] || article.subtitle?.gu || article.subtitle?.en || ""
-    if (subtitleText) parts.push(subtitleText)
-
-    // 3. Lead text (if available) or introductory audio text
-    const leadText = article.lead?.[lang] || article.lead?.gu || article.lead?.en || ""
-    if (leadText) {
-      parts.push(leadText)
-    } else if (article.audioText?.[lang] || article.audioText?.gu || article.audioText?.en) {
-      parts.push(article.audioText[lang] || article.audioText.gu || article.audioText.en)
-    }
-
-    // 4. All sections with headings and paragraphs
-    if (Array.isArray(article.sections)) {
-      for (const sec of article.sections) {
-        const rawHeading = sec?.heading?.[lang] || sec?.heading?.gu || sec?.heading?.en || (typeof sec?.heading === "string" ? sec.heading : "")
-        // Clean leading indexing digits like "૧. " or "1. " so speech synthesis doesn't say "one dot"
-        const heading = rawHeading ? rawHeading.replace(/^[0-9૦-૯]+[.)]\s*/, "") : ""
-        if (heading) parts.push(heading)
-        if (Array.isArray(sec?.paragraphs)) {
-          for (const para of sec.paragraphs) {
-            const pText = para?.[lang] || para?.gu || para?.en || (typeof para === "string" ? para : "")
-            if (pText) parts.push(pText)
-          }
-        }
-      }
-    }
-
-    // 5. Highlight Quote if present
-    const quoteText = article.quote?.text?.[lang] || article.quote?.text?.gu || article.quote?.text?.en || ""
-    if (quoteText) parts.push(quoteText)
-
-    // 6. Rituals / Sacred items if present
-    if (article.rituals?.items && Array.isArray(article.rituals.items)) {
-      const ritualTitle = article.rituals.title?.[lang] || article.rituals.title?.gu || article.rituals.title?.en || ""
-      if (ritualTitle) parts.push(ritualTitle)
-      for (const item of article.rituals.items) {
-        const itemText = item?.text?.[lang] || item?.text?.gu || item?.text?.en || (typeof item === "string" ? item : "")
-        if (itemText) parts.push(itemText)
-      }
-    }
-
-    const assembled = parts.filter(Boolean).join(". ")
-    return assembled.length > 30 ? assembled : (article.audioText?.[lang] || article.audioText?.gu || "")
-  }, [article, lang])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
@@ -319,18 +284,12 @@ function ArticleDetailContent({ initialId, initialArticle }) {
         onToggleLang={handleToggleLang}
       />
 
-      {/* 2. READING PROGRESS BAR (Fixed at the very top of viewport - zero text overlap) */}
-      <div
-        className="fixed top-0 left-0 right-0 z-[60] h-1 pointer-events-none bg-transparent"
-        role="progressbar"
-        aria-valuenow={Math.round(readingProgress)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label="Article reading progress"
-      >
-        <div
-          className="h-full bg-gradient-to-r from-[#d9a100] via-[#fdc72d] to-[#ffe58f] transition-all duration-150 ease-out shadow-[0_0_8px_rgba(253,199,45,0.5)]"
-          style={{ width: `${readingProgress}%` }}
+      {/* 2. STICKY READING PROGRESS BAR (Positioned just under sticky header) */}
+      <div className="sticky top-[108px] sm:top-[124px] z-40 w-full overflow-hidden">
+        <Progress
+          value={readingProgress}
+          className="h-1 rounded-none gap-0 bg-border/40 [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:rounded-none [&_[data-slot=progress-track]]:bg-border/40 [&_[data-slot=progress-indicator]]:bg-[#d9a100]"
+          aria-label="Article reading progress"
         />
       </div>
 
@@ -393,14 +352,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </p>
 
               {/* Author & Action Strip */}
-              <div className="bg-[#f7f6f2] dark:bg-[#1a1b17] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+              <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
                 {/* Author Avatar & Name */}
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
                         src={article.author.image}
-                        alt=""
+                        alt={article.author.name[lang]}
                         className="object-cover"
                       />
                       <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold">
@@ -498,7 +457,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                         </button>
                       </div>
 
-                      <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#1a1b17] shadow-xl">
+                      <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl bg-card dark:bg-[#0d3833] shadow-xl">
                         <DropdownMenuGroup>
                           <DropdownMenuLabel className="px-2.5 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                             {lang === "gu" ? "સોશિયલ મીડિયા પર શેર કરો" : "Share on Social Media"}
@@ -621,15 +580,16 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </div>
             </figure>
 
-            {/* AUDIO LISTENING PLAYER COMPONENT */}
+            {/* AUDIO LISTENING PLAYER COMPONENT (As seen in Reference Image 1) */}
             <AudioArticlePlayer
-              articleText={fullArticleSpeechText}
+              articleText={article.audioText[lang]}
               lang={lang}
               title={lang === "gu" ? "આ લેખ સાંભળો" : "Listen to this Article"}
+              durationSeconds={432}
             />
 
             {/* SOCIAL SHARE BAR (Above Content) */}
-            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#1a1b17] border border-border/60 rounded-xl shadow-xs">
+            <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl shadow-xs">
               <span className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2">
                 <Share2 className="h-4 w-4 text-[#d9a100]" />
                 {lang === "gu" ? "મિત્રો સાથે શેર કરો:" : "Share with friends:"}
@@ -656,207 +616,212 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
             {/* ARTICLE BODY CONTENT */}
             <div className="flex flex-col gap-6 text-foreground font-sans text-base sm:text-lg leading-relaxed">
-              {/* Lead Paragraph with vertical accent */}
-              {article.lead && (article.lead[lang] || article.lead.gu || article.lead.en) ? (
-                (() => {
-                  const leadText = article.lead[lang] || article.lead.gu || article.lead.en || ""
-                  return (
-                    <div className="relative pl-4 border-l-4 border-[#d9a100]">
-                      <p className="font-medium text-foreground text-base sm:text-lg leading-relaxed">
-                        {lang === "en" && /^[a-zA-Z]/.test(leadText) ? (
-                          <>
-                            <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
-                              {leadText.charAt(0)}
-                            </span>
-                            {leadText.slice(1)}
-                          </>
-                        ) : (
-                          leadText
-                        )}
-                      </p>
-                    </div>
-                  )
-                })()
-              ) : !article.lead ? (
+              {/* Lead Paragraph with vertical accent and drop cap (Always visible 5 lines preview) */}
+              <div className="relative">
+                {article.lead && article.lead[lang] ? (
+                  <div className="relative pl-4 border-l-4 border-[#d9a100]">
+                    <p className="font-medium text-foreground leading-relaxed">
+                      <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
+                        {Array.from(article.lead[lang])[0]}
+                      </span>
+                      {Array.from(article.lead[lang]).slice(1).join("")}
+                    </p>
+                  </div>
+                ) : !article.lead ? (
                 <div className="relative pl-4 border-l-4 border-[#d9a100]">
-                  <p className="font-medium text-foreground text-base sm:text-lg leading-relaxed">
-                    {lang === "en" ? (
-                      <>
-                        <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
-                          T
-                        </span>
-                        {"he sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."}
-                      </>
-                    ) : (
-                      "ગુજરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."
-                    )}
+                  <p className="font-medium text-foreground leading-relaxed">
+                    <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
+                      {lang === "gu" ? "ગુ" : "T"}
+                    </span>
+                    {lang === "gu"
+                      ? "જરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."
+                      : "he sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."}
                   </p>
                 </div>
-              ) : null}
+                ) : null}
 
-              {/* Subsection 1 */}
-              {article.sections[0] && (
-                <div className="flex flex-col gap-3 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
-                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {article.sections[0].heading?.[lang] || article.sections[0].heading?.gu || article.sections[0].heading}
-                    </h2>
-                  </div>
-                  {article.sections[0].paragraphs.map((para, pIdx) => (
-                    <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para?.[lang] || para?.gu || para}
-                    </p>
-                  ))}
-                </div>
-              )}
+                {/* Subtle bottom fade gradient overlay when locked */}
+                {isLocked && (
+                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
+                )}
+              </div>
 
-              {/* HIGHLIGHT CALLOUT QUOTE */}
-              {article.quote && article.quote.text && (
-                <div className="my-2 p-5 sm:p-6 bg-[#fff9e6] dark:bg-[#0f3b36] border-l-4 border-[#d9a100] rounded-2xl shadow-xs flex items-start gap-4">
-                  <Quote className="h-8 w-8 text-[#008d7f] shrink-0 rotate-180" />
-                  <div className="flex flex-col gap-1.5">
-                    <blockquote className="text-base sm:text-lg font-bold text-[#0e3934] dark:text-[#f8f7f4] italic leading-relaxed">
-                      {article.quote.text[lang] || article.quote.text.gu || article.quote.text}
-                    </blockquote>
-                    {article.quote.cite && (
-                      <cite className="text-xs sm:text-sm text-[#008d7f] dark:text-[#52c7bb] font-bold not-italic">
-                        {article.quote.cite[lang] || article.quote.cite.gu || article.quote.cite}
-                      </cite>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* SPECIAL MUHURTA CARD (As seen in Reference Image 3) */}
-              {article.muhurtaCard && article.muhurtaCard.title && (
-                <div className="bg-[#f7f6f2] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sun className="h-5 w-5 text-[#d9a100]" />
-                      <h3 className="font-bold text-base sm:text-lg text-foreground">
-                        {article.muhurtaCard.title[lang] || article.muhurtaCard.title.gu || article.muhurtaCard.title}
-                      </h3>
-                    </div>
-                    {article.muhurtaCard.badge && (
-                      <Badge variant="outline" className="bg-[#008d7f]/10 text-[#008d7f] dark:text-[#52c7bb] border-[#008d7f]/30 font-bold text-xs">
-                        {article.muhurtaCard.badge[lang] || article.muhurtaCard.badge.gu || article.muhurtaCard.badge}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {article.muhurtaCard.morning && article.muhurtaCard.evening && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
-                      <div className="p-3 bg-white dark:bg-[#0b332f] rounded-xl border border-border/50">
-                        <span className="text-xs text-muted-foreground block font-medium">
-                          {article.muhurtaCard.morning.label?.[lang] || article.muhurtaCard.morning.label?.gu || article.muhurtaCard.morning.label}
-                        </span>
-                        <span className="text-sm font-bold text-foreground mt-0.5 block">
-                          {article.muhurtaCard.morning.time?.[lang] || article.muhurtaCard.morning.time?.gu || article.muhurtaCard.morning.time}
-                        </span>
+              {/* PAYWALL WHEN LOCKED OR FULL CONTENT WHEN UNLOCKED */}
+              {isLocked ? (
+                <ArticlePaywall
+                  lang={lang}
+                  onUnlocked={() => {
+                    setHasActiveSub(true)
+                    if (article?.reload) article.reload()
+                  }}
+                />
+              ) : (
+                <>
+                  {/* Subsection 1 */}
+                  {article.sections[0] && (
+                    <div className="flex flex-col gap-3 pt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                          {article.sections[0].heading[lang]}
+                        </h2>
                       </div>
-                      <div className="p-3 bg-white dark:bg-[#0b332f] rounded-xl border border-border/50">
-                        <span className="text-xs text-muted-foreground block font-medium">
-                          {article.muhurtaCard.evening.label?.[lang] || article.muhurtaCard.evening.label?.gu || article.muhurtaCard.evening.label}
-                        </span>
-                        <span className="text-sm font-bold text-[#008d7f] dark:text-[#52c7bb] mt-0.5 block">
-                          {article.muhurtaCard.evening.time?.[lang] || article.muhurtaCard.evening.time?.gu || article.muhurtaCard.evening.time}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Subsection 2 */}
-              {article.sections && article.sections[1] && (
-                <div className="flex flex-col gap-3 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
-                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {article.sections[1].heading[lang] || article.sections[1].heading.gu || article.sections[1].heading}
-                    </h2>
-                  </div>
-                  {article.sections[1].paragraphs?.map((para, pIdx) => (
-                    <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para[lang] || para.gu || para}
-                    </p>
-                  ))}
-                </div>
-              )}
-
-              {/* 5 SACRED RULES / RITUALS CHECKLIST CARD */}
-              {article.rituals && article.rituals.title && (
-                <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-[#d9a100]" />
-                      <h3 className="font-bold text-base sm:text-lg text-foreground">
-                        {article.rituals.title[lang] || article.rituals.title.gu || article.rituals.title}
-                      </h3>
-                    </div>
-                    {article.rituals.badge && (
-                      <span className="bg-[#008d7f]/15 text-[#008d7f] dark:text-[#52c7bb] text-xs font-bold px-2 py-0.5 rounded">
-                        {article.rituals.badge[lang] || article.rituals.badge.gu || article.rituals.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  {article.rituals.items && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {article.rituals.items.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 bg-white dark:bg-[#0b332f] p-3.5 rounded-xl border border-border/40 shadow-2xs"
-                        >
-                          <CheckCircle className="h-4 w-4 text-[#008d7f] shrink-0 mt-0.5" />
-                          <span className="text-xs sm:text-sm text-foreground/90 font-medium">
-                            {item[lang] || item.gu || item}
-                          </span>
-                        </div>
+                      {article.sections[0].paragraphs.map((para, pIdx) => (
+                        <p key={pIdx} className="text-muted-foreground leading-relaxed">
+                          {para[lang]}
+                        </p>
                       ))}
                     </div>
                   )}
-                </div>
-              )}
 
-              {/* Subsection 3 (if exists) */}
-              {article.sections && article.sections[2] && (
-                <div className="flex flex-col gap-3 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
-                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                      {article.sections[2].heading[lang] || article.sections[2].heading.gu || article.sections[2].heading}
-                    </h2>
-                  </div>
-                  {article.sections[2].paragraphs?.map((para, pIdx) => (
-                    <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                      {para[lang] || para.gu || para}
-                    </p>
-                  ))}
-                </div>
-              )}
+                  {/* HIGHLIGHT CALLOUT QUOTE */}
+                  {article.quote && article.quote.text && (
+                    <div className="my-2 p-5 sm:p-6 bg-[#fff9e6] dark:bg-[#0f3b36] border-l-4 border-[#d9a100] rounded-2xl shadow-xs flex items-start gap-4">
+                      <Quote className="h-8 w-8 text-[#008d7f] shrink-0 rotate-180" />
+                      <div className="flex flex-col gap-1.5">
+                        <blockquote className="text-base sm:text-lg font-bold text-[#0e3934] dark:text-[#f8f7f4] italic leading-relaxed">
+                          {article.quote.text[lang] || article.quote.text.gu || article.quote.text}
+                        </blockquote>
+                        {article.quote.cite && (
+                          <cite className="text-xs sm:text-sm text-[#008d7f] dark:text-[#52c7bb] font-bold not-italic">
+                            {article.quote.cite[lang] || article.quote.cite.gu || article.quote.cite}
+                          </cite>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-              {/* LIVE SANKALP PUJA CTA CARD (As seen in Reference Image 3) */}
-              {article.sankalpPuja && article.sankalpPuja.title && (
-                <div className="bg-[#fff9e6] dark:bg-[#0e3934] border-2 border-[#fdc72d]/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col items-center text-center gap-3 my-2">
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                    {article.sankalpPuja.title[lang] || article.sankalpPuja.title.gu || article.sankalpPuja.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-                    {article.sankalpPuja.subtitle[lang] || article.sankalpPuja.subtitle.gu || article.sankalpPuja.subtitle}
-                  </p>
-                  <Button
-                    onClick={() => showToast(lang === "gu" ? "પૂજા નોંધણી ફોર્મ ખોલવામાં આવી રહ્યું છે..." : "Opening Puja registration form...")}
-                    className="bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
-                  >
-                    {article.sankalpPuja.buttonText?.[lang] || article.sankalpPuja.buttonText?.gu || (lang === "gu" ? "સંકલ્પ નોંધાવો ●" : "Book Sankalp Puja ●")}
-                  </Button>
-                </div>
+                  {/* SPECIAL MUHURTA CARD (As seen in Reference Image 3) */}
+                  {article.muhurtaCard && article.muhurtaCard.title && (
+                    <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 shadow-xs flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Sun className="h-5 w-5 text-[#d9a100]" />
+                          <h3 className="font-bold text-base sm:text-lg text-foreground">
+                            {article.muhurtaCard.title[lang] || article.muhurtaCard.title.gu || article.muhurtaCard.title}
+                          </h3>
+                        </div>
+                        {article.muhurtaCard.badge && (
+                          <Badge variant="outline" className="bg-[#008d7f]/10 text-[#008d7f] dark:text-[#52c7bb] border-[#008d7f]/30 font-bold text-xs">
+                            {article.muhurtaCard.badge[lang] || article.muhurtaCard.badge.gu || article.muhurtaCard.badge}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {article.muhurtaCard.morning && article.muhurtaCard.evening && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                          <div className="p-3 bg-white dark:bg-[#0b332f] rounded-xl border border-border/50">
+                            <span className="text-xs text-muted-foreground block font-medium">
+                              {article.muhurtaCard.morning.label?.[lang] || article.muhurtaCard.morning.label?.gu || article.muhurtaCard.morning.label}
+                            </span>
+                            <span className="text-sm font-bold text-foreground mt-0.5 block">
+                              {article.muhurtaCard.morning.time?.[lang] || article.muhurtaCard.morning.time?.gu || article.muhurtaCard.morning.time}
+                            </span>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-[#0b332f] rounded-xl border border-border/50">
+                            <span className="text-xs text-muted-foreground block font-medium">
+                              {article.muhurtaCard.evening.label?.[lang] || article.muhurtaCard.evening.label?.gu || article.muhurtaCard.evening.label}
+                            </span>
+                            <span className="text-sm font-bold text-[#008d7f] dark:text-[#52c7bb] mt-0.5 block">
+                              {article.muhurtaCard.evening.time?.[lang] || article.muhurtaCard.evening.time?.gu || article.muhurtaCard.evening.time}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Subsection 2 */}
+                  {article.sections && article.sections[1] && (
+                    <div className="flex flex-col gap-3 pt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                          {article.sections[1].heading[lang] || article.sections[1].heading.gu || article.sections[1].heading}
+                        </h2>
+                      </div>
+                      {article.sections[1].paragraphs?.map((para, pIdx) => (
+                        <p key={pIdx} className="text-muted-foreground leading-relaxed">
+                          {para[lang] || para.gu || para}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 5 SACRED RULES / RITUALS CHECKLIST CARD */}
+                  {article.rituals && article.rituals.title && (
+                    <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-5 w-5 text-[#d9a100]" />
+                          <h3 className="font-bold text-base sm:text-lg text-foreground">
+                            {article.rituals.title[lang] || article.rituals.title.gu || article.rituals.title}
+                          </h3>
+                        </div>
+                        {article.rituals.badge && (
+                          <span className="bg-[#008d7f]/15 text-[#008d7f] dark:text-[#52c7bb] text-xs font-bold px-2 py-0.5 rounded">
+                            {article.rituals.badge[lang] || article.rituals.badge.gu || article.rituals.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      {article.rituals.items && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {article.rituals.items.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-3 bg-white dark:bg-[#0b332f] p-3.5 rounded-xl border border-border/40 shadow-2xs"
+                            >
+                              <CheckCircle className="h-4 w-4 text-[#008d7f] shrink-0 mt-0.5" />
+                              <span className="text-xs sm:text-sm text-foreground/90 font-medium">
+                                {item[lang] || item.gu || item}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Subsection 3 (if exists) */}
+                  {article.sections && article.sections[2] && (
+                    <div className="flex flex-col gap-3 pt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                          {article.sections[2].heading[lang] || article.sections[2].heading.gu || article.sections[2].heading}
+                        </h2>
+                      </div>
+                      {article.sections[2].paragraphs?.map((para, pIdx) => (
+                        <p key={pIdx} className="text-muted-foreground leading-relaxed">
+                          {para[lang] || para.gu || para}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* LIVE SANKALP PUJA CTA CARD (As seen in Reference Image 3) */}
+                  {article.sankalpPuja && article.sankalpPuja.title && (
+                    <div className="bg-[#fff9e6] dark:bg-[#0e3934] border-2 border-[#fdc72d]/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col items-center text-center gap-3 my-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                        {article.sankalpPuja.title[lang] || article.sankalpPuja.title.gu || article.sankalpPuja.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
+                        {article.sankalpPuja.subtitle[lang] || article.sankalpPuja.subtitle.gu || article.sankalpPuja.subtitle}
+                      </p>
+                      <Button
+                        onClick={() => showToast(lang === "gu" ? "પૂજા નોંધણી ફોર્મ ખોલવામાં આવી રહ્યું છે..." : "Opening Puja registration form...")}
+                        className="bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-98"
+                      >
+                        {article.sankalpPuja.buttonText?.[lang] || article.sankalpPuja.buttonText?.gu || (lang === "gu" ? "સંકલ્પ નોંધાવો ●" : "Book Sankalp Puja ●")}
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Bottom Family Share Bar */}
-              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
+              <div className="flex flex-col sm:flex-row items-center justify-between bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/60 p-3 sm:p-3.5 rounded-xl gap-2.5">
                 <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:text-left">
                   {lang === "gu" ? "લેખ ગમ્યો હોય તો પરિવાર અને મિત્રો સાથે શેર કરો:" : "Enjoyed the article? Share with family & friends:"}
                 </span>
@@ -887,11 +852,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* AUTHOR COMPREHENSIVE BIO CARD */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
                   src={article.author.image || "https://dummyjson.com/image/200x100"}
-                  alt=""
+                  alt={article.author.name[lang]}
                   fill
                   sizes="96px"
                   className="object-cover"
@@ -959,7 +924,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <div className="relative h-40 overflow-hidden bg-muted">
                       <Image
                         src={story.image || "https://dummyjson.com/image/200x100"}
-                        alt=""
+                        alt={story.title}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -988,7 +953,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
           {/* RIGHT: 30% STICKY INFORMATIVE SIDEBAR (4 cols) */}
           <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-[128px]">
             {/* WIDGET 1: SOCIAL CONNECT COUNTERS */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-sm text-foreground flex items-center gap-1.5">
                   <Users className="h-4 w-4 text-[#d9a100]" />
@@ -1029,12 +994,12 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 2: TODAY'S PANCHANG WIDGET */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-sm text-foreground">
+                  <h4 className="font-bold text-sm text-foreground">
                     {data.panchang.widgetTitle}
-                  </h3>
+                  </h4>
                   <span className="text-xs text-muted-foreground">
                     {data.panchang.samvatTitle}
                   </span>
@@ -1112,7 +1077,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
               <div className="relative flex flex-col gap-2.5">
                 <Button
-                  onClick={() => router.push("/appointment")}
+                  onClick={() => router.push("/contact-us")}
                   className="group w-full h-11 bg-gradient-to-r from-[#fdc72d] to-[#f0b400] hover:from-[#ffd24d] hover:to-[#fdc72d] text-[#0e3934] font-extrabold text-sm rounded-xl shadow-[0_6px_20px_-6px_rgba(253,199,45,0.6)] transition-all"
                 >
                   <Award className="h-4 w-4 mr-1.5" />
@@ -1135,13 +1100,13 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 4: MYSHOP SPIRITUAL STORE MINI SHOWCASE */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Store className="h-4 w-4 text-[#008d7f]" />
-                  <h3 className="font-bold text-sm text-foreground">
+                  <h4 className="font-bold text-sm text-foreground">
                     {lang === "gu" ? "MYSHOP આધ્યાત્મિક સ્ટોર" : "MYSHOP Spiritual Store"}
-                  </h3>
+                  </h4>
                 </div>
                 <span className="text-xs text-[#008d7f] font-bold">
                   {lang === "gu" ? "૧૦૦% શુદ્ધ" : "100% Pure"}
@@ -1159,7 +1124,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
                       <Image
                         src={prod.image || "https://dummyjson.com/image/200x100"}
-                        alt=""
+                        alt={prod.name}
                         fill
                         sizes="48px"
                         className="object-cover"
@@ -1194,12 +1159,12 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 5: MOST POPULAR ARTICLES (વાંચકોની પસંદ 1-3) */}
-            <div className="bg-[#f8f7f3] dark:bg-[#1a1b17] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4 text-[#d9a100]" />
-                <h3 className="font-bold text-sm text-foreground">
+                <h4 className="font-bold text-sm text-foreground">
                   {lang === "gu" ? "વાંચકોની પસંદ (Most Popular)" : "Readers' Choice (Most Popular)"}
-                </h3>
+                </h4>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -1215,9 +1180,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                       {item.rank}
                     </span>
                     <div className="flex flex-col min-w-0">
-                      <h4 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
+                      <h5 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
                         {item.title}
-                      </h4>
+                      </h5>
                       <span className="text-xs text-muted-foreground mt-0.5">
                         {item.reads}
                       </span>

@@ -132,12 +132,12 @@ export default function RootLayout({ children }) {
     <html
       lang="gu"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${notoSansGujarati.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansGujarati.variable} h-full antialiased overflow-x-hidden max-w-full`}
     >
       <head>
         <GlobalJsonLd />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans antialiased selection:bg-[#fdc72d]/30 selection:text-[#0e3934]">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans antialiased selection:bg-[#fdc72d]/30 selection:text-[#0e3934] overflow-x-hidden max-w-full">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

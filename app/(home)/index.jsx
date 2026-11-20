@@ -83,6 +83,7 @@ export default function HomeClient({ initialFeed = null }) {
       return
     }
     setActiveCategory(catId)
+    setActiveFilter(catId === "home" ? null : catId)
     const matchingCat = data.categories.find((c) => c.id === catId)
     const label = matchingCat ? matchingCat.label : data.navLinks.find((n) => n.id === catId)?.label || catId
     toast.info(lang === "gu" ? `વિભાગ પસંદ કર્યો: ${label}` : `Section selected: ${label}`)
@@ -126,7 +127,7 @@ export default function HomeClient({ initialFeed = null }) {
   }, [activeFilter, data.categories, lang])
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200 w-full max-w-full overflow-x-hidden">
       {/* 1. Header with 3 tiers (Auspicious strip, Brand & Search, Saffron nav) + Mobile Drawer */}
       <AstroHeader
         config={data.config}
@@ -139,7 +140,7 @@ export default function HomeClient({ initialFeed = null }) {
         cartCount={cartItems.length}
       />
 
-      <main className="flex-1 w-full bg-background">
+      <main className="flex-1 w-full max-w-full bg-background overflow-x-hidden">
         {/* 2. Live Panchang & Breaking News Strip (Commented out as requested) */}
         {/* <LiveTicker ticker={data.ticker} /> */}
 

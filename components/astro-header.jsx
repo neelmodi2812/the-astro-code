@@ -24,7 +24,6 @@ import {
   MapPin,
   Settings,
   LogOut,
-  Calendar,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -59,27 +58,14 @@ import { useNavMenu } from "@/lib/api/hooks/use-nav-menu"
 
 // Valid application routes for the "More" navigation dropdown
 const MORE_SUBMENU = [
-  { label: { gu: "પરામર્શ અપોઇન્ટમેન્ટ", en: "Book Consultation Appointment" }, href: "/appointment" },
   { label: { gu: "તમામ વિષય સંગ્રહ", en: "All Categories Directory" }, href: "/categories" },
-  { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us" }, href: "/about-us" },
+  { label: { gu: "દૈનિક પંચાંગ અને ચોઘડિયા", en: "Daily Panchang & Choghadiya" }, href: "/dainik-panchang" },
+  { label: { gu: "MyShop વૈદિક સ્ટોર", en: "MyShop Spiritual Store" }, href: "/myshop" },
+  { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us & History" }, href: "/about-us" },
   { label: { gu: "સંપર્ક કરો અને મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
-  { label: { gu: "ગોપનીયતા નીતિ", en: "Privacy Policy" }, href: "/privacy-policy" },
 ]
 
-function AstroHeaderPathnameConsumer(props) {
-  const pathname = usePathname()
-  return <AstroHeaderInner {...props} pathname={pathname} />
-}
-
-export function AstroHeader(props) {
-  return (
-    <React.Suspense fallback={<AstroHeaderInner {...props} pathname="" />}>
-      <AstroHeaderPathnameConsumer {...props} />
-    </React.Suspense>
-  )
-}
-
-function AstroHeaderInner({
+export function AstroHeader({
   config = {},
   topBar = {},
   navLinks: staticNavLinks = [],
@@ -88,8 +74,8 @@ function AstroHeaderInner({
   lang: propLang,
   onToggleLang,
   cartCount: propCartCount,
-  pathname = "",
 }) {
+  const pathname = usePathname()
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
   const { navLinks, submenus } = useNavMenu(lang, staticNavLinks)
@@ -170,10 +156,7 @@ function AstroHeaderInner({
 
   // Automatically close mobile menu on route navigation
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setMobileMenuOpen(false)
-    }, 0)
-    return () => clearTimeout(timer)
+    setMobileMenuOpen(false)
   }, [pathname])
 
   const navScrollRef = React.useRef(null)
@@ -218,168 +201,159 @@ function AstroHeaderInner({
   }
 
   const getItemHref = (itemId) => {
+    const dynamicItem = navLinks.find((item) => item.id === itemId)
+    if (dynamicItem?.href) return dynamicItem.href
     if (itemId === "home") return "/"
     if (itemId === "panchang" || itemId === "dainik-panchang") return "/dainik-panchang"
     if (itemId === "shop" || itemId === "myshop" || itemId === "vedic-shop") return "/myshop"
     if (itemId === "cart") return "/myshop/cart"
     if (itemId === "about" || itemId === "about-us") return "/about-us"
     if (itemId === "contact" || itemId === "contact-us") return "/contact-us"
-    const dynamicItem = navLinks.find((item) => item.id === itemId)
-    if (dynamicItem?.href && dynamicItem.href !== "/categories") return dynamicItem.href
-    return `/categories?category=${itemId}`
+    return "/categories"
   }
 
-  const activeNavId = React.useMemo(() => {
-    const cleanPath = (pathname || "").replace(/\/+$/, "") || "/"
-    if (cleanPath === "/" || cleanPath === "/home") {
-      // Standalone page routes should never be highlighted on the Home page ("/")
-      const standaloneRoutes = [
-        "home",
-        "dainik-panchang",
-        "panchang",
-        "myshop",
-        "shop",
-        "cart",
-        "about",
-        "about-us",
-        "contact",
-        "contact-us",
-        "more",
-      ]
-      if (activeCategory && !standaloneRoutes.includes(activeCategory)) {
-        return activeCategory
-      }
-      return "home"
+  const [optimisticNavId, setOptimisticNavId] = React.useState(null)
+
+  // Clear optimistic override when route or prop changes
+  React.useEffect(() => {
+    setOptimisticNavId(null)
+  }, [pathname, activeCategory])
+
+  const computedActiveNavId = React.useMemo(() => {
+    if (pathname === "/") {
+      return activeCategory || "home"
     }
-    if (cleanPath === "/myshop" || cleanPath.startsWith("/myshop/")) {
+    if (pathname === "/myshop" || pathname?.startsWith("/myshop")) {
       return "myshop"
     }
-    if (cleanPath === "/dainik-panchang" || cleanPath.startsWith("/dainik-panchang/")) {
+    if (pathname === "/dainik-panchang" || pathname?.startsWith("/dainik-panchang")) {
       return "dainik-panchang"
     }
-    if (cleanPath === "/about-us" || cleanPath.startsWith("/about-us/")) {
+    if (pathname === "/about-us" || pathname?.startsWith("/about-us")) {
       return "more"
     }
-    if (cleanPath === "/contact-us" || cleanPath.startsWith("/contact-us/")) {
+    if (pathname === "/contact-us" || pathname?.startsWith("/contact-us")) {
       return "more"
     }
-    if (cleanPath === "/categories" || cleanPath.startsWith("/categories/")) {
-      if (typeof window !== "undefined") {
-        const params = new URLSearchParams(window.location.search)
-        const cat = params.get("category")
-        if (cat) return cat
-      }
-      if (activeCategory && activeCategory !== "home") return activeCategory
+    if (pathname === "/categories" || pathname?.startsWith("/categories")) {
       return "more"
     }
 
     // Article detail pages: determine active navigation category from API
-    if (cleanPath.startsWith("/article/")) {
-      const owner = navLinks.find((item) => (submenus[item.id] || []).some((sub) => sub.href === cleanPath || sub.href === pathname))
+    if (pathname?.startsWith("/article/")) {
+      const owner = navLinks.find((item) => (submenus[item.id] || []).some((sub) => sub.href === pathname))
       if (owner) return owner.id
       if (
-        cleanPath.includes("somnath") ||
-        cleanPath.includes("mahakaleshwar") ||
-        cleanPath.includes("dwarkadhish") ||
-        cleanPath.includes("jyotirling")
+        pathname.includes("somnath") ||
+        pathname.includes("mahakaleshwar") ||
+        pathname.includes("dwarkadhish") ||
+        pathname.includes("jyotirling")
       ) {
         return "jyotirling"
       }
       if (activeCategory && activeCategory !== "home") {
-        if (activeCategory === "bahuchar-maa-rajwadu") return "bahuchar-maa-nu-rajwadu"
         return activeCategory
       }
       return "dharmik"
     }
 
-    if (activeCategory && activeCategory !== "home") return activeCategory
-    return "home"
+    if (activeCategory) return activeCategory
+    return ""
   }, [pathname, activeCategory, navLinks, submenus])
+
+  const activeNavId = optimisticNavId || computedActiveNavId
 
   const checkIsActive = (item) => activeNavId === item.id
 
-  // Bring the selected item into view; on Home or when active is "home", always reset scroll position to 0
+  // The strip scrolls sideways, so bring the selected item into view instead of leaving it off-screen.
   React.useEffect(() => {
     const nav = navScrollRef.current
-    if (!nav) return
-    const cleanPath = (pathname || "").replace(/\/+$/, "") || "/"
-    if (cleanPath === "/" || cleanPath === "/home" || activeNavId === "home") {
-      nav.scrollTo({ left: 0, behavior: "smooth" })
-      return
-    }
-    const el = nav.querySelector(`[data-nav-id="${CSS.escape(activeNavId || "")}"]`)
-    if (!el) return
+    const el = nav?.querySelector(`[data-nav-id="${CSS.escape(activeNavId || "")}"]`)
+    if (!nav || !el) return
     const target = el.offsetLeft - (nav.clientWidth - el.offsetWidth) / 2
     nav.scrollTo({ left: Math.max(0, target), behavior: "smooth" })
-  }, [pathname, activeNavId, navLinks])
+  }, [activeNavId, navLinks])
 
   return (
     <header className="sticky top-0 w-full z-50 shadow-[0_4px_20px_-2px_rgba(37,26,0,0.12)] transition-all">
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         {/* 1ST LAYER: UNIFIED BRAND, CELESTIAL TIMINGS & UTILITIES ROW */}
-        <div className="bg-card dark:bg-[#161714] py-2.5 sm:py-3 border-b border-[#fdc72d]/25 transition-colors">
+        <div className="bg-card dark:bg-[#0c3631] py-2 sm:py-3 border-b border-[#fdc72d]/25 transition-colors w-full">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
             {/* Left: Brand Identity & Sacred Celestial Status */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
-              <Link href="/" className="flex items-center group shrink-0" aria-label={config?.appName || "The Astro Code"}>
-                <Image
-                  src="/the-astro-code-banner.png"
-                  alt=""
-                  width={220}
-                  height={44}
-                  sizes="(max-width: 640px) 130px, 220px"
-                  priority
-                  className="block dark:hidden h-7.5 sm:h-9 md:h-10 lg:h-11 max-w-[130px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
-                />
-                <Image
-                  src="/the-astro-code-banner-dark.png"
-                  alt=""
-                  width={220}
-                  height={44}
-                  sizes="(max-width: 640px) 130px, 220px"
-                  priority
-                  className="hidden dark:block h-7.5 sm:h-9 md:h-10 lg:h-11 max-w-[130px] sm:max-w-none w-auto object-contain transition-transform group-hover:scale-102"
-                />
-                <span className="sr-only">{config?.appName || "The Astro Code"}</span>
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+              <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+                <div className="size-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-xs ring-2 ring-[#fdc72d] bg-[#fffaf0] flex items-center justify-center p-0.5 shrink-0 transition-transform group-hover:scale-105">
+                  <Image
+                    src={config?.logoUrl || "/logo.svg"}
+                    alt={config?.appName || "The Astro Code"}
+                    width={44}
+                    height={44}
+                    unoptimized
+                    className="w-full h-full object-contain"
+                    priority
+                  />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[17px] sm:text-xl md:text-[22px] font-extrabold text-foreground tracking-tight leading-tight group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors truncate">
+                    {config?.appName || "The Astro Code"}
+                  </div>
+                  <div className="text-[10px] sm:text-xs font-black tracking-wider sm:tracking-widest text-[#8a6800] dark:text-[#fdc72d] mt-0.5 truncate leading-none">
+                    <span className="sm:hidden">UNLOCK HAPPINESS</span>
+                    <span className="hidden sm:inline">{config?.tagline || "UNLOCK HAPPINESS"}</span>
+                  </div>
+                </div>
               </Link>
 
               {/* Panchang / Samvat & Solar Status Capsule (visible on xl+) */}
-              <div className="hidden xl:flex items-center gap-2.5 pl-3 border-l border-border/60">
-                <div className="flex flex-col text-left justify-center">
-                  <span className="flex items-center gap-1.5 text-[#8a6800] dark:text-[#fdc72d] font-bold text-xs whitespace-nowrap leading-tight">
-                    {/* <Sparkles className="h-3.5 w-3.5 text-[#d9a100] shrink-0" /> */}
-                    <span>{topBar?.samvat || "વિક્રમ સંવત ૨૦૮૧ • કાર્તક સુદ પૂનમ"}</span>
-                  </span>
-                  <span className="flex items-center gap-1 text-muted-foreground text-xs mt-0.5 whitespace-nowrap leading-tight">
-                    <Sun className="h-3 w-3 text-[#d9a100] shrink-0" />
-                    <span>{topBar?.sunTimings || "અમદાવાદ સૂર્યોદય: ૦૬:૫૨ • સૂર્યાસ્ત: ૧૭:૫૪"}</span>
-                  </span>
+              <div className="hidden xl:flex items-center gap-2.5 pl-4 border-l border-border/60">
+                <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-amber-500/8 dark:bg-amber-400/10 border border-amber-500/20 shadow-2xs">
+                  <div className="flex items-center justify-center size-6 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0">
+                    <Sun className="h-3.5 w-3.5 animate-[spin_24s_linear_infinite]" />
+                  </div>
+                  <div className="flex flex-col text-left justify-center text-xs">
+                    <span className="font-extrabold text-[#785900] dark:text-amber-300 whitespace-nowrap leading-tight text-[11.5px]">
+                      {topBar?.samvat || "વિક્રમ સંવત ૨૦૮૧ • કાર્તક સુદ પૂનમ"}
+                    </span>
+                    <span className="text-[10.5px] text-muted-foreground whitespace-nowrap leading-tight mt-0.5">
+                      {topBar?.sunTimings || "અમદાવાદ સૂર્યોદય: ૦૬:૫૨ • સૂર્યાસ્ત: ૧૭:૫૪"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Right: Book Consultation, Cart, Profile, Language & Theme */}
-            <div className="flex items-center gap-1.5 sm:gap-2.5 xl:gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-2.5 xl:gap-3 shrink-0">
               {/* Book Consultation Button (Desktop Only: md+) */}
               <Button
                 size="sm"
-                className="hidden md:inline-flex bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] font-extrabold shadow-sm hover:shadow transition-all cursor-pointer h-10 px-4 sm:px-5 rounded-xl shrink-0 whitespace-nowrap items-center justify-center border border-[#e5b220]"
-                onClick={() => router.push("/appointment")}
+                className="hidden md:inline-flex bg-gradient-to-r from-[#00685d] to-[#004f47] hover:from-[#00574e] hover:to-[#00423b] text-white font-extrabold shadow-sm shadow-[#00685d]/20 hover:shadow-md transition-all cursor-pointer h-10 px-4 sm:px-5 rounded-full shrink-0 whitespace-nowrap items-center justify-center border border-[#007a6d]/30 group"
+                onClick={() => {
+                  window.open(
+                    getWhatsAppUrl(
+                      lang === 'gu'
+                        ? 'જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો.'
+                        : 'Hello, I would like to book an astrology consultation.'
+                    ),
+                    "_blank"
+                  )
+                }}
               >
-                <Calendar className="h-4 w-4 mr-1.5" />
+                <MessageSquare className="h-4 w-4 mr-1.5 text-amber-300 group-hover:scale-110 transition-transform" />
                 <span>{topBar.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
               </Button>
 
-              {/* Shopping Cart Bag (Mobile & Desktop) */}
-              <div className="flex">
+              {/* Shopping Cart Bag (Desktop Only: md+) */}
+              <div className="hidden md:flex">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Link
                       href="/myshop/cart"
-                      className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-all shrink-0"
+                      className="relative h-10 w-10 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-all shrink-0"
                       aria-label={lang === "gu" ? "શોપિંગ કાર્ટ" : "Shopping Cart"}
                     >
-                      <ShoppingBag className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+                      <ShoppingBag className="h-4.5 w-4.5" />
                       {cartCount > 0 && (
                         <span className="absolute -top-1 -right-1 size-4 bg-[#fdc72d] text-[#0e3934] text-[10px] font-black rounded-full flex items-center justify-center shrink-0 aspect-square leading-none">
                           {cartCount}
@@ -401,9 +375,9 @@ function AstroHeaderInner({
                       <Link
                         href="/login"
                         aria-label={lang === "gu" ? "લૉગિન કરો" : "Sign In"}
-                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
+                        className="h-10 w-10 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-foreground border border-border flex items-center justify-center shadow-2xs cursor-pointer hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:border-[#fdc72d] transition-all outline-none shrink-0"
                       >
-                        <User className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-foreground" />
+                        <User className="h-5 w-5 text-foreground" />
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
@@ -416,20 +390,20 @@ function AstroHeaderInner({
                       <button
                         type="button"
                         aria-label={lang === "gu" ? "મારું એકાઉન્ટ" : "My Account"}
-                        className="h-9 sm:h-10 px-1 sm:px-3 rounded-full bg-muted/60 dark:bg-[#20211d] text-foreground border border-border flex items-center gap-1.5 sm:gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
+                        className="h-10 px-2.5 sm:px-3 rounded-full bg-muted/60 dark:bg-[#0f3c36] text-foreground border border-border flex items-center gap-2 shadow-2xs cursor-pointer hover:border-[#fdc72d] hover:bg-muted dark:hover:bg-[#282924] transition-all outline-none shrink-0 group"
                       >
                         <div className="h-7 w-7 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none shadow-xs">
                           {userInitial}
                         </div>
-                        <span className="hidden sm:inline text-xs font-bold text-foreground max-w-[120px] truncate leading-tight">
+                        <span className="text-xs font-bold text-foreground max-w-[120px] truncate leading-tight">
                           Hi! {displayName}
                         </span>
-                        <ChevronDown className="hidden sm:inline h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200" />
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-xl border border-border">
+                    <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-xl bg-card dark:bg-[#0d3732] shadow-xl border border-border">
                       <DropdownMenuGroup>
-                        <div className="px-3 py-2.5 bg-muted/40 dark:bg-[#20211d] rounded-lg mb-1 border border-border/40">
+                        <div className="px-3 py-2.5 bg-muted/40 dark:bg-[#0f3c36] rounded-lg mb-1 border border-border/40">
                           <p className="text-xs font-extrabold text-foreground truncate">
                             Hi! {user?.name || (lang === "gu" ? "ભક્ત" : "Devotee")}
                           </p>
@@ -495,7 +469,7 @@ function AstroHeaderInner({
               <Separator orientation="vertical" className="h-5 hidden md:block bg-border/60 mx-0.5" />
 
               {/* Bilingual Switcher (Desktop Only: md+) */}
-              <div className="hidden md:inline-flex bg-muted/70 dark:bg-[#20211d] p-0.5 sm:p-1 rounded-xl border border-border/60 shadow-2xs items-center gap-0.5">
+              <div className="hidden md:inline-flex bg-muted/70 dark:bg-[#0f3a35] p-0.5 sm:p-1 rounded-xl border border-border/60 shadow-2xs items-center gap-0.5">
                 <button
                   type="button"
                   onClick={() => handleLangChange("gu")}
@@ -527,17 +501,17 @@ function AstroHeaderInner({
 
               {/* Mobile Menu Hamburger Button (<md Only) */}
               <SheetTrigger
-                className="md:hidden h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border-2 border-[#fdc72d]/70 text-foreground hover:bg-[#fdc72d]/10 dark:hover:bg-[#fdc72d]/15 transition-colors cursor-pointer shrink-0"
+                className="md:hidden h-10 w-10 flex items-center justify-center rounded-xl border-2 border-[#fdc72d]/70 text-foreground hover:bg-[#fdc72d]/10 dark:hover:bg-[#fdc72d]/15 transition-colors cursor-pointer shrink-0 ml-0.5"
                 aria-label="Toggle Navigation Menu"
               >
-                {mobileMenuOpen ? <X className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> : <Menu className="h-4.5 w-4.5 sm:h-5 sm:w-5" />}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </SheetTrigger>
             </div>
           </div>
         </div>
 
-        {/* 2ND LAYER: PRIMARY BRAND NAVIGATION IN SACRED SAFFRON (#fdc72d) - DESKTOP ONLY */}
-        <div className="hidden md:block bg-[#fdc72d] text-[#0e3934] border-t border-b border-[#e5b220] shadow-sm relative">
+        {/* 2ND LAYER: PRIMARY BRAND NAVIGATION IN REFINED SACRED IVORY & GOLD - DESKTOP ONLY */}
+        <div className="hidden md:block bg-[#fffdf9]/95 dark:bg-[#072420]/95 backdrop-blur-md border-t border-b border-amber-500/20 shadow-2xs relative transition-colors">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex items-center">
             {/* Left Smooth Scroll Arrow Button */}
             {canScrollLeft && (
@@ -545,9 +519,9 @@ function AstroHeaderInner({
                 type="button"
                 onClick={() => scrollNav("left")}
                 aria-label="Scroll navigation left"
-                className="absolute left-0 z-20 h-full px-1.5 bg-gradient-to-r from-[#fdc72d] via-[#fdc72d]/95 to-transparent flex items-center justify-center text-[#0e3934] hover:opacity-80 cursor-pointer transition-opacity"
+                className="absolute left-0 z-20 h-full px-2 bg-gradient-to-r from-[#fffdf9] via-[#fffdf9]/95 to-transparent dark:from-[#072420] dark:via-[#072420]/95 flex items-center justify-center text-foreground hover:opacity-80 cursor-pointer transition-opacity"
               >
-                <div className="p-1 rounded-full bg-[#0e3934]/10 hover:bg-[#0e3934]/20">
+                <div className="p-1 rounded-full bg-foreground/5 hover:bg-foreground/10 text-foreground border border-border/40">
                   <ChevronLeft className="h-4 w-4" />
                 </div>
               </button>
@@ -571,16 +545,42 @@ function AstroHeaderInner({
                         <button
                           data-nav-id={item.id}
                           type="button"
-                          className={`group px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
-                            ? "bg-[#00685d] text-white shadow-sm ring-1 ring-[#00685d]"
-                            : "text-[#0e3934] hover:bg-[#00685d]/12 data-[state=open]:bg-[#00685d] data-[state=open]:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
+                          onClick={() => {
+                            setOptimisticNavId(item.id)
+                            if (onSelectCategory) onSelectCategory(item.id)
+                          }}
+                          className={`group px-3 lg:px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
+                            ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
+                            : "text-foreground/80 dark:text-foreground/90 hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:bg-amber-500/10 dark:hover:bg-amber-400/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                             }`}
                         >
                           <span>{item.label}</span>
-                          <ChevronDown className="h-3.5 w-3.5 opacity-80 transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180 group-data-[popup-open]:rotate-180 group-data-[state=open]:rotate-180" />
+                          <ChevronDown className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100 transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180 group-data-[popup-open]:rotate-180 group-data-[state=open]:rotate-180" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#1c1d1a] shadow-xl border border-border">
+                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#0d3732] shadow-xl border border-border">
+                        {item.id !== "more" && (
+                          <>
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer text-xs font-bold py-2 px-2.5 flex items-center justify-between text-[#8a6800] dark:text-[#fdc72d] rounded-lg"
+                              >
+                                <Link
+                                  href={getItemHref(item.id)}
+                                  onClick={() => {
+                                    setOptimisticNavId(item.id)
+                                    if (onSelectCategory) onSelectCategory(item.id)
+                                  }}
+                                  className="flex items-center justify-between w-full"
+                                >
+                                  <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
                         <DropdownMenuGroup>
                           {subItems.map((sub, idx) => (
                             <DropdownMenuItem
@@ -588,33 +588,19 @@ function AstroHeaderInner({
                               asChild
                               className="cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between font-medium text-foreground hover:bg-muted rounded-lg"
                             >
-                              <Link href={sub.href} className="flex items-center justify-between w-full">
+                              <Link
+                                href={sub.href}
+                                onClick={() => {
+                                  setOptimisticNavId(item.id)
+                                  if (onSelectCategory) onSelectCategory(item.id)
+                                }}
+                                className="flex items-center justify-between w-full"
+                              >
                                 <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
                               </Link>
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuGroup>
-                        {item.id !== "more" && (
-                          <>
-                            <DropdownMenuSeparator className="my-1 bg-border/50" />
-                            <DropdownMenuGroup>
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer text-xs font-bold py-2 px-2.5 text-[#00685d] dark:text-[#fdc72d] hover:bg-[#00685d]/10 dark:hover:bg-[#fdc72d]/10 rounded-lg flex items-center justify-between"
-                              >
-                                <Link
-                                  href={getItemHref(item.id)}
-                                  onClick={() => onSelectCategory && onSelectCategory(item.id)}
-                                  aria-label={`${lang === "gu" ? "બધા લેખો જુઓ:" : "View All Articles in"} ${item.label}`}
-                                  className="flex items-center justify-between w-full"
-                                >
-                                  <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
-                                  <ChevronRight className="h-3.5 w-3.5" />
-                                </Link>
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                          </>
-                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )
@@ -626,10 +612,13 @@ function AstroHeaderInner({
                     key={item.id}
                     data-nav-id={item.id}
                     href={getItemHref(item.id)}
-                    onClick={() => onSelectCategory && onSelectCategory(item.id)}
-                    className={`px-2.5 lg:px-3 xl:px-3.5 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-lg font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
-                      ? "bg-[#00685d] text-white shadow-sm ring-1 ring-[#00685d]"
-                      : "text-[#0e3934] hover:bg-[#00685d]/12 data-[state=open]:bg-[#00685d] data-[state=open]:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
+                    onClick={() => {
+                      setOptimisticNavId(item.id)
+                      if (onSelectCategory) onSelectCategory(item.id)
+                    }}
+                    className={`px-3 lg:px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
+                      ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
+                      : "text-foreground/80 dark:text-foreground/90 hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:bg-amber-500/10 dark:hover:bg-amber-400/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                       }`}
                   >
                     <span>{item.label}</span>
@@ -649,9 +638,9 @@ function AstroHeaderInner({
                 type="button"
                 onClick={() => scrollNav("right")}
                 aria-label="Scroll navigation right"
-                className="absolute right-0 z-20 h-full px-1.5 bg-gradient-to-l from-[#fdc72d] via-[#fdc72d]/95 to-transparent flex items-center justify-center text-[#0e3934] hover:opacity-80 cursor-pointer transition-opacity"
+                className="absolute right-0 z-20 h-full px-2 bg-gradient-to-l from-[#fffdf9] via-[#fffdf9]/95 to-transparent dark:from-[#072420] dark:via-[#072420]/95 flex items-center justify-center text-foreground hover:opacity-80 cursor-pointer transition-opacity"
               >
-                <div className="p-1 rounded-full bg-[#0e3934]/10 hover:bg-[#0e3934]/20">
+                <div className="p-1 rounded-full bg-foreground/5 hover:bg-foreground/10 text-foreground border border-border/40">
                   <ChevronRight className="h-4 w-4" />
                 </div>
               </button>
@@ -663,33 +652,29 @@ function AstroHeaderInner({
         <SheetContent
           side="left"
           showCloseButton={true}
-          className="w-[84vw] max-w-xs sm:w-80 h-[100dvh] max-h-[100dvh] p-0 flex flex-col justify-between border-r border-border/80 bg-card dark:bg-[#1c1d1a] text-foreground shadow-2xl"
+          className="w-[84vw] max-w-xs sm:w-80 h-[100dvh] max-h-[100dvh] p-0 flex flex-col justify-between border-r border-border/80 bg-card dark:bg-[#0d3732] text-foreground shadow-2xl"
         >
           {/* 1. Drawer Header */}
-          <SheetHeader className="p-4 border-b border-border/70 bg-muted/30 dark:bg-black">
+          <SheetHeader className="p-4 border-b border-border/70 bg-muted/30 dark:bg-[#0c3530]">
             <div className="flex items-center gap-2.5 pr-8">
-              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="inline-block" aria-label={config?.appName || "The Astro Code"}>
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs ring-2 ring-[#fdc72d] bg-[#fffaf0] shrink-0 p-0.5">
                 <Image
-                  src="/the-astro-code-banner.png"
-                  alt=""
-                  width={180}
-                  height={38}
-                  className="block dark:hidden h-8 sm:h-9 w-auto object-contain"
+                  src={config.logoUrl || "/logo.png"}
+                  alt={config.appName}
+                  width={40}
+                  height={40}
+                  unoptimized
+                  className="w-full h-full object-contain"
                 />
-                <Image
-                  src="/the-astro-code-banner-dark.png"
-                  alt=""
-                  width={180}
-                  height={38}
-                  className="hidden dark:block h-8 sm:h-9 w-auto object-contain"
-                />
-              </Link>
-              <SheetTitle className="sr-only">
-                {config.appName || "The Astro Code"}
-              </SheetTitle>
-              <SheetDescription className="sr-only">
-                {config.tagline || "Unlock Happiness"}
-              </SheetDescription>
+              </div>
+              <div>
+                <SheetTitle className="text-base font-extrabold text-foreground tracking-tight">
+                  {config.appName}
+                </SheetTitle>
+                <SheetDescription className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d]">
+                  {config.tagline}
+                </SheetDescription>
+              </div>
             </div>
 
             {/* Shubh Muhurta info badge in drawer header */}
@@ -708,8 +693,8 @@ function AstroHeaderInner({
           {/* 2. Drawer Body (Language + Theme + Quick Actions + Navigation links) */}
           <div className="flex-1 overflow-y-auto p-4 pb-20 space-y-3.5 overscroll-contain scrollbar-thin">
             {/* Language Switcher & Theme Toggle in Drawer */}
-            <div className="flex items-center justify-between bg-muted/40 dark:bg-[#20211d] p-1.5 rounded-xl border border-border/60">
-              <div className="bg-white dark:bg-[#1a1c18] p-1 rounded-xl border border-border/50 shadow-xs inline-flex items-center gap-1">
+            <div className="flex items-center justify-between bg-muted/40 dark:bg-[#0f3c36] p-1.5 rounded-xl border border-border/60">
+              <div className="bg-white dark:bg-[#0d3833] p-1 rounded-xl border border-border/50 shadow-xs inline-flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => handleLangChange("gu")}
@@ -745,7 +730,7 @@ function AstroHeaderInner({
 
             {/* Mobile Quick Action Buttons: Dashboard & Store / Sign In */}
             {mounted && isAuthenticated ? (
-              <div className="flex flex-col gap-2 p-3 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50">
+              <div className="flex flex-col gap-2 p-3 rounded-xl bg-muted/40 dark:bg-[#0f3c36] border border-border/50">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-xs flex items-center justify-center shrink-0 aspect-square leading-none">
                     {userInitial}
@@ -759,7 +744,7 @@ function AstroHeaderInner({
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted transition-colors gap-2"
                   >
                     <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{lang === "gu" ? "ડેશબોર્ડ" : "Dashboard"}</span>
@@ -768,7 +753,7 @@ function AstroHeaderInner({
                   <Link
                     href="/dashboard/orders"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <ShoppingBag className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "મારા ઓર્ડર્સ" : "My Orders"}</span>
@@ -777,7 +762,7 @@ function AstroHeaderInner({
                   <Link
                     href="/dashboard/kundli"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <Sparkles className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "કુંડળી વોલ્ટ" : "Kundli Vault"}</span>
@@ -786,7 +771,7 @@ function AstroHeaderInner({
                   <Link
                     href="/dashboard/addresses"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "સરનામાં" : "Addresses"}</span>
@@ -795,7 +780,7 @@ function AstroHeaderInner({
                   <Link
                     href="/dashboard/settings"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2"
                   >
                     <Settings className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="truncate">{lang === "gu" ? "સેટિંગ્સ" : "Settings"}</span>
@@ -807,7 +792,7 @@ function AstroHeaderInner({
                       setMobileMenuOpen(false)
                       handleLogout()
                     }}
-                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#1a1c18] text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors gap-2 text-left cursor-pointer"
+                    className="flex items-center p-2 rounded-lg bg-card dark:bg-[#0d3833] text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors gap-2 text-left cursor-pointer"
                   >
                     <LogOut className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{lang === "gu" ? "લૉગ આઉટ" : "Sign Out"}</span>
@@ -827,7 +812,7 @@ function AstroHeaderInner({
                 <Link
                   href="/myshop"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#20211d] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
+                  className="flex items-center justify-center p-2.5 rounded-xl bg-muted/40 dark:bg-[#0f3c36] border border-border/50 text-xs font-bold text-foreground hover:bg-muted transition-colors gap-2 cursor-pointer"
                 >
                   <ShoppingBag className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
                   <span>{lang === "gu" ? "સ્ટોર" : "Store"}</span>
@@ -850,7 +835,7 @@ function AstroHeaderInner({
 
                 if (hasSub) {
                   return (
-                    <div key={item.id} className="rounded-xl overflow-hidden border border-border/50 bg-muted/20 dark:bg-[#1a1c18]/60 transition-all">
+                    <div key={item.id} className="rounded-xl overflow-hidden border border-border/50 bg-muted/20 dark:bg-[#0d3833]/60 transition-all">
                       <button
                         type="button"
                         onClick={() => toggleExpand(item.id)}
@@ -867,7 +852,19 @@ function AstroHeaderInner({
                       </button>
 
                       {isExpanded && (
-                        <div className="px-2 pb-2 pt-1 border-t border-border/40 bg-background/60 dark:bg-black space-y-1">
+                        <div className="px-2 pb-2 pt-1 border-t border-border/40 bg-background/60 dark:bg-[#0c3530] space-y-1">
+                          {item.id !== "more" && (
+                            <Link
+                              href={getItemHref(item.id)}
+                              onClick={() => {
+                                if (onSelectCategory) onSelectCategory(item.id)
+                                setMobileMenuOpen(false)
+                              }}
+                              className="w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer"
+                            >
+                              <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
+                            </Link>
+                          )}
                           {subItems.map((sub, idx) => (
                             <Link
                               key={idx}
@@ -878,20 +875,6 @@ function AstroHeaderInner({
                               <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
                             </Link>
                           ))}
-                          {item.id !== "more" && (
-                            <Link
-                              href={getItemHref(item.id)}
-                              onClick={() => {
-                                if (onSelectCategory) onSelectCategory(item.id)
-                                setMobileMenuOpen(false)
-                              }}
-                              aria-label={`${lang === "gu" ? "બધા લેખો જુઓ:" : "View All Articles in"} ${item.label}`}
-                              className="w-full text-left py-2 px-2.5 rounded-lg text-xs font-bold text-[#00685d] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer border-t border-border/30 mt-1"
-                            >
-                              <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
-                              <ChevronRight className="h-3.5 w-3.5" />
-                            </Link>
-                          )}
                         </div>
                       )}
                     </div>
@@ -909,7 +892,7 @@ function AstroHeaderInner({
                     }}
                     className={`w-full text-left py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer min-h-[42px] ${isActive
                       ? "bg-[#fdc72d] text-[#0e3934] shadow-xs"
-                      : "hover:bg-muted dark:hover:bg-[#252822] text-foreground border border-border/30"
+                      : "hover:bg-muted dark:hover:bg-[#103d37] text-foreground border border-border/30"
                       }`}
                   >
                     <span className="flex items-center gap-2">
@@ -927,16 +910,23 @@ function AstroHeaderInner({
           </div>
 
           {/* 3. Drawer Footer: Consultation & WhatsApp Action */}
-          <SheetFooter className="p-4 pb-8 sm:pb-6 pb-safe-generous border-t border-border/70 bg-muted/20 dark:bg-black space-y-2.5 shrink-0">
+          <SheetFooter className="p-4 pb-8 sm:pb-6 pb-safe-generous border-t border-border/70 bg-muted/20 dark:bg-[#0c3530] space-y-2.5 shrink-0">
             <button
               type="button"
               className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold h-10 rounded-lg text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
               onClick={() => {
                 setMobileMenuOpen(false)
-                router.push("/appointment")
+                window.open(
+                  getWhatsAppUrl(
+                    lang === "gu"
+                      ? "જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો."
+                      : "Hello, I would like to book an astrology consultation."
+                  ),
+                  "_blank"
+                )
               }}
             >
-              <Calendar className="h-4 w-4" />
+              <MessageSquare className="h-4 w-4" />
               <span>{topBar?.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
             </button>
 

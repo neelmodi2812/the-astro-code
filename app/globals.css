@@ -119,6 +119,8 @@
   }
 
   html {
+    overflow-x: clip;
+    max-width: 100vw;
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
@@ -129,6 +131,8 @@
   }
 
   body {
+    overflow-x: clip;
+    max-width: 100vw;
     @apply bg-background text-foreground font-sans;
     font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Anek Gujarati', var(--font-geist-sans), 'Geist', 'Gujarati Sangam MN', 'Shruti', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.6;

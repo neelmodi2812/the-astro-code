@@ -2,21 +2,17 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
   Lock,
   Sparkles,
-  BookOpen,
-  Sun,
-  Truck,
   Mail,
   Eye,
   EyeOff,
   ArrowRight,
-  UserPlus,
-  KeyRound,
   AlertCircle,
+  Check,
   Loader2,
 } from "lucide-react"
 
@@ -29,7 +25,6 @@ import { authService } from "@/lib/api"
 import { getLoginSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Breadcrumb,
@@ -37,38 +32,32 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
 export default function LoginClient() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { lang, setLang } = useLanguage()
   const siteData = useHomeData(lang)
   const data = LOGIN_DATA
-
-  const redirectParam = searchParams.get("redirect") || searchParams.get("next")
-  const targetRedirect = redirectParam || "/dashboard"
-  const registerHref = redirectParam ? `/register?redirect=${encodeURIComponent(redirectParam)}` : "/register"
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [errors, setErrors] = React.useState({})
   const [authError, setAuthError] = React.useState("")
 
-  // Email & Password
+  // Form fields
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   const [rememberSession, setRememberSession] = React.useState(true)
 
-  // Form submit: Password Mode with Zod Validation
   const handlePasswordSubmit = async (e) => {
     e.preventDefault()
     setErrors({})
     setAuthError("")
 
     const schema = getLoginSchema(lang)
-    const result = schema.safeParse({ email: email.trim(), password })
+    const result = schema.safeParse({ email, password })
 
     if (!result.success) {
       const fieldErrors = {}
@@ -79,24 +68,18 @@ export default function LoginClient() {
         }
       })
       setErrors(fieldErrors)
-      const firstErr = Object.values(fieldErrors)[0]
-      if (firstErr) {
-        setAuthError(firstErr)
-        toast.error(firstErr)
-      }
       return
     }
 
     setIsSubmitting(true)
     try {
-      const user = await authService.login({ email: email.trim(), password }, lang)
-      const userName = user?.name ? ` ${user.name}` : ""
+      await authService.login({ email: email.trim(), password })
       toast.success(
         lang === "gu"
-          ? `આપનું સ્વાગત છે${userName}! લૉગિન સફળ થયું છે.`
-          : `Welcome back${userName}! You have logged in successfully.`
+          ? "સ્વાગત છે! લૉગિન સફળ થયું."
+          : "Welcome back! Login successful."
       )
-      router.push(targetRedirect)
+      router.push("/myshop")
     } catch (error) {
       if (error?.errors) {
         const apiErrors = {}
@@ -106,21 +89,16 @@ export default function LoginClient() {
         setErrors(apiErrors)
       }
       const message =
-        lang === "gu" && (error?.status === 401 || error?.message?.toLowerCase().includes("invalid"))
-          ? "અમાન્ય ઈમેલ અથવા પાસવર્ડ. કૃપા કરીને ફરી ચકાસો."
-          : (error?.message ||
-             (lang === "gu"
-               ? "લૉગિન કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો."
-               : "Invalid email or password."))
+        error?.message ||
+        (lang === "gu" ? "અમાન્ય ઈમેલ અથવા પાસવર્ડ." : "Invalid email or password.")
       setAuthError(message)
-      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-[#faf8f5] dark:bg-[#071d1a] text-foreground">
       {/* 1. Global Astro Header */}
       <AstroHeader
         categories={siteData.categories}
@@ -141,21 +119,20 @@ export default function LoginClient() {
       />
 
       {/* 2. Main Authentication Content */}
-      <main className="flex-1 w-full bg-background pt-4 pb-16">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Top Bar: Clean Breadcrumb Navigation (SSL badge removed as requested) */}
-          <div className="py-2.5 flex items-center justify-between border-b border-border/50">
+      <main className="flex-1 w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4 sm:px-6">
+        <div className="w-full max-w-4xl">
+          {/* Subtle Clean Breadcrumb */}
+          <div className="mb-4 px-2">
             <Breadcrumb>
-              <BreadcrumbList className="text-xs">
+              <BreadcrumbList className="text-xs text-muted-foreground">
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/" className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors">
+                  <BreadcrumbLink href="/" className="hover:text-foreground transition-colors">
                     {data.breadcrumb.home[lang]}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="font-bold text-[#8a6800] dark:text-[#fdc72d]">
+                  <BreadcrumbPage className="font-semibold text-foreground">
                     {data.breadcrumb.login[lang]}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
@@ -163,271 +140,226 @@ export default function LoginClient() {
             </Breadcrumb>
           </div>
 
-          {/* Main Dual-Column Authentication Canvas */}
-          <div className="mt-5 rounded-2xl shadow-lg border border-border/80 bg-card overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
+          {/* Luxury Compact Authentication Card */}
+          <div className="rounded-3xl border border-border/70 shadow-2xl shadow-emerald-950/10 bg-card overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch min-h-[460px]">
               
-              {/* ======================================================== */}
-              {/* LEFT COLUMN: ELEGANT UNCLUTTERED CARD WITH VEDIC BG IMAGE */}
-              {/* ======================================================== */}
-              <div className="lg:col-span-5 relative p-6 sm:p-10 flex flex-col justify-between overflow-hidden bg-[#151613] text-white min-h-[460px]">
-                {/* Background Image: Glowing Sri Yantra Cosmos */}
+              {/* LEFT COLUMN: Clean Vedic Visual Anchor (42%) */}
+              <div className="lg:col-span-5 relative p-8 sm:p-10 flex flex-col justify-between overflow-hidden bg-gradient-to-br from-[#062823] via-[#09352f] to-[#041a17] text-white">
+                {/* Background sacred mandala glow */}
                 <div
-                  className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 pointer-events-none transition-transform duration-700"
+                  className="absolute inset-0 bg-cover bg-center opacity-25 mix-blend-luminosity scale-110 pointer-events-none"
                   style={{ backgroundImage: "url('/vedic-login-bg.jpg')" }}
                 />
-                
-                {/* Elegant dark gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#151613] via-[#151613]/70 to-[#151613]/40 pointer-events-none" />
-                <div className="absolute inset-0 bg-radial from-transparent to-[#151613]/80 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#041a17] via-transparent to-transparent pointer-events-none" />
 
-                {/* Top Content Block: Clean, small, uncluttered information */}
-                <div className="relative z-10 space-y-5">
-                  {/* Sacred Pill Tag */}
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdc72d]/15 backdrop-blur-md text-[#fdc72d] border border-[#fdc72d]/30 text-xs font-bold shadow-xs">
-                    <Sparkles className="h-3.5 w-3.5 text-[#fdc72d]" />
-                    <span className="tracking-wide">{data.leftColumn.pillTag[lang]}</span>
+                {/* Top: Sacred Brand & Quote */}
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-sm">
+                      <Sparkles className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-extrabold tracking-tight text-white leading-none">
+                        {data.leftColumn.portalName[lang]}
+                      </h2>
+                      <p className="text-[11px] text-amber-300/80 font-medium tracking-wide mt-1">
+                        {data.leftColumn.portalTagline[lang]}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-tight">
-                      {data.leftColumn.title[lang]}
-                    </h1>
-                    <p className="mt-2 text-xs sm:text-sm text-white/80 leading-relaxed font-medium">
-                      {data.leftColumn.subtitle[lang]}
+                  <div className="pt-2">
+                    <div className="text-lg sm:text-xl font-bold text-amber-400 tracking-wide">
+                      {data.leftColumn.shloka[lang]}
+                    </div>
+                    <p className="text-xs text-white/70 font-normal mt-1 leading-relaxed">
+                      {data.leftColumn.shlokaMeaning[lang]}
                     </p>
                   </div>
 
-                  {/* 3 Compact, High-Impact Benefits */}
-                  <div className="space-y-3 pt-2">
-                    {data.leftColumn.benefits.map((benefit) => {
-                      const IconComponent =
-                        benefit.icon === "BookOpen"
-                          ? BookOpen
-                          : benefit.icon === "Sun"
-                          ? Sun
-                          : Truck
-
-                      return (
-                        <div
-                          key={benefit.id}
-                          className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-xs transition-colors"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-[#fdc72d]/20 text-[#fdc72d] flex items-center justify-center shrink-0 shadow-2xs">
-                            <IconComponent className="h-4 w-4" />
-                          </div>
-                          <span className="text-xs sm:text-sm font-bold text-white/95">
-                            {benefit.title[lang]}
-                          </span>
+                  {/* 3 Sleek, Minimal Benefits */}
+                  <div className="space-y-2.5 pt-4">
+                    {data.leftColumn.highlights.map((item) => (
+                      <div key={item.id} className="flex items-center gap-2.5 text-xs sm:text-[13px] text-white/90 font-medium">
+                        <div className="w-4 h-4 rounded-full bg-emerald-500/25 flex items-center justify-center shrink-0">
+                          <Check className="w-2.5 h-2.5 text-amber-400 stroke-[3]" />
                         </div>
-                      )
-                    })}
+                        <span>{item[lang]}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Bottom Trust Badge: Minimal, beautiful, uncluttered */}
-                <div className="relative z-10 pt-6 mt-4 border-t border-white/15">
-                  <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs text-white/90 backdrop-blur-md">
-                    <span className="font-black text-[#fdc72d]">
-                      {lang === "gu" ? data.leftColumn.trustBadge.rating : data.leftColumn.trustBadge.ratingEn}
-                    </span>
-                    <span className="text-white/40">•</span>
-                    <span className="font-medium text-xs sm:text-xs">
-                      {data.leftColumn.trustBadge.text[lang]}
-                    </span>
+                {/* Bottom: Minimal Trust Badge */}
+                <div className="relative z-10 pt-6 mt-6 border-t border-white/10">
+                  <div className="inline-flex items-center gap-2 text-xs text-white/80 font-medium">
+                    <span className="text-amber-400 font-bold">★ ૫.૦</span>
+                    <span className="text-white/30">•</span>
+                    <span>{data.leftColumn.trustBadge.text[lang]}</span>
                   </div>
                 </div>
               </div>
 
-              {/* ======================================================== */}
-              {/* RIGHT COLUMN: INTERACTIVE AUTHENTICATION MODULE (55%)     */}
-              {/* ======================================================== */}
-              <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between bg-card">
-                <div className="space-y-6">
+              {/* RIGHT COLUMN: Clean, Elegant, Minimal Login Form (58%) */}
+              <div className="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-center bg-white dark:bg-[#0c2e2a]">
+                <div className="max-w-md w-full mx-auto space-y-6">
                   
-                  {/* Sacred Vedic Inscription & Title (100% Secure badge removed as requested) */}
+                  {/* Title & Sacred Pill */}
                   <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold tracking-widest text-[#8a6800] dark:text-[#fdc72d] flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5 text-[#8a6800] dark:text-[#fdc72d]" />
-                        {data.rightColumn.divineGreeting[lang]}
-                      </span>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-bold mb-2.5">
+                      <Sparkles className="h-3 w-3 text-amber-500" />
+                      <span>{data.rightColumn.welcomeBadge[lang]}</span>
                     </div>
 
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mt-2 leading-tight">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                       {data.rightColumn.heading[lang]}
-                    </h2>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                      {data.rightColumn.subheading[lang]}
-                    </p>
+                    </h1>
 
                     {authError && (
                       <div
                         role="alert"
-                        className="mt-3.5 p-3 rounded-xl bg-destructive/10 border border-destructive/25 text-destructive flex items-center gap-2.5 animate-in fade-in-50 duration-200"
+                        className="mt-3.5 p-3 rounded-xl bg-destructive/10 border border-destructive/25 text-destructive flex items-center gap-2.5 text-xs sm:text-sm font-semibold"
                       >
                         <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
-                        <span className="text-xs sm:text-sm font-semibold leading-relaxed">
-                          {authError}
-                        </span>
+                        <span>{authError}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Email & password sign-in */}
-                    <form onSubmit={handlePasswordSubmit} className="space-y-4 animate-in fade-in-50 duration-200">
-                      
-                      {/* Email Input */}
-                      <div className="space-y-1.5">
-                        <label htmlFor="user-email" className="block text-xs font-bold text-foreground">
-                          {data.rightColumn.pwdForm.emailLabel[lang]} <span className="text-destructive">*</span>
-                        </label>
-                        <div className="relative">
-                          <Mail className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            id="user-email"
-                            type="email"
-                            value={email}
-                            disabled={isSubmitting}
-                            aria-invalid={Boolean(errors.email)}
-                            onChange={(e) => {
-                              setEmail(e.target.value)
-                              if (authError) setAuthError("")
-                              if (errors.email) setErrors((prev) => ({ ...prev, email: "" }))
-                            }}
-                            placeholder={data.rightColumn.pwdForm.emailPlaceholder[lang]}
-                            className={`pl-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
-                              errors.email ? "border-destructive ring-1 ring-destructive" : ""
-                            }`}
-                          />
-                        </div>
-                        {errors.email && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1 mt-1">
-                            <AlertCircle className="h-3 w-3 shrink-0" />
-                            <span>{errors.email}</span>
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Password Input */}
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <label htmlFor="user-password" className="text-xs font-bold text-foreground">
-                            {data.rightColumn.pwdForm.passwordLabel[lang]} <span className="text-destructive">*</span>
-                          </label>
-                          <Link
-                            href="/forgot-password"
-                            className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:underline cursor-pointer"
-                          >
-                            {data.rightColumn.pwdForm.forgotPassword[lang]}
-                          </Link>
-                        </div>
-                        <div className="relative">
-                          <Lock className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            id="user-password"
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            disabled={isSubmitting}
-                            aria-invalid={Boolean(errors.password)}
-                            onChange={(e) => {
-                              setPassword(e.target.value)
-                              if (authError) setAuthError("")
-                              if (errors.password) setErrors((prev) => ({ ...prev, password: "" }))
-                            }}
-                            placeholder={data.rightColumn.pwdForm.passwordPlaceholder[lang]}
-                            className={`pl-10 pr-10 h-11 text-xs sm:text-sm rounded-xl focus-visible:ring-[#fdc72d] ${
-                              errors.password ? "border-destructive ring-1 ring-destructive" : ""
-                            }`}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                            title={showPassword ? "Hide password" : "Show password"}
-                          >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                        {errors.password && (
-                          <p className="text-[11px] text-destructive font-medium flex items-center gap-1 mt-1">
-                            <AlertCircle className="h-3 w-3 shrink-0" />
-                            <span>{errors.password}</span>
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Remember Checkbox */}
-                      <div className="flex items-center gap-2 text-xs">
-                        <Checkbox
-                          id="remember-session"
-                          checked={rememberSession}
-                          disabled={isSubmitting}
-                          onCheckedChange={setRememberSession}
-                          className="data-[state=checked]:bg-[#fdc72d] data-[state=checked]:text-[#0e3934] data-[state=checked]:border-[#fdc72d]"
+                  {/* Sign-in Form */}
+                  <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                    
+                    {/* Email Input */}
+                    <div className="space-y-1.5">
+                      <label htmlFor="user-email" className="block text-xs font-bold text-foreground">
+                        {data.rightColumn.emailLabel[lang]}
+                      </label>
+                      <div className="relative">
+                        <Mail className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="user-email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => {
+                            setEmail(e.target.value)
+                            if (authError) setAuthError("")
+                            if (errors.email) setErrors((prev) => ({ ...prev, email: "" }))
+                          }}
+                          placeholder={data.rightColumn.emailPlaceholder[lang]}
+                          className={`pl-10 h-11 text-xs sm:text-sm rounded-xl bg-muted/20 border-border/80 focus-visible:ring-[#00685d] ${
+                            errors.email ? "border-destructive ring-1 ring-destructive" : ""
+                          }`}
                         />
-                        <label htmlFor="remember-session" className="text-foreground font-medium cursor-pointer">
-                          {data.rightColumn.pwdForm.rememberSession[lang]}
-                        </label>
                       </div>
-
-                      {/* Submit via Email */}
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-3.5 h-12 rounded-xl bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="size-5 animate-spin" data-icon="inline-start" />
-                            <span>{lang === "gu" ? "લૉગિન થઈ રહ્યું છે..." : "Signing in..."}</span>
-                          </>
-                        ) : (
-                          <>
-                            <KeyRound className="size-5 text-[#0e3934]" data-icon="inline-start" />
-                            <span>{data.rightColumn.pwdForm.submitButton[lang]}</span>
-                            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" data-icon="inline-end" />
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                </div>
-
-                {/* New Registration Callout Banner at Bottom */}
-                <div className="mt-8 pt-5 bg-muted/40 dark:bg-[#151613] -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/70">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#fdc72d]/20 text-[#8a6800] dark:text-[#fdc72d] flex items-center justify-center shrink-0">
-                      <UserPlus className="h-5 w-5" />
+                      {errors.email && (
+                        <p className="text-[11px] text-destructive font-medium flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-3 w-3 shrink-0" />
+                          <span>{errors.email}</span>
+                        </p>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">
-                        {data.rightColumn.registerCallout.title[lang]}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {data.rightColumn.registerCallout.desc[lang]}
-                      </p>
+
+                    {/* Password Input */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="user-password" className="text-xs font-bold text-foreground">
+                          {data.rightColumn.passwordLabel[lang]}
+                        </label>
+                        <Link
+                          href="/forgot-password"
+                          className="text-xs font-semibold text-[#00685d] dark:text-amber-400 hover:underline cursor-pointer"
+                        >
+                          {data.rightColumn.forgotPassword[lang]}
+                        </Link>
+                      </div>
+                      <div className="relative">
+                        <Lock className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="user-password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value)
+                            if (authError) setAuthError("")
+                            if (errors.password) setErrors((prev) => ({ ...prev, password: "" }))
+                          }}
+                          placeholder={data.rightColumn.passwordPlaceholder[lang]}
+                          className={`pl-10 pr-10 h-11 text-xs sm:text-sm rounded-xl bg-muted/20 border-border/80 focus-visible:ring-[#00685d] ${
+                            errors.password ? "border-destructive ring-1 ring-destructive" : ""
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                          title={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {errors.password && (
+                        <p className="text-[11px] text-destructive font-medium flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-3 w-3 shrink-0" />
+                          <span>{errors.password}</span>
+                        </p>
+                      )}
                     </div>
+
+                    {/* Remember Me Checkbox */}
+                    <div className="flex items-center gap-2 pt-1 text-xs">
+                      <Checkbox
+                        id="remember-session"
+                        checked={rememberSession}
+                        onCheckedChange={setRememberSession}
+                        className="data-[state=checked]:bg-[#00685d] data-[state=checked]:text-white data-[state=checked]:border-[#00685d]"
+                      />
+                      <label htmlFor="remember-session" className="text-muted-foreground hover:text-foreground font-medium cursor-pointer select-none">
+                        {data.rightColumn.rememberSession[lang]}
+                      </label>
+                    </div>
+
+                    {/* Submit Button */}
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full h-11 mt-2 rounded-xl bg-gradient-to-r from-[#00685d] to-[#004e46] hover:from-[#005a50] hover:to-[#00423a] text-white font-bold text-sm shadow-md shadow-[#00685d]/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>{lang === "gu" ? "પ્રક્રિયા ચાલુ છે..." : "Signing in..."}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{data.rightColumn.submitButton[lang]}</span>
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+
+                  {/* Clean, Subtle Registration Footer Link */}
+                  <div className="pt-4 border-t border-border/50 text-center text-xs text-muted-foreground">
+                    <span>{data.rightColumn.noAccount[lang]} </span>
+                    <Link
+                      href="/register"
+                      className="font-bold text-[#00685d] dark:text-amber-400 hover:underline cursor-pointer"
+                    >
+                      {data.rightColumn.createAccount[lang]} →
+                    </Link>
                   </div>
 
-                  <Link
-                    href={registerHref}
-                    className="shrink-0 px-4 py-2 rounded-lg bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <span>{data.rightColumn.registerCallout.cta[lang]}</span>
-                    <ArrowRight className="size-3.5" data-icon="inline-end" />
-                  </Link>
                 </div>
               </div>
+
             </div>
           </div>
-
-          
-
         </div>
       </main>
 
-      {/* 5. Global Astro Footer */}
-      <AstroFooter config={siteData.config} footer={siteData.footer} lang={lang} />
+      {/* 3. Global Astro Footer */}
+      <AstroFooter lang={lang} />
     </div>
   )
 }

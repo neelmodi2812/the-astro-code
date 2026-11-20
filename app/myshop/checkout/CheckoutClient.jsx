@@ -49,7 +49,7 @@ import { toast } from "@/components/ui/sonner"
 import SafeImage from "@/components/ui/safe-image"
 import { shopService } from "@/lib/api"
 import { userStore } from "@/lib/api/token-store"
-import { StripePaymentForm } from "@/components/stripe-payment-form"
+import { RazorpayPaymentForm } from "@/components/razorpay-payment-form"
 import { loadLiveCatalog } from "@/lib/api/hooks/use-shop-data"
 import { useLanguage } from "@/components/language-provider"
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
@@ -306,8 +306,15 @@ export default function CheckoutClient() {
         try {
           const payment = await shopService.startPayment(res.data.order_number, checkoutForm.phone.trim())
           setPaymentSession({
-            clientSecret: payment.data.client_secret,
-            publishableKey: payment.data.publishable_key,
+            gateway: payment.data?.gateway,
+            razorpayOrderId: payment.data?.razorpay_order_id,
+            keyId: payment.data?.key_id,
+            amount: payment.data?.amount,
+            currency: payment.data?.currency,
+            orderNumber: payment.data?.order_number,
+            customerName: payment.data?.customer_name,
+            customerPhone: payment.data?.customer_phone,
+            customerEmail: payment.data?.customer_email,
           })
         } catch (paymentError) {
           toast.error(paymentError.message)
@@ -510,9 +517,15 @@ export default function CheckoutClient() {
                       {currentLang === "gu" ? `ઓર્ડર નંબર: ${orderId}` : `Order ID: ${orderId}`}
                     </p>
                   </div>
-                  <StripePaymentForm
-                    clientSecret={paymentSession.clientSecret}
-                    publishableKey={paymentSession.publishableKey}
+                  <RazorpayPaymentForm
+                    razorpayOrderId={paymentSession.razorpayOrderId}
+                    keyId={paymentSession.keyId}
+                    amount={paymentSession.amount}
+                    currency={paymentSession.currency}
+                    orderNumber={paymentSession.orderNumber}
+                    customerName={paymentSession.customerName}
+                    customerPhone={paymentSession.customerPhone}
+                    customerEmail={paymentSession.customerEmail}
                     amountLabel={formatPrice(placedTotal)}
                     lang={currentLang}
                     onPaid={() => setPaymentSession(null)}
