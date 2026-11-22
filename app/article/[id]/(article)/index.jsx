@@ -222,12 +222,23 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   // Determine current active navigation category based on article data
   const currentCategoryNavId = React.useMemo(() => {
     // The live article carries its category slug, which is also the nav item id.
-    if (article?.categorySlug) return article.categorySlug
+    if (article?.categorySlug) {
+      return article.categorySlug === "jyotirlinga" ? "jyotirling" : article.categorySlug
+    }
 
     const rawId = String(articleId || "").toLowerCase()
     const rawSlug = String(article?.slug || "").toLowerCase()
     const catGu = String(article?.category?.gu || "").toLowerCase()
     const catEn = String(article?.category?.en || "").toLowerCase()
+
+    if (
+      rawSlug.includes("bahuchar") ||
+      catGu.includes("બહુચર") ||
+      catEn.includes("bahuchar") ||
+      rawSlug.includes("anand-no-garbo")
+    ) {
+      return "bahuchar-maa-nu-rajwadu"
+    }
 
     if (
       rawId.startsWith("jyotirling") ||
@@ -242,13 +253,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     }
 
     if (
-      rawId.startsWith("feat") ||
-      rawSlug.includes("anand-no-garbo") ||
-      rawSlug.includes("bhakto") ||
-      catGu.includes("ધાર્મિક") ||
-      catEn.includes("dharmik")
+      rawSlug.includes("navdurga") ||
+      catGu.includes("નવદુર્ગા") ||
+      catEn.includes("navdurga")
     ) {
-      return "dharmik"
+      return "navdurga"
     }
 
     if (
@@ -269,7 +278,24 @@ function ArticleDetailContent({ initialId, initialArticle }) {
       return "ankashastra"
     }
 
-    return "bahuchar-maa-rajwadu"
+    if (
+      rawSlug.includes("preranatmak") ||
+      catGu.includes("પ્રેરણાત્મક") ||
+      catEn.includes("motivational")
+    ) {
+      return "preranatmak"
+    }
+
+    if (
+      rawId.startsWith("feat") ||
+      rawSlug.includes("bhakto") ||
+      catGu.includes("ધાર્મિક") ||
+      catEn.includes("dharmik")
+    ) {
+      return "dharmik"
+    }
+
+    return "dharmik"
   }, [articleId, article])
 
   return (
