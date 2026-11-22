@@ -110,16 +110,15 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
             {/* The 2 Primary Clean Action Buttons (No Duplicate Tags Underneath) */}
             <div className="flex flex-wrap items-center gap-3.5 pt-1">
               {/* Primary Consultation Action Button */}
-              <button
-                type="button"
-                onClick={handleConsultation}
+              <Link
+                href="/appointment"
                 className="relative group overflow-hidden inline-flex items-center justify-center gap-2.5 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-black text-sm sm:text-base px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-[0_6px_20px_rgba(253,199,45,0.28)] active:scale-95 transition-all cursor-pointer border border-[#e5b220]"
               >
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-[#0e3934]" />
                 <span>{t.consultCta}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 <span className="absolute top-0 -left-[100%] w-full h-full bg-white/35 skew-x-12 group-hover:left-[100%] transition-all duration-700 pointer-events-none" />
-              </button>
+              </Link>
 
               {/* Secondary Kundali Analysis Action Button */}
               <Link
@@ -171,15 +170,14 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
                 )}
               </div>
 
-              {/* Direct WhatsApp Consultation Action */}
-              <button
-                type="button"
-                onClick={handleConsultation}
+              {/* Direct Consultation Action */}
+              <Link
+                href="/appointment"
                 className="shrink-0 inline-flex items-center gap-1.5 bg-[#00685d] hover:bg-[#005048] text-white font-black text-xs px-3.5 py-2 rounded-lg shadow-xs transition-all cursor-pointer active:scale-95"
               >
                 <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" />
                 <span>{isEn ? "Consult" : "પરામર્શ"}</span>
-              </button>
+              </Link>
             </div>
           </div>
 

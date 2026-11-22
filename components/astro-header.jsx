@@ -347,23 +347,13 @@ export function AstroHeader({
             {/* Right: Book Consultation, Cart, Profile, Language & Theme */}
             <div className="flex items-center gap-2 sm:gap-2.5 xl:gap-3 shrink-0">
               {/* Book Consultation Button (Desktop Only: md+) */}
-              <Button
-                size="sm"
-                className="hidden md:inline-flex bg-gradient-to-r from-[#00685d] to-[#004f47] hover:from-[#00574e] hover:to-[#00423b] text-white font-extrabold shadow-sm shadow-[#00685d]/20 hover:shadow-md transition-all cursor-pointer h-10 px-4 sm:px-5 rounded-full shrink-0 whitespace-nowrap items-center justify-center border border-[#007a6d]/30 group"
-                onClick={() => {
-                  window.open(
-                    getWhatsAppUrl(
-                      lang === 'gu'
-                        ? 'જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો.'
-                        : 'Hello, I would like to book an astrology consultation.'
-                    ),
-                    "_blank"
-                  )
-                }}
+              <Link
+                href="/appointment"
+                className="hidden md:inline-flex bg-gradient-to-r from-[#00685d] to-[#004f47] hover:from-[#00574e] hover:to-[#00423b] text-white font-extrabold shadow-sm shadow-[#00685d]/20 hover:shadow-md transition-all cursor-pointer h-10 px-4 sm:px-5 rounded-full shrink-0 whitespace-nowrap items-center justify-center border border-[#007a6d]/30 group text-xs sm:text-sm"
               >
                 <MessageSquare className="h-4 w-4 mr-1.5 text-amber-300 group-hover:scale-110 transition-transform" />
-                <span>{topBar.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
-              </Button>
+                <span>{topBar?.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
+              </Link>
 
               {/* Shopping Cart Bag (Desktop Only: md+) */}
               <div className="hidden md:flex">
@@ -953,24 +943,14 @@ export function AstroHeader({
 
           {/* 3. Drawer Footer: Consultation & WhatsApp Action */}
           <SheetFooter className="p-4 pb-8 sm:pb-6 pb-safe-generous border-t border-border/70 bg-muted/20 dark:bg-[#0c3530] space-y-2.5 shrink-0">
-            <button
-              type="button"
+            <Link
+              href="/appointment"
+              onClick={() => setMobileMenuOpen(false)}
               className="w-full bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-extrabold h-10 rounded-lg text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
-              onClick={() => {
-                setMobileMenuOpen(false)
-                window.open(
-                  getWhatsAppUrl(
-                    lang === "gu"
-                      ? "જય શ્રી કૃષ્ણ, મને જ્યોતિષ પરામર્શ માટે સમય આપશો."
-                      : "Hello, I would like to book an astrology consultation."
-                  ),
-                  "_blank"
-                )
-              }}
             >
               <MessageSquare className="h-4 w-4" />
               <span>{topBar?.bookConsultation || (lang === "gu" ? "પરામર્શ બુક કરો" : "Book Consultation")}</span>
-            </button>
+            </Link>
 
             <Separator className="my-1.5 bg-border/60" />
 

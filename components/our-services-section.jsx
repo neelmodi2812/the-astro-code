@@ -254,7 +254,7 @@ export function OurServicesSection({ servicesSection = {}, lang = "gu" }) {
               </a>
 
               <Link
-                href="/dashboard/consultations"
+                href="/appointment"
                 className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-xl border border-white/25 transition-all text-center"
               >
                 <Calendar className="h-4 w-4" />
