@@ -1057,7 +1057,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="relative flex items-center gap-3 p-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div className="relative size-12 rounded-full ring-2 ring-[#fdc72d] shadow-sm shrink-0 overflow-hidden bg-white/10">
                   <Image
-                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com")) ? "/images/author-dr-vishal-modi.jpg" : data.config.founder.image}
+                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com") || data.config.founder.image.includes("googleusercontent.com")) ? "/images/author-dr-vishal-modi.jpg" : data.config.founder.image}
                     alt="Dr. Vishal Modi"
                     width={48}
                     height={48}

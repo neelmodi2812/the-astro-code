@@ -132,7 +132,7 @@ export function AstroSidebar({
         <div className="flex items-center gap-3.5 mb-3.5">
           <Avatar className="size-14 border-2 border-[#fdc72d] shadow-sm shrink-0 overflow-hidden relative">
             <Image
-              src={(!founder?.image || founder.image.includes("unsplash.com")) ? "/images/author-dr-vishal-modi.jpg" : founder.image}
+              src={(!founder?.image || founder.image.includes("unsplash.com") || founder.image.includes("googleusercontent.com")) ? "/images/author-dr-vishal-modi.jpg" : founder.image}
               alt=""
               width={112}
               height={112}

@@ -12,8 +12,9 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
   const isEn = lang === "en"
 
   const founderImage =
-    founder?.image ||
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuBZFBXexCd0t6yOz7CMbXbM6FnzEAd207Dy7jPa_kJvzRXjiigq5gHQUQdqToeXFlFI1deo_Ab4OVv2fNPBiBiAYTfDte0SilYEqr1arECX02LB3fnkH_gfCsLJ3BK2H9bZBAgugnR5nqVAA9QuPEOzVhbo6lbXYh3iSNON0FMQWcAV3XH-2NpDnao1PPZqsTYeul4tflFK62pT3AksEJEmjqPmOir_HhqtcbLsuXkRwlmuirfcUmgf"
+    (founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com"))
+      ? founder.image
+      : "/images/dr-vishal-modi-blue-kurta.jpg"
 
   const founderName = founder?.name || (isEn ? "Dr. Vishal Modi (Ph.D.)" : "ડૉ. વિશાલ મોદી (Ph.D.)")
 
