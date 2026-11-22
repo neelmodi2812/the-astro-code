@@ -25,7 +25,6 @@ export function EditorialContent({
   lang = "gu",
 }) {
   const showFeaturedSkeleton = isLoading || !featuredArticles || featuredArticles.length === 0
-  const showJyotirlingaSkeleton = isLoading || !jyotirlingas || jyotirlingas.length === 0
   const showAstroSkeleton = isLoading || !astroInsights || astroInsights.length === 0
 
   return (
@@ -129,75 +128,7 @@ export function EditorialContent({
         )}
       </div>
 
-      {/* 2. 12 JYOTIRLINGA SPECIAL SHOWCASE */}
-      <Card className="p-6 sm:p-7 shadow-sm border-border/70 bg-card dark:bg-[#1c1d1a] rounded-xl">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-6 bg-[#fdc72d] rounded-full inline-block" />
-            <h2 className="text-xl sm:text-2xl text-foreground font-bold">
-              {jyotirlingasSection.title || (lang === "gu" ? "ધાર્મિક કથાઓ & બાર જ્યોતિર્લિંગ દર્શન" : "Sacred Stories & 12 Jyotirlinga Darshan")}
-            </h2>
-          </div>
-          <Link
-            href="/categories"
-            className="text-xs sm:text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold hover:underline inline-flex items-center gap-0.5"
-          >
-            {jyotirlingasSection.viewAll || (lang === "gu" ? "બધા જુઓ" : "View All")} <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-          {showJyotirlingaSkeleton ? (
-            // Shadcn Skeleton for 3 Jyotirlinga Cards
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex flex-col space-y-3">
-                <div className="relative h-44 rounded-xl overflow-hidden border border-border/50 bg-muted/40 dark:bg-muted/20">
-                  <Skeleton className="w-full h-full rounded-none" />
-                  <div className="absolute bottom-2 left-2">
-                    <Skeleton className="h-5 w-24 rounded-md bg-[#fdc72d]/40" />
-                  </div>
-                </div>
-                <Skeleton className="h-5 w-4/5 rounded" />
-                <div className="space-y-1.5">
-                  <Skeleton className="h-3.5 w-full rounded" />
-                  <Skeleton className="h-3.5 w-2/3 rounded" />
-                </div>
-              </div>
-            ))
-          ) : (
-            jyotirlingas.map((item) => (
-              <Link
-                key={item.id}
-                href={`/article/${item.id || item.slug || "somnath-mahadev-pratham-jyotirling"}`}
-                className="flex flex-col group cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
-              >
-                <div className="relative h-44 rounded-xl overflow-hidden mb-3 border border-border/50">
-                  <SafeImage
-                    src={item.image}
-                    fallbackSrc={String(item.id || item.slug || "").includes("somnath") ? "/images/somnath-mahadev-temple.jpg" : String(item.id || item.slug || "").includes("mahakal") ? "/images/mahakaleshwar-temple.jpg" : "/images/bahucharaji-temple.jpg"}
-                    alt=""
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 280px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <span className="absolute bottom-2 left-2 bg-[#fdc72d] text-[#0e3934] text-xs px-2.5 py-1 rounded-md font-bold shadow-xs border border-[#eab318] leading-none">
-                    {item.title}
-                  </span>
-                </div>
-
-                <h3 className="text-base font-bold text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] line-clamp-2 leading-snug">
-                  {item.heading}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
-                  {item.summary}
-                </p>
-              </Link>
-            ))
-          )}
-        </div>
-      </Card>
-
-      {/* 3. VEDIC ASTROLOGY & NUMEROLOGY DEEP INSIGHTS */}
+      {/* 2. VEDIC ASTROLOGY & NUMEROLOGY DEEP INSIGHTS */}
       <div className="rounded-xl p-6 sm:p-7 shadow-sm bg-card dark:bg-[#1c1d1a] border-l-4 border-[#fdc72d] border-r border-t border-b border-border/70">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
           <div>
