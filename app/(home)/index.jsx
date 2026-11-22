@@ -84,17 +84,10 @@ export default function HomeClient({ initialFeed = null }) {
     }
     setActiveCategory(catId)
     setActiveFilter(catId === "home" ? null : catId)
-    const matchingCat = data.categories.find((c) => c.id === catId)
-    const label = matchingCat ? matchingCat.label : data.navLinks.find((n) => n.id === catId)?.label || catId
-    toast.info(lang === "gu" ? `વિભાગ પસંદ કર્યો: ${label}` : `Section selected: ${label}`)
   }
 
   const handleSelectFilter = (filterId) => {
     setActiveFilter((prev) => (prev === filterId ? null : filterId))
-    const filter = data.categories.find((c) => c.id === filterId)
-    if (filter) {
-      toast.info(lang === "gu" ? `ફિલ્ટર લાગુ કર્યું: ${filter.label}` : `Filter applied: ${filter.label}`)
-    }
   }
 
   const handleAddToCart = (product) => {
