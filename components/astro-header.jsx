@@ -546,7 +546,7 @@ export function AstroHeader({
             <nav
               ref={navScrollRef}
               aria-label="Main Navigation"
-              className="flex items-center gap-1 lg:gap-1.5 xl:gap-2 overflow-x-auto py-2 xl:py-2.5 pr-8 sm:pr-10 lg:pr-4 scrollbar-none w-full scroll-smooth"
+              className="flex items-center gap-2.5 sm:gap-3.5 md:gap-5 lg:gap-7 xl:gap-9 overflow-x-auto py-2.5 xl:py-3.5 scrollbar-none w-full scroll-smooth"
             >
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
@@ -560,7 +560,7 @@ export function AstroHeader({
                         <button
                           data-nav-id={item.id}
                           type="button"
-                          className={`group px-3 lg:px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
+                          className={`group px-3.5 sm:px-4 lg:px-4.5 xl:px-5 py-2 xl:py-2.5 text-xs sm:text-[13px] lg:text-[13.5px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1.5 lg:gap-2 shrink-0 cursor-pointer ${isActive
                             ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
                             : "text-foreground/80 dark:text-foreground/90 hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:bg-amber-500/10 dark:hover:bg-amber-400/10 data-[state=open]:bg-amber-500/10 dark:data-[state=open]:bg-amber-400/10 data-[state=open]:text-[#00685d] dark:data-[state=open]:text-[#fdc72d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                             }`}
@@ -647,7 +647,7 @@ export function AstroHeader({
                       setOptimisticNavId(item.id)
                       if (onSelectCategory) onSelectCategory(item.id)
                     }}
-                    className={`px-3 lg:px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${isActive
+                    className={`px-3.5 sm:px-4 lg:px-4.5 xl:px-5 py-2 xl:py-2.5 text-xs sm:text-[13px] lg:text-[13.5px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${isActive
                       ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
                       : "text-foreground/80 dark:text-foreground/90 hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:bg-amber-500/10 dark:hover:bg-amber-400/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                       }`}
