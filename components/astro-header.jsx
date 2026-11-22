@@ -238,6 +238,10 @@ export function AstroHeader({
     if (pathname === "/categories" || pathname?.startsWith("/categories")) {
       return "more"
     }
+    if (pathname?.startsWith("/category/")) {
+      const catSlug = pathname.replace("/category/", "").split("/")[0]
+      return catSlug === "jyotirlinga" ? "jyotirling" : catSlug
+    }
 
     // Article detail pages: determine active navigation category from API
     if (pathname?.startsWith("/article/")) {

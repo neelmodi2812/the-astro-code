@@ -139,7 +139,7 @@ export function EditorialContent({
             </h2>
           </div>
           <Link
-            href="/categories?category=jyotirling"
+            href="/category/jyotirling"
             className="text-xs sm:text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold hover:underline inline-flex items-center gap-0.5"
           >
             {jyotirlingasSection.viewAll || (lang === "gu" ? "બધા જુઓ" : "View All")} <ChevronRight className="h-4 w-4" />

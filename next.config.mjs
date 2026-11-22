@@ -60,6 +60,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/category/jyotirlinga',
+        destination: '/category/jyotirling',
+        permanent: true,
+      },
+      {
+        source: '/category/bar-jyotirling',
+        destination: '/category/jyotirling',
+        permanent: true,
+      },
+      {
         source: '/contact',
         destination: '/contact-us',
         permanent: true,
