@@ -358,7 +358,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   <div className="relative">
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
-                        src={article.author.image}
+                        src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com")) ? article.author.image : "/images/author-dr-vishal-modi.jpg"}
                         alt={article.author.name[lang]}
                         className="object-cover"
                       />
@@ -855,7 +855,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
-                  src={article.author.image || "https://dummyjson.com/image/200x100"}
+                  src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com")) ? article.author.image : "/images/author-dr-vishal-modi.jpg"}
                   alt={article.author.name[lang]}
                   fill
                   sizes="96px"

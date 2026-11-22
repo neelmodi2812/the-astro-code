@@ -831,7 +831,7 @@ export default function AppointmentClient() {
                       alt={t.doctor.name}
                       fill
                       sizes="64px"
-                      className="object-cover object-top"
+                      className="object-cover object-center"
                     />
                   </div>
                   <div className="min-w-0 flex-1">

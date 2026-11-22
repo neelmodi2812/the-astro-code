@@ -14,7 +14,7 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
   const founderImage =
     (founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com"))
       ? founder.image
-      : "/images/dr-vishal-modi-blue-kurta.jpg"
+      : "/images/dr-vishal-modi-hero-oval.jpg"
 
   const founderName = founder?.name || (isEn ? "Dr. Vishal Modi (Ph.D.)" : "ડૉ. વિશાલ મોદી (Ph.D.)")
 
@@ -142,30 +142,30 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
             <div className="absolute -top-6 right-0 w-52 h-52 bg-[#fdc72d]/15 dark:bg-[#fdc72d]/8 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-6 left-0 w-52 h-52 bg-[#008376]/12 dark:bg-[#008376]/8 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Founder portrait in the golden-ringed oval */}
-            <div className="relative w-full max-w-[440px] flex items-center justify-center py-2 select-none">
+            {/* Founder portrait in the golden-ringed oval - perfectly centered */}
+            <div className="relative w-full flex items-center justify-center py-2 select-none">
               <div className="relative w-[190px] sm:w-[230px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
                 <img
                   src={founderImage}
                   alt={founderName}
-                  className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                 />
               </div>
             </div>
 
-            {/* Founder spotlight card */}
-            <div className="w-full max-w-[450px] mt-2 rounded-2xl bg-white dark:bg-[#0e3833] border border-[#06302b]/5 dark:border-white/10 p-3 sm:p-3.5 shadow-[0_10px_28px_rgba(6,48,43,0.06)] dark:shadow-[0_10px_28px_rgba(6,48,43,0.3)] flex items-center justify-between gap-3">
+            {/* Founder spotlight card - centered directly under the oval */}
+            <div className="w-full max-w-[340px] sm:max-w-[360px] mx-auto mt-2 rounded-2xl bg-white dark:bg-[#0e3833] border border-[#06302b]/10 dark:border-white/10 p-3 sm:p-3.5 shadow-[0_10px_28px_rgba(6,48,43,0.08)] dark:shadow-[0_10px_28px_rgba(6,48,43,0.3)] flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs sm:text-[13px] font-black text-foreground truncate">
                     {founderName}
                   </span>
-                  <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-black px-1.5 py-0.2 rounded shrink-0">
+                  <span className="bg-[#fdc72d] text-[#0e3934] text-[10px] font-black px-1.5 py-0.5 rounded shrink-0">
                     {t.founderBadge}
                   </span>
                 </div>
                 {founder?.title && (
-                  <p className="text-xs sm:text-xs text-[#00685d] dark:text-[#38b2a3] font-bold truncate">
+                  <p className="text-[11px] sm:text-xs text-[#00685d] dark:text-[#38b2a3] font-bold truncate mt-0.5">
                     {founder.title}
                   </p>
                 )}
