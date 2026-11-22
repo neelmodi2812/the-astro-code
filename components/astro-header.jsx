@@ -329,29 +329,18 @@ export function AstroHeader({
         {/* 1ST LAYER: UNIFIED BRAND, CELESTIAL TIMINGS & UTILITIES ROW */}
         <div className="bg-card dark:bg-[#0c3631] py-2 sm:py-3 border-b border-[#fdc72d]/25 transition-colors w-full">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
-            {/* Left: Brand Identity & Sacred Celestial Status */}
-            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-              <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
-                <div className="size-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-xs ring-2 ring-[#fdc72d] bg-[#fffaf0] flex items-center justify-center p-0.5 shrink-0 transition-transform group-hover:scale-105">
-                  <Image
-                    src={config?.logoUrl || "/logo.svg"}
-                    alt={config?.appName || "The Astro Code"}
-                    width={44}
-                    height={44}
-                    unoptimized
-                    className="w-full h-full object-contain"
-                    priority
-                  />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[17px] sm:text-xl md:text-[22px] font-extrabold text-foreground tracking-tight leading-tight group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors truncate">
-                    {config?.appName || "The Astro Code"}
-                  </div>
-                  <div className="text-[10px] sm:text-xs font-black tracking-wider sm:tracking-widest text-[#8a6800] dark:text-[#fdc72d] mt-0.5 truncate leading-none">
-                    <span className="sm:hidden">UNLOCK HAPPINESS</span>
-                    <span className="hidden sm:inline">{config?.tagline || "UNLOCK HAPPINESS"}</span>
-                  </div>
-                </div>
+            {/* Left: Brand Identity */}
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+              <Link href="/" className="flex items-center group shrink-0" aria-label={config?.appName || "The Astro Code"}>
+                <Image
+                  src={config?.logoUrl || "/logo.png"}
+                  alt={config?.appName || "The Astro Code"}
+                  width={160}
+                  height={56}
+                  unoptimized
+                  className="h-10 sm:h-12 md:h-13 w-auto object-contain transition-transform group-hover:scale-105"
+                  priority
+                />
               </Link>
             </div>
 
@@ -697,25 +686,23 @@ export function AstroHeader({
         >
           {/* 1. Drawer Header */}
           <SheetHeader className="p-4 border-b border-border/70 bg-muted/30 dark:bg-[#0c3530]">
-            <div className="flex items-center gap-2.5 pr-8">
-              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs ring-2 ring-[#fdc72d] bg-[#fffaf0] shrink-0 p-0.5">
+            <div className="flex items-center justify-between pr-8">
+              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center" aria-label={config?.appName || "The Astro Code"}>
                 <Image
-                  src={config.logoUrl || "/logo.png"}
-                  alt={config.appName}
-                  width={40}
-                  height={40}
+                  src={config?.logoUrl || "/logo.png"}
+                  alt={config?.appName || "The Astro Code"}
+                  width={140}
+                  height={48}
                   unoptimized
-                  className="w-full h-full object-contain"
+                  className="h-10 w-auto object-contain"
                 />
-              </div>
-              <div>
-                <SheetTitle className="text-base font-extrabold text-foreground tracking-tight">
-                  {config.appName}
-                </SheetTitle>
-                <SheetDescription className="text-xs font-bold text-[#8a6800] dark:text-[#fdc72d]">
-                  {config.tagline}
-                </SheetDescription>
-              </div>
+              </Link>
+              <SheetTitle className="sr-only">
+                {config?.appName || "The Astro Code"}
+              </SheetTitle>
+              <SheetDescription className="sr-only">
+                {config?.tagline || "Unlock Happiness"}
+              </SheetDescription>
             </div>
 
             {/* Shubh Muhurta info badge in drawer header */}
