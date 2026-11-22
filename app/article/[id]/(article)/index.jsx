@@ -72,9 +72,21 @@ function ArticleSkeleton({ data, lang, handleToggleLang }) {
         lang={lang}
         onToggleLang={handleToggleLang}
       />
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 animate-pulse">
+
+      {/* Top subtle golden shimmer indicator bar */}
+      <div className="w-full h-1 bg-border/40 overflow-hidden relative">
+        <div className="h-full bg-gradient-to-r from-transparent via-[#fdc72d] to-transparent w-full animate-pulse" />
+      </div>
+
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
+        {/* Loading badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdc72d]/15 text-[#0e3934] dark:text-[#fdc72d] text-xs font-semibold animate-pulse mb-6 border border-[#fdc72d]/30">
+          <div className="w-2 h-2 rounded-full bg-[#fdc72d] animate-ping" />
+          <span>{lang === "gu" ? "આર્ટિકલ લોડ થઈ રહ્યો છે..." : "Loading Vedic article..."}</span>
+        </div>
+
         {/* Breadcrumb Skeleton */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 animate-pulse">
           <div className="h-4 w-16 bg-muted rounded" />
           <div className="h-4 w-3 bg-muted rounded" />
           <div className="h-4 w-28 bg-muted rounded" />
@@ -84,7 +96,7 @@ function ArticleSkeleton({ data, lang, handleToggleLang }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Main Left Column Skeleton */}
-          <div className="lg:col-span-8 flex flex-col gap-6">
+          <div className="lg:col-span-8 flex flex-col gap-6 animate-pulse">
             <div className="flex items-center gap-2">
               <div className="h-6 w-24 bg-[#fdc72d]/30 rounded-md" />
               <div className="h-6 w-20 bg-muted rounded-md" />
@@ -114,8 +126,8 @@ function ArticleSkeleton({ data, lang, handleToggleLang }) {
             </div>
 
             {/* Hero Image Skeleton */}
-            <div className="w-full aspect-16/9 sm:aspect-21/9 rounded-2xl bg-muted relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
+            <div className="w-full aspect-16/9 sm:aspect-21/9 rounded-2xl bg-muted relative overflow-hidden flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full border-4 border-[#fdc72d]/40 border-t-[#fdc72d] animate-spin" />
             </div>
 
             {/* Body Content Skeleton */}
@@ -137,7 +149,7 @@ function ArticleSkeleton({ data, lang, handleToggleLang }) {
           </div>
 
           {/* Right Sidebar Skeleton */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="lg:col-span-4 flex flex-col gap-6 animate-pulse">
             <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 space-y-3">
               <div className="h-5 w-32 bg-muted rounded" />
               <div className="grid grid-cols-3 gap-2">
@@ -220,7 +232,15 @@ function ArticleNotFound({ data, lang, handleToggleLang }) {
 function ArticleDetailContent({ initialId, initialArticle }) {
   const params = useParams()
   const router = useRouter()
-  const articleId = params?.id || initialId || ""
+  const rawId = params?.id || initialId || ""
+  const articleId = React.useMemo(() => {
+    if (!rawId) return ""
+    try {
+      return decodeURIComponent(String(rawId))
+    } catch {
+      return String(rawId)
+    }
+  }, [rawId])
 
   const { lang, setLang } = useLanguage()
   const data = useHomeData(lang)
@@ -455,13 +475,13 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     return "dharmik"
   }, [articleId, article])
 
-  // If loading and no article yet, show skeleton loader
-  if (loading && !article) {
+  // If loading or we don't have the article yet and it's not confirmed 404, ALWAYS show the shimmer skeleton loader!
+  if (loading || (!article && !notFound)) {
     return <ArticleSkeleton data={data} lang={lang} handleToggleLang={handleToggleLang} />
   }
 
-  // If article not found, show clean Vedic 404 state
-  if (notFound || !article) {
+  // ONLY show 404 Not Found screen when loading is completely done AND notFound is true
+  if (notFound && !article) {
     return <ArticleNotFound data={data} lang={lang} handleToggleLang={handleToggleLang} />
   }
 
