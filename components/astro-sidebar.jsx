@@ -132,12 +132,12 @@ export function AstroSidebar({
         <div className="flex items-center gap-3.5 mb-3.5">
           <Avatar className="size-14 border-2 border-[#fdc72d] shadow-sm shrink-0 overflow-hidden relative">
             <Image
-              src={(!founder?.image || founder.image.includes("unsplash.com") || founder.image.includes("googleusercontent.com")) ? "/images/author-dr-vishal-modi.jpg" : founder.image}
-              alt=""
+              src={(!founder?.image || founder.image.includes("unsplash.com") || founder.image.includes("googleusercontent.com")) ? "/images/dr-vishal-modi-avatar.jpg" : founder.image}
+              alt={founder?.name || "Dr. Vishal Modi"}
               width={112}
               height={112}
               sizes="56px"
-              className="aspect-square size-full rounded-full object-cover"
+              className="aspect-square size-full rounded-full object-cover object-top"
             />
             <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold text-sm">
               VM

@@ -1078,11 +1078,11 @@ export default function DainikPanchangClient() {
               <div className="bg-gradient-to-br from-[#00685d] to-[#004d44] text-white rounded-2xl shadow-md p-5 sm:p-6 border border-[#fdc72d]/20 space-y-4">
                 <div className="flex items-center gap-3">
                   <Image
-                    src={panchang.sidebar.scholarConsultation.avatar}
-                    alt=""
+                    src={(panchang.sidebar.scholarConsultation.avatar && !panchang.sidebar.scholarConsultation.avatar.includes("googleusercontent.com")) ? panchang.sidebar.scholarConsultation.avatar : "/images/dr-vishal-modi-avatar.jpg"}
+                    alt="Dr. Vishal Modi"
                     width={56}
                     height={56}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-[#fdc72d] shrink-0"
+                    className="w-14 h-14 rounded-full object-cover object-top border-2 border-[#fdc72d] shrink-0"
                   />
                   <div>
                     <Badge className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-1.5 py-0 rounded border-none">

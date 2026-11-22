@@ -358,9 +358,9 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   <div className="relative">
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
-                        src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com")) ? article.author.image : "/images/author-dr-vishal-modi.jpg"}
+                        src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-avatar.jpg"}
                         alt={article.author.name[lang]}
-                        className="object-cover"
+                        className="object-cover object-top"
                       />
                       <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold">
                         {article.author.name[lang]?.substring(0, 2) || "VM"}
@@ -855,11 +855,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
-                  src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com")) ? article.author.image : "/images/author-dr-vishal-modi.jpg"}
+                  src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-avatar.jpg"}
                   alt={article.author.name[lang]}
                   fill
                   sizes="96px"
-                  className="object-cover"
+                  className="object-cover object-top"
                 />
               </div>
               <div className="flex flex-col gap-2 text-center sm:text-left flex-1">
@@ -1057,11 +1057,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="relative flex items-center gap-3 p-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div className="relative size-12 rounded-full ring-2 ring-[#fdc72d] shadow-sm shrink-0 overflow-hidden bg-white/10">
                   <Image
-                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com") || data.config.founder.image.includes("googleusercontent.com")) ? "/images/author-dr-vishal-modi.jpg" : data.config.founder.image}
+                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com") || data.config.founder.image.includes("googleusercontent.com")) ? "/images/dr-vishal-modi-avatar.jpg" : data.config.founder.image}
                     alt="Dr. Vishal Modi"
                     width={48}
                     height={48}
-                    className="size-full object-cover"
+                    className="size-full object-cover object-top"
                   />
                 </div>
                 <div className="min-w-0 flex-1">

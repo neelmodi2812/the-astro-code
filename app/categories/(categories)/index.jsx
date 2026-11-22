@@ -536,11 +536,11 @@ export default function CategoriesClient() {
             <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
               <div className="relative w-20 h-20 rounded-full mx-auto p-1 bg-gradient-to-tr from-[#008376] to-[#fdc72d] shadow-sm mb-3 overflow-hidden">
                 <Image
-                  src={(founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com")) ? founder.image : "/images/author-dr-vishal-modi.jpg"}
+                  src={(founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com")) ? founder.image : "/images/dr-vishal-modi-avatar.jpg"}
                   alt="Dr. Vishal Modi"
                   width={80}
                   height={80}
-                  className="w-full h-full object-cover rounded-full"
+                  className="w-full h-full object-cover object-top rounded-full"
                 />
               </div>
 

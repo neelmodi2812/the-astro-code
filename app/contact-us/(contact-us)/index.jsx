@@ -801,11 +801,11 @@ export default function ContactUsClient() {
               <div className="flex items-center gap-3.5 mb-3">
                 <div className="relative w-16 h-16 shrink-0">
                   <Image
-                    src={pageData.sidebar.astrologer.avatar}
-                    alt=""
+                    src={(pageData.sidebar.astrologer.avatar && !pageData.sidebar.astrologer.avatar.includes("googleusercontent.com")) ? pageData.sidebar.astrologer.avatar : "/images/dr-vishal-modi-avatar.jpg"}
+                    alt={pageData.sidebar.astrologer.name || "Dr. Vishal Modi"}
                     width={64}
                     height={64}
-                    className="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-[#fdc72d]"
+                    className="w-16 h-16 rounded-full object-cover object-top shadow-sm ring-2 ring-[#fdc72d]"
                   />
                   <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#fdc72d] text-[#0e3934] flex items-center justify-center text-xs font-black shadow-2xs">
                     ★
