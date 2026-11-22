@@ -76,7 +76,7 @@ export function EditorialContent({
           featuredArticles.map((article) => (
             <Link
               key={article.id}
-              href={`/article/${article.id || article.slug || "hero-1-bahuchar-maa-pragatya"}`}
+              href={`/article/${article.slug || article.id || ""}`}
               className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
             >
               <Card

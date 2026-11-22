@@ -100,8 +100,8 @@ export default function HomeClient({ initialFeed = null }) {
   }
 
   const handleArticleClick = (article) => {
-    const targetId = article?.slug || article?.id || "hero-1-bahuchar-maa-pragatya"
-    router.push(`/article/${targetId}`)
+    const targetId = article?.slug || article?.id
+    if (targetId) router.push(`/article/${targetId}`)
   }
 
   // A category pill shows that category's own latest articles; no pill shows the featured hero stories.

@@ -1,11 +1,10 @@
 import { Suspense } from "react"
 import ArticleDetailClient from "./(article)"
-import { getArticleById, getAllArticleIds } from "@/lib/data/article-data"
 import { JsonLd } from "@/components/seo-structured-data"
 import { getArticleBundle, getArticleSlugs } from "@/lib/api/server/articles"
 
 const decodeSlug = (val) => {
-  if (!val) return "hero-1"
+  if (!val) return ""
   try {
     return decodeURIComponent(String(val))
   } catch {
@@ -13,19 +12,16 @@ const decodeSlug = (val) => {
   }
 }
 
-/** Live article first (so admin-created articles work), bundled static article as fallback. */
+/** Live article from API/server cache. Never return mock fallback data. */
 async function resolveArticle(id) {
+  if (!id) return { live: null, article: null }
   const live = await getArticleBundle(id)
-  return { live, article: live ?? getArticleById(id) }
+  return { live, article: live ?? null }
 }
 
 export async function generateStaticParams() {
-  const ids = getAllArticleIds()
   const liveSlugs = await getArticleSlugs()
-  const uniqueIds = Array.from(
-    new Set([...ids, ...liveSlugs, "1", "hero-1", "hero-2", "hero-3", "hero-4", "feat-1", "feat-2", "jyotirling-1", "jyotirling-2", "jyotirling-3", "insight-1", "insight-2"])
-  )
-  return uniqueIds.map((id) => ({ id }))
+  return liveSlugs.map((id) => ({ id }))
 }
 
 /**
@@ -38,7 +34,7 @@ export async function generateMetadata({ params }) {
 
   if (!article) {
     return {
-      title: "આર્ટિકલ મળ્યો નથી (Article Not Found)",
+      title: "આર્ટિકલ મળ્યો નથી (Article Not Found) | The Astro Code",
       description: "વિનંતી કરેલ વૈદિક આર્ટિકલ ઉપલબ્ધ નથી.",
     }
   }
@@ -66,7 +62,7 @@ export async function generateMetadata({ params }) {
       siteName: "The Astro Code",
       type: "article",
       locale: "gu_IN",
-      publishedTime: article.publishedAt || "2025-04-12T06:00:00.000Z",
+      publishedTime: article.publishedAt,
       authors: [article.author?.name?.gu || "ડૉ. વિશાલ મોદી"],
       section: article.category?.gu || "વૈદિક આધ્યાત્મ",
       images: [
@@ -98,35 +94,37 @@ async function ArticleDetailContentWrapper({ params }) {
   const { live, article } = await resolveArticle(articleId)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theastrocode.com"
 
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `${siteUrl}/article/${articleId}`,
-    },
-    "headline": article.title?.gu || article.title?.en,
-    "description": article.subtitle?.gu || article.subtitle?.en,
-    "image": [article.heroImage || `${siteUrl}/logo.png`],
-    "datePublished": article.publishedAt || "2025-04-12T06:00:00+05:30",
-    "dateModified": article.publishedAt || "2025-04-12T06:00:00+05:30",
-    "inLanguage": "gu",
-    "author": {
-      "@type": "Person",
-      "name": article.author?.name?.gu || "Dr. Vishal Modi",
-      "jobTitle": "Vedic Astrologer (Ph.D. Jyotish Shastra)",
-      "url": `${siteUrl}/about-us`,
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "The Astro Code",
-      "url": siteUrl,
-      "logo": {
-        "@type": "ImageObject",
-        "url": `${siteUrl}/logo.png`,
-      },
-    },
-  }
+  const articleSchema = article
+    ? {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": `${siteUrl}/article/${articleId}`,
+        },
+        "headline": article.title?.gu || article.title?.en || "",
+        "description": article.subtitle?.gu || article.subtitle?.en || "",
+        "image": [article.heroImage || `${siteUrl}/logo.png`],
+        "datePublished": article.publishedAt,
+        "dateModified": article.publishedAt,
+        "inLanguage": "gu",
+        "author": {
+          "@type": "Person",
+          "name": article.author?.name?.gu || "Dr. Vishal Modi",
+          "jobTitle": "Vedic Astrologer (Ph.D. Jyotish Shastra)",
+          "url": `${siteUrl}/about-us`,
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "The Astro Code",
+          "url": siteUrl,
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${siteUrl}/logo.png`,
+          },
+        },
+      }
+    : null
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -141,13 +139,13 @@ async function ArticleDetailContentWrapper({ params }) {
       {
         "@type": "ListItem",
         "position": 2,
-        "name": article.category?.gu || "વિષય સંગ્રહ",
+        "name": article?.category?.gu || "વિષય સંગ્રહ",
         "item": `${siteUrl}/categories`,
       },
       {
         "@type": "ListItem",
         "position": 3,
-        "name": article.title?.gu || "આર્ટિકલ",
+        "name": article?.title?.gu || "આર્ટિકલ",
         "item": `${siteUrl}/article/${articleId}`,
       },
     ],
@@ -155,7 +153,7 @@ async function ArticleDetailContentWrapper({ params }) {
 
   return (
     <>
-      <JsonLd data={articleSchema} />
+      {articleSchema && <JsonLd data={articleSchema} />}
       <JsonLd data={breadcrumbSchema} />
       <ArticleDetailClient initialId={articleId} initialArticle={live} />
     </>

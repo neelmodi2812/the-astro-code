@@ -23,6 +23,7 @@ import {
   Users,
   Copy,
   Check,
+  BookOpen,
 } from "lucide-react"
 
 import { AstroHeader } from "@/components/astro-header"
@@ -60,14 +61,171 @@ import { subscriptionService } from "@/lib/api/services/subscription"
 import { ArticlePaywall } from "@/components/article-paywall"
 import { getWhatsAppUrl } from "@/lib/config/contact"
 
+function ArticleSkeleton({ data, lang, handleToggleLang }) {
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
+      <AstroHeader
+        config={data.config}
+        topBar={data.topBar}
+        navLinks={data.navLinks}
+        activeCategory=""
+        lang={lang}
+        onToggleLang={handleToggleLang}
+      />
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 animate-pulse">
+        {/* Breadcrumb Skeleton */}
+        <div className="flex items-center gap-2 mb-6">
+          <div className="h-4 w-16 bg-muted rounded" />
+          <div className="h-4 w-3 bg-muted rounded" />
+          <div className="h-4 w-28 bg-muted rounded" />
+          <div className="h-4 w-3 bg-muted rounded" />
+          <div className="h-4 w-48 bg-muted rounded" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          {/* Main Left Column Skeleton */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-24 bg-[#fdc72d]/30 rounded-md" />
+              <div className="h-6 w-20 bg-muted rounded-md" />
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="space-y-3">
+              <div className="h-9 sm:h-11 w-11/12 bg-muted rounded-lg" />
+              <div className="h-9 sm:h-11 w-4/5 bg-muted rounded-lg" />
+              <div className="h-5 w-full bg-muted/70 rounded mt-3" />
+              <div className="h-5 w-3/4 bg-muted/70 rounded" />
+            </div>
+
+            {/* Author Strip Skeleton */}
+            <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-12 rounded-full bg-muted" />
+                <div className="space-y-1.5">
+                  <div className="h-4 w-32 bg-muted rounded" />
+                  <div className="h-3 w-44 bg-muted/70 rounded" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-4 w-20 bg-muted rounded" />
+                <div className="h-4 w-16 bg-muted rounded" />
+              </div>
+            </div>
+
+            {/* Hero Image Skeleton */}
+            <div className="w-full aspect-16/9 sm:aspect-21/9 rounded-2xl bg-muted relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
+            </div>
+
+            {/* Body Content Skeleton */}
+            <div className="space-y-4 pt-2">
+              <div className="h-5 w-full bg-muted/80 rounded" />
+              <div className="h-5 w-full bg-muted/80 rounded" />
+              <div className="h-5 w-5/6 bg-muted/80 rounded" />
+              <div className="h-5 w-full bg-muted/80 rounded" />
+              <div className="h-5 w-3/4 bg-muted/80 rounded" />
+
+              <div className="my-6 p-6 bg-muted/40 rounded-2xl border-l-4 border-[#fdc72d]/50 space-y-2">
+                <div className="h-5 w-full bg-muted rounded" />
+                <div className="h-5 w-2/3 bg-muted rounded" />
+              </div>
+
+              <div className="h-5 w-full bg-muted/80 rounded" />
+              <div className="h-5 w-4/5 bg-muted/80 rounded" />
+            </div>
+          </div>
+
+          {/* Right Sidebar Skeleton */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 space-y-3">
+              <div className="h-5 w-32 bg-muted rounded" />
+              <div className="grid grid-cols-3 gap-2">
+                <div className="h-16 bg-muted rounded-xl" />
+                <div className="h-16 bg-muted rounded-xl" />
+                <div className="h-16 bg-muted rounded-xl" />
+              </div>
+            </div>
+            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 space-y-3">
+              <div className="h-5 w-36 bg-muted rounded" />
+              <div className="space-y-2">
+                <div className="h-8 bg-muted rounded-lg" />
+                <div className="h-8 bg-muted rounded-lg" />
+                <div className="h-8 bg-muted rounded-lg" />
+              </div>
+            </div>
+            <div className="h-64 rounded-3xl bg-[#0e3934]/60 border border-[#fdc72d]/20" />
+          </div>
+        </div>
+      </main>
+      <AstroFooter
+        config={data.config}
+        navLinks={data.navLinks}
+        categories={data.categories}
+        footer={data.footer}
+        lang={lang}
+      />
+    </div>
+  )
+}
+
+function ArticleNotFound({ data, lang, handleToggleLang }) {
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
+      <AstroHeader
+        config={data.config}
+        topBar={data.topBar}
+        navLinks={data.navLinks}
+        activeCategory=""
+        lang={lang}
+        onToggleLang={handleToggleLang}
+      />
+      <main className="w-full max-w-4xl mx-auto px-4 py-20 sm:py-28 flex-1 flex flex-col items-center justify-center text-center">
+        <div className="w-20 h-20 rounded-full bg-[#00685d]/10 dark:bg-[#00685d]/30 border-2 border-[#fdc72d] flex items-center justify-center text-[#00685d] dark:text-[#fdc72d] mb-6 shadow-md">
+          <BookOpen className="h-10 w-10" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
+          {lang === "gu" ? "આર્ટિકલ મળ્યો નથી" : "Article Not Found"}
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-md mb-8 leading-relaxed">
+          {lang === "gu"
+            ? "તમે જે આધ્યાત્મિક કે જ્યોતિષીય લેખ શોધી રહ્યા છો તે ઉપલબ્ધ નથી અથવા તેને ખસેડવામાં આવ્યો છે."
+            : "The spiritual or astrological article you are looking for is unavailable or has been moved."}
+        </p>
+        <div className="flex items-center gap-3 flex-wrap justify-center">
+          <Button asChild className="bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold px-6 py-2.5 rounded-xl shadow-md">
+            <Link href="/" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span>{lang === "gu" ? "મુખ્ય પૃષ્ઠ પર પાછા જાઓ" : "Return to Home"}</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="border-border font-semibold px-6 py-2.5 rounded-xl">
+            <Link href="/categories">
+              <span>{lang === "gu" ? "બધા વિષયો જુઓ" : "Explore All Topics"}</span>
+            </Link>
+          </Button>
+        </div>
+      </main>
+      <AstroFooter
+        config={data.config}
+        navLinks={data.navLinks}
+        categories={data.categories}
+        footer={data.footer}
+        lang={lang}
+      />
+    </div>
+  )
+}
+
 function ArticleDetailContent({ initialId, initialArticle }) {
   const params = useParams()
   const router = useRouter()
-  const articleId = params?.id || initialId || "hero-1"
+  const articleId = params?.id || initialId || ""
 
   const { lang, setLang } = useLanguage()
   const data = useHomeData(lang)
-  const article = useArticle(articleId, initialArticle)
+  const articleState = useArticle(articleId, initialArticle)
+  const { article, loading, notFound, reload } = articleState
 
   const { isAuthenticated } = useAuth()
   const [hasActiveSub, setHasActiveSub] = React.useState(false)
@@ -152,8 +310,8 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: article.title[lang],
-          text: article.subtitle[lang],
+          title: article?.title?.[lang] || article?.title?.gu || "",
+          text: article?.subtitle?.[lang] || article?.subtitle?.gu || "",
           url: window.location.href
         })
         return
@@ -177,7 +335,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   const handleShareWhatsApp = () => {
     if (typeof window !== "undefined") {
       const url = encodeURIComponent(window.location.href)
-      const text = encodeURIComponent(article.title[lang])
+      const text = encodeURIComponent(article?.title?.[lang] || article?.title?.gu || "")
       window.open(`https://api.whatsapp.com/send?text=${text}%20${url}`, "_blank")
     }
   }
@@ -192,7 +350,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   const handleShareX = () => {
     if (typeof window !== "undefined") {
       const url = encodeURIComponent(window.location.href)
-      const text = encodeURIComponent(article.title[lang])
+      const text = encodeURIComponent(article?.title?.[lang] || article?.title?.gu || "")
       window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank")
     }
   }
@@ -200,14 +358,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   const handleShareTelegram = () => {
     if (typeof window !== "undefined") {
       const url = encodeURIComponent(window.location.href)
-      const text = encodeURIComponent(article.title[lang])
+      const text = encodeURIComponent(article?.title?.[lang] || article?.title?.gu || "")
       window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank")
     }
   }
 
   // The article's own related articles when the API provides them, else home hero stories (minus this one)
   const relatedStories = React.useMemo(() => {
-    if (article.related?.length) {
+    if (article?.related?.length) {
       return article.related.slice(0, 3).map((r) => ({
         id: r.id,
         image: r.image,
@@ -216,12 +374,11 @@ function ArticleDetailContent({ initialId, initialArticle }) {
         date: r.date?.[lang] ?? r.date?.gu ?? "",
       }))
     }
-    return data.heroStories.filter((s) => s.id !== articleId).slice(0, 3)
-  }, [article.related, data.heroStories, articleId, lang])
+    return (data?.heroStories || []).filter((s) => s.id !== articleId).slice(0, 3)
+  }, [article?.related, data?.heroStories, articleId, lang])
 
   // Determine current active navigation category based on article data
   const currentCategoryNavId = React.useMemo(() => {
-    // The live article carries its category slug, which is also the nav item id.
     if (article?.categorySlug) {
       return article.categorySlug === "jyotirlinga" ? "jyotirling" : article.categorySlug
     }
@@ -298,6 +455,16 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     return "dharmik"
   }, [articleId, article])
 
+  // If loading and no article yet, show skeleton loader
+  if (loading && !article) {
+    return <ArticleSkeleton data={data} lang={lang} handleToggleLang={handleToggleLang} />
+  }
+
+  // If article not found, show clean Vedic 404 state
+  if (notFound || !article) {
+    return <ArticleNotFound data={data} lang={lang} handleToggleLang={handleToggleLang} />
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
       {/* 1. TOP GLOBAL HEADER */}
@@ -335,13 +502,13 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage className="hover:text-[#8a6800] dark:hover:text-[#fdc72d] transition-colors font-medium text-muted-foreground">
-                  {article.category[lang]}
+                  {article.category?.[lang] || article.category?.gu || article.category || (lang === "gu" ? "આર્ટિકલ" : "Article")}
                 </BreadcrumbPage>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-foreground font-semibold truncate max-w-[200px] sm:max-w-xs md:max-w-md">
-                  {article.title[lang]}
+                  {article.title?.[lang] || article.title?.gu || article.title || ""}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -349,15 +516,17 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
           {/* Badges */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow-xs">
-              {article.category[lang]}
-            </span>
-            {article.subBadges.map((badge, idx) => (
+            {(article.category?.[lang] || article.category?.gu || article.category) && (
+              <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow-xs">
+                {article.category?.[lang] || article.category?.gu || article.category}
+              </span>
+            )}
+            {Array.isArray(article.subBadges) && article.subBadges.map((badge, idx) => (
               <span
                 key={idx}
                 className="bg-[#008d7f]/15 text-[#008d7f] dark:text-[#52c7bb] text-xs font-semibold px-2.5 py-1 rounded-md border border-[#008d7f]/30"
               >
-                {badge[lang]}
+                {badge?.[lang] || badge?.gu || badge}
               </span>
             ))}
           </div>
@@ -370,12 +539,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             {/* Header: Title, Subtitle, Author & Actions */}
             <header className="flex flex-col gap-4">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
-                {article.title[lang]}
+                {article.title?.[lang] || article.title?.gu || article.title || ""}
               </h1>
 
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-                {article.subtitle[lang]}
-              </p>
+              {Boolean(article.subtitle?.[lang] || article.subtitle?.gu || article.subtitle) && (
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                  {article.subtitle?.[lang] || article.subtitle?.gu || article.subtitle}
+                </p>
+              )}
 
               {/* Author & Action Strip */}
               <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
@@ -385,14 +556,14 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
                         src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-avatar.jpg"}
-                        alt={article.author.name[lang]}
+                        alt={article.author?.name?.[lang] || article.author?.name?.gu || "Author"}
                         className="object-cover object-top"
                       />
                       <AvatarFallback className="bg-[#fdc72d] text-[#0e3934] font-bold">
-                        {article.author.name[lang]?.substring(0, 2) || "VM"}
+                        {(article.author?.name?.[lang] || article.author?.name?.gu || "VM")?.substring(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    {article.author.verified && (
+                    {article.author?.verified && (
                       <span
                         className="absolute -bottom-1 -right-1 bg-[#008d7f] text-white rounded-full p-0.5 shadow-xs"
                         title={lang === "gu" ? "પ્રમાણિત જ્યોતિષાચાર્ય" : "Verified Astrologer"}
@@ -420,18 +591,24 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                 {/* Metadata & Functional Share & Bookmark Bar */}
                 <div className="flex items-center flex-wrap gap-3 sm:gap-4 justify-between sm:justify-end">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5 text-[#008d7f]" />
-                      {article.date?.[lang] || article.date?.gu || article.date || (lang === "gu" ? "૧૨ એપ્રિલ, ૨૦૨૫" : "April 12, 2025")}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-[#008d7f]" />
-                      {article.readTime?.[lang] || article.readTime?.gu || article.readTime || (lang === "gu" ? "૫ મિનિટ વાંચન" : "5 min read")}
-                    </span>
-                    <span className="hidden sm:flex items-center gap-1">
-                      <Eye className="h-3.5 w-3.5 text-[#008d7f]" />
-                      {article.views?.[lang] || article.views?.gu || article.views || (lang === "gu" ? "૧૪,૫૨૦ દર્શકો" : "14,520 views")}
-                    </span>
+                    {Boolean(article.date?.[lang] || article.date?.gu || article.date) && (
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5 text-[#008d7f]" />
+                        {article.date?.[lang] || article.date?.gu || article.date}
+                      </span>
+                    )}
+                    {Boolean(article.readTime?.[lang] || article.readTime?.gu || article.readTime) && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5 text-[#008d7f]" />
+                        {article.readTime?.[lang] || article.readTime?.gu || article.readTime}
+                      </span>
+                    )}
+                    {Boolean(article.views?.[lang] || article.views?.gu || article.views) && (
+                      <span className="hidden sm:flex items-center gap-1">
+                        <Eye className="h-3.5 w-3.5 text-[#008d7f]" />
+                        {article.views?.[lang] || article.views?.gu || article.views}
+                      </span>
+                    )}
                   </div>
 
                   {/* Share & Bookmark Options with shadcn DropdownMenu */}
@@ -550,69 +727,79 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </div>
             </header>
 
-            {/* HERO VISUAL WITH OVERLAY BUTTONS (As seen in Reference Image 2) */}
-            <figure className="relative rounded-2xl overflow-hidden shadow-lg border border-border/40 group h-[280px] sm:h-[380px] md:h-[440px]">
-              <Image
-                src={article.heroImage || "https://dummyjson.com/image/200x100"}
-                alt={article.heroImageAlt || article.title[lang]}
-                fill
-                sizes="(max-width: 1024px) 100vw, 66vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-102"
-                priority
-              />
+            {/* HERO VISUAL WITH OVERLAY BUTTONS */}
+            {article.heroImage && (
+              <figure className="relative rounded-2xl overflow-hidden shadow-lg border border-border/40 group h-[280px] sm:h-[380px] md:h-[440px]">
+                <Image
+                  src={article.heroImage}
+                  alt={article.heroImageAlt || article.title?.[lang] || article.title?.gu || ""}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-102"
+                  priority
+                />
 
-              {/* Dark Gradient Overlay for Contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#06302b]/85 via-[#06302b]/20 to-[#06302b]/30" />
+                {/* Dark Gradient Overlay for Contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#06302b]/85 via-[#06302b]/20 to-[#06302b]/30" />
 
-              {/* Floating Action Buttons Overlaid on Top of Image */}
-              <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                {/* Back Button */}
-                <button
-                  onClick={() => router.back()}
-                  className="pointer-events-auto w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
-                  title={lang === "gu" ? "પાછા જાઓ" : "Go Back"}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </button>
-
-                {/* Right Bookmark & Share Buttons */}
-                <div className="pointer-events-auto flex items-center gap-2">
+                {/* Floating Action Buttons Overlaid on Top of Image */}
+                <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                  {/* Back Button */}
                   <button
-                    onClick={toggleBookmark}
-                    className="w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
-                    title={lang === "gu" ? "બુકમાર્ક કરો" : "Bookmark"}
+                    onClick={() => router.back()}
+                    className="pointer-events-auto w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+                    title={lang === "gu" ? "પાછા જાઓ" : "Go Back"}
                   >
-                    <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-white" : ""}`} />
+                    <ArrowLeft className="h-5 w-5" />
                   </button>
-                  <button
-                    onClick={handleShareTrigger}
-                    className="w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
-                    title={lang === "gu" ? "શેર કરો" : "Share"}
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </button>
+
+                  {/* Right Bookmark & Share Buttons */}
+                  <div className="pointer-events-auto flex items-center gap-2">
+                    <button
+                      onClick={toggleBookmark}
+                      className="w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+                      title={lang === "gu" ? "બુકમાર્ક કરો" : "Bookmark"}
+                    >
+                      <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-white" : ""}`} />
+                    </button>
+                    <button
+                      onClick={handleShareTrigger}
+                      className="w-10 h-10 rounded-full bg-[#06302b]/45 hover:bg-[#06302b]/75 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+                      title={lang === "gu" ? "શેર કરો" : "Share"}
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Bottom Caption & Suvarna Darshan Badge */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white flex items-end justify-between gap-3">
-                <figcaption className="text-xs sm:text-sm text-white/90 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-[#fdc72d] shrink-0" />
-                  <span className="line-clamp-2">{article.heroCaption[lang]}</span>
-                </figcaption>
-                <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow shrink-0">
-                  {article.heroBadge[lang]}
-                </span>
-              </div>
-            </figure>
+                {/* Bottom Caption & Badge */}
+                {(article.heroCaption || article.heroBadge) && (
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 text-white flex items-end justify-between gap-3">
+                    {article.heroCaption && (
+                      <figcaption className="text-xs sm:text-sm text-white/90 flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-[#fdc72d] shrink-0" />
+                        <span className="line-clamp-2">{article.heroCaption[lang] || article.heroCaption.gu || article.heroCaption}</span>
+                      </figcaption>
+                    )}
+                    {article.heroBadge && (
+                      <span className="bg-[#fdc72d] text-[#0e3934] text-xs font-bold px-2.5 py-1 rounded-md shadow shrink-0">
+                        {article.heroBadge[lang] || article.heroBadge.gu || article.heroBadge}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </figure>
+            )}
 
-            {/* AUDIO LISTENING PLAYER COMPONENT (As seen in Reference Image 1) */}
-            <AudioArticlePlayer
-              articleText={article.audioText[lang]}
-              lang={lang}
-              title={lang === "gu" ? "આ લેખ સાંભળો" : "Listen to this Article"}
-              durationSeconds={432}
-            />
+            {/* AUDIO LISTENING PLAYER COMPONENT */}
+            {Boolean(article.audioText?.[lang] || article.audioText?.gu || article.audioText) && (
+              <AudioArticlePlayer
+                articleText={article.audioText[lang] || article.audioText.gu || article.audioText}
+                lang={lang}
+                title={lang === "gu" ? "આ લેખ સાંભળો" : "Listen to this Article"}
+                durationSeconds={432}
+              />
+            )}
 
             {/* SOCIAL SHARE BAR (Above Content) */}
             <div className="flex items-center justify-between gap-3 py-2.5 px-4 bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl shadow-xs">
@@ -643,34 +830,23 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             {/* ARTICLE BODY CONTENT */}
             <div className="flex flex-col gap-6 text-foreground font-sans text-base sm:text-lg leading-relaxed">
               {/* Lead Paragraph with vertical accent and drop cap (Always visible 5 lines preview) */}
-              <div className="relative">
-                {article.lead && article.lead[lang] ? (
+              {article.lead && (article.lead[lang] || article.lead.gu || article.lead.en || typeof article.lead === "string") ? (
+                <div className="relative">
                   <div className="relative pl-4 border-l-4 border-[#d9a100]">
                     <p className="font-medium text-foreground leading-relaxed">
                       <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
-                        {Array.from(article.lead[lang])[0]}
+                        {Array.from(article.lead[lang] || article.lead.gu || article.lead.en || article.lead || "")[0]}
                       </span>
-                      {Array.from(article.lead[lang]).slice(1).join("")}
+                      {Array.from(article.lead[lang] || article.lead.gu || article.lead.en || article.lead || "").slice(1).join("")}
                     </p>
                   </div>
-                ) : !article.lead ? (
-                <div className="relative pl-4 border-l-4 border-[#d9a100]">
-                  <p className="font-medium text-foreground leading-relaxed">
-                    <span className="text-4xl sm:text-5xl font-extrabold text-[#d9a100] float-left mr-3 leading-none select-none">
-                      {lang === "gu" ? "ગુ" : "T"}
-                    </span>
-                    {lang === "gu"
-                      ? "જરાતની પરમ પવિત્ર શક્તિપીઠો પૈકીનું એક એવું ચુંવાળ પંથકમાં આવેલું શ્રી બહુચરાજી તીર્થધામ એટલે લાખો ભાવિક ભક્તોની આસ્થાનું કેન્દ્ર. ચૈત્રી સુદ પૂનમ એ મા બહુચરનો પ્રાગટ્ય દિવસ ગણાય છે. આ દિવસે કરવામાં આવતી સાધના, ગરબા પાઠ અને માઁ ના દર્શનથી અસંભવ કાર્યો પણ સુલભ બને છે."
-                      : "he sacred abode of Sanatana Dharma radiates infinite peace and divine consciousness. According to ancient Vedic traditions, worshipping on auspicious tithis dissolves negative astrological afflictions and fulfills righteous aspirations of the heart."}
-                  </p>
-                </div>
-                ) : null}
 
-                {/* Subtle bottom fade gradient overlay when locked */}
-                {isLocked && (
-                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
-                )}
-              </div>
+                  {/* Subtle bottom fade gradient overlay when locked */}
+                  {isLocked && (
+                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
+                  )}
+                </div>
+              ) : null}
 
               {/* PAYWALL WHEN LOCKED OR FULL CONTENT WHEN UNLOCKED */}
               {isLocked ? (
@@ -684,17 +860,19 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               ) : (
                 <>
                   {/* Subsection 1 */}
-                  {article.sections[0] && (
+                  {Array.isArray(article.sections) && article.sections[0] && (
                     <div className="flex flex-col gap-3 pt-2">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                          {article.sections[0].heading[lang]}
-                        </h2>
-                      </div>
-                      {article.sections[0].paragraphs.map((para, pIdx) => (
+                      {article.sections[0].heading && (
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
+                          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                            {article.sections[0].heading[lang] || article.sections[0].heading.gu || article.sections[0].heading.en || article.sections[0].heading}
+                          </h2>
+                        </div>
+                      )}
+                      {Array.isArray(article.sections[0].paragraphs) && article.sections[0].paragraphs.map((para, pIdx) => (
                         <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                          {para[lang]}
+                          {para?.[lang] || para?.gu || para?.en || (typeof para === "string" ? para : "")}
                         </p>
                       ))}
                     </div>
@@ -758,17 +936,17 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   )}
 
                   {/* Subsection 2 */}
-                  {article.sections && article.sections[1] && (
+                  {Array.isArray(article.sections) && article.sections[1] && (
                     <div className="flex flex-col gap-3 pt-2">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                         <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                          {article.sections[1].heading[lang] || article.sections[1].heading.gu || article.sections[1].heading}
+                          {article.sections[1].heading?.[lang] || article.sections[1].heading?.gu || article.sections[1].heading || ""}
                         </h2>
                       </div>
-                      {article.sections[1].paragraphs?.map((para, pIdx) => (
+                      {Array.isArray(article.sections[1].paragraphs) && article.sections[1].paragraphs.map((para, pIdx) => (
                         <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                          {para[lang] || para.gu || para}
+                          {para?.[lang] || para?.gu || para || ""}
                         </p>
                       ))}
                     </div>
@@ -810,17 +988,17 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   )}
 
                   {/* Subsection 3 (if exists) */}
-                  {article.sections && article.sections[2] && (
+                  {Array.isArray(article.sections) && article.sections[2] && (
                     <div className="flex flex-col gap-3 pt-2">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-6 bg-[#d9a100] rounded-full shrink-0" />
                         <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                          {article.sections[2].heading[lang] || article.sections[2].heading.gu || article.sections[2].heading}
+                          {article.sections[2].heading?.[lang] || article.sections[2].heading?.gu || article.sections[2].heading || ""}
                         </h2>
                       </div>
-                      {article.sections[2].paragraphs?.map((para, pIdx) => (
+                      {Array.isArray(article.sections[2].paragraphs) && article.sections[2].paragraphs.map((para, pIdx) => (
                         <p key={pIdx} className="text-muted-foreground leading-relaxed">
-                          {para[lang] || para.gu || para}
+                          {para?.[lang] || para?.gu || para || ""}
                         </p>
                       ))}
                     </div>
@@ -949,7 +1127,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   >
                     <div className="relative h-40 overflow-hidden bg-muted">
                       <Image
-                        src={story.image || "https://dummyjson.com/image/200x100"}
+                        src={story.image || "/images/bahucharaji-temple.jpg"}
                         alt={story.title}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
@@ -1190,7 +1368,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   >
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
                       <Image
-                        src={prod.image || "https://dummyjson.com/image/200x100"}
+                        src={prod.image || "/logo.png"}
                         alt={prod.name}
                         fill
                         sizes="48px"

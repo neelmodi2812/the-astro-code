@@ -13,17 +13,16 @@ import ProductDetailClient from "./ProductDetailClient"
 export const instant = false
 
 /**
- * Live catalog first (bundled static catalog as fallback), so products created
- * in the Laravel admin work without a code change.
+ * Live catalog first. Never return mock fallback data.
  */
 async function resolveProduct(id, lang) {
   const bundle = await getProductBundle(id, lang)
-  return { bundle, product: bundle?.product ?? getProductById(id, lang) }
+  return { bundle, product: bundle?.product ?? null }
 }
 
 export async function generateStaticParams() {
   const live = await getCatalogSlugs()
-  return [...new Set([...getAllProductIds(), ...live.products])].map((id) => ({ id }))
+  return (live.products || []).map((id) => ({ id }))
 }
 
 export async function generateMetadata({ params }) {

@@ -188,7 +188,7 @@ export function AstroSidebar({
 
         <ol className="flex flex-col gap-3.5 text-xs">
           {popular.map((item, idx) => {
-            const targetSlug = item.id || item.slug || "hero-1-bahuchar-maa-pragatya"
+            const targetSlug = item.slug || item.id || ""
             return (
               <li key={idx}>
                 <Link
