@@ -58,6 +58,7 @@ import { useLanguage } from "@/components/language-provider"
 import { useAuth } from "@/lib/api/hooks/use-auth"
 import { subscriptionService } from "@/lib/api/services/subscription"
 import { ArticlePaywall } from "@/components/article-paywall"
+import { getWhatsAppUrl } from "@/lib/config/contact"
 
 function ArticleDetailContent({ initialId, initialArticle }) {
   const params = useParams()
@@ -1034,67 +1035,108 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             </div>
 
             {/* WIDGET 3: 1-ON-1 ASTROLOGICAL CONSULTATION CTA CARD */}
-            <div className="relative bg-gradient-to-br from-[#00685d] via-[#005a50] to-[#004d44] text-white rounded-3xl p-5 sm:p-6 shadow-xl ring-1 ring-[#fdc72d]/20 overflow-hidden flex flex-col gap-4">
-              {/* Decorative golden glow + yantra ring */}
-              <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-[#fdc72d]/20 blur-3xl" />
+            <div className="relative bg-gradient-to-br from-[#0e3934] via-[#092b27] to-[#06201d] text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-[#fdc72d]/30 overflow-hidden flex flex-col gap-4">
+              {/* Decorative subtle golden glow */}
+              <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-[#fdc72d]/15 blur-3xl" />
               <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 h-40 w-40 rounded-full bg-[#008d7f]/20 blur-3xl" />
               <Sparkles aria-hidden className="pointer-events-none absolute top-4 right-4 h-16 w-16 text-[#fdc72d]/10" />
 
+              {/* Status Header: Badge + Live Available Indicator */}
               <div className="relative flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 bg-[#fdc72d] text-[#0e3934] text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-[#fdc72d] text-[#0e3934] text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs">
                   <Sparkles className="h-3 w-3" />
                   {lang === "gu" ? "વન-ટુ-વન માર્ગદર્શન" : "1-on-1 Guidance"}
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                   {lang === "gu" ? "ઉપલબ્ધ" : "Available"}
                 </span>
               </div>
 
-              <div className="relative flex flex-col gap-2">
-                <h3 className="font-extrabold text-lg sm:text-xl text-[#fdc72d] leading-snug">
+              {/* Astrologer Profile Highlight */}
+              <div className="relative flex items-center gap-3 p-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
+                <div className="relative size-12 rounded-full ring-2 ring-[#fdc72d] shadow-sm shrink-0 overflow-hidden bg-white/10">
+                  <Image
+                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com")) ? "/images/author-dr-vishal-modi.jpg" : data.config.founder.image}
+                    alt="Dr. Vishal Modi"
+                    width={48}
+                    height={48}
+                    className="size-full object-cover"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className="font-extrabold text-sm text-white truncate">
+                      {data.config?.founder?.name || (lang === "gu" ? "ડૉ. વિશાલ મોદી" : "Dr. Vishal Modi")}
+                    </h4>
+                    <span className="bg-[#fdc72d]/20 text-[#fdc72d] border border-[#fdc72d]/40 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                      {lang === "gu" ? "ગોલ્ડ મેડાલિસ્ટ" : "Gold Medalist"}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-200/80 truncate mt-0.5">
+                    {data.config?.founder?.title || (lang === "gu" ? "વૈદિક જ્યોતિષાચાર્ય" : "Vedic Astrologer")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Title & Short Description */}
+              <div className="relative flex flex-col gap-1.5">
+                <h3 className="font-black text-lg sm:text-xl text-[#fdc72d] leading-snug drop-shadow-xs">
                   {lang === "gu" ? "જીવનની સમસ્યાઓનું જ્યોતિષીય સમાધાન મેળવો" : "Get Vedic Astrological Solutions for Life Challenges"}
                 </h3>
-                <p className="text-xs sm:text-[13px] text-white/75 leading-relaxed">
+                <p className="text-xs text-white/80 leading-relaxed">
                   {lang === "gu"
-                    ? "ડૉ. વિશાલ મોદી સાથે જન્મકુંડળી વિશ્લેષણ, કારકિર્દી, લગ્ન અને વ્યવસાય માટે વ્યક્તિગત પરામર્શ મેળવો."
+                    ? "જન્મકુંડળી વિશ્લેષણ, કારકિર્દી, લગ્ન, આરોગ્ય અને વ્યવસાય માટે ડૉ. વિશાલ મોદી સાથે સીધો વ્યક્તિગત વાર્તાલાપ કરો."
                     : "Book personalized Kundali reading for career, marriage, health and business with Dr. Vishal Modi."}
                 </p>
               </div>
 
-              <ul className="relative flex flex-col gap-1.5 rounded-2xl bg-white/5 border border-white/10 p-3">
+              {/* Checkpoints */}
+              <ul className="relative flex flex-col gap-2 rounded-2xl bg-black/25 border border-white/10 p-3">
                 {(lang === "gu"
                   ? ["જન્મકુંડળી અને ગ્રહ દોષ વિશ્લેષણ", "કારકિર્દી, લગ્ન અને આરોગ્ય માર્ગદર્શન", "સરળ ઉપાય અને રત્ન સલાહ"]
                   : ["Kundali & planetary dosha analysis", "Career, marriage & health guidance", "Practical remedies & gemstone advice"]
                 ).map((point) => (
-                  <li key={point} className="flex items-start gap-2 text-xs text-white/85">
-                    <Check className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#fdc72d]" />
+                  <li key={point} className="flex items-center gap-2 text-xs text-white/90">
+                    <span className="flex items-center justify-center size-4 rounded-full bg-[#fdc72d]/20 text-[#fdc72d] shrink-0">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
                     <span>{point}</span>
                   </li>
                 ))}
               </ul>
 
-              <div className="relative flex flex-col gap-2.5">
+              {/* CTAs: Gold Primary + Refined WhatsApp Secondary */}
+              <div className="relative flex flex-col gap-2.5 pt-1">
                 <Button
-                  onClick={() => router.push("/contact-us")}
-                  className="group w-full h-11 bg-gradient-to-r from-[#fdc72d] to-[#f0b400] hover:from-[#ffd24d] hover:to-[#fdc72d] text-[#0e3934] font-extrabold text-sm rounded-xl shadow-[0_6px_20px_-6px_rgba(253,199,45,0.6)] transition-all"
+                  onClick={() => router.push("/appointment")}
+                  className="group w-full h-11 bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-black text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-between px-4 cursor-pointer"
                 >
-                  <Award className="h-4 w-4 mr-1.5" />
-                  {data.consultation.bookButton}
-                  <ChevronRight className="h-4 w-4 ml-auto transition-transform group-hover:translate-x-0.5" />
+                  <span className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>{data.consultation.bookButton || (lang === "gu" ? "કુંડળી વિશ્લેષણ બુક કરો" : "Book Kundali Analysis")}</span>
+                  </span>
+                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
+
                 <Button
-                  onClick={() => window.open(data.config.founder.whatsappUrl, "_blank")}
-                  className="w-full h-11 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-sm rounded-xl shadow-[0_6px_20px_-8px_rgba(37,211,102,0.7)] transition-all"
+                  onClick={() => {
+                    const msg = lang === "gu"
+                      ? "નમસ્તે ડૉ. વિશાલ મોદી, મને જ્યોતિષીય પરામર્શ માટે માર્ગદર્શન જોઈએ છે."
+                      : "Hello Dr. Vishal Modi, I would like astrological consultation guidance."
+                    window.open(data.config?.founder?.whatsappUrl || getWhatsAppUrl(msg), "_blank")
+                  }}
+                  className="w-full h-10 bg-[#128C7E] hover:bg-[#0e7064] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/30"
                 >
-                  <MessageCircle className="h-4 w-4 mr-1.5" />
-                  {data.consultation.whatsappButton}
+                  <MessageCircle className="h-4 w-4" />
+                  <span>{data.consultation.whatsappButton || (lang === "gu" ? "WhatsApp પર વાતચીત કરો" : "Chat on WhatsApp")}</span>
                 </Button>
               </div>
 
-              <div className="relative flex items-center justify-center gap-1.5 text-xs text-white/55">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]/80" />
-                {lang === "gu" ? "૧૦૦% ગોપનીય • પ્રમાણિત જ્યોતિષાચાર્ય" : "100% confidential • Verified astrologer"}
+              {/* Trust Footer */}
+              <div className="relative flex items-center justify-center gap-1.5 text-xs text-white/65 pt-0.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]" />
+                <span>{lang === "gu" ? "૧૦૦% ગોપનીય • પ્રમાણિત જ્યોતિષાચાર્ય" : "100% confidential • Verified astrologer"}</span>
               </div>
             </div>
 
