@@ -208,7 +208,8 @@ export function AstroHeader({
     if (itemId === "cart") return "/myshop/cart"
     if (itemId === "about" || itemId === "about-us") return "/about-us"
     if (itemId === "contact" || itemId === "contact-us") return "/contact-us"
-    return "/categories"
+    if (itemId === "jyotirling" || itemId === "jyotirlinga") return "/category/jyotirling"
+    return `/category/${itemId}`
   }
 
   const [optimisticNavId, setOptimisticNavId] = React.useState(null)
@@ -220,7 +221,7 @@ export function AstroHeader({
 
   const computedActiveNavId = React.useMemo(() => {
     if (pathname === "/") {
-      return activeCategory || "home"
+      return "home"
     }
     if (pathname === "/myshop" || pathname?.startsWith("/myshop")) {
       return "myshop"
@@ -234,7 +235,7 @@ export function AstroHeader({
     if (pathname === "/contact-us" || pathname?.startsWith("/contact-us")) {
       return "more"
     }
-    if (pathname === "/categories" || pathname?.startsWith("/categories")) {
+    if (pathname === "/categories") {
       return "more"
     }
     if (pathname?.startsWith("/category/")) {
@@ -242,31 +243,76 @@ export function AstroHeader({
       return catSlug === "jyotirlinga" ? "jyotirling" : catSlug
     }
 
-    // Article detail pages: determine active navigation category from API
+    // Article detail pages: determine active navigation category from API or submenus
     if (pathname?.startsWith("/article/")) {
-      const owner = navLinks.find((item) => (submenus[item.id] || []).some((sub) => sub.href === pathname))
+      const cleanPath = decodeURIComponent(pathname)
+      const owner = navLinks.find((item) =>
+        (submenus[item.id] || []).some((sub) => {
+          try {
+            return decodeURIComponent(sub.href) === cleanPath
+          } catch {
+            return sub.href === pathname
+          }
+        })
+      )
       if (owner) return owner.id
-      if (
-        pathname.includes("somnath") ||
-        pathname.includes("mahakaleshwar") ||
-        pathname.includes("dwarkadhish") ||
-        pathname.includes("jyotirling")
-      ) {
-        return "jyotirling"
-      }
       if (activeCategory && activeCategory !== "home") {
-        return activeCategory
+        return activeCategory === "jyotirlinga" ? "jyotirling" : activeCategory
       }
-      return "dharmik"
+      return ""
     }
 
-    if (activeCategory) return activeCategory
     return ""
   }, [pathname, activeCategory, navLinks, submenus])
 
   const activeNavId = optimisticNavId || computedActiveNavId
 
-  const checkIsActive = (item) => activeNavId === item.id
+  const checkIsActive = React.useCallback(
+    (item) => {
+      if (optimisticNavId) {
+        return optimisticNavId === item.id
+      }
+
+      const subItems = getSubItems(item)
+      const hasSub = Boolean(item.hasSubmenu && subItems.length > 0)
+
+      // Main item with submenu: ONLY active if a sub item or this category's page is currently active
+      if (hasSub) {
+        // 1. If currently on an article page, check if this article belongs to this category
+        if (pathname?.startsWith("/article/")) {
+          const cleanPath = decodeURIComponent(pathname)
+          const isSubArticle = (submenus[item.id] || []).some((sub) => {
+            try {
+              return decodeURIComponent(sub.href) === cleanPath
+            } catch {
+              return sub.href === pathname
+            }
+          })
+          if (isSubArticle) return true
+
+          // Or if activeCategory prop passed from article matches this category
+          const normalizedActive = activeCategory === "jyotirlinga" ? "jyotirling" : activeCategory
+          const normalizedItemId = item.id === "jyotirlinga" ? "jyotirling" : item.id
+          if (normalizedActive && normalizedActive === normalizedItemId) return true
+        }
+
+        // 2. If currently on this category's listing page (e.g. /category/jyotishshastra)
+        if (pathname?.startsWith("/category/")) {
+          const currentSlug = pathname.replace("/category/", "").split("/")[0]
+          const normalizedSlug = currentSlug === "jyotirlinga" ? "jyotirling" : currentSlug
+          const normalizedItemId = item.id === "jyotirlinga" ? "jyotirling" : item.id
+          if (normalizedSlug === normalizedItemId) return true
+        }
+
+        // On home or any other route, an item with submenu is NEVER active on its own!
+        return false
+      }
+
+      // Single route item (e.g. "home", "dainik-panchang", "myshop"):
+      return computedActiveNavId === item.id
+    },
+    [optimisticNavId, submenus, pathname, activeCategory, computedActiveNavId, getSubItems]
+  )
 
   // The strip scrolls sideways, so bring the selected item into view instead of leaving it off-screen.
   React.useEffect(() => {
@@ -531,13 +577,9 @@ export function AstroHeader({
                         <button
                           data-nav-id={item.id}
                           type="button"
-                          onClick={() => {
-                            setOptimisticNavId(item.id)
-                            if (onSelectCategory) onSelectCategory(item.id)
-                          }}
                           className={`group px-3 lg:px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs lg:text-[13px] xl:text-sm whitespace-nowrap rounded-full font-bold transition-all flex items-center gap-1 lg:gap-1.5 shrink-0 cursor-pointer ${isActive
                             ? "bg-[#00685d] text-white shadow-sm outline-none ring-1 ring-[#005048]"
-                            : "text-foreground/80 dark:text-foreground/90 hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:bg-amber-500/10 dark:hover:bg-amber-400/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
+                            : "text-foreground/80 dark:text-foreground/90 hover:text-[#00685d] dark:hover:text-[#fdc72d] hover:bg-amber-500/10 dark:hover:bg-amber-400/10 data-[state=open]:bg-amber-500/10 dark:data-[state=open]:bg-amber-400/10 data-[state=open]:text-[#00685d] dark:data-[state=open]:text-[#fdc72d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685d]"
                             }`}
                         >
                           <span>{item.label}</span>
@@ -550,13 +592,16 @@ export function AstroHeader({
                             <DropdownMenuGroup>
                               <DropdownMenuItem
                                 asChild
-                                className="cursor-pointer text-xs font-bold py-2 px-2.5 flex items-center justify-between text-[#8a6800] dark:text-[#fdc72d] rounded-lg"
+                                className={`cursor-pointer text-xs font-bold py-2 px-2.5 flex items-center justify-between rounded-lg ${
+                                  pathname?.startsWith(`/category/${item.id}`) || pathname?.startsWith(`/category/${item.id === "jyotirling" ? "jyotirlinga" : item.id}`)
+                                    ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d]"
+                                    : "text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted"
+                                }`}
                               >
                                 <Link
                                   href={getItemHref(item.id)}
                                   onClick={() => {
                                     setOptimisticNavId(item.id)
-                                    if (onSelectCategory) onSelectCategory(item.id)
                                   }}
                                   className="flex items-center justify-between w-full"
                                 >
@@ -568,24 +613,34 @@ export function AstroHeader({
                           </>
                         )}
                         <DropdownMenuGroup>
-                          {subItems.map((sub, idx) => (
-                            <DropdownMenuItem
-                              key={idx}
-                              asChild
-                              className="cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between font-medium text-foreground hover:bg-muted rounded-lg"
-                            >
-                              <Link
-                                href={sub.href}
-                                onClick={() => {
-                                  setOptimisticNavId(item.id)
-                                  if (onSelectCategory) onSelectCategory(item.id)
-                                }}
-                                className="flex items-center justify-between w-full"
+                          {subItems.map((sub, idx) => {
+                            const isSubActive = Boolean(
+                              pathname?.startsWith("/article/") &&
+                              (pathname === sub.href || decodeURIComponent(pathname) === decodeURIComponent(sub.href))
+                            )
+                            return (
+                              <DropdownMenuItem
+                                key={idx}
+                                asChild
+                                className={`cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between rounded-lg ${
+                                  isSubActive
+                                    ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold"
+                                    : "font-medium text-foreground hover:bg-muted"
+                                }`}
                               >
-                                <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
-                              </Link>
-                            </DropdownMenuItem>
-                          ))}
+                                <Link
+                                  href={sub.href}
+                                  onClick={() => {
+                                    setOptimisticNavId(item.id)
+                                  }}
+                                  className="flex items-center justify-between w-full"
+                                >
+                                  <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
+                                  {isSubActive && <span className="h-1.5 w-1.5 rounded-full bg-[#00685d] dark:bg-[#fdc72d] shrink-0" />}
+                                </Link>
+                              </DropdownMenuItem>
+                            )
+                          })}
                         </DropdownMenuGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -843,24 +898,38 @@ export function AstroHeader({
                             <Link
                               href={getItemHref(item.id)}
                               onClick={() => {
-                                if (onSelectCategory) onSelectCategory(item.id)
                                 setMobileMenuOpen(false)
                               }}
-                              className="w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-bold text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted/60 flex items-center justify-between cursor-pointer"
+                              className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-between cursor-pointer ${
+                                pathname?.startsWith(`/category/${item.id}`) || pathname?.startsWith(`/category/${item.id === "jyotirling" ? "jyotirlinga" : item.id}`)
+                                  ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d]"
+                                  : "text-[#8a6800] dark:text-[#fdc72d] hover:bg-muted/60"
+                              }`}
                             >
                               <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
                             </Link>
                           )}
-                          {subItems.map((sub, idx) => (
-                            <Link
-                              key={idx}
-                              href={sub.href}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="w-full text-left py-1.5 px-2.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-between cursor-pointer"
-                            >
-                              <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
-                            </Link>
-                          ))}
+                          {subItems.map((sub, idx) => {
+                            const isSubActive = Boolean(
+                              pathname?.startsWith("/article/") &&
+                              (pathname === sub.href || decodeURIComponent(pathname) === decodeURIComponent(sub.href))
+                            )
+                            return (
+                              <Link
+                                key={idx}
+                                href={sub.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
+                                  isSubActive
+                                    ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold"
+                                    : "font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                }`}
+                              >
+                                <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
+                                {isSubActive && <span className="h-1.5 w-1.5 rounded-full bg-[#00685d] dark:bg-[#fdc72d] shrink-0" />}
+                              </Link>
+                            )
+                          })}
                         </div>
                       )}
                     </div>
