@@ -17,7 +17,7 @@ import { OurServicesSection } from "@/components/our-services-section"
 
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
 import { useCategorySections } from "@/lib/api/hooks/use-nav-menu"
-import { adaptHeroStory } from "@/lib/api/adapters/home"
+import { adaptHeroStory, adaptJyotirlinga } from "@/lib/api/adapters/home"
 import { useLanguage } from "@/components/language-provider"
 import { toast } from "@/components/ui/sonner"
 
@@ -119,6 +119,18 @@ export default function HomeClient({ initialFeed = null }) {
     return lang === "gu" ? "મુખ્ય લેખો અને સમાચારો" : "Featured Articles & Latest News"
   }, [activeFilter, data.categories, lang])
 
+  // Dedicated Jyotirlinga articles: priority to live home feed devotional_special, with fallback to jyotirling category
+  const displayedJyotirlingas = React.useMemo(() => {
+    if (data.jyotirlingas && data.jyotirlingas.length > 0) {
+      return data.jyotirlingas
+    }
+    const sec = categorySections?.find((s) => s.category?.slug === "jyotirling")
+    if (sec && sec.articles?.length > 0) {
+      return sec.articles.slice(0, 3).map((a) => adaptJyotirlinga(a, lang))
+    }
+    return []
+  }, [data.jyotirlingas, categorySections, lang])
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200 w-full max-w-full overflow-x-hidden">
       {/* 1. Header with 3 tiers (Auspicious strip, Brand & Search, Saffron nav) + Mobile Drawer */}
@@ -173,7 +185,7 @@ export default function HomeClient({ initialFeed = null }) {
               <EditorialContent
                 featuredArticles={data.featuredArticles}
                 jyotirlingasSection={data.jyotirlingasSection}
-                jyotirlingas={data.jyotirlingas}
+                jyotirlingas={displayedJyotirlingas}
                 astroInsightsSection={data.astroInsightsSection}
                 astroInsights={data.astroInsights}
                 onArticleClick={handleArticleClick}
