@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Send,
   ChevronRight,
+  ArrowUpRight,
   X,
   Award,
   AlertCircle,
@@ -23,6 +24,7 @@ import {
 
 import { AstroHeader } from "@/components/astro-header"
 import { AstroFooter } from "@/components/astro-footer"
+import { SafeImage } from "@/components/ui/safe-image"
 import {
   Card,
   CardContent
@@ -74,6 +76,17 @@ export default function CategoriesClient() {
   const founder = siteData.config?.founder
   const sections = useCategorySections(lang)
 
+  const getCategoryFallbackImage = (slug) => {
+    const s = String(slug || "").toLowerCase()
+    if (s.includes("somnath") || s.includes("jyotirling")) return "/images/somnath-mahadev-temple.jpg"
+    if (s.includes("mahakal")) return "/images/mahakaleshwar-temple.jpg"
+    if (s.includes("bahuchar") || s.includes("rajwadu")) return "/images/bahucharaji-temple.jpg"
+    if (s.includes("dharmik")) return "/images/bahucharaji-temple.jpg"
+    if (s.includes("kundli") || s.includes("jyotish")) return "/images/vedic-3d-mandala.jpg"
+    if (s.includes("moolank") || s.includes("ankashastra") || s.includes("numerology")) return "/images/sacred-vedic-hero.jpg"
+    return "/images/bahucharaji-temple.jpg"
+  }
+
   const directory = React.useMemo(
     () =>
       (sections || [])
@@ -86,9 +99,9 @@ export default function CategoriesClient() {
             description: category.description || first.subtitle || "",
             subCategory: first.tag || "",
             badge: `${category.articles_count ?? articles.length} ${lang === "gu" ? "લેખો" : "Articles"}`,
-            image: articles.find((a) => a.image)?.image || "https://dummyjson.com/image/200x100",
+            image: articles.find((a) => a.image)?.image || getCategoryFallbackImage(category.slug),
             imageAlt: first.image_alt || category.name,
-            link: `/article/${first.slug || first.id}`,
+            link: `/category/${category.slug}`,
             articles: articles.slice(0, 3),
             totalArticles: Number(category.articles_count ?? articles.length),
           }
@@ -298,8 +311,8 @@ export default function CategoriesClient() {
             ) : null}
           </div>
 
-          {/* Filter Chips (Clean, Responsive, Horizontal Wrapping / Scroll) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* Filter Chips (Clean, Responsive, Rounded-Full Pills) */}
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
             {filterPills.map((pill) => {
               const isActive = selectedFilter === pill.id
               return (
@@ -307,10 +320,10 @@ export default function CategoriesClient() {
                   key={pill.id}
                   type="button"
                   onClick={() => setSelectedFilter(pill.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-bold transition-all shrink-0 cursor-pointer border ${
+                  className={`px-4 py-1.5 rounded-full text-xs whitespace-nowrap font-bold transition-all shrink-0 cursor-pointer border ${
                     isActive
-                      ? "bg-[#008376] text-white border-[#00685d] shadow-2xs"
-                      : "bg-[#efeeea] dark:bg-[#103d37] text-foreground/80 border-border/40 hover:bg-[#008376]/10 hover:text-[#008376] dark:hover:text-[#38b2a3]"
+                      ? "bg-[#0e3934] text-white dark:bg-[#fdc72d] dark:text-[#0e3934] border-[#0e3934] dark:border-[#eab318] shadow-sm ring-1 ring-[#fdc72d]"
+                      : "bg-[#f3f1ea] dark:bg-[#20221c] text-foreground/80 border-border/60 hover:bg-[#eae6db] dark:hover:bg-[#282a24]"
                   }`}
                 >
                   {pill.label}
@@ -372,82 +385,104 @@ export default function CategoriesClient() {
             ) : (
               /* High-Contrast, Balanced 2-Column Categories Grid */
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-                {filteredCategories.map((cat) => (
-                  <Card
-                    key={cat.id}
-                    className="p-0 gap-0 overflow-hidden border border-border/80 dark:border-white/10 shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#1c1d1a] hover:-translate-y-1"
-                  >
-                    {/* Image Header with Aspect Ratio */}
-                    <div className="relative aspect-[2/1] overflow-hidden bg-muted">
-                      {cat.image && (
-                        <Image
+                {filteredCategories.map((cat) => {
+                  const targetCategoryUrl = `/category/${cat.id}`
+                  return (
+                    <Card
+                      key={cat.id}
+                      onClick={(e) => {
+                        // Don't trigger card navigation if an inner link or button was clicked
+                        if (e.target.closest("a") || e.target.closest("button")) return
+                        router.push(targetCategoryUrl)
+                      }}
+                      className="p-0 gap-0 overflow-hidden border border-border/80 dark:border-white/10 shadow-sm hover:shadow-xl hover:border-[#fdc72d] dark:hover:border-[#fdc72d] transition-all duration-300 flex flex-col justify-between group bg-card dark:bg-[#1c1d1a] hover:-translate-y-1.5 cursor-pointer"
+                    >
+                      {/* Image Header with 16:10 Aspect Ratio - Clickable directly */}
+                      <Link
+                        href={targetCategoryUrl}
+                        className="relative aspect-[16/10] w-full overflow-hidden bg-muted/40 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdc72d]"
+                      >
+                        <SafeImage
                           src={cat.image}
-                          alt={cat.imageAlt}
+                          fallbackSrc={getCategoryFallbackImage(cat.id)}
+                          alt={cat.imageAlt || cat.title}
                           fill
                           sizes="(max-width: 768px) 100vw, 40vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                         />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#06302b]/85 via-[#06302b]/25 to-transparent" />
-                      
-                      {/* Top Badge */}
-                      <div className="absolute top-3 left-3 bg-[#008376] text-white px-2.5 py-0.5 rounded-md text-xs font-bold shadow-xs">
-                        {cat.badge}
-                      </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
 
-                      {/* Bottom Title Overlay */}
-                      <div className="absolute bottom-3 left-3 right-3 text-white">
-                        {Boolean(cat.subCategory && cat.subCategory.trim().toLowerCase() !== cat.title.trim().toLowerCase()) && (
-                          <span className="text-xs text-emerald-200 dark:text-[#fdc72d] font-bold uppercase tracking-wider block mb-0.5">
-                            {cat.subCategory}
+                        {/* Top Badge */}
+                        <div className="absolute top-3 left-3 bg-[#008376] dark:bg-[#fdc72d] text-white dark:text-[#0e3934] px-2.5 py-0.5 rounded-md text-xs font-black shadow-md border border-white/20">
+                          {cat.badge}
+                        </div>
+
+                        {/* Top-Right Arrow Hover Badge */}
+                        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-xs text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ArrowUpRight className="h-4 w-4 text-[#fdc72d]" />
+                        </div>
+
+                        {/* Bottom Title Overlay with generous padding so letters never cut off */}
+                        <div className="absolute bottom-3.5 left-4 right-4 text-white">
+                          {Boolean(cat.subCategory && cat.subCategory.trim().toLowerCase() !== cat.title.trim().toLowerCase()) && (
+                            <span className="text-[11px] text-[#fdc72d] font-bold uppercase tracking-wider block mb-0.5">
+                              {cat.subCategory}
+                            </span>
+                          )}
+                          <h3 className="text-lg sm:text-xl font-extrabold leading-snug drop-shadow-sm group-hover:text-[#fdc72d] transition-colors">
+                            {cat.title}
+                          </h3>
+                        </div>
+                      </Link>
+
+                      {/* Card Content & Action */}
+                      <CardContent className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 sm:gap-4 bg-card dark:bg-[#1a1b17]">
+                        <div className="flex flex-col gap-3">
+                          {cat.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                              {cat.description}
+                            </p>
+                          )}
+                          {cat.articles && cat.articles.length > 0 && (
+                            <div className="space-y-1.5 pt-1">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 block">
+                                {lang === "gu" ? "તાજા લેખો:" : "Latest Articles:"}
+                              </span>
+                              <ul className="flex flex-col gap-1.5">
+                                {cat.articles.map((a) => (
+                                  <li key={a.slug || a.id}>
+                                    <Link
+                                      href={`/article/${a.slug || a.id}`}
+                                      className="flex items-start gap-1.5 text-xs font-medium text-foreground/80 hover:text-[#008376] dark:hover:text-[#fdc72d] transition-colors group/item"
+                                    >
+                                      <ChevronRight className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#d9a100] group-hover/item:translate-x-0.5 transition-transform" />
+                                      <span className="line-clamp-1">{a.title}</span>
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-3 flex items-center justify-between text-xs font-bold border-t border-border/60">
+                          <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
+                            <BookOpen className="h-3.5 w-3.5 text-[#008376] dark:text-[#fdc72d]" />
+                            <span className="text-xs">{cat.badge}</span>
                           </span>
-                        )}
-                        <h3 className="text-base sm:text-lg font-black leading-snug drop-shadow-xs group-hover:text-[#fdc72d] transition-colors">
-                          {cat.title}
-                        </h3>
-                      </div>
-                    </div>
 
-                    {/* Card Content & Action */}
-                    <CardContent className="p-3.5 sm:p-5 flex flex-col justify-between flex-1 gap-3 sm:gap-4">
-                      <div className="flex flex-col gap-3">
-                        {cat.description && (
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                            {cat.description}
-                          </p>
-                        )}
-                        <ul className="flex flex-col gap-1.5">
-                          {cat.articles.map((a) => (
-                            <li key={a.slug || a.id}>
-                              <Link
-                                href={`/article/${a.slug || a.id}`}
-                                className="flex items-start gap-1.5 text-xs font-medium text-foreground/80 hover:text-[#008376] dark:hover:text-[#fdc72d] transition-colors"
-                              >
-                                <ChevronRight className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#d9a100]" />
-                                <span className="line-clamp-1">{a.title}</span>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="pt-3 flex items-center justify-between text-xs font-bold border-t border-border/60">
-                        <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
-                          <BookOpen className="h-3.5 w-3.5" />
-                          <span className="text-xs">{cat.badge}</span>
-                        </span>
-
-                        <Link
-                          href={cat.link}
-                          className="inline-flex items-center gap-1 text-[#008376] dark:text-[#38b2a3] hover:text-[#00685d] dark:hover:text-[#fdc72d] font-bold group-hover:translate-x-0.5 transition-all"
-                        >
-                          <span>{lang === "gu" ? "વધુ વાંચો" : "Read More"}</span>
-                          <ChevronRight className="h-3.5 w-3.5" />
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          <Link
+                            href={targetCategoryUrl}
+                            className="inline-flex items-center gap-1 text-[#008376] dark:text-[#38b2a3] hover:text-[#00685d] dark:hover:text-[#fdc72d] font-bold group-hover:translate-x-0.5 transition-all"
+                          >
+                            <span>{lang === "gu" ? "બધા લેખો જુઓ" : "View All Articles"}</span>
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             )}
           </div>
