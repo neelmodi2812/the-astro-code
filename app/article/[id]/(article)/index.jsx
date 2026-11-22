@@ -248,7 +248,15 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   const { article, loading, notFound, reload } = articleState
 
   const { isAuthenticated } = useAuth()
-  const [hasActiveSub, setHasActiveSub] = React.useState(false)
+  const [hasActiveSub, setHasActiveSub] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const u = userStore.get()
+        if (u?.has_active_subscription) return true
+      } catch {}
+    }
+    return false
+  })
 
   React.useEffect(() => {
     let cancelled = false
@@ -811,8 +819,8 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               </figure>
             )}
 
-            {/* AUDIO LISTENING PLAYER COMPONENT */}
-            {Boolean(article.audioText?.[lang] || article.audioText?.gu || article.audioText) && (
+            {/* AUDIO LISTENING PLAYER COMPONENT (Only visible when user has an active subscription) */}
+            {Boolean(hasActiveSub && (article.audioText?.[lang] || article.audioText?.gu || article.audioText)) && (
               <AudioArticlePlayer
                 articleText={article.audioText[lang] || article.audioText.gu || article.audioText}
                 lang={lang}
