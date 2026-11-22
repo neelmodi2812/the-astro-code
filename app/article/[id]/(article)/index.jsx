@@ -19,7 +19,6 @@ import {
   Quote,
   MessageCircle,
   Store,
-  TrendingUp,
   Award,
   Users,
   Copy,
@@ -1156,41 +1155,6 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               >
                 {lang === "gu" ? "તમામ પૂજા સામગ્રી જુઓ →" : "View All Spiritual Products →"}
               </Link>
-            </div>
-
-            {/* WIDGET 5: MOST POPULAR ARTICLES (વાંચકોની પસંદ 1-3) */}
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="h-4 w-4 text-[#d9a100]" />
-                <h4 className="font-bold text-sm text-foreground">
-                  {lang === "gu" ? "વાંચકોની પસંદ (Most Popular)" : "Readers' Choice (Most Popular)"}
-                </h4>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                {data.popular.map((item, idx) => {
-                  const targetSlug = item.id || item.slug || "hero-1-bahuchar-maa-pragatya"
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => router.push(`/article/${targetSlug}`)}
-                      className="flex items-start gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0b332f] border border-border/40 hover:border-[#fdc72d]/60 transition-colors group cursor-pointer"
-                    >
-                    <span className="w-5 h-5 rounded-full bg-[#fdc72d] text-[#0e3934] font-bold text-center leading-5 shrink-0 text-xs">
-                      {item.rank}
-                    </span>
-                    <div className="flex flex-col min-w-0">
-                      <h5 className="font-bold text-xs text-foreground group-hover:text-[#8a6800] dark:group-hover:text-[#fdc72d] transition-colors line-clamp-2">
-                        {item.title}
-                      </h5>
-                      <span className="text-xs text-muted-foreground mt-0.5">
-                        {item.reads}
-                      </span>
-                    </div>
-                    </div>
-                  )
-                })}
-              </div>
             </div>
           </aside>
         </div>
