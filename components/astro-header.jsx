@@ -5,7 +5,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import {
-  Sun,
   MessageSquare,
   User,
   ChevronDown,
@@ -308,23 +307,6 @@ export function AstroHeader({
                   </div>
                 </div>
               </Link>
-
-              {/* Panchang / Samvat & Solar Status Capsule (visible on xl+) */}
-              <div className="hidden xl:flex items-center gap-2.5 pl-4 border-l border-border/60">
-                <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-amber-500/8 dark:bg-amber-400/10 border border-amber-500/20 shadow-2xs">
-                  <div className="flex items-center justify-center size-6 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0">
-                    <Sun className="h-3.5 w-3.5 animate-[spin_24s_linear_infinite]" />
-                  </div>
-                  <div className="flex flex-col text-left justify-center text-xs">
-                    <span className="font-extrabold text-[#785900] dark:text-amber-300 whitespace-nowrap leading-tight text-[11.5px]">
-                      {topBar?.samvat || "વિક્રમ સંવત ૨૦૮૧ • કાર્તક સુદ પૂનમ"}
-                    </span>
-                    <span className="text-[10.5px] text-muted-foreground whitespace-nowrap leading-tight mt-0.5">
-                      {topBar?.sunTimings || "અમદાવાદ સૂર્યોદય: ૦૬:૫૨ • સૂર્યાસ્ત: ૧૭:૫૪"}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Right: Book Consultation, Cart, Profile, Language & Theme */}
