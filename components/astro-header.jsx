@@ -78,7 +78,7 @@ export function AstroHeader({
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
   const { navLinks, submenus } = useNavMenu(lang, staticNavLinks)
-  const getSubItems = (item) => (item.id === "more" ? MORE_SUBMENU : submenus[item.id] || [])
+  const getSubItems = (item) => (item.id === "more" ? (submenus["more"] && submenus["more"].length > 0 ? submenus["more"] : MORE_SUBMENU) : submenus[item.id] || [])
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [expandedCategory, setExpandedCategory] = React.useState(null)
 
@@ -240,7 +240,9 @@ export function AstroHeader({
     }
     if (pathname?.startsWith("/category/")) {
       const catSlug = pathname.replace("/category/", "").split("/")[0]
-      return catSlug === "jyotirlinga" ? "jyotirling" : catSlug
+      const normalizedSlug = catSlug === "jyotirlinga" ? "jyotirling" : catSlug
+      const isTopNav = navLinks.some((item) => item.id === normalizedSlug)
+      return isTopNav ? normalizedSlug : "more"
     }
 
     // Article detail pages: determine active navigation category from API or submenus
@@ -257,7 +259,9 @@ export function AstroHeader({
       )
       if (owner) return owner.id
       if (activeCategory && activeCategory !== "home") {
-        return activeCategory === "jyotirlinga" ? "jyotirling" : activeCategory
+        const normalizedActive = activeCategory === "jyotirlinga" ? "jyotirling" : activeCategory
+        const isTopNav = navLinks.some((item) => item.id === normalizedActive)
+        return isTopNav ? normalizedActive : "more"
       }
       return ""
     }
@@ -565,7 +569,7 @@ export function AstroHeader({
                           <ChevronDown className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100 transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180 group-data-[popup-open]:rotate-180 group-data-[state=open]:rotate-180" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className="w-64 p-1.5 rounded-xl bg-card dark:bg-[#0d3732] shadow-xl border border-border">
+                      <DropdownMenuContent align={item.id === "more" ? "end" : "start"} className={`${item.id === "more" ? "w-72" : "w-64"} p-1.5 rounded-xl bg-card dark:bg-[#0d3732] shadow-xl border border-border`}>
                         {item.id !== "more" && (
                           <>
                             <DropdownMenuGroup>
@@ -594,30 +598,37 @@ export function AstroHeader({
                         <DropdownMenuGroup>
                           {subItems.map((sub, idx) => {
                             const isSubActive = Boolean(
-                              pathname?.startsWith("/article/") &&
-                              (pathname === sub.href || decodeURIComponent(pathname) === decodeURIComponent(sub.href))
+                              pathname === sub.href ||
+                              decodeURIComponent(pathname) === decodeURIComponent(sub.href) ||
+                              (pathname?.startsWith("/article/") &&
+                                (pathname === sub.href || decodeURIComponent(pathname) === decodeURIComponent(sub.href)))
                             )
+                            const labelText = typeof sub.label === "string" ? sub.label : (sub.label?.[lang] || sub.label?.gu || sub.label?.en || "")
+                            const isFirstStaticLink = item.id === "more" && sub.href === "/categories" && idx > 0
+
                             return (
-                              <DropdownMenuItem
-                                key={idx}
-                                asChild
-                                className={`cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between rounded-lg ${
-                                  isSubActive
-                                    ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold"
-                                    : "font-medium text-foreground hover:bg-muted"
-                                }`}
-                              >
-                                <Link
-                                  href={sub.href}
-                                  onClick={() => {
-                                    setOptimisticNavId(item.id)
-                                  }}
-                                  className="flex items-center justify-between w-full"
+                              <React.Fragment key={idx}>
+                                {isFirstStaticLink && <DropdownMenuSeparator className="my-1" />}
+                                <DropdownMenuItem
+                                  asChild
+                                  className={`cursor-pointer text-xs py-2 px-2.5 flex items-center justify-between rounded-lg ${
+                                    isSubActive
+                                      ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold"
+                                      : "font-medium text-foreground hover:bg-muted"
+                                  }`}
                                 >
-                                  <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
-                                  {isSubActive && <span className="h-1.5 w-1.5 rounded-full bg-[#00685d] dark:bg-[#fdc72d] shrink-0" />}
-                                </Link>
-                              </DropdownMenuItem>
+                                  <Link
+                                    href={sub.href}
+                                    onClick={() => {
+                                      setOptimisticNavId(item.id)
+                                    }}
+                                    className="flex items-center justify-between w-full"
+                                  >
+                                    <span className="truncate pr-2">{labelText}</span>
+                                    {isSubActive && <span className="h-1.5 w-1.5 rounded-full bg-[#00685d] dark:bg-[#fdc72d] shrink-0" />}
+                                  </Link>
+                                </DropdownMenuItem>
+                              </React.Fragment>
                             )
                           })}
                         </DropdownMenuGroup>
@@ -888,23 +899,30 @@ export function AstroHeader({
                           )}
                           {subItems.map((sub, idx) => {
                             const isSubActive = Boolean(
-                              pathname?.startsWith("/article/") &&
-                              (pathname === sub.href || decodeURIComponent(pathname) === decodeURIComponent(sub.href))
+                              pathname === sub.href ||
+                              decodeURIComponent(pathname) === decodeURIComponent(sub.href) ||
+                              (pathname?.startsWith("/article/") &&
+                                (pathname === sub.href || decodeURIComponent(pathname) === decodeURIComponent(sub.href)))
                             )
+                            const labelText = typeof sub.label === "string" ? sub.label : (sub.label?.[lang] || sub.label?.gu || sub.label?.en || "")
+                            const isFirstStaticLink = item.id === "more" && sub.href === "/categories" && idx > 0
+
                             return (
-                              <Link
-                                key={idx}
-                                href={sub.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
-                                  isSubActive
-                                    ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold"
-                                    : "font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                }`}
-                              >
-                                <span className="truncate pr-2">{sub.label[lang] || sub.label.gu}</span>
-                                {isSubActive && <span className="h-1.5 w-1.5 rounded-full bg-[#00685d] dark:bg-[#fdc72d] shrink-0" />}
-                              </Link>
+                              <React.Fragment key={idx}>
+                                {isFirstStaticLink && <Separator className="my-1 bg-border/40" />}
+                                <Link
+                                  href={sub.href}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className={`w-full text-left py-1.5 px-2.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
+                                    isSubActive
+                                      ? "bg-[#00685d]/10 text-[#00685d] dark:bg-[#fdc72d]/15 dark:text-[#fdc72d] font-bold"
+                                      : "font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                  }`}
+                                >
+                                  <span className="truncate pr-2">{labelText}</span>
+                                  {isSubActive && <span className="h-1.5 w-1.5 rounded-full bg-[#00685d] dark:bg-[#fdc72d] shrink-0" />}
+                                </Link>
+                              </React.Fragment>
                             )
                           })}
                         </div>
