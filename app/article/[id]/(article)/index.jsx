@@ -1,5 +1,6 @@
 "use client"
 
+import ArticleLoading from "../loading"
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -61,127 +62,7 @@ import { subscriptionService } from "@/lib/api/services/subscription"
 import { ArticlePaywall } from "@/components/article-paywall"
 import { getWhatsAppUrl } from "@/lib/config/contact"
 
-function ArticleSkeleton({ data, lang, handleToggleLang }) {
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
-      <AstroHeader
-        config={data.config}
-        topBar={data.topBar}
-        navLinks={data.navLinks}
-        activeCategory=""
-        lang={lang}
-        onToggleLang={handleToggleLang}
-      />
-
-      {/* Top subtle golden shimmer indicator bar */}
-      <div className="w-full h-1 bg-border/40 overflow-hidden relative">
-        <div className="h-full bg-gradient-to-r from-transparent via-[#fdc72d] to-transparent w-full animate-pulse" />
-      </div>
-
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
-        {/* Loading badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdc72d]/15 text-[#0e3934] dark:text-[#fdc72d] text-xs font-semibold animate-pulse mb-6 border border-[#fdc72d]/30">
-          <div className="w-2 h-2 rounded-full bg-[#fdc72d] animate-ping" />
-          <span>{lang === "gu" ? "આર્ટિકલ લોડ થઈ રહ્યો છે..." : "Loading Vedic article..."}</span>
-        </div>
-
-        {/* Breadcrumb Skeleton */}
-        <div className="flex items-center gap-2 mb-6 animate-pulse">
-          <div className="h-4 w-16 bg-muted rounded" />
-          <div className="h-4 w-3 bg-muted rounded" />
-          <div className="h-4 w-28 bg-muted rounded" />
-          <div className="h-4 w-3 bg-muted rounded" />
-          <div className="h-4 w-48 bg-muted rounded" />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          {/* Main Left Column Skeleton */}
-          <div className="lg:col-span-8 flex flex-col gap-6 animate-pulse">
-            <div className="flex items-center gap-2">
-              <div className="h-6 w-24 bg-[#fdc72d]/30 rounded-md" />
-              <div className="h-6 w-20 bg-muted rounded-md" />
-            </div>
-
-            {/* Title & Subtitle */}
-            <div className="space-y-3">
-              <div className="h-9 sm:h-11 w-11/12 bg-muted rounded-lg" />
-              <div className="h-9 sm:h-11 w-4/5 bg-muted rounded-lg" />
-              <div className="h-5 w-full bg-muted/70 rounded mt-3" />
-              <div className="h-5 w-3/4 bg-muted/70 rounded" />
-            </div>
-
-            {/* Author Strip Skeleton */}
-            <div className="bg-[#f7f6f2] dark:bg-[#0d3833] border border-border/60 rounded-xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-12 rounded-full bg-muted" />
-                <div className="space-y-1.5">
-                  <div className="h-4 w-32 bg-muted rounded" />
-                  <div className="h-3 w-44 bg-muted/70 rounded" />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-4 w-20 bg-muted rounded" />
-                <div className="h-4 w-16 bg-muted rounded" />
-              </div>
-            </div>
-
-            {/* Hero Image Skeleton */}
-            <div className="w-full aspect-16/9 sm:aspect-21/9 rounded-2xl bg-muted relative overflow-hidden flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full border-4 border-[#fdc72d]/40 border-t-[#fdc72d] animate-spin" />
-            </div>
-
-            {/* Body Content Skeleton */}
-            <div className="space-y-4 pt-2">
-              <div className="h-5 w-full bg-muted/80 rounded" />
-              <div className="h-5 w-full bg-muted/80 rounded" />
-              <div className="h-5 w-5/6 bg-muted/80 rounded" />
-              <div className="h-5 w-full bg-muted/80 rounded" />
-              <div className="h-5 w-3/4 bg-muted/80 rounded" />
-
-              <div className="my-6 p-6 bg-muted/40 rounded-2xl border-l-4 border-[#fdc72d]/50 space-y-2">
-                <div className="h-5 w-full bg-muted rounded" />
-                <div className="h-5 w-2/3 bg-muted rounded" />
-              </div>
-
-              <div className="h-5 w-full bg-muted/80 rounded" />
-              <div className="h-5 w-4/5 bg-muted/80 rounded" />
-            </div>
-          </div>
-
-          {/* Right Sidebar Skeleton */}
-          <div className="lg:col-span-4 flex flex-col gap-6 animate-pulse">
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 space-y-3">
-              <div className="h-5 w-32 bg-muted rounded" />
-              <div className="grid grid-cols-3 gap-2">
-                <div className="h-16 bg-muted rounded-xl" />
-                <div className="h-16 bg-muted rounded-xl" />
-                <div className="h-16 bg-muted rounded-xl" />
-              </div>
-            </div>
-            <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 space-y-3">
-              <div className="h-5 w-36 bg-muted rounded" />
-              <div className="space-y-2">
-                <div className="h-8 bg-muted rounded-lg" />
-                <div className="h-8 bg-muted rounded-lg" />
-                <div className="h-8 bg-muted rounded-lg" />
-              </div>
-            </div>
-            <div className="h-64 rounded-3xl bg-[#0e3934]/60 border border-[#fdc72d]/20" />
-          </div>
-        </div>
-      </main>
-      <AstroFooter
-        config={data.config}
-        navLinks={data.navLinks}
-        categories={data.categories}
-        footer={data.footer}
-        lang={lang}
-      />
-    </div>
-  )
-}
-
-function ArticleNotFound({ data, lang, handleToggleLang }) {
+function ArticleUnavailable({ data, lang, handleToggleLang, onRetry }) {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
       <AstroHeader
@@ -197,14 +78,21 @@ function ArticleNotFound({ data, lang, handleToggleLang }) {
           <BookOpen className="h-10 w-10" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
-          {lang === "gu" ? "આર્ટિકલ મળ્યો નથી" : "Article Not Found"}
+          {onRetry
+            ? (lang === "gu" ? "લેખ લોડ થઈ શક્યો નથી" : "Unable to load the article")
+            : (lang === "gu" ? "આર્ટિકલ મળ્યો નથી" : "Article Not Found")}
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground max-w-md mb-8 leading-relaxed">
+        {!onRetry && <p className="text-sm sm:text-base text-muted-foreground max-w-md mb-8 leading-relaxed">
           {lang === "gu"
             ? "તમે જે આધ્યાત્મિક કે જ્યોતિષીય લેખ શોધી રહ્યા છો તે ઉપલબ્ધ નથી અથવા તેને ખસેડવામાં આવ્યો છે."
             : "The spiritual or astrological article you are looking for is unavailable or has been moved."}
-        </p>
+        </p>}
         <div className="flex items-center gap-3 flex-wrap justify-center">
+          {onRetry && (
+            <Button type="button" onClick={onRetry}>
+              {lang === "gu" ? "ફરી પ્રયાસ કરો" : "Retry"}
+            </Button>
+          )}
           <Button asChild className="bg-[#fdc72d] hover:bg-[#eab318] text-[#0e3934] font-bold px-6 py-2.5 rounded-xl shadow-md">
             <Link href="/" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -245,7 +133,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
   const { lang, setLang } = useLanguage()
   const data = useHomeData(lang)
   const articleState = useArticle(articleId, initialArticle)
-  const { article, loading, notFound, reload } = articleState
+  const { article, loading, notFound, failed, reload } = articleState
 
   const { isAuthenticated } = useAuth()
   const [hasActiveSub, setHasActiveSub] = React.useState(() => {
@@ -483,14 +371,10 @@ function ArticleDetailContent({ initialId, initialArticle }) {
     return "dharmik"
   }, [articleId, article])
 
-  // If loading or we don't have the article yet and it's not confirmed 404, ALWAYS show the shimmer skeleton loader!
-  if (loading || (!article && !notFound)) {
-    return <ArticleSkeleton data={data} lang={lang} handleToggleLang={handleToggleLang} />
-  }
+  if (loading) return <ArticleLoading />
 
-  // ONLY show 404 Not Found screen when loading is completely done AND notFound is true
-  if (notFound && !article) {
-    return <ArticleNotFound data={data} lang={lang} handleToggleLang={handleToggleLang} />
+  if (notFound || failed) {
+    return <ArticleUnavailable data={data} lang={lang} handleToggleLang={handleToggleLang} onRetry={failed ? reload : undefined} />
   }
 
   return (
@@ -583,7 +467,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
                   <div className="relative">
                     <Avatar className="size-12 ring-2 ring-[#fdc72d] shadow-xs">
                       <AvatarImage
-                        src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-avatar.jpg"}
+                        src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-portrait-avatar.webp"}
                         alt={article.author?.name?.[lang] || article.author?.name?.gu || "Author"}
                         className="object-cover object-top"
                       />
@@ -1087,7 +971,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
             <div className="bg-[#f8f7f3] dark:bg-[#0d3833] border border-border/70 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 mt-4">
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-[#008d7f]/20 shadow-sm shrink-0">
                 <Image
-                  src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-avatar.jpg"}
+                  src={(article.author?.image && !article.author.image.includes("dummyjson") && !article.author.image.includes("unsplash.com") && !article.author.image.includes("googleusercontent.com")) ? article.author.image : "/images/dr-vishal-modi-portrait-avatar.webp"}
                   alt={article.author.name[lang]}
                   fill
                   sizes="96px"
@@ -1289,7 +1173,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
               <div className="relative flex items-center gap-3 p-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div className="relative size-12 rounded-full ring-2 ring-[#fdc72d] shadow-sm shrink-0 overflow-hidden bg-white/10">
                   <Image
-                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com") || data.config.founder.image.includes("googleusercontent.com")) ? "/images/dr-vishal-modi-avatar.jpg" : data.config.founder.image}
+                    src={(!data.config?.founder?.image || data.config.founder.image.includes("unsplash.com") || data.config.founder.image.includes("googleusercontent.com")) ? "/images/dr-vishal-modi-portrait-avatar.webp" : data.config.founder.image}
                     alt="Dr. Vishal Modi"
                     width={48}
                     height={48}
@@ -1448,14 +1332,7 @@ function ArticleDetailContent({ initialId, initialArticle }) {
 
 export default function ArticleDetailClient({ initialId, initialArticle }) {
   return (
-    <React.Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-foreground gap-3">
-          <div className="w-10 h-10 border-4 border-[#fdc72d] border-t-transparent rounded-full animate-spin" />
-          <span className="font-bold text-sm text-muted-foreground">આર્ટિકલ લોડ થઈ રહ્યો છે...</span>
-        </div>
-      }
-    >
+    <React.Suspense fallback={<ArticleLoading />}>
       <ArticleDetailContent initialId={initialId} initialArticle={initialArticle} />
     </React.Suspense>
   )

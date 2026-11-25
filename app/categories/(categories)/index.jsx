@@ -1,5 +1,6 @@
 "use client"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -358,7 +359,7 @@ export default function CategoriesClient() {
             {sections === null ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6" aria-busy="true">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-72 rounded-2xl bg-muted/60 animate-pulse" />
+                  <Skeleton key={i} className="h-72 rounded-2xl" />
                 ))}
               </div>
             ) : filteredCategories.length === 0 ? (
@@ -536,7 +537,7 @@ export default function CategoriesClient() {
             <div className="bg-card dark:bg-[#1c1d1a] rounded-2xl p-5 sm:p-6 shadow-2xs border border-border/80 text-center relative overflow-hidden">
               <div className="relative w-20 h-20 rounded-full mx-auto p-1 bg-gradient-to-tr from-[#008376] to-[#fdc72d] shadow-sm mb-3 overflow-hidden">
                 <Image
-                  src={(founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com")) ? founder.image : "/images/dr-vishal-modi-avatar.jpg"}
+                  src={(founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com")) ? founder.image : "/images/dr-vishal-modi-portrait-avatar.webp"}
                   alt="Dr. Vishal Modi"
                   width={80}
                   height={80}

@@ -1,5 +1,6 @@
 "use client"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import * as React from "react"
 import { toast } from "sonner"
 import { MapPin, Loader2, Plus, Pencil, Trash2, Phone, Home, Briefcase, Tag } from "lucide-react"
@@ -312,8 +313,9 @@ function AddressesClient() {
 
         {/* ADDRESSES LIST */}
         {addresses === null ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div role="status" aria-label={isEn ? "Loading…" : "લોડ થઈ રહ્યું છે…"} className="grid gap-3 sm:grid-cols-2">
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
           </div>
         ) : addresses.length === 0 && !form ? (
           <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-8 sm:p-12 border border-dashed border-border/70 text-center space-y-3">

@@ -53,6 +53,7 @@ import { useLanguage } from "@/components/language-provider"
 import { getWhatsAppUrl } from "@/lib/config/contact"
 import { toast } from "sonner"
 import { useAuth } from "@/lib/api/hooks/use-auth"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useNavMenu } from "@/lib/api/hooks/use-nav-menu"
 
 // Valid application routes for the "More" navigation dropdown
@@ -63,6 +64,17 @@ const MORE_SUBMENU = [
   { label: { gu: "અમારા વિશે અને પરિચય", en: "About Us & History" }, href: "/about-us" },
   { label: { gu: "સંપર્ક કરો અને મુલાકાત સરનામું", en: "Contact Us & Office Location" }, href: "/contact-us" },
 ]
+
+function NavListShimmer({ lang }) {
+  return (
+    <div role="status" className="space-y-2 px-2.5 py-2">
+      <span className="sr-only">{lang === "gu" ? "લેખો લોડ થઈ રહ્યા છે…" : "Loading articles…"}</span>
+      {[72, 88, 64, 82].map((width) => (
+        <Skeleton key={width} className="h-3" style={{ width: `${width}%` }} />
+      ))}
+    </div>
+  )
+}
 
 export function AstroHeader({
   config = {},
@@ -77,7 +89,7 @@ export function AstroHeader({
   const pathname = usePathname()
   const { lang: contextLang, setLang } = useLanguage()
   const lang = propLang || contextLang || "gu"
-  const { navLinks, submenus } = useNavMenu(lang, staticNavLinks)
+  const { navLinks, submenus, loading } = useNavMenu(lang, staticNavLinks)
   const getSubItems = (item) => (item.id === "more" ? (submenus["more"] && submenus["more"].length > 0 ? submenus["more"] : MORE_SUBMENU) : submenus[item.id] || [])
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [expandedCategory, setExpandedCategory] = React.useState(null)
@@ -551,7 +563,8 @@ export function AstroHeader({
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
                 const subItems = getSubItems(item)
-                const hasSub = Boolean(item.hasSubmenu && subItems.length > 0)
+                const loadingSubmenu = loading && item.hasSubmenu && item.id !== "more"
+                const hasSub = loadingSubmenu || (item.hasSubmenu && subItems.length > 0)
 
                 if (hasSub) {
                   return (
@@ -595,7 +608,8 @@ export function AstroHeader({
                             <DropdownMenuSeparator />
                           </>
                         )}
-                        <DropdownMenuGroup>
+                        <DropdownMenuGroup className="max-h-[min(24rem,50vh)] overflow-y-auto">
+                          {loadingSubmenu && <NavListShimmer lang={lang} />}
                           {subItems.map((sub, idx) => {
                             const isSubActive = Boolean(
                               pathname === sub.href ||
@@ -859,7 +873,8 @@ export function AstroHeader({
               {navLinks.map((item) => {
                 const isActive = checkIsActive(item)
                 const subItems = getSubItems(item)
-                const hasSub = item.hasSubmenu && subItems.length > 0
+                const loadingSubmenu = loading && item.hasSubmenu && item.id !== "more"
+                const hasSub = loadingSubmenu || (item.hasSubmenu && subItems.length > 0)
                 const isExpanded = expandedCategory === item.id
 
                 if (hasSub) {
@@ -897,6 +912,7 @@ export function AstroHeader({
                               <span>{item.label} ({lang === "gu" ? "મુખ્ય પૃષ્ઠ" : "Main Overview"})</span>
                             </Link>
                           )}
+                          {loadingSubmenu && <NavListShimmer lang={lang} />}
                           {subItems.map((sub, idx) => {
                             const isSubActive = Boolean(
                               pathname === sub.href ||

@@ -801,7 +801,7 @@ export default function ContactUsClient() {
               <div className="flex items-center gap-3.5 mb-3">
                 <div className="relative w-16 h-16 shrink-0">
                   <Image
-                    src={(pageData.sidebar.astrologer.avatar && !pageData.sidebar.astrologer.avatar.includes("googleusercontent.com")) ? pageData.sidebar.astrologer.avatar : "/images/dr-vishal-modi-avatar.jpg"}
+                    src={(pageData.sidebar.astrologer.avatar && !pageData.sidebar.astrologer.avatar.includes("googleusercontent.com")) ? pageData.sidebar.astrologer.avatar : "/images/dr-vishal-modi-portrait-avatar.webp"}
                     alt={pageData.sidebar.astrologer.name || "Dr. Vishal Modi"}
                     width={64}
                     height={64}

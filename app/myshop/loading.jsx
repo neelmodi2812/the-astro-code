@@ -49,13 +49,13 @@ export default function ShopLoading() {
               <Skeleton className="h-8 w-36 rounded-lg" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
                   className="rounded-xl overflow-hidden border border-border/70 bg-card p-0 flex flex-col justify-between"
                 >
-                  <Skeleton className="h-52 w-full rounded-none" />
+                  <Skeleton className="aspect-[5/4] w-full rounded-none" />
                   <div className="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
                     <div className="space-y-1.5">
                       <Skeleton className="h-3.5 w-1/3 rounded" />

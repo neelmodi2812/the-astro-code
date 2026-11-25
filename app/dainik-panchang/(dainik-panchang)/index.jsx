@@ -1,5 +1,6 @@
 "use client"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -309,9 +310,14 @@ export default function DainikPanchangClient() {
             </details>
           )}
           {panchang.status === "loading" && (
-            <p role="status" className="mb-6 rounded-xl border bg-card p-4 text-sm">
-              {lang === "gu" ? "પંચાંગ લોડ થઈ રહ્યું છે…" : "Loading Panchang…"}
-            </p>
+            <div role="status" className="mb-6 grid gap-6 lg:grid-cols-12">
+              <span className="sr-only">{lang === "gu" ? "પંચાંગ લોડ થઈ રહ્યું છે…" : "Loading Panchang…"}</span>
+              <div className="space-y-3 rounded-2xl border bg-card p-4 lg:col-span-8">
+                <Skeleton className="h-6 w-40" />
+                {[0, 1, 2, 3, 4].map((row) => <Skeleton key={row} className="h-10 w-full rounded-lg" />)}
+              </div>
+              <Skeleton className="hidden h-48 rounded-2xl lg:col-span-4 lg:block" />
+            </div>
           )}
 
           {/* No panchang stored for the chosen day */}
@@ -941,7 +947,7 @@ export default function DainikPanchangClient() {
               <div className="bg-gradient-to-br from-[#00685d] to-[#004d44] text-white rounded-2xl shadow-md p-5 sm:p-6 border border-[#fdc72d]/20 space-y-4">
                 <div className="flex items-center gap-3">
                   <Image
-                    src={(panchang.sidebar.scholarConsultation.avatar && !panchang.sidebar.scholarConsultation.avatar.includes("googleusercontent.com")) ? panchang.sidebar.scholarConsultation.avatar : "/images/dr-vishal-modi-avatar.jpg"}
+                    src={(panchang.sidebar.scholarConsultation.avatar && !panchang.sidebar.scholarConsultation.avatar.includes("googleusercontent.com")) ? panchang.sidebar.scholarConsultation.avatar : "/images/dr-vishal-modi-portrait-avatar.webp"}
                     alt="Dr. Vishal Modi"
                     width={56}
                     height={56}

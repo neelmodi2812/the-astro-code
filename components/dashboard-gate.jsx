@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-provider"
@@ -40,7 +40,7 @@ export function withDashboardData(Page) {
     }
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background text-foreground px-4 text-center">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 px-4 py-10 text-center">
         {status === "error" ? (
           <>
             <p className="text-sm text-muted-foreground">
@@ -50,14 +50,18 @@ export function withDashboardData(Page) {
             <Button onClick={refresh}>{isEn ? "Try again" : "ફરી પ્રયાસ કરો"}</Button>
           </>
         ) : (
-          <>
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
+          <div className="w-full space-y-4" role="status">
+            <Skeleton className="h-20 w-full rounded-xl" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Skeleton className="h-36 w-full rounded-xl" />
+              <Skeleton className="h-36 w-full rounded-xl" />
+            </div>
+            <p className="sr-only">
               {status === "unauthenticated"
                 ? isEn ? "Redirecting to sign in…" : "લૉગિન પર લઈ જવાય છે…"
                 : isEn ? "Loading your Vedic dashboard…" : "તમારું વૈદિક ડેશબોર્ડ લોડ થઈ રહ્યું છે…"}
             </p>
-          </>
+          </div>
         )}
       </div>
     )

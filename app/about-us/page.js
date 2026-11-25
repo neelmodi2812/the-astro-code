@@ -18,7 +18,7 @@ export default async function AboutUsPage() {
     "jobTitle": "Vedic Astrologer, Puranic Scholar & Gold Medalist (Ph.D. Jyotish Shastra)",
     "description": "૨૦+ વર્ષોનો ગહન સંશોધન અનુભવ, ૫૦,૦૦૦+ કુંડળી વિશ્લેષણ, ૧૦૦+ રાષ્ટ્રીય સન્માન. સંસ્કૃત મહાવિદ્યાલય ગોલ્ડ મેડાલિસ્ટ વૈદિક જ્યોતિષાચાર્ય.",
     "url": `${siteUrl}/about-us`,
-    "image": `${siteUrl}/images/hero-astrologer-1.jpg`,
+    "image": `${siteUrl}/images/dr-vishal-modi-portrait-avatar.webp`,
     "worksFor": {
       "@type": "Organization",
       "name": "The Astro Code",

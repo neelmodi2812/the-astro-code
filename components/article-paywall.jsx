@@ -14,6 +14,7 @@ import {
   Flame,
 } from "lucide-react"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/sonner"
@@ -50,35 +51,42 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
   const [plans, setPlans] = React.useState([])
   const [selectedPlanId, setSelectedPlanId] = React.useState(null)
   const [loadingPlans, setLoadingPlans] = React.useState(true)
+  const [planLoadFailed, setPlanLoadFailed] = React.useState(false)
+  const [planLoadAttempt, setPlanLoadAttempt] = React.useState(0)
   const [submitting, setSubmitting] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
 
   React.useEffect(() => {
-    let cancelled = false
+    const controller = new AbortController()
     subscriptionService
-      .plans()
+      .plans({ lang, token: null, signal: controller.signal })
       .then((res) => {
-        if (!cancelled && Array.isArray(res?.data)) {
-          setPlans(res.data)
-          const popular = res.data.find((p) => p.is_popular) || res.data[0]
-          if (popular?.id) {
-            setSelectedPlanId(popular.id)
-          }
-        }
+        if (controller.signal.aborted) return
+        if (!Array.isArray(res?.data)) throw new Error("Invalid subscription plans response")
+        setPlans(res.data)
+        const popular = res.data.find((plan) => plan.is_popular) || res.data[0]
+        setSelectedPlanId((current) => res.data.some((plan) => plan.id === current) ? current : popular?.id ?? null)
+        setPlanLoadFailed(false)
       })
       .catch(() => {
-        if (!cancelled) setErrorMessage(lang === "gu" ? "યોજનાઓ લોડ થઈ શકી નથી." : "Unable to load plans.")
+        if (!controller.signal.aborted) setPlanLoadFailed(true)
       })
       .finally(() => {
-        if (!cancelled) setLoadingPlans(false)
+        if (!controller.signal.aborted) setLoadingPlans(false)
       })
 
-    loadRazorpayScript()
+    return () => controller.abort()
+  }, [lang, planLoadAttempt])
 
-    return () => {
-      cancelled = true
-    }
-  }, [lang])
+  React.useEffect(() => {
+    loadRazorpayScript()
+  }, [])
+
+  const retryPlans = () => {
+    setLoadingPlans(true)
+    setPlanLoadFailed(false)
+    setPlanLoadAttempt((attempt) => attempt + 1)
+  }
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0]
 
@@ -195,15 +203,14 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
   }
 
   return (
-    <div className="relative my-8 rounded-3xl border-2 border-[#e6c875]/70 bg-gradient-to-b from-[#fffdfa] via-[#fffbf2] to-[#fbf6e8] dark:from-[#082b27] dark:via-[#0a312d] dark:to-[#051e1b] p-6 sm:p-10 shadow-xl overflow-hidden">
+    <div className="relative my-8 overflow-hidden rounded-2xl border border-[#d9c58e]/60 bg-[#fbf8ef] p-5 shadow-sm dark:border-[#fdc72d]/20 dark:bg-[#0b2925] sm:p-7">
       {/* Decorative Top Accent Glow */}
-      <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-amber-400 via-emerald-600 to-amber-400" />
-      <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-1 bg-[#fdc72d]" />
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto">
         {/* Emblem Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-bold mb-4 shadow-xs">
-          <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#806315] dark:text-[#fdc72d] mb-3">
+          <Crown className="h-4 w-4" />
           <span>
             {lang === "gu"
               ? "પ્રીમિયમ વૈદિક વિજ્ઞાન સદસ્યતા"
@@ -212,28 +219,37 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
         </div>
 
         {/* Headline */}
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0e3934] dark:text-[#f8f7f4] tracking-tight leading-snug">
+        <h3 className="text-xl sm:text-2xl font-bold text-[#0e3934] dark:text-[#f8f7f4] tracking-tight leading-snug">
           {lang === "gu"
             ? "આગળનો સંપૂર્ણ લેખ વાંચવા માટે સદસ્ય બનો"
             : "Subscribe to Unlock the Complete Sacred Article"}
         </h3>
 
         {/* Subtitle */}
-        <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+        <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
           {lang === "gu"
             ? "મહાન શક્તિપીઠો, જ્યોતિષ રહસ્યો, સિદ્ધ મુહૂર્ત અને પ્રાચીન મંત્રોનું અમર્યાદિત ગહન વાચન મેળવવા માટે આજે જ સભ્યપદ પસંદ કરો."
             : "Gain unlimited access to deep Vedic wisdom, celestial muhurats, secret rituals, and ad-free spiritual knowledge."}
         </p>
 
         {/* Error message */}
-        {errorMessage && (
-          <div className="w-full mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 text-xs sm:text-sm font-medium">
-            {errorMessage}
+        {(planLoadFailed || errorMessage) && (
+          <div role="alert" className="w-full mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 text-xs sm:text-sm font-medium">
+            {planLoadFailed ? (lang === "gu" ? "યોજનાઓ લોડ થઈ શકી નથી." : "Unable to load plans.") : errorMessage}
           </div>
         )}
 
         {/* Plan Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-6 text-left">
+        <fieldset className="grid min-w-0 grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-5 text-left" disabled={submitting}>
+          <legend className="sr-only">{lang === "gu" ? "યોજના પસંદ કરો" : "Choose a subscription plan"}</legend>
+          {loadingPlans && plans.length === 0 && [0, 1].map((index) => (
+            <div key={index} className="space-y-3 rounded-2xl border border-border bg-card p-5">
+              <Skeleton className="h-5 w-2/3" />
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+          ))}
           {plans.map((plan) => {
             const isSelected = plan.id === selectedPlanId
             const isPopular = plan.is_popular
@@ -243,20 +259,19 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
                 : plan.features_en || plan.features || []
 
             return (
-              <div
+              <label
                 key={plan.id}
-                onClick={() => setSelectedPlanId(plan.id)}
-                className={`relative flex flex-col justify-between p-5 rounded-2xl cursor-pointer transition-all duration-200 border-2 ${
+                className={`relative flex min-w-0 flex-col p-4 sm:p-5 rounded-xl cursor-pointer transition-colors duration-200 border focus-within:ring-2 focus-within:ring-[#fdc72d] focus-within:ring-offset-2 focus-within:ring-offset-background ${
                   isSelected
-                    ? "border-emerald-600 bg-white dark:bg-[#0b332f] shadow-lg shadow-emerald-900/10 ring-2 ring-emerald-600/20"
-                    : "border-border/80 bg-white/70 dark:bg-[#0b332f]/60 hover:border-amber-400 hover:bg-white dark:hover:bg-[#0b332f]"
+                    ? "border-[#00685d] bg-white ring-1 ring-[#00685d] dark:border-[#79c6b8] dark:bg-[#123c35] dark:ring-[#79c6b8]"
+                    : "border-border bg-card hover:border-[#00685d]/50 dark:bg-[#102e29]"
                 }`}
               >
                 {/* Popular Pill */}
                 {isPopular && (
-                  <div className="absolute -top-3 right-4 inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 text-[11px] font-black uppercase tracking-wider shadow-sm">
+                  <div className="absolute -top-3 right-4 inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#fdc72d] text-[#0e3934] text-[11px] font-black uppercase tracking-wider shadow-sm">
                     <Flame className="h-3 w-3 fill-slate-900" />
-                    <span>{lang === "gu" ? "લોકપ્રિય" : "Best Value"}</span>
+                    <span>{lang === "gu" ? "લોકપ્રિય" : "Popular"}</span>
                   </div>
                 )}
 
@@ -265,20 +280,20 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
                     <h4 className="font-bold text-base sm:text-lg text-[#0e3934] dark:text-white">
                       {lang === "gu" ? plan.name_gu : plan.name_en}
                     </h4>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        isSelected
-                          ? "border-emerald-600 bg-emerald-600 text-white"
-                          : "border-slate-300 dark:border-slate-600"
-                      }`}
-                    >
-                      {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
-                    </div>
+                    <input
+                      type="radio"
+                      name="article-subscription-plan"
+                      value={plan.id}
+                      checked={isSelected}
+                      onChange={() => setSelectedPlanId(plan.id)}
+                      aria-label={lang === "gu" ? plan.name_gu : plan.name_en}
+                      className="size-4 shrink-0 accent-[#00685d] dark:accent-[#fdc72d]"
+                    />
                   </div>
 
                   {/* Price */}
-                  <div className="mt-2 flex items-baseline gap-1.5">
-                    <span className="text-3xl font-black text-[#00685d] dark:text-[#52c7bb]">
+                  <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className="text-3xl font-bold tracking-tight text-[#00685d] dark:text-[#52c7bb]">
                       ₹{Math.round(plan.price)}
                     </span>
                     <span className="text-xs font-semibold text-muted-foreground">
@@ -287,29 +302,31 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
                   </div>
 
                   {/* Features list */}
-                  <ul className="mt-4 space-y-2 text-xs sm:text-sm text-foreground/85">
+                  <ul className="mt-4 space-y-2.5 border-t border-border/70 pt-4 text-sm text-muted-foreground">
                     {planFeatures.slice(0, 3).map((feat, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                        <CheckCircle className="h-4 w-4 text-[#00685d] dark:text-[#79c6b8] shrink-0 mt-0.5" />
                         <span className="leading-snug">{feat}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-              </div>
+              </label>
             )
           })}
-        </div>
+        </fieldset>
 
         {/* CTA Button */}
         <div className="w-full mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button
             size="lg"
-            onClick={handleSubscribe}
-            disabled={submitting || !selectedPlan}
-            className="w-full sm:w-auto px-8 py-6 rounded-xl bg-gradient-to-r from-[#00685d] to-[#004f46] hover:from-[#005a50] hover:to-[#00423a] text-white font-bold text-base shadow-lg shadow-[#00685d]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+            onClick={planLoadFailed ? retryPlans : handleSubscribe}
+            disabled={submitting || loadingPlans || (!selectedPlan && !planLoadFailed)}
+            className="w-full sm:w-auto min-h-11 px-7 py-3 rounded-xl bg-[#00685d] hover:bg-[#00564d] text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
-            {!selectedPlan ? (
+            {planLoadFailed ? (
+              lang === "gu" ? "ફરી પ્રયાસ કરો" : "Retry loading plans"
+            ) : !selectedPlan ? (
               loadingPlans ? (lang === "gu" ? "લોડ થઈ રહ્યું છે…" : "Loading plans…") : (lang === "gu" ? "યોજના ઉપલબ્ધ નથી" : "No plans available")
             ) : submitting ? (
               <>
@@ -340,13 +357,13 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-6 pt-5 border-t border-border/50 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs text-muted-foreground">
+        <div className="mt-5 pt-4 w-full border-t border-border/60 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5 font-medium">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            <ShieldCheck className="h-4 w-4 text-[#00685d] dark:text-[#79c6b8]" />
             <span>{lang === "gu" ? "સુરક્ષિત Razorpay ચુકવણી" : "Secured by Razorpay"}</span>
           </div>
           <div className="flex items-center gap-1.5 font-medium">
-            <Sparkles className="h-4 w-4 text-amber-500" />
+            <Sparkles className="h-4 w-4 text-[#94700b] dark:text-[#fdc72d]" />
             <span>{lang === "gu" ? "ત્વરિત ઍક્સેસ" : "Instant Activation"}</span>
           </div>
         </div>

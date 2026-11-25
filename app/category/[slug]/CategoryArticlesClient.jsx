@@ -9,6 +9,7 @@ import { SafeImage } from "@/components/ui/safe-image"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useLanguage } from "@/components/language-provider"
 import { getSiteShell } from "@/lib/config/site"
+import { fetchCategoryArticles } from "@/lib/api/services/category-articles"
 import { contentService } from "@/lib/api/services/content"
 import { formatDate } from "@/lib/api/adapters/home"
 import {
@@ -33,39 +34,42 @@ export default function CategoryArticlesClient({ slug }) {
   const { lang, setLang } = useLanguage()
   const siteData = React.useMemo(() => getSiteShell(lang), [lang])
 
-  const [articles, setArticles] = React.useState([])
-  const [categories, setCategories] = React.useState([])
-  const [currentCategory, setCurrentCategory] = React.useState(null)
-  const [isLoading, setIsLoading] = React.useState(true)
+  const [articleResult, setArticleResult] = React.useState(null)
+  const [categoryResult, setCategoryResult] = React.useState(null)
+  const [attempt, setAttempt] = React.useState(0)
+  const isLoading = articleResult?.slug !== slug || articleResult?.lang !== lang || articleResult?.attempt !== attempt
+  const articles = isLoading ? [] : articleResult.articles
+  const failed = !isLoading && articleResult.failed
+  const categories = categoryResult?.lang === lang ? categoryResult.categories : []
+  const currentCategory = categories.find((category) => category.slug === slug)
 
-  // Fetch Category info & Articles list
   React.useEffect(() => {
-    let cancelled = false
-    setIsLoading(true)
+    const controller = new AbortController()
+    contentService.articles.categories(lang, { token: null, signal: controller.signal })
+      .then((result) => {
+        if (!controller.signal.aborted && Array.isArray(result?.data)) {
+          setCategoryResult({ lang, categories: result.data })
+        }
+      })
+      .catch(() => {})
+    return () => controller.abort()
+  }, [lang])
 
-    Promise.all([
-      contentService.articles.categories(lang, { token: null }).catch(() => ({ data: [] })),
-      contentService.articles.list({ category: slug, per_page: 50 }, lang, { token: null }).catch(() => ({ data: [] })),
-    ])
-      .then(([catRes, artRes]) => {
-        if (cancelled) return
-        const catList = Array.isArray(catRes?.data) ? catRes.data : []
-        const artList = Array.isArray(artRes?.data) ? artRes.data : []
-
-        setCategories(catList)
-        const match = catList.find((c) => c.slug === slug)
-        setCurrentCategory(match || null)
-        setArticles(artList)
-        setIsLoading(false)
+  React.useEffect(() => {
+    const controller = new AbortController()
+    fetchCategoryArticles(slug, lang, { signal: controller.signal })
+      .then((articles) => {
+        if (!controller.signal.aborted) {
+          setArticleResult({ slug, lang, attempt, articles, failed: false })
+        }
       })
       .catch(() => {
-        if (!cancelled) setIsLoading(false)
+        if (!controller.signal.aborted) {
+          setArticleResult({ slug, lang, attempt, articles: [], failed: true })
+        }
       })
-
-    return () => {
-      cancelled = true
-    }
-  }, [slug, lang])
+    return () => controller.abort()
+  }, [slug, lang, attempt])
 
   const categoryTitle = React.useMemo(() => {
     if (currentCategory) {
@@ -166,9 +170,11 @@ export default function CategoryArticlesClient({ slug }) {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="px-3.5 py-1.5 rounded-full text-xs font-black bg-[#fdc72d] text-[#0e3934] shadow-xs border border-[#eab318]">
-                {articles.length} {lang === "gu" ? "લેખો" : "Articles"}
-              </span>
+              {isLoading ? <Skeleton className="h-7 w-20 rounded-full" /> : !failed && (
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-black bg-[#fdc72d] text-[#0e3934] shadow-xs border border-[#eab318]">
+                  {articles.length} {lang === "gu" ? "લેખો" : "Articles"}
+                </span>
+              )}
             </div>
           </div>
 
@@ -205,14 +211,15 @@ export default function CategoryArticlesClient({ slug }) {
         {/* 5. Article Cards Grid */}
         {isLoading ? (
           /* Skeletons */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div role="status" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <span className="sr-only">{lang === "gu" ? "લેખો લોડ થઈ રહ્યા છે…" : "Loading articles…"}</span>
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
                 className="rounded-2xl overflow-hidden border border-border/60 bg-card p-0 flex flex-col justify-between"
               >
                 <div className="relative aspect-[4/3] w-full bg-muted/40">
-                  <Skeleton className="w-full h-full rounded-none" />
+                  <Skeleton className="h-full w-full rounded-none" />
                 </div>
                 <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
@@ -227,6 +234,17 @@ export default function CategoryArticlesClient({ slug }) {
                 </div>
               </div>
             ))}
+          </div>
+        ) : failed ? (
+          <div role="alert" className="my-8 rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="font-semibold">{lang === "gu" ? "લેખો લોડ થઈ શક્યા નથી." : "Unable to load articles."}</p>
+            <button
+              type="button"
+              onClick={() => setAttempt((previous) => previous + 1)}
+              className="mt-4 rounded-lg bg-[#fdc72d] px-4 py-2 text-sm font-bold text-[#0e3934]"
+            >
+              {lang === "gu" ? "ફરી પ્રયાસ કરો" : "Retry"}
+            </button>
           </div>
         ) : articles.length === 0 ? (
           /* Empty State */

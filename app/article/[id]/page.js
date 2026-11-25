@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import ArticleLoading from "./loading"
 import ArticleDetailClient from "./(article)"
 import { JsonLd } from "@/components/seo-structured-data"
 import { getArticleBundle, getArticleSlugs } from "@/lib/api/server/articles"
@@ -165,14 +166,7 @@ async function ArticleDetailContentWrapper({ params }) {
  */
 export default function ArticleDetailPage({ params }) {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-foreground gap-3">
-          <div className="w-10 h-10 border-4 border-[#fdc72d] border-t-transparent rounded-full animate-spin" />
-          <span className="font-bold text-sm text-muted-foreground">આર્ટિકલ લોડ થઈ રહ્યો છે...</span>
-        </div>
-      }
-    >
+    <Suspense fallback={<ArticleLoading />}>
       <ArticleDetailContentWrapper params={params} />
     </Suspense>
   )

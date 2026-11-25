@@ -4,8 +4,9 @@ import { cn } from "cn"
 function Skeleton({ className, ...props }) {
   return (
     <div
+      aria-hidden="true"
       data-slot="skeleton"
-      className={cn("bg-muted/70 dark:bg-muted/40 animate-pulse rounded-md", className)}
+      className={cn("skeleton-shimmer bg-muted/70 dark:bg-muted/60 rounded-md", className)}
       {...props}
     />
   )

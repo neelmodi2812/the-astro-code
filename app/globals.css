@@ -244,8 +244,20 @@ html[lang="en"] h6 {
   animation: celestialPulse 3s ease-in-out infinite;
 }
 
-.animate-shimmer-slide {
-  animation: shimmerSlide 2s ease-in-out infinite;
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 9%, transparent), transparent);
+    animation: shimmerSlide 1.8s ease-in-out infinite;
+  }
 }
 
 @keyframes pulseGlow {

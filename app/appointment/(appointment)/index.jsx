@@ -1,5 +1,6 @@
 "use client"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -890,8 +891,8 @@ export default function AppointmentClient() {
 
                 {/* Horizontal Date Picker */}
                 {loadingDates ? (
-                  <div className="flex items-center justify-center py-6">
-                    <Loader2 className="size-6 animate-spin text-[#fdc72d]" />
+                  <div role="status" aria-label={isEn ? "Loading dates…" : "લોડ થઈ રહ્યું છે…"} className="flex gap-2 overflow-hidden py-1">
+                    {[0, 1, 2, 3].map((slot) => <Skeleton key={slot} className="h-16 w-[72px] shrink-0 rounded-2xl" />)}
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-none">
@@ -946,8 +947,8 @@ export default function AppointmentClient() {
                 </div>
 
                 {loadingSlots ? (
-                  <div className="flex items-center justify-center py-6">
-                    <Loader2 className="size-6 animate-spin text-[#fdc72d]" />
+                  <div role="status" aria-label={isEn ? "Loading time slots…" : "લોડ થઈ રહ્યું છે…"} className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-3 md:grid-cols-4">
+                    {[0, 1, 2, 3].map((slot) => <Skeleton key={slot} className="h-10 rounded-xl" />)}
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pt-1">

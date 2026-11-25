@@ -1,9 +1,10 @@
 "use client"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import * as React from "react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { Heart, Loader2, Trash2, ShoppingBag } from "lucide-react"
+import { Heart, Trash2, ShoppingBag } from "lucide-react"
 
 import { useLanguage } from "@/components/language-provider"
 import { withDashboardData } from "@/components/dashboard-gate"
@@ -109,8 +110,9 @@ function WishlistClient() {
         </div>
 
         {products === null ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div role="status" aria-label={isEn ? "Loading…" : "લોડ થઈ રહ્યું છે…"} className="grid gap-3 sm:grid-cols-2">
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
           </div>
         ) : products.length === 0 ? (
           <div className="bg-card dark:bg-[#0d3631] rounded-2xl p-10 border border-border/70 text-center flex flex-col items-center justify-center space-y-3">

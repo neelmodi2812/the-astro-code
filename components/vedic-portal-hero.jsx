@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { Sparkles, ArrowRight, MessageCircle } from "lucide-react"
 
@@ -10,11 +11,6 @@ import { SITE_CONTACT } from "@/lib/config/contact"
 export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultation }) {
   const { lang } = useLanguage()
   const isEn = lang === "en"
-
-  const founderImage =
-    (founder?.image && !founder.image.includes("unsplash.com") && !founder.image.includes("googleusercontent.com"))
-      ? founder.image
-      : "/images/dr-vishal-modi-hero-oval.jpg"
 
   const founderName = founder?.name || (isEn ? "Dr. Vishal Modi (Ph.D.)" : "ડૉ. વિશાલ મોદી (Ph.D.)")
 
@@ -144,10 +140,12 @@ export function VedicPortalHero({ panchang = {}, founder = {}, onBookConsultatio
             {/* Founder portrait in the golden-ringed oval - perfectly centered */}
             <div className="relative w-full flex items-center justify-center py-2 select-none">
               <div className="relative w-[190px] sm:w-[230px] aspect-[2/2.85] rounded-full overflow-hidden bg-muted isolate ring-2 sm:ring-[2.5px] ring-[#fdc72d] ring-offset-2 ring-offset-background/50 shadow-[0_16px_36px_rgba(253,199,45,0.32)]">
-                <img
-                  src={founderImage}
+                <Image
+                  src="/images/dr-vishal-modi-hero-portrait.webp"
                   alt={founderName}
-                  className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                  fill
+                  sizes="(min-width: 640px) 230px, 190px"
+                  className="object-cover"
                 />
               </div>
             </div>

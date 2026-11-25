@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useWishlist } from "@/lib/api/hooks/use-wishlist"
 import Link from "next/link"
-import Image from "next/image"
+import { SafeImage } from "@/components/ui/safe-image"
 import { useRouter } from "next/navigation"
 import {
   Sparkles,
@@ -111,6 +111,10 @@ const ICON_MAP = {
   MessageCircle
 }
 
+function shopImageSource(image) {
+  return image?.startsWith("https://dummyjson.com/") ? undefined : image
+}
+
 export default function ShopClient() {
   const router = useRouter()
   const { lang, setLang } = useLanguage()
@@ -138,11 +142,10 @@ export default function ShopClient() {
   const [selectedPurpose, setSelectedPurpose] = React.useState("all")
   const [selectedPriceRange, setSelectedPriceRange] = React.useState("all")
   const [sortBy, setSortBy] = React.useState("popular")
-  const [currentPage, setCurrentPage] = React.useState(1)
+  const [requestedPage, setCurrentPage] = React.useState(1)
   const itemsPerPage = 6
 
   // Cart & Wishlist States
-  const [cart, setCart] = React.useState([])
   const { isWishlisted: isInWishlist, toggle: toggleWishlist } = useWishlist(lang)
   const [addedAnimationId, setAddedAnimationId] = React.useState(null)
 
@@ -169,17 +172,7 @@ export default function ShopClient() {
 
   // Add to Cart handler
   const handleAddToCart = (product, qty = 1) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id)
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, qty: item.qty + qty }
-            : item
-        )
-      }
-      return [...prev, { product, qty }]
-    })
+    if (product.stockStatus === "out_of_stock") return
 
     try {
       const stored = localStorage.getItem("astro_cart_items")
@@ -328,6 +321,7 @@ export default function ShopClient() {
   // Pagination calculation
   const totalItems = filteredProducts.length
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1
+  const currentPage = Math.min(requestedPage, totalPages)
   const paginatedProducts = React.useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage
     return filteredProducts.slice(start, start + itemsPerPage)
@@ -353,6 +347,8 @@ export default function ShopClient() {
     }, 2000)
   }
 
+  const featured = shopData.featuredProduct
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-200">
       {/* 1. Global Astro Header with Live Cart Count */}
@@ -371,7 +367,6 @@ export default function ShopClient() {
         }}
         lang={lang}
         onToggleLang={(newLang) => setLang(newLang)}
-        cartCount={cart.reduce((sum, item) => sum + item.qty, 0)}
       />
 
       <main className="flex-1 w-full bg-background">
@@ -400,33 +395,17 @@ export default function ShopClient() {
               </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="flex items-center gap-3 sm:gap-4 font-semibold text-xs sm:text-xs text-[#00685d] dark:text-[#6ed8c8] self-start sm:self-auto">
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#fdc72d]" />
-                <span>{shopData.topTrustBar.consecrated}</span>
-              </span>
-              <span className="hidden sm:inline text-muted-foreground/40">•</span>
-              <span className="hidden sm:inline text-muted-foreground">
-                {shopData.topTrustBar.shipping}
-              </span>
-            </div>
           </div>
         </section>
 
         {/* 3. STORE SACRED HERO BANNER */}
-        <section className="w-full relative overflow-hidden bg-gradient-to-r from-[#00685d] via-[#007b6e] to-[#008376] text-white py-6 sm:py-12 shadow-md">
+        <section className="relative mx-auto mt-3 w-[calc(100%_-_2rem)] max-w-[1184px] overflow-hidden rounded-3xl bg-gradient-to-br from-[#073c35] to-[#007468] text-white sm:mt-5 sm:w-[calc(100%_-_3rem)]">
           {/* Ambient luminous decorative glow blurs */}
           <div className="absolute -right-16 -bottom-16 w-96 h-96 rounded-full bg-[#fdc72d]/15 blur-3xl pointer-events-none" />
           <div className="absolute left-1/4 -top-20 w-80 h-80 rounded-full bg-[#6ed8c8]/15 blur-2xl pointer-events-none" />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+          <div className="relative grid items-center gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(220px,0.55fr)] lg:px-12">
             <div className="max-w-2xl space-y-4 text-left">
-              {/* Sacred Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md text-[#fdc72d] text-xs font-bold border border-white/20 shadow-xs">
-                <Sparkles className="h-3.5 w-3.5 text-[#fdc72d]" />
-                <span>{shopData.hero.badge}</span>
-              </div>
-
               {/* Dominant Headline */}
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-white drop-shadow-xs">
                 {shopData.hero.title}
@@ -438,23 +417,35 @@ export default function ShopClient() {
               </p>
 
               {/* Interactive Purpose Search Ribbon */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 w-full max-w-xl">
+              <form
+                role="search"
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  document.getElementById("shop-catalog-section")?.scrollIntoView({ behavior: "smooth" })
+                }}
+                className="flex flex-col items-center gap-2 pt-2 sm:flex-row"
+              >
                 <div className="relative w-full flex items-center">
                   <Search className="h-4 w-4 absolute left-3.5 text-muted-foreground" />
                   <Input
                     type="text"
+                    aria-label={shopData.hero.searchPlaceholder}
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value)
                       setCurrentPage(1)
                     }}
                     placeholder={shopData.hero.searchPlaceholder}
-                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-white text-[#0e3934] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
+                    className="w-full h-11 pl-10 pr-10 rounded-xl bg-white text-[#0e3934] placeholder:text-muted-foreground text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-[#fdc72d] border-none shadow-md"
                   />
                   {searchQuery && (
                     <button
                       type="button"
-                      onClick={() => setSearchQuery("")}
+                      onClick={() => {
+                        setSearchQuery("")
+                        setCurrentPage(1)
+                      }}
+                      aria-label={lang === "gu" ? "શોધ સાફ કરો" : "Clear search"}
                       className="absolute right-3 text-muted-foreground hover:text-[#0e3934]"
                     >
                       <X className="h-4 w-4" />
@@ -463,44 +454,41 @@ export default function ShopClient() {
                 </div>
 
                 <Button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById("shop-catalog-section")
-                    if (el) el.scrollIntoView({ behavior: "smooth" })
-                  }}
+                  type="submit"
                   className="w-full sm:w-auto px-5 h-11 rounded-xl bg-[#fdc72d] text-[#0e3934] font-bold text-xs sm:text-sm hover:bg-[#e6b11d] shadow-md transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
                 >
                   <span>{shopData.hero.searchButton}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-              </div>
+              </form>
             </div>
 
-            {/* Sacred Sri Siddhi Kavacham Emblem Motif */}
-            <div className="hidden md:flex relative items-center justify-center shrink-0">
-              <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-full bg-white/10 backdrop-blur-md p-3.5 flex items-center justify-center shadow-2xl border border-white/20 ring-4 ring-[#fdc72d]/30">
-                <div className="w-full h-full rounded-full bg-[#00685d]/60 border border-[#fdc72d]/40 p-5 flex flex-col items-center justify-center text-center space-y-2">
-                  <svg
-                    className="w-20 h-20 text-[#fdc72d]"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 100 100"
-                  >
-                    <polygon fill="none" opacity="0.9" points="50,5 95,78 5,78" />
-                    <polygon fill="none" opacity="0.9" points="50,95 95,22 5,22" />
-                    <circle cx="50" cy="50" fill="currentColor" fillOpacity="0.18" r="16" />
-                    <circle cx="50" cy="50" fill="currentColor" r="4" />
-                  </svg>
-                  <span className="text-sm font-extrabold text-[#fdc72d] tracking-wide">
-                    {shopData.hero.sealTitle}
-                  </span>
-                  <span className="text-xs text-white/80 uppercase font-bold tracking-widest">
-                    {shopData.hero.sealSubtitle}
-                  </span>
+            {featured?.id ? (
+              <Link
+                href={`/myshop/product/${featured.id}`}
+                className="group flex min-w-0 items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-2.5 transition-colors hover:bg-white/15 md:flex-col md:items-stretch"
+              >
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[#f7f4ec] md:aspect-[16/9] md:h-auto md:w-full">
+                  <SafeImage
+                    src={shopImageSource(featured.image)}
+                    fallbackSrc="/logo.png"
+                    alt=""
+                    fill
+                    sizes="(max-width: 767px) 64px, 360px"
+                    className="object-contain p-1"
+                  />
                 </div>
-              </div>
-            </div>
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-1 pb-0.5">
+                  <div className="min-w-0">
+                    <span className="block text-xs font-semibold text-[#ffda6b]">{lang === "gu" ? "વિશેષ ઉત્પાદન" : "Featured product"}</span>
+                    <span className="line-clamp-2 text-sm font-bold">{featured.name}</span>
+                  </div>
+                  <ArrowRight className="size-4 shrink-0 text-[#ffda6b] transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ) : shopData.loading && (
+              <Skeleton className="hidden h-56 rounded-2xl bg-white/10 md:block" />
+            )}
           </div>
         </section>
 
@@ -528,7 +516,7 @@ export default function ShopClient() {
         </section>
 
         {/* 5. QUICK ACCESS CATEGORY ICONS ROW */}
-        <section className="w-full bg-background py-8">
+        <section className="w-full bg-background py-5 sm:py-7">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
@@ -545,6 +533,9 @@ export default function ShopClient() {
             </div>
 
             <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
+              {shopData.loading && shopData.quickCategories.length === 0 && Array.from({ length: 6 }, (_, index) => (
+                <Skeleton key={index} className="h-20 sm:h-28" />
+              ))}
               {shopData.quickCategories.map((cat) => {
                 const isSelected = selectedCategory === cat.id
                 return (
@@ -589,7 +580,7 @@ export default function ShopClient() {
         </section>
 
         {/* 6. TWO-COLUMN ECOMMERCE CATALOG (25% Sidebar + 75% Main Content) */}
-        <section id="shop-catalog-section" className="w-full bg-background pb-14 scroll-mt-20">
+        <section id="shop-catalog-section" className="w-full bg-background pb-14 scroll-mt-28">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
             {/* LEFT SIDEBAR: FILTERS, ACCREDITATION & ASTROLOGY (25%) */}
             <aside className="hidden lg:flex lg:w-1/4 flex-col gap-5 shrink-0">
@@ -768,7 +759,7 @@ export default function ShopClient() {
             </aside>
 
             {/* RIGHT MAIN CONTENT: SHOWCASE & CATALOG GRID (75%) */}
-            <main className="w-full lg:w-3/4 flex flex-col gap-4 sm:gap-6">
+            <div className="w-full min-w-0 flex-1 flex flex-col gap-4 sm:gap-6">
               {/* Filter Bar & Sort Controls */}
               {/* MOBILE HORIZONTAL QUICK CATEGORIES PILLS (< lg) */}
               <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -781,7 +772,7 @@ export default function ShopClient() {
                       : "bg-muted text-foreground/80 hover:text-foreground"
                   }`}
                 >
-                  {lang === "gu" ? "બધા" : "All"} ({shopData.catalogProducts?.length || filteredProducts.length})
+                  {lang === "gu" ? "બધા" : "All"} ({shopData.products.length})
                 </button>
                 {shopData.sidebar.categories.filter((c) => c.id !== "all").map((cat) => {
                   const isSelected = selectedCategory === cat.id
@@ -983,7 +974,7 @@ export default function ShopClient() {
                 </Sheet>
 
                 {/* Mobile Sort Dropdown */}
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={sortBy} onValueChange={(value) => { setSortBy(value); setCurrentPage(1) }}>
                   <SelectTrigger className="flex-1 h-9.5 bg-card dark:bg-[#1c1d1a] text-foreground text-xs font-medium border-border/80">
                     <SelectValue placeholder={shopData.catalogSection.sortByLabel}>
                       {(val) => shopData.catalogSection.sortOptions.find((opt) => opt.value === val)?.label || shopData.catalogSection.sortByLabel}
@@ -1004,19 +995,17 @@ export default function ShopClient() {
               <div className="hidden lg:flex bg-card dark:bg-[#1c1d1a] rounded-xl p-3.5 sm:p-4 border border-border/80 items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-2 self-start sm:self-auto">
                   <span className="text-xs sm:text-sm font-bold text-foreground">
-                    {shopData.catalogSection.totalProductsPrefix} {filteredProducts.length}{" "}
-                    {shopData.catalogSection.totalProductsSuffix}
+                    {shopData.loading
+                      ? (lang === "gu" ? "ઉત્પાદનો લોડ થઈ રહ્યા છે…" : "Loading products…")
+                      : `${shopData.catalogSection.totalProductsPrefix} ${toDigits(filteredProducts.length)} ${shopData.catalogSection.totalProductsSuffix}`}
                   </span>
-                  <Badge variant="outline" className="text-xs bg-[#00685d]/10 text-[#00685d] dark:text-[#6ed8c8] border-[#00685d]/30 font-bold">
-                    {shopData.catalogSection.liveStockBadge}
-                  </Badge>
                 </div>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {shopData.catalogSection.sortByLabel}
                   </span>
-                  <Select value={sortBy} onValueChange={setSortBy}>
+                  <Select value={sortBy} onValueChange={(value) => { setSortBy(value); setCurrentPage(1) }}>
                     <SelectTrigger className="h-9 min-w-[150px] bg-muted text-foreground text-xs font-medium border-border/80">
                       <SelectValue placeholder={shopData.catalogSection.sortByLabel}>
                         {(val) => shopData.catalogSection.sortOptions.find((opt) => opt.value === val)?.label || shopData.catalogSection.sortByLabel}
@@ -1035,169 +1024,28 @@ export default function ShopClient() {
                 </div>
               </div>
 
-              {/* DOMINANT FEATURED PRODUCT SHOWCASE CARD (Nepali 5-Mukhi Rudraksha Mala) */}
-              {selectedCategory === "all" && !searchQuery && Boolean(shopData?.featuredProduct?.id) && (() => {
-                const featured = shopData.featuredProduct
-                return (
-                  <Card className="p-0 py-0 gap-0 rounded-2xl border border-border/80 shadow-md overflow-hidden bg-card dark:bg-[#1a1b17]">
-                    <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
-                      {/* Featured Image Pane */}
-                      <Link
-                        href={`/myshop/product/${featured.id}`}
-                        tabIndex={-1}
-                        aria-hidden="true"
-                        className="md:col-span-5 relative min-h-[260px] md:min-h-[320px] bg-muted overflow-hidden block group"
-                      >
-                        <Image
-                          src={featured.image || "https://dummyjson.com/image/200x100"}
-                          alt=""
-                          fill
-                          sizes="(max-width: 768px) 100vw, 42vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          priority
-                        />
-                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                          {featured.badge && (
-                            <Badge className="bg-[#fdc72d] text-[#0e3934] font-bold text-xs shadow-xs hover:bg-[#fdc72d]">
-                              {featured.badge}
-                            </Badge>
-                          )}
-                          {featured.discount && (
-                            <Badge className="bg-[#bb171f] text-white font-bold text-xs shadow-xs hover:bg-[#bb171f]">
-                              {featured.discount}
-                            </Badge>
-                          )}
-                        </div>
-                        {featured.originBadge && (
-                          <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md px-3 py-1 rounded-full text-[#00685d] dark:text-[#6ed8c8] text-xs font-bold flex items-center gap-1 shadow-sm">
-                            <ShieldCheck className="h-3.5 w-3.5 text-[#00685d] dark:text-[#fdc72d]" />
-                            <span>{featured.originBadge}</span>
-                          </div>
-                        )}
-                      </Link>
-
-                      {/* Featured Details Pane */}
-                      <div className="md:col-span-7 p-4 sm:p-6 flex flex-col justify-between space-y-4">
-                        <div>
-                          {/* Rating row */}
-                          <div className={`flex items-center gap-1.5 mb-1.5 ${featured.reviewsCount ? "" : "hidden"}`}>
-                            <div className="flex items-center text-[#fdc72d]">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                              ))}
-                            </div>
-                            <span className="text-xs font-bold text-foreground">
-                              {featured.rating || 5}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              ({featured.reviewsCount || 0})
-                            </span>
-                          </div>
-
-                          <Link href={`/myshop/product/${featured.id}`}>
-                            <h3 className="text-lg sm:text-xl font-bold text-foreground leading-snug hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
-                              {featured.name}
-                            </h3>
-                          </Link>
-                          {featured.subtitle && (
-                            <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-semibold mt-0.5">
-                              {featured.subtitle}
-                            </p>
-                          )}
-
-                          {/* Sacred USPs */}
-                          <div className="grid grid-cols-2 gap-2 mt-4 text-xs text-muted-foreground">
-                            {(featured.usps || []).map((usp, idx) => {
-                              const IconC = ICON_MAP[usp?.icon] || Droplets
-                              return (
-                                <div
-                                  key={idx}
-                                  className="flex items-center gap-1.5 bg-[#f0f4f7] dark:bg-[#1c1d1a] p-2 rounded-lg"
-                                >
-                                  <IconC className="h-3.5 w-3.5 text-[#00685d] dark:text-[#6ed8c8] shrink-0" />
-                                  <span className="truncate">{usp?.text || ""}</span>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Price & Action Buttons */}
-                        <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#f0f4f7] dark:bg-[#1c1d1a] p-3 sm:p-4 rounded-xl border border-border/50">
-                          <div>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-xl sm:text-2xl font-bold text-[#00685d] dark:text-[#6ed8c8]">
-                                ₹{(featured.price || 0).toLocaleString("en-IN")}
-                              </span>
-                              {Number(featured.originalPrice) > Number(featured.price) && (
-                                <span className="text-[11px] sm:text-sm text-muted-foreground line-through">
-                                  ₹{(featured.originalPrice || 0).toLocaleString("en-IN")}
-                                </span>
-                              )}
-                            </div>
-                            {featured.savingsText && (
-                              <p className="text-sm text-[#8a6800] dark:text-[#fdc72d] font-bold">
-                                {featured.savingsText}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Button
-                              type="button"
-                              onClick={() => handleAddToCart(featured)}
-                              className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#fdc72d] text-[#0e3934] font-bold text-xs hover:bg-[#eab318] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                            >
-                              {addedAnimationId === featured.id ? (
-                                <>
-                                  <Check className="h-4 w-4" />
-                                  <span>{lang === "gu" ? "ઉમેરાયું!" : "Added!"}</span>
-                                </>
-                              ) : (
-                                <>
-                                  <ShoppingCart className="h-4 w-4" />
-                                  <span>{featured.addToCart || (lang === "gu" ? "કાર્ટમાં ઉમેરો" : "Add to Cart")}</span>
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              type="button"
-                              onClick={() => router.push(`/myshop/product/${featured.id}`)}
-                              className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-[#00685d] text-white font-bold text-xs hover:bg-[#005048] shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                            >
-                              <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                              <span>{lang === "gu" ? "વિગતવાર પૃષ્ઠ →" : "View Details →"}</span>
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                )
-              })()}
-
               {/* CATALOG GRID HEADER */}
               <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-6 bg-[#fdc72d] rounded-xs" />
-                  <h3 className="text-base sm:text-lg font-bold text-foreground">
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                     {shopData.catalogSection.title}
-                  </h3>
+                  </h2>
                 </div>
-                <span className="text-xs text-muted-foreground hidden sm:inline">
-                  {shopData.catalogSection.subtitle}
+                <span className="text-xs text-muted-foreground lg:hidden">
+                  {!shopData.loading && !shopData.error && `${toDigits(filteredProducts.length)} ${lang === "gu" ? "ઉત્પાદનો" : "products"}`}
                 </span>
               </div>
 
               {/* PRODUCTS CATALOG GRID */}
               {shopData.loading && paginatedProducts.length === 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div role="status" className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                  <span className="sr-only">{lang === "gu" ? "ઉત્પાદનો લોડ થઈ રહ્યા છે…" : "Loading products…"}</span>
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div
                       key={i}
                       className="rounded-xl overflow-hidden border border-border/80 shadow-xs bg-card dark:bg-[#1a1b17] p-0 flex flex-col justify-between"
                     >
-                      <Skeleton className="h-48 sm:h-52 w-full rounded-none" />
+                      <Skeleton className="aspect-[5/4] w-full rounded-none" />
                       <div className="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
                         <div className="space-y-1.5">
                           <Skeleton className="h-3.5 w-1/3 rounded" />
@@ -1211,6 +1059,13 @@ export default function ShopClient() {
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : shopData.error ? (
+                <div role="alert" className="space-y-3 rounded-2xl border border-border bg-card p-8 text-center">
+                  <p className="font-semibold">{lang === "gu" ? "ઉત્પાદનો લોડ થઈ શક્યા નથી." : "Unable to load products."}</p>
+                  <Button type="button" onClick={shopData.reload} className="bg-[#00685d] text-white">
+                    {lang === "gu" ? "ફરી પ્રયાસ કરો" : "Retry"}
+                  </Button>
                 </div>
               ) : paginatedProducts.length === 0 ? (
                 <div className="bg-card dark:bg-[#1a1b17] rounded-xl p-10 text-center border border-border/80 space-y-3">
@@ -1236,26 +1091,27 @@ export default function ShopClient() {
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                   {paginatedProducts.map((product) => {
                     const isWishlisted = isInWishlist(product.id)
                     const isJustAdded = addedAnimationId === product.id
+                    const soldOut = product.stockStatus === "out_of_stock"
 
                     return (
                       <Card
                         key={product.id}
-                        onClick={() => router.push(`/myshop/product/${product.id}`)}
-                        className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#1a1b17] cursor-pointer"
+                        className="p-0 py-0 gap-0 rounded-xl overflow-hidden border border-border/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group bg-card dark:bg-[#1a1b17]"
                       >
                         {/* Image Pane */}
-                        <div className="relative h-48 sm:h-52 bg-muted overflow-hidden">
+                        <div className="relative aspect-[5/4] overflow-hidden bg-[#f7f4ec] dark:bg-muted">
                           <Link href={`/myshop/product/${product.id}`} tabIndex={-1} aria-hidden="true" className="relative block w-full h-full">
-                            <Image
-                              src={product.image || "https://dummyjson.com/image/200x100"}
+                            <SafeImage
+                              src={shopImageSource(product.image)}
+                              fallbackSrc="/logo.png"
                               alt=""
                               fill
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              sizes="(max-width: 419px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 38vw, 285px"
+                              className="object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
                             />
                           </Link>
                           {Boolean(product?.badge && String(product.badge).trim() !== "") && (
@@ -1328,7 +1184,7 @@ export default function ShopClient() {
 
                             {/* Title & Subtitle */}
                             <Link href={`/myshop/product/${product.id}`}>
-                              <h4 className="text-xs sm:text-sm font-bold text-foreground line-clamp-1 hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
+                              <h4 className="text-sm sm:text-base font-bold text-foreground line-clamp-2 hover:text-[#00685d] dark:hover:text-[#fdc72d] transition-colors">
                                 {product.name}
                               </h4>
                             </Link>
@@ -1338,7 +1194,7 @@ export default function ShopClient() {
                           </div>
 
                           {/* Pricing & Add to Cart button */}
-                          <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                          <div className="grid gap-2 border-t border-border/50 pt-2">
                             <div>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-sm sm:text-base font-bold text-[#00685d] dark:text-[#6ed8c8]">
@@ -1357,17 +1213,17 @@ export default function ShopClient() {
 
                             <Button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleAddToCart(product)
-                              }}
+                              disabled={soldOut}
+                              onClick={() => handleAddToCart(product)}
                               className={`px-2 sm:px-3 h-7.5 sm:h-8.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer ${
                                 isJustAdded
                                   ? "bg-[#00685d] text-white"
                                   : "bg-[#fdc72d] text-[#0e3934] hover:bg-[#eab318]"
                               }`}
                             >
-                              {isJustAdded ? (
+                              {soldOut ? (
+                                <span>{lang === "gu" ? "સ્ટોકમાં નથી" : "Out of stock"}</span>
+                              ) : isJustAdded ? (
                                 <>
                                   <Check className="h-3.5 w-3.5" />
                                   <span>{lang === "gu" ? "ઉમેરાયું!" : "Added!"}</span>
@@ -1375,7 +1231,7 @@ export default function ShopClient() {
                               ) : (
                                 <>
                                   <ShoppingCart className="h-3.5 w-3.5" />
-                                  <span>{lang === "gu" ? "કાર્ટ" : "Cart"}</span>
+                                  <span>{lang === "gu" ? "કાર્ટમાં ઉમેરો" : "Add to cart"}</span>
                                 </>
                               )}
                             </Button>
@@ -1416,6 +1272,7 @@ export default function ShopClient() {
                             ? "bg-[#00685d] text-white shadow-2xs"
                             : "bg-muted text-foreground hover:bg-muted/80"
                         }`}
+                        aria-current={currentPage === page ? "page" : undefined}
                         aria-label={`${lang === "gu" ? "પૃષ્ઠ" : "Page"} ${toDigits(page)}`}
                       >
                         {toDigits(page)}
@@ -1424,7 +1281,7 @@ export default function ShopClient() {
                   </div>
                 </div>
               )}
-            </main>
+            </div>
           </div>
         </section>
 
@@ -1541,8 +1398,9 @@ export default function ShopClient() {
               </DialogDescription>
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="w-full sm:w-44 h-44 rounded-xl overflow-hidden bg-muted shrink-0 border border-border/60 relative">
-                  <Image
-                    src={activeModalProduct.image || "https://dummyjson.com/image/200x100"}
+                  <SafeImage
+                    src={shopImageSource(activeModalProduct.image)}
+                    fallbackSrc="/logo.png"
                     alt={activeModalProduct.name}
                     fill
                     sizes="176px"

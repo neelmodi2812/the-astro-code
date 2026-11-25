@@ -289,16 +289,17 @@ export default function ProductDetailClient({ productId, initialBundle }) {
           lang={currentLang}
           onToggleLang={setLang}
         />
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-pulse">
-          <div className="h-4 w-48 bg-muted rounded mb-8" />
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full" role="status">
+          <span className="sr-only">{currentLang === "gu" ? "ઉત્પાદન લોડ થઈ રહ્યું છે…" : "Loading product…"}</span>
+          <Skeleton className="h-4 w-48 rounded mb-8" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="aspect-square bg-muted rounded-2xl" />
+            <Skeleton className="aspect-square rounded-2xl" />
             <div className="flex flex-col gap-4">
-              <div className="h-6 w-32 bg-muted rounded-full" />
-              <div className="h-10 w-3/4 bg-muted rounded" />
-              <div className="h-6 w-1/2 bg-muted rounded" />
-              <div className="h-12 w-48 bg-muted rounded-xl mt-4" />
-              <div className="h-32 w-full bg-muted rounded-2xl mt-4" />
+              <Skeleton className="h-6 w-32 rounded-full" />
+              <Skeleton className="h-10 w-3/4 rounded" />
+              <Skeleton className="h-6 w-1/2 rounded" />
+              <Skeleton className="h-12 w-48 rounded-xl mt-4" />
+              <Skeleton className="h-32 w-full rounded-2xl mt-4" />
             </div>
           </div>
         </main>
