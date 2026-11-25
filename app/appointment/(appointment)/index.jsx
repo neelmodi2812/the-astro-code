@@ -216,17 +216,14 @@ export default function AppointmentClient() {
           setAvailableDatesList(dates)
           setSelectedDate(dates[0].date)
         } else {
-          // Generate local dates fallback matching mode rule
-          const fallbackDates = generateLocalDates(selectedMode, isEn)
-          setAvailableDatesList(fallbackDates)
-          setSelectedDate(fallbackDates[0]?.date || "")
+          setAvailableDatesList([])
+          setSelectedDate("")
         }
       })
       .catch(() => {
         if (!isMounted) return
-        const fallbackDates = generateLocalDates(selectedMode, isEn)
-        setAvailableDatesList(fallbackDates)
-        setSelectedDate(fallbackDates[0]?.date || "")
+        setAvailableDatesList([])
+        setSelectedDate("")
       })
       .finally(() => {
         if (isMounted) setLoadingDates(false)
@@ -251,18 +248,16 @@ export default function AppointmentClient() {
         if (Array.isArray(slots) && slots.length > 0) {
           setAvailableSlotsList(slots)
           const firstAvail = slots.find((s) => s.available !== false)
-          setSelectedSlot(firstAvail ? firstAvail.time_slot || firstAvail.label : slots[0].label)
+          setSelectedSlot(firstAvail ? firstAvail.time_slot || firstAvail.label : "")
         } else {
-          const fallbackSlots = generateLocalSlots(selectedMode, selectedDuration)
-          setAvailableSlotsList(fallbackSlots)
-          setSelectedSlot(fallbackSlots[0]?.time_slot || fallbackSlots[0]?.label || "")
+          setAvailableSlotsList([])
+          setSelectedSlot("")
         }
       })
       .catch(() => {
         if (!isMounted) return
-        const fallbackSlots = generateLocalSlots(selectedMode, selectedDuration)
-        setAvailableSlotsList(fallbackSlots)
-        setSelectedSlot(fallbackSlots[0]?.time_slot || fallbackSlots[0]?.label || "")
+        setAvailableSlotsList([])
+        setSelectedSlot("")
       })
       .finally(() => {
         if (isMounted) setLoadingSlots(false)
@@ -442,8 +437,8 @@ export default function AppointmentClient() {
 
   // WhatsApp click handler
   const handleWhatsAppContact = () => {
-    if (!bookingConfirmed) return
-    const whatsappNum = configData?.whatsapp_number || "+919825000000"
+    if (!bookingConfirmed || !configData?.whatsapp_number) return
+    const whatsappNum = configData.whatsapp_number
     const cleanNum = whatsappNum.replace(/[^0-9]/g, "")
     const msg = isEn
       ? `Jai Shree Krishna Dr. Vishal Modi. I have booked consultation ${bookingConfirmed.bookingNumber} for ${bookingConfirmed.topicEn || bookingConfirmed.topic} on ${bookingConfirmed.date} at ${bookingConfirmed.slot}. Devotee: ${bookingConfirmed.name}.`
@@ -616,6 +611,7 @@ export default function AppointmentClient() {
                 </a>
 
                 <Button
+                  disabled={!configData?.whatsapp_number}
                   onClick={handleWhatsAppContact}
                   className="flex-1 h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                 >
@@ -1350,90 +1346,4 @@ export default function AppointmentClient() {
       <AstroFooter config={siteData.config} footer={siteData.footer} />
     </div>
   )
-}
-
-/**
- * Local Date Fallback Generator matching Flowchart rule:
- * Call: Mon-Sat
- * Office: Tue, Thu, Sat
- */
-function generateLocalDates(mode, isEn) {
-  const allowedDays =
-    mode === "office"
-      ? [2, 4, 6] // Tue, Thu, Sat
-      : [1, 2, 3, 4, 5, 6] // Mon-Sat
-
-  const dates = []
-  const base = new Date()
-
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(base)
-    d.setDate(base.getDate() + i)
-    const dayOfWeek = d.getDay()
-
-    if (allowedDays.includes(dayOfWeek)) {
-      const iso = d.toISOString().split("T")[0]
-      const dayName = d.toLocaleDateString(isEn ? "en-IN" : "gu-IN", { weekday: "short" })
-      const dayNumber = d.getDate()
-      const monthShort = d.toLocaleDateString(isEn ? "en-IN" : "gu-IN", { month: "short" })
-      dates.push({
-        date: iso,
-        day_name: dayName,
-        day_number: dayNumber,
-        month_short: monthShort,
-        available: true,
-      })
-    }
-  }
-
-  return dates
-}
-
-/**
- * Local Slot Fallback Generator matching Flowchart rule
- */
-function generateLocalSlots(mode, duration) {
-  const startHour = mode === "office" ? 11 : 10
-  const endHour = mode === "office" ? 17 : 20
-  const slots = []
-
-  let currentHour = startHour
-  let currentMinute = 0
-
-  while (currentHour < endHour) {
-    // Lunch break skip: 13:30 to 14:30
-    const inLunch = currentHour === 13 && currentMinute >= 30
-    const inLunch2 = currentHour === 14 && currentMinute < 30
-
-    if (!inLunch && !inLunch2) {
-      const startH = currentHour % 12 === 0 ? 12 : currentHour % 12
-      const startAmPm = currentHour >= 12 ? "PM" : "AM"
-      const startMinStr = currentMinute < 10 ? `0${currentMinute}` : currentMinute
-
-      // calculate end time
-      let endM = currentMinute + duration
-      let endH = currentHour + Math.floor(endM / 60)
-      endM = endM % 60
-      const endH12 = endH % 12 === 0 ? 12 : endH % 12
-      const endAmPm = endH >= 12 ? "PM" : "AM"
-      const endMinStr = endM < 10 ? `0${endM}` : endM
-
-      const label = `${startH}:${startMinStr} ${startAmPm}`
-      const timeSlot = `${startH}:${startMinStr} ${startAmPm} - ${endH12}:${endMinStr} ${endAmPm}`
-
-      slots.push({
-        label,
-        time_slot: timeSlot,
-        available: true,
-      })
-    }
-
-    currentMinute += duration + 10 // 10 min buffer
-    if (currentMinute >= 60) {
-      currentHour += Math.floor(currentMinute / 60)
-      currentMinute = currentMinute % 60
-    }
-  }
-
-  return slots
 }

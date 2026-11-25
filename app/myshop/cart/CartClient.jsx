@@ -1099,11 +1099,11 @@ export default function CartClient() {
           setActiveStep(1)
         }
       }}>
-        <DialogContent className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-2xl p-6">
+        <DialogContent className={checkoutStep === 1 ? "sm:max-w-xl max-h-[92dvh] overflow-hidden rounded-2xl p-0" : "sm:max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl p-6"}>
           {checkoutStep === 1 ? (
             /* Checkout Details Form */
-            <form onSubmit={handleCheckoutSubmit} className="flex flex-col gap-4">
-              <DialogHeader>
+            <form onSubmit={handleCheckoutSubmit} className="flex min-h-0 max-h-[92dvh] flex-col">
+              <DialogHeader className="shrink-0 border-b bg-muted/30 px-5 py-4 pr-12 sm:px-7 sm:pr-12">
                 <DialogTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-[#00685d] dark:text-[#fdc72d]" />
                   <span>{cartData.checkoutModal.title}</span>
@@ -1113,91 +1113,102 @@ export default function CartClient() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+              <div className="min-h-0 overflow-y-auto px-5 py-5 sm:px-7">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Devotee Name */}
-                <div className="flex flex-col gap-1 sm:col-span-2">
-                  <Label className="text-xs font-semibold">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="shipping-name" className="text-sm font-medium">
                     {cartData.checkoutModal.nameLabel} *
                   </Label>
                   <Input
                     required
+                    id="shipping-name"
+                    autoComplete="name"
                     value={checkoutForm.fullName}
                     onChange={(e) =>
                       setCheckoutForm({ ...checkoutForm, fullName: e.target.value })
                     }
                     placeholder={cartData.checkoutModal.namePlaceholder}
-                    className="h-9 text-xs rounded-lg"
+                    className="h-11 rounded-lg text-base sm:text-sm"
                   />
                 </div>
 
                 {/* Mobile Phone */}
                 <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
+                  <Label htmlFor="shipping-phone" className="text-sm font-medium">
                     {cartData.checkoutModal.phoneLabel} *
                   </Label>
                   <Input
                     required
                     type="tel"
+                    id="shipping-phone"
+                    autoComplete="tel"
                     value={checkoutForm.phone}
                     onChange={(e) =>
                       setCheckoutForm({ ...checkoutForm, phone: e.target.value })
                     }
                     placeholder={cartData.checkoutModal.phonePlaceholder}
-                    className="h-9 text-xs rounded-lg"
+                    className="h-11 rounded-lg text-base sm:text-sm"
                   />
                 </div>
 
                 {/* Delivery Address */}
                 <div className="flex flex-col gap-1 sm:col-span-2">
-                  <Label className="text-xs font-semibold">
+                  <Label htmlFor="shipping-address" className="text-sm font-medium">
                     {cartData.checkoutModal.addressLabel} *
                   </Label>
                   <Input
                     required
+                    id="shipping-address"
+                    autoComplete="street-address"
                     value={checkoutForm.address}
                     onChange={(e) =>
                       setCheckoutForm({ ...checkoutForm, address: e.target.value })
                     }
                     placeholder={cartData.checkoutModal.addressPlaceholder}
-                    className="h-9 text-xs rounded-lg"
+                    className="h-11 rounded-lg text-base sm:text-sm"
                   />
                 </div>
 
                 {/* City */}
                 <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
+                  <Label htmlFor="shipping-city" className="text-sm font-medium">
                     {cartData.checkoutModal.cityLabel} *
                   </Label>
                   <Input
                     required
+                    id="shipping-city"
+                    autoComplete="address-level2"
                     value={checkoutForm.city}
                     onChange={(e) =>
                       setCheckoutForm({ ...checkoutForm, city: e.target.value })
                     }
                     placeholder={cartData.checkoutModal.cityPlaceholder}
-                    className="h-9 text-xs rounded-lg"
+                    className="h-11 rounded-lg text-base sm:text-sm"
                   />
                 </div>
 
                 {/* Pincode */}
                 <div className="flex flex-col gap-1">
-                  <Label className="text-xs font-semibold">
+                  <Label htmlFor="shipping-pincode" className="text-sm font-medium">
                     {cartData.checkoutModal.pincodeLabel} *
                   </Label>
                   <Input
                     required
+                    id="shipping-pincode"
+                    autoComplete="postal-code"
                     value={checkoutForm.pincode}
                     onChange={(e) =>
                       setCheckoutForm({ ...checkoutForm, pincode: e.target.value })
                     }
                     placeholder={cartData.checkoutModal.pincodePlaceholder}
-                    className="h-9 text-xs rounded-lg"
+                    className="h-11 rounded-lg text-base sm:text-sm"
                   />
                 </div>
               </div>
 
               {/* Payment Method Radio Group */}
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-2 border-t mt-5 pt-4">
                 <Label className="text-xs font-semibold">
                   {cartData.checkoutModal.paymentMethodLabel}
                 </Label>
@@ -1208,19 +1219,19 @@ export default function CartClient() {
                   }
                   className="flex flex-col gap-2"
                 >
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
+                  <label className="flex items-center gap-2.5 min-h-11 px-3 py-2 rounded-lg border border-border has-[[aria-checked=true]]:border-teal-600 has-[[aria-checked=true]]:bg-teal-500/10 cursor-pointer hover:bg-muted transition-colors">
                     <RadioGroupItem value="cod" id="pay-cod" />
                     <span className="text-xs font-medium text-foreground">
                       {cartData.checkoutModal.paymentCod}
                     </span>
                   </label>
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
+                  <label className="flex items-center gap-2.5 min-h-11 px-3 py-2 rounded-lg border border-border has-[[aria-checked=true]]:border-teal-600 has-[[aria-checked=true]]:bg-teal-500/10 cursor-pointer hover:bg-muted transition-colors">
                     <RadioGroupItem value="online" id="pay-online" />
                     <span className="text-xs font-medium text-foreground">
                       {cartData.checkoutModal.paymentOnline}
                     </span>
                   </label>
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors">
+                  <label className="flex items-center gap-2.5 min-h-11 px-3 py-2 rounded-lg border border-border has-[[aria-checked=true]]:border-teal-600 has-[[aria-checked=true]]:bg-teal-500/10 cursor-pointer hover:bg-muted transition-colors">
                     <RadioGroupItem value="whatsapp" id="pay-wa" />
                     <span className="text-xs font-medium text-foreground">
                       {cartData.checkoutModal.paymentWhatsapp}
@@ -1229,15 +1240,16 @@ export default function CartClient() {
                 </RadioGroup>
               </div>
 
-              {/* Modal Total Banner */}
-              <div className="p-3 rounded-xl bg-muted/70 flex items-center justify-between text-xs sm:text-sm font-bold">
+              </div>
+              <div className="shrink-0 border-t bg-muted/30 px-5 py-4 sm:px-7 sm:flex sm:items-center sm:justify-between">
+              <div className="flex items-baseline justify-between gap-2 sm:flex-col sm:gap-0 text-sm font-medium">
                 <span>{cartData.checkoutModal.totalAmountPrefix}</span>
-                <span className="text-lg text-[#00685d] dark:text-[#fdc72d]">
+                <span className="text-xl font-bold tabular-nums text-[#00685d] dark:text-[#fdc72d]">
                   {formatPrice(finalTotal)}
                 </span>
               </div>
 
-              <DialogFooter className="flex flex-row justify-end gap-2 pt-2">
+              <DialogFooter className="m-0 mt-3 flex-row justify-end gap-2 border-0 bg-transparent p-0 sm:mt-0">
                 <Button
                   type="button"
                   variant="outline"
@@ -1249,11 +1261,12 @@ export default function CartClient() {
                 <Button
                   type="submit"
                   disabled={isPlacingOrder}
-                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold rounded-xl text-xs shadow-md"
+                  className="bg-[#00685d] hover:bg-[#005048] text-white font-bold h-11 flex-1 sm:flex-none px-5 rounded-lg text-sm"
                 >
                   {cartData.checkoutModal.placeOrderBtn}
                 </Button>
               </DialogFooter>
+              </div>
             </form>
           ) : checkoutStep === 3 && paymentSession ? (
             /* Razorpay payment step */

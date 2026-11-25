@@ -48,14 +48,6 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-} from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { useHomeData } from "@/lib/api/hooks/use-home-data"
@@ -91,7 +83,7 @@ function activeSlotIndex(list, nowMin) {
     prevStart = s[0] + offset
     return [s[0] + offset, (s[1] <= s[0] ? s[1] + 1440 : s[1]) + offset]
   })
-  return spans.findIndex((s) => s && [nowMin, nowMin + 1440].some((t) => t >= s[0] && t < s[1]))
+  return spans.findIndex((s) => s && nowMin >= s[0] && nowMin < s[1])
 }
 
 const pad = (n) => String(n).padStart(2, "0")
@@ -113,12 +105,10 @@ export default function DainikPanchangClient() {
   const [todayIso, setTodayIso] = useState(null)
   const isToday = selectedDate == null || selectedDate === todayIso
 
-  const panchang = usePanchangData(lang, isToday ? null : selectedDate)
+  const panchang = usePanchangData(lang, selectedDate ?? todayIso)
 
   // Interactive States
-  const [selectedCityId, setSelectedCityId] = useState("ahmedabad")
   const [choghadiyaTab, setChoghadiyaTab] = useState("day") // "day" or "night"
-  const [selectedCellDate, setSelectedCellDate] = useState("૧૨") // default to 12 April (today)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [selectedRashi, setSelectedRashi] = useState(null)
 
@@ -126,9 +116,9 @@ export default function DainikPanchangClient() {
   const [nowMin, setNowMin] = useState(null)
   useEffect(() => {
     const tick = () => {
-      const d = new Date()
-      setNowMin(d.getHours() * 60 + d.getMinutes())
-      setTodayIso(toIsoDate(d))
+      const ist = new Date(Date.now() + 330 * 60_000)
+      setNowMin(ist.getUTCHours() * 60 + ist.getUTCMinutes())
+      setTodayIso(ist.toISOString().slice(0, 10))
     }
     tick()
     const id = setInterval(tick, 30000)
@@ -158,7 +148,7 @@ export default function DainikPanchangClient() {
   }
 
   // Selected city object
-  const currentCity = panchang.cities.find((c) => c.id === selectedCityId) || panchang.cities[0]
+  const currentCity = panchang.cities[0]
 
   // Language switcher
   const handleToggleLang = (newLang) => {
@@ -229,10 +219,12 @@ export default function DainikPanchangClient() {
             <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               {/* Left Info: Samvat & Title */}
               <div className="space-y-2 max-w-3xl">
+                {panchang.status === "ready" && panchang.samvat && (
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#06302b]/20 text-[#ffdf96] text-xs font-bold border border-white/10">
                   <Sparkles className="h-3.5 w-3.5 text-[#fdc72d]" />
-                  <span>{formatDigits(panchang.banner.samvatInfo[lang], lang)}</span>
+                  <span>{formatDigits(panchang.samvat, lang)}</span>
                 </div>
+                )}
 
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
                   {panchang.banner.title[lang]}
@@ -246,38 +238,12 @@ export default function DainikPanchangClient() {
               {/* Right Controls: Location Dropdown & Jump to Today */}
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex flex-wrap items-center gap-3 border border-white/15 self-start lg:self-center shrink-0">
                 <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedCityId}
-                    onValueChange={(val) => {
-                      setSelectedCityId(val)
-                      const c = panchang.cities.find((item) => item.id === val)
-                      if (c) {
-                        showToast(lang === "gu" ? `સ્થળ બદલાયું: ${c.name?.[lang] || c.gu}` : `Location: ${c.name?.[lang] || c.en}`)
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="bg-white text-gray-900 font-bold text-xs rounded-lg shadow-sm cursor-pointer h-9 min-w-[130px] border-none px-3">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-[#00685d] shrink-0" />
-                        <SelectValue>
-                          {currentCity ? (currentCity.name?.[lang] || currentCity[lang]?.replace(" (IST)", "")) : (lang === "gu" ? "અમદાવાદ" : "Ahmedabad")}
-                        </SelectValue>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {panchang.cities.map((city) => (
-                          <SelectItem key={city.id} value={city.id} className="text-xs font-semibold cursor-pointer">
-                            {city.name?.[lang] || city[lang]}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
+                    <MapPin className="size-4" />{lang === "gu" ? "અમદાવાદ" : "Ahmedabad"} (IST)
+                  </span>
 
                   <Button
                     onClick={() => {
-                      setSelectedCellDate("૧૨")
                       goToDate(todayIso)
                       showToast(lang === "gu" ? "આજના પંચાંગ પર પહોંચ્યા!" : "Jumped to Today's Panchang!")
                     }}
@@ -322,6 +288,32 @@ export default function DainikPanchangClient() {
             </div>
           </div>
 
+          {viewedIso && (
+            <details className="mb-5 rounded-2xl border border-border bg-card p-4">
+              <summary className="cursor-pointer font-semibold text-foreground">
+                {lang === "gu" ? "માસિક કેલેન્ડર" : "Monthly calendar"} · {new Date(viewedIso + "T12:00:00").toLocaleDateString(lang === "gu" ? "gu-IN" : "en-IN", { month: "long", year: "numeric" })}
+              </summary>
+              <div className="mt-4 grid grid-cols-7 gap-1 text-center text-sm">
+                {panchang.monthlyCalendar.daysOfWeek.map(day => <span key={day.id} className="py-2 text-muted-foreground">{day[lang]}</span>)}
+                {Array.from({ length: new Date(Number(viewedIso.slice(0, 4)), Number(viewedIso.slice(5, 7)), 0).getDate() }, (_, index) => {
+                  const iso = viewedIso.slice(0, 8) + String(index + 1).padStart(2, "0")
+                  return (
+                    <button key={iso} type="button" onClick={() => goToDate(iso)} aria-pressed={iso === viewedIso}
+                      style={index === 0 ? { gridColumnStart: new Date(iso + "T12:00:00").getDay() + 1 } : undefined}
+                      className={`min-h-10 rounded-lg font-semibold focus-visible:outline-2 ${iso === viewedIso ? "bg-[#00685d] text-white" : "hover:bg-muted"}`}>
+                      {formatDigits(String(index + 1), lang)}
+                    </button>
+                  )
+                })}
+              </div>
+            </details>
+          )}
+          {panchang.status === "loading" && (
+            <p role="status" className="mb-6 rounded-xl border bg-card p-4 text-sm">
+              {lang === "gu" ? "પંચાંગ લોડ થઈ રહ્યું છે…" : "Loading Panchang…"}
+            </p>
+          )}
+
           {/* No panchang stored for the chosen day */}
           {panchang.status === "unavailable" && (
             <div
@@ -339,13 +331,7 @@ export default function DainikPanchangClient() {
 
           {/* 4. Main 2-Column Grid (Main Content + Refined Sidebar) */}
           <div
-            className={`grid grid-cols-1 lg:grid-cols-12 gap-8 items-start transition-opacity ${
-              panchang.status === "unavailable"
-                ? "opacity-30 pointer-events-none select-none"
-                : panchang.status === "loading" && !isToday
-                ? "opacity-60"
-                : ""
-            }`}
+            className={panchang.status === "ready" ? "grid grid-cols-1 lg:grid-cols-12 gap-8 items-start" : "hidden"}
             aria-busy={panchang.status === "loading"}
           >
 
@@ -522,18 +508,6 @@ export default function DainikPanchangClient() {
                   </div>
                 </div>
 
-                {/* Day / Night Duration Bar */}
-                <div className="mt-3.5 p-2.5 rounded-lg bg-muted/30 dark:bg-[#151613] border border-border/40 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-                  <span className="font-semibold text-foreground">
-                    {formatDigits(panchang.celestialTimings.dayDuration[lang], lang)}
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    {formatDigits(panchang.celestialTimings.nightDuration[lang], lang)}
-                  </span>
-                  <span className="text-[#00685d] dark:text-[#6ed8c8] font-bold">
-                    {formatDigits(panchang.celestialTimings.midday[lang], lang)}
-                  </span>
-                </div>
               </div>
 
               {/* ====================================================== */}
@@ -681,7 +655,7 @@ export default function DainikPanchangClient() {
                 </div>
 
                 {/* Clean Active Choghadiya Info Pill (today only) */}
-                {isToday && (
+                {isToday && activeSlot && (
                 <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#00685d] dark:bg-[#38b2a3]" />
@@ -783,118 +757,6 @@ export default function DainikPanchangClient() {
               {SHOW_BUNDLED_SAMPLE_SECTIONS && (
               <>
               {/* ====================================================== */}
-              {/* SECTION 5: MONTHLY CALENDAR GRID (MAASIK DARSAN)        */}
-              {/* ====================================================== */}
-              <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl p-5 sm:p-6 shadow-sm overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border/60 mb-4 gap-2">
-                  <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-[#00685d] dark:text-[#fdc72d]" />
-                    <span>{formatDigits(panchang.monthlyCalendar.heading[lang], lang)}</span>
-                  </h3>
-
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[#fdc72d]" />
-                      <span>{panchang.monthlyCalendar.legend.festival[lang]}</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[#00685d]" />
-                      <span>{panchang.monthlyCalendar.legend.ekadashi[lang]}</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Calendar Table Grid */}
-                <div className="w-full overflow-x-auto">
-                  <div className="min-w-[580px]">
-                    {/* Day Headers (Sun - Sat) */}
-                    <div className="grid grid-cols-7 gap-1 bg-muted/40 dark:bg-[#141512] p-1.5 rounded-lg text-center text-xs font-bold text-muted-foreground mb-1.5">
-                      {panchang.monthlyCalendar.daysOfWeek.map((d) => (
-                        <div
-                          key={d.id}
-                          className={`py-1 ${
-                            d.isHoliday
-                              ? "text-[#bb171f] dark:text-[#f87171]"
-                              : d.isSat
-                              ? "text-[#00685d] dark:text-[#6ed8c8]"
-                              : ""
-                          }`}
-                        >
-                          {d[lang]}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Date Cells */}
-                    <div className="grid grid-cols-7 gap-1 text-center">
-                      {panchang.monthlyCalendar.cells.map((cell, idx) => {
-                        const isSelected = formatDigits(selectedCellDate, "en") === formatDigits(cell.dayNumber, "en")
-                        return (
-                          <div
-                            key={idx}
-                            onClick={() => {
-                              setSelectedCellDate(cell.dayNumber)
-                              showToast(
-                                lang === "gu"
-                                  ? `${formatDigits(cell.dayNumber, "gu")} એપ્રિલ (${cell.tithi[lang]}) પસંદ કરેલ`
-                                  : `${formatDigits(cell.dayNumber, "en")} April (${cell.tithi[lang]}) selected`
-                              )
-                            }}
-                            className={`p-1.5 rounded-lg flex flex-col justify-between h-16 transition-all cursor-pointer border text-left ${
-                              cell.isPreviousMonth || cell.isNextMonth
-                                ? "bg-muted/10 text-muted-foreground/30 border-transparent opacity-40"
-                                : isSelected
-                                ? "bg-emerald-50 dark:bg-emerald-950/40 border-[#00685d] dark:border-[#fdc72d] ring-1 ring-[#00685d] dark:ring-[#fdc72d]"
-                                : cell.isToday
-                                ? "bg-amber-50/70 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700"
-                                : "bg-muted/20 hover:bg-muted/50 border-border/40"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span
-                                className={`text-xs font-bold ${
-                                  cell.isToday
-                                    ? "text-[#00685d] dark:text-[#fdc72d]"
-                                    : "text-foreground"
-                                }`}
-                              >
-                                {formatDigits(cell.dayNumber, lang)}
-                              </span>
-                              {cell.isToday && (
-                                <span className="bg-[#00685d] text-white text-[8px] font-bold px-1 rounded">
-                                  {lang === "gu" ? "આજે" : "Today"}
-                                </span>
-                              )}
-                            </div>
-
-                            <span className="text-xs text-muted-foreground truncate">
-                              {cell.tithi[lang]}
-                            </span>
-
-                            {cell.fest ? (
-                              <span
-                                className={`text-[8px] font-bold px-1 py-0.5 rounded truncate block ${
-                                  cell.highlightGold || cell.isToday
-                                    ? "bg-[#fdc72d] text-[#0e3934]"
-                                    : cell.type === "ekadashi"
-                                    ? "bg-[#00685d] text-white"
-                                    : "bg-muted text-foreground"
-                                }`}
-                              >
-                                {cell.fest[lang]}
-                              </span>
-                            ) : (
-                              <span className="text-[8px] text-transparent">-</span>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* ====================================================== */}
               {/* SECTION 6: TODAY'S SACRED FESTIVAL SPOTLIGHT           */}
               {/* ====================================================== */}
               <div className="border border-border/80 bg-card dark:bg-[#1a1b17] rounded-2xl shadow-sm overflow-hidden">
@@ -978,6 +840,7 @@ export default function DainikPanchangClient() {
 
                 {/* 12 Rashis Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {!panchang.rashifalSection.signs.length && <p className="col-span-full text-sm text-muted-foreground">{lang === "gu" ? "આ તારીખનું રાશિફળ ઉપલબ્ધ નથી." : "No horoscope published for this date."}</p>}
                   {panchang.rashifalSection.signs.map((rashi) => (
                     <div
                       key={rashi.id}

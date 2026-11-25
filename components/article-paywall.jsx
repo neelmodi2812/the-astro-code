@@ -20,55 +20,6 @@ import { toast } from "@/components/ui/sonner"
 import { useAuth } from "@/lib/api/hooks/use-auth"
 import { subscriptionService } from "@/lib/api/services/subscription"
 
-const DEFAULT_PLANS = [
-  {
-    id: 1,
-    slug: "monthly-vedic-pass",
-    name_gu: "માસિક વૈદિક પાસ",
-    name_en: "Monthly Vedic Pass",
-    price: 99,
-    duration_label_gu: "૧ મહિનો",
-    duration_label_en: "1 Month",
-    description_gu: "તમામ વિશિષ્ટ શાસ્ત્રોક્ત લેખો અને દૈનિક ચોઘડિયાનું અમર્યાદિત વાચન.",
-    description_en: "Unlimited access to all scriptural articles and astrological insights.",
-    features_gu: [
-      "તમામ પ્રીમિયમ લેખોનું અમર્યાદિત વાચન",
-      "દૈનિક શુભ મુહૂર્ત અને ચોઘડિયા એલર્ટ્સ",
-      "જાહેરાત મુક્ત સાત્વિક અનુભવ",
-    ],
-    features_en: [
-      "Full unlimited access to all articles",
-      "Daily auspicious muhurat alerts",
-      "Clean ad-free spiritual reading",
-    ],
-    is_popular: false,
-  },
-  {
-    id: 2,
-    slug: "yearly-premium-pass",
-    name_gu: "વાર્ષિક પ્રીમિયમ સભ્યપદ",
-    name_en: "Annual Premium Pass",
-    price: 499,
-    duration_label_gu: "૧ વર્ષ (સૌથી વધુ પસંદગી)",
-    duration_label_en: "1 Year (Best Value)",
-    description_gu: "સંપૂર્ણ ૧ વર્ષ માટે તમામ ગહન જ્યોતિષ લેખો, કુંડળી વિશ્લેષણ અને વિશેષ લાભ.",
-    description_en: "Full 1-year access to all deep Vedic articles and astrological guidance.",
-    features_gu: [
-      "તમામ પ્રીમિયમ લેખોનું અમર્યાદિત વાચન",
-      "ડૉ. વિશાલ મોદી સાથે પરામર્શમાં ૨૦% વિશેષ છૂટ",
-      "દૈનિક ગ્રહગોચર અને રાશિફળ વિશેષ વિશ્લેષણ",
-      "MyShop માં પૂજા સામગ્રી પર પ્રાથમિક ડિલિવરી",
-    ],
-    features_en: [
-      "Unlimited reading of all premium articles",
-      "20% exclusive discount on Dr. Vishal Modi consultation",
-      "Special planetary transit & horoscope analysis",
-      "Priority sacred store support",
-    ],
-    is_popular: true,
-  },
-]
-
 function loadRazorpayScript() {
   return new Promise((resolve) => {
     if (typeof window === "undefined") return resolve(false)
@@ -96,8 +47,8 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
   const pathname = usePathname()
   const { isAuthenticated, user } = useAuth()
 
-  const [plans, setPlans] = React.useState(DEFAULT_PLANS)
-  const [selectedPlanId, setSelectedPlanId] = React.useState(2)
+  const [plans, setPlans] = React.useState([])
+  const [selectedPlanId, setSelectedPlanId] = React.useState(null)
   const [loadingPlans, setLoadingPlans] = React.useState(true)
   const [submitting, setSubmitting] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
@@ -107,7 +58,7 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
     subscriptionService
       .plans()
       .then((res) => {
-        if (!cancelled && Array.isArray(res?.data) && res.data.length > 0) {
+        if (!cancelled && Array.isArray(res?.data)) {
           setPlans(res.data)
           const popular = res.data.find((p) => p.is_popular) || res.data[0]
           if (popular?.id) {
@@ -116,7 +67,7 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
         }
       })
       .catch(() => {
-        // Fallback to DEFAULT_PLANS
+        if (!cancelled) setErrorMessage(lang === "gu" ? "યોજનાઓ લોડ થઈ શકી નથી." : "Unable to load plans.")
       })
       .finally(() => {
         if (!cancelled) setLoadingPlans(false)
@@ -127,7 +78,7 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [lang])
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0]
 
@@ -355,10 +306,12 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
           <Button
             size="lg"
             onClick={handleSubscribe}
-            disabled={submitting}
+            disabled={submitting || !selectedPlan}
             className="w-full sm:w-auto px-8 py-6 rounded-xl bg-gradient-to-r from-[#00685d] to-[#004f46] hover:from-[#005a50] hover:to-[#00423a] text-white font-bold text-base shadow-lg shadow-[#00685d]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
-            {submitting ? (
+            {!selectedPlan ? (
+              loadingPlans ? (lang === "gu" ? "લોડ થઈ રહ્યું છે…" : "Loading plans…") : (lang === "gu" ? "યોજના ઉપલબ્ધ નથી" : "No plans available")
+            ) : submitting ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
                 <span>{lang === "gu" ? "પ્રક્રિયા ચાલુ છે..." : "Processing..."}</span>
@@ -368,8 +321,8 @@ export function ArticlePaywall({ lang = "gu", onUnlocked }) {
                 <Lock className="h-4 w-4" />
                 <span>
                   {lang === "gu"
-                    ? `₹${Math.round(selectedPlan?.price || 499)} માં અનલોક કરો`
-                    : `Unlock for ₹${Math.round(selectedPlan?.price || 499)}`}
+                    ? `₹${Math.round(selectedPlan.price)} માં અનલોક કરો`
+                    : `Unlock for ₹${Math.round(selectedPlan.price)}`}
                 </span>
                 <ArrowRight className="h-4 w-4 ml-1" />
               </>
